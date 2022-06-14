@@ -1,0 +1,24 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema" ,
+    "$id": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/foreign_key_definition.schema.json",
+    "type": "object",
+    "title": "Schema for csvw foreign key definition object",
+    "description": "A foreign key definition is a JSON object that must contain only the following properties:",
+    "properties": {
+        "columnReference": {
+            "description": "A column reference property that holds either a single reference to a column description object within this schema, or an array of references. These form the referencing columns for the foreign key definition.",
+            "oneOf": [
+                {"type": "string"},
+                {
+                    "type": "array",
+                    "items": {"type":"string"}
+                }
+            ],
+            "$comment": "column reference property"
+        },
+        "reference": {
+            "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/foreign_key_reference.schema.json",
+            "$comment": "object property"
+        }
+    }
+}

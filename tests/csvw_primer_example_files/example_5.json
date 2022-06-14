@@ -1,0 +1,10 @@
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "tables": [{
+    "url": "countries.csv"
+  }, {
+    "url": "country-groups.csv"
+  }, {
+    "url": "unemployment.csv"
+  }]
+}

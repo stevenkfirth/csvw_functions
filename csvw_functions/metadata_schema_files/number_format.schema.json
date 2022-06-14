@@ -1,0 +1,26 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema" ,
+    "$id": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/number_format.schema.json",
+    "type": "object",
+    "title": "Schema for csvw number format object",
+    "description": "If the datatype base is a numeric type, the datatype format annotation indicates the expected format for that number. Its value must be either a single string or an object with one or more of the properties:",
+    "properties": {
+        "decimalChar": {
+            "default": ".",
+            "description": "A string whose value is used to represent a decimal point within the number.",
+            "type": "string",
+            "$comment": "atomic property"
+        },
+        "groupChar": {
+            "default": null,
+            "description": "A string whose value is used to group digits within the number.",
+            "type": "string",
+            "$comment": "atomic property"
+        },
+        "pattern": {
+            "description": "A number format pattern as defined in [UAX35].",
+            "type": "string",
+            "$comment": "atomic property"
+        }
+    }
+}

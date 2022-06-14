@@ -1,0 +1,112 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema" ,
+    "$id": "cell.schema.json",
+    "title": "Schema for cell object",
+    "description": "A group of tables comprises a set of annotated tables and a set of annotations that relate to that group of tables.",
+    "$comment": "Model for tabular data and metadata, Section 4.5 Cells. ",
+    "type": "object",
+    "properties": {
+        "aboutURL": {
+            "description": "an absolute URL for the entity about which this cell provides information, or null.",
+            "oneOf": [
+                {
+                    "type": "uri-reference"
+                },
+                {
+                    "type": null
+                }
+            ],
+            "$comment": "core annotation"
+        },
+        "column": {
+            "description": "the column in which the cell appears; the cell must be in the cells for that column.",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "errors": {
+            "description": "a (possibly empty) list of validation errors generated while parsing the value of the cell.",
+            "type": "array",
+            "$comment": "core annotation"
+        },
+        "ordered": {
+            "description": "a boolean that, if the value of this cell is a list, indicates whether the order of that list should be preserved or not.",
+            "type": "boolean",
+            "$comment": "core annotation"
+        },
+        "propertyURL": {
+            "description": "an absolute URL for the property associated with this cell, or null.",
+            "oneOf": [
+                {
+                    "type": "uri-reference"
+                },
+                {
+                    "type": null
+                }
+            ],
+            "$comment": "core annotation"
+        },
+        "row": {
+            "description": "the row in which the cell appears; the cell must be in the cells for that row.",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "stringValue": {
+            "description": "a string that is the original syntactic representation of the value of the cell, e.g. how the cell appears within a CSV file; this may be an empty string.",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "table": {
+            "description": "the table in which the cell appears.",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "textDirection": {
+            "default": "inherit",
+            "description": "which direction the text within the cell should be displayed, as described in section 6.5.1 Bidirectional Tables; the value of this annotation may be derived from the table direction annotation on the table, if the textDirection property is set to inherit (the default).",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "value":{
+            "description": "the semantic value of the cell; this may be a list of values, each of which may have a datatype other than a string, may have a language and may be null. For example, annotations might enable a processor to understand the string value of the cell as representing a number or a date. By default, if the string value is an empty string, the semantic value of the cell is null.",
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "array"
+                },
+                {
+                    "type": "object"
+                },
+                {
+                    "type": null
+                }
+            ],
+            "$comment": "core annotation"
+        },
+        "valueURL": {
+            "description": "an absolute URL for this cell's value, or null.",
+            "oneOf": [
+                {
+                    "type": "uri-reference"
+                },
+                {
+                    "type": null
+                }
+            ],
+            "$comment": "core annotation"
+        }
+    },
+    "required": [
+        "aboutURL",
+        "column",
+        "ordered",
+        "propertyURL",
+        "row",
+        "stringValue",
+        "table",
+        "textDirection",
+        "value",
+        "valueURL"
+    ]
+}

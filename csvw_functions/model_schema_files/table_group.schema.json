@@ -1,0 +1,32 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema" ,
+    "$id": "table_group.schema.json",
+    "title": "Schema for table group object",
+    "description": "A group of tables comprises a set of annotated tables and a set of annotations that relate to that group of tables.",
+    "$comment": "Model for tabular data and metadata, Section 4.1 Table groups. ",
+    "type": "object",
+    "properties": {
+        "id": {
+            "default": null,
+            "description": "An identifier for this group of tables, or null if this is undefined.",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "notes": {
+            "description": "Any number of additional annotations on the group of tables. This annotation may be empty.",
+            "type": "array",
+            "$comment": "core annotation"
+        },
+        "tables": {
+            "description": "The list of tables in the group of tables. A group of tables must have one or more tables.",
+            "type": "array",
+            "minItems": 1,
+            "$comment": "core annotation"
+        }
+    },
+    "required": [
+        "id",
+        "notes",
+        "tables"
+    ]
+}

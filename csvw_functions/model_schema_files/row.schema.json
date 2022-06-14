@@ -1,0 +1,70 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema" ,
+    "$id": "row.schema.json",
+    "title": "Schema for row object",
+    "description": "A row represents a horizontal arrangement of cells within a table.",
+    "$comment": "Model for tabular data and metadata, Section 4.4 Rows.",
+    "type": "object",
+    "properties": {
+        "cells": {
+            "description": "the list of cells in the row. A row must contain one cell from each column in the table. The order of the cells in the list must match the order of the columns in which they appear within the table columns for the row's table.",
+            "type": "array",
+            "$comment": "core annotation"
+        },
+        "number": {
+            "description": "the position of the row amongst the rows for the table, starting from 1.",
+            "minimum": 1,
+            "type": "integer",
+            "$comment": "core annotation"
+        },
+        "primaryKey": {
+            "description": "a possibly empty list of cells whose values together provide a unique identifier for this row. This is similar to the name of a column.",
+            "type": "string",
+            "$comment": "core annotation"
+        },
+        "titles": {
+            "description": "any number of human-readable titles for the row, each of which may have an associated language code as defined by [BCP47].",
+            "oneOf": [
+                {
+                    "type": "array"
+                },
+                {   
+                    "type": "object"
+                }
+            ],
+            "$comment": "core annotation"
+        },
+        "referencedRows": {
+            "description": "a possibly empty list of pairs of a foreign key and a row in a table within the same group of tables (which may be another row in the table in which this row appears).",
+            "type": "array",
+            "$comment": "core annotation"
+        },
+        "sourceNumber": {
+            "description": "the position of the row in the original url of the table, starting from 1, or null.",
+            "oneOf": [
+                {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                {   
+                    "type": null
+                }
+            ],
+            "$comment": "core annotation"
+        },
+        "table": {
+            "description": "the table in which the row appears.",
+            "type": "string",
+            "$comment": "core annotation"
+        }
+    },
+    "required": [
+        "cells",
+        "number",
+        "primaryKey",
+        "titles",
+        "referencedRows",
+        "sourceNumber",
+        "table"
+    ]
+}

@@ -1,0 +1,127 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema" ,
+    "$id": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/dialect_description.schema.json",
+    "title": "Schema for csvw dialect description object",
+    "description": "A dialect description provides hints to parsers about how to parse the file linked to from the url property in a table description.",
+    "type": "object",
+    "properties": {
+        "commentPrefix": {
+            "description": "An atomic property that sets the comment prefix flag to the single provided value, which must be a string.",
+            "type": "string",
+            "default": "#",
+            "$comment": "atomic property"
+        },
+        "delimiter": {
+            "description": "An atomic property that sets the delimiter flag to the single provided value, which must be a string.",
+            "type": "string",
+            "default": ",",
+            "$comment": "atomic property"
+        },
+        "doubleQuote": {
+            "description": "A boolean atomic property that, if true, sets the escape character flag to \". If false, to \\.",
+            "type": "boolean",
+            "default": true,
+            "$comment": "atomic property"
+        },
+        "encoding": {
+            "description": "An atomic property that sets the encoding flag to the single provided string value, which must be a defined in [encoding].",
+            "type": "string",
+            "default": "utf-8",
+            "$comment": "atomic property"
+        },
+        "header": {
+            "description": "A boolean atomic property that, if true, sets the header row count flag to 1, and if false to 0, unless headerRowCount is provided, in which case the value provided for the header property is ignored.",
+            "type": "boolean",
+            "default": true,
+            "$comment": "atomic property"
+        },
+        "headerRowCount": {
+            "description": "A numeric atomic property that sets the header row count flag to the single provided value, which must be a non-negative integer.",
+            "type": "integer",
+            "default": 1,
+            "minimum": 0,
+            "$comment": "atomic property"
+        },
+        "lineTerminators": {
+            "description": "An atomic property that sets the line terminators flag to either an array containing the single provided string value, or the provided array.",
+            "type": "array",
+            "default": ["\r\n", "\n"],
+            "$comment": "atomic property"
+        },
+        "quoteChar": {
+            "description": "An atomic property that sets the quote character flag to the single provided value, which must be a string or null. If the value is null, the escape character flag is also set to null.",
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": "\"",
+            "$comment": "atomic property"
+        },
+        "skipBlankRows": {
+            "description": "A boolean atomic property that sets the skip blank rows flag to the single provided boolean value.",
+            "type": "boolean",
+            "default": false,
+            "$comment": "atomic property"
+        },
+        "skipColumns": {
+            "description": "A numeric atomic property that sets the skip columns flag to the single provided numeric value, which must be a non-negative integer.",
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "$comment": "atomic property"
+        },
+        "skipInitialSpace": {
+            "description": "A boolean atomic property that, if true, sets the trim flag to \"start\" and if false, to false. If the trim property is provided, the skipInitialSpace property is ignored.",
+            "type": "boolean",
+            "default": false,
+            "$comment": "atomic property"
+        },
+        "skipRows": {
+            "description": "A numeric atomic property that sets the skip rows flag to the single provided numeric value, which must be a non-negative integer.",
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "$comment": "atomic property"
+        },
+        "trim": {
+            "description": "An atomic property that, if the boolean true, sets the trim flag to true and if the boolean false to false. If the value provided is a string, sets the trim flag to the provided value, which must be one of \"true\", \"false\", \"start\", or \"end\".",
+            "oneOf": [
+                {
+                    "type": "boolean"
+                },
+                {
+                    "enum": [
+                        "true",
+                        "false",
+                        "start",
+                        "end"
+                    ]
+                }
+            ],
+            "default": true,
+            "$comment": "atomic property"
+        },
+        "@id": {
+            "description": "If included, @id is a link property that identifies the dialect described by this dialect description. It must not start with _:.",
+            "type": "string",
+            "format": "uri-reference",
+            "$comment": "link property"
+        },
+        "@type": {
+            "description": "If included, @type is an atomic property that must be set to \"Dialect\". Publishers may include this to provide additional information to JSON-LD based toolchains.",
+            "type": "string",
+            "const": "Dialect",
+            "$comment": "atomic property"
+        }
+    },
+    "allOf":[
+        {
+            "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/top_level_properties.schema.json",
+            "$comment": "Includes the top level properties"
+        } 
+    ]
+}
