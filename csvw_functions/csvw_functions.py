@@ -521,7 +521,7 @@ def create_annotated_table_from_metadata_file(
     # convert to TableGroup if needed
     metadata_type=\
         get_type_of_metadata_object(
-            json_dict
+            metadata_obj_dict
             )
     if metadata_type=='TableGroup':
         metadata_table_group_dict=metadata_obj_dict
@@ -811,6 +811,8 @@ def get_obj_dict_from_path_or_url(
         metadata_file_path, 
         metadata_file_url
         )
+    
+    print(text)
     
     return json.loads(text)
     

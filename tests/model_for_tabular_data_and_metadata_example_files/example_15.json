@@ -1,4 +1,5 @@
 {
+  "@context": "http://www.w3.org/ns/csvw",
   "@type": "Table",
   "url": "example_14.csv",
   "tableSchema": {
