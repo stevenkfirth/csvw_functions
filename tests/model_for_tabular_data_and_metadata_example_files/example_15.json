@@ -1,0 +1,13 @@
+{
+  "@type": "Table",
+  "url": "example_14.csv",
+  "tableSchema": {
+    "columns": [
+      {"titles": [ "GID" ]},
+      {"titles": [ "On Street" ]},
+      {"titles": [ "Species" ]},
+      {"titles": [ "Trim Cycle" ]},
+      {"titles": [ "Inventory Date" ]}
+    ]
+  }
+}

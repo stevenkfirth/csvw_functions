@@ -9,6 +9,8 @@ import requests
 import csv
 
 
+#%% read schemas
+
 schema_files=[
     'column_description.schema.json', 
     'common_properties.schema.json', 
@@ -25,7 +27,6 @@ schema_files=[
     'transformation_definition.schema.json'
     ]
 
-
 schemas={}
 for schema_file in schema_files:
     resource_package = __name__
@@ -33,6 +34,9 @@ for schema_file in schema_files:
     data = pkg_resources.resource_string(resource_package, resource_path)
     json_dict=json.loads(data)
     schemas[schema_file]=json_dict
+    
+    
+#%% identify schema properties
     
 top_level_properties=schemas['top_level_properties.schema.json']['properties']
 inherited_properties=schemas['inherited_properties.schema.json']['properties']
@@ -50,6 +54,8 @@ all_properties={
     **all_optional_and_required_properties
     }
     
+
+#%% schema prefixes
 
 prefixes=\
     {
@@ -105,6 +111,447 @@ prefixes=\
   }
 
 
+    
+#%% (Metadata) Normalization
+
+# Metadata Vocabulary for Tabular Data, Section 6.
+
+def normalize_metadata_file(
+        metadata_file_path_or_url
+        ):
+    """Normalizes a CSVW metadata file.
+    
+    This follows the procedure given in Section 6 of the 
+    'Metadata Vacabulary for Tabular Data' W3C recomendation 
+    https://www.w3.org/TR/2015/REC-tabular-metadata-20151217/.
+    
+    :param metadata_file_path_or_url: 
+    :type metadata_file_path_or_url: str
+    
+    :returns: A normalized copy of the CSVW metadata.json file.
+    :rtype: dict
+    
+    """
+    
+    metadata_file_path, metadata_file_url=\
+        get_path_and_url_from_file_location(
+            metadata_file_path_or_url
+            )
+    
+    obj_dict=\
+        get_obj_dict_from_path_or_url(
+            metadata_file_path, 
+            metadata_file_url
+            )
+    
+    base_path, base_url=\
+        get_base_path_and_url_of_metadata_object(
+            obj_dict,
+            metadata_file_path,
+            metadata_file_url
+            )
+    
+    default_language=\
+        get_default_language_of_metadata_object(obj_dict)
+    
+    return normalize_metadata_object(
+        obj_dict,
+        base_path,
+        base_url,
+        default_language
+        )
+
+
+def normalize_metadata_object(
+        obj_dict,
+        base_path,
+        base_url,
+        default_language
+        ):
+    """Normalizes a CSVW metadata object.
+    
+    This follows the procedure given in Section 6 of the 
+    'Metadata Vacabulary for Tabular Data' W3C recomendation 
+    https://www.w3.org/TR/2015/REC-tabular-metadata-20151217/.
+    
+    :type obj_dict: dict
+    
+    :returns: A normalized copy of the CSVW metadata.json file.
+    :rtype: dict
+    """
+    d={}
+    
+    for property_name, property_value in obj_dict.items():
+        
+        property_family=\
+            get_property_family(property_name)
+        property_type=\
+            get_property_type(property_name)
+            
+        #print(property_name, property_family, property_type)
+        
+        normalized_value=\
+            normalize_metadata_property(
+                property_name,
+                property_value,
+                property_family,
+                property_type,
+                base_path,
+                base_url,
+                default_language       
+                )
+                
+        d[property_name]=normalized_value
+    
+    return d
+    
+
+def normalize_metadata_property(
+        property_name,
+        property_value,
+        property_family,
+        property_type,
+        base_path,
+        base_url,
+        default_language       
+        ):
+    """
+    """
+     # Following this normalization process, the @base and @language 
+     #  properties within the @context are no longer relevant; the normalized 
+     #  metadata can have its @context set to http://www.w3.org/ns/csvw.
+    if property_name=='@context':
+        
+        normalized_value='http://www.w3.org/ns/csvw'
+    
+    
+    # 1 If the property is a common property or notes the value must be 
+    #  normalized as follows:
+    elif property_family=='common property' or property_name=='notes':
+        
+        normalized_value=normalize_common_property(
+            property_name,
+            property_value,
+            property_family,
+            property_type,
+            base_path,
+            base_url,
+            default_language     
+            )
+        
+    # 2 If the property is an array property each element of the value is 
+    #  normalized using this algorithm.
+    elif property_type=='array property':
+        
+        normalized_value=[]
+        for x in property_value:
+            if isinstance(x,dict):
+                normalized_value.append(
+                    normalize_metadata_object(
+                        x,
+                        base_path,
+                        base_url,
+                        default_language
+                        )
+                    )
+            else:
+                raise Exception # what to do if not an object??
+        
+    # 3 If the property is a link property the value is turned into an 
+    #  absolute URL using the base URL and normalized as described in 
+    #  URL Normalization [tabular-data-model].
+    elif property_type=='link property':
+        
+        normalized_value=\
+            get_resolved_path_or_url_from_link_string(
+                    property_value,
+                    base_path,
+                    base_url
+                    )
+        
+    # 4 If the property is an object property with a string value, 
+    #  the string is a URL referencing a JSON document containing a single 
+    #  object. Fetch this URL to retrieve an object, which may have a 
+    #  local @context. Normalize each property in the resulting object 
+    #  recursively using this algorithm and with its local @context 
+    #  then remove the local @context property. If the resulting object 
+    #  does not have an @id property, add an @id whose value is the 
+    #  original URL. This object becomes the value of the original 
+    #  object property.
+    elif property_type=='object property' and isinstance(property_value,str): 
+    
+        resolved_url=\
+            get_resolved_path_or_url_from_link_string(
+                    property_value,
+                    base_path,
+                    base_url
+                    )
+        
+        # get normalised version of file at the resolved url
+        obj_dict=\
+            normalize_metadata_file(
+                resolved_url
+                )
+        
+        # remove @context if it exists
+        obj_dict.pop('@context',None)
+        
+        # add @id if it does not exist
+        if not '@id' in obj_dict:
+            obj_dict['@id']=property_value
+            
+        normalized_value=obj_dict
+        
+    
+    # 5 If the property is an object property with an object value, 
+    #  normalize each property recursively using this algorithm.
+    elif property_type=='object property':
+    
+        normalized_value=\
+            normalize_metadata_object(
+                property_value,
+                base_path,
+                base_url,
+                default_language
+                )
+    
+    # 6 If the property is a natural language property and the value is 
+    #  not already an object, it is turned into an object whose properties 
+    #  are language codes and where the values of those properties are arrays. 
+    #  The suitable language code for the values is determined through the 
+    #  default language; if it can't be determined the language code und 
+    #  must be used.
+    elif property_type=='natural language property' and not isinstance(property_value,dict):
+        
+        if isinstance(property_value,str):
+            x=[property_value]
+        else:  # i.e. property value is an array
+            x=property_value
+        
+        normalized_value={default_language: x}
+    
+    # 7 If the property is an atomic property that can be a string or an 
+    #  object, normalize to the object form as described for that property.
+    elif property_name=='format' and isinstance(property_value,str):
+        normalized_value={'pattern':property_value}
+    
+    elif property_name=='datatype' and isinstance(property_value,str):
+        normalized_value={'base':property_value}
+    
+    
+    # otherwise...
+    else:
+        
+        normalized_value=property_value
+        
+    return normalized_value
+
+            
+def normalize_common_property(
+        property_name,
+        property_value,
+        property_family,
+        property_type,
+        base_path,
+        base_url,
+        default_language     
+        ):
+    """
+    """
+    
+    # 1.1 If the value is an array, each value within the array is normalized 
+    #  in place as described here.
+    if isinstance(property_value,list):
+        
+        normalized_value=[normalize_common_property(
+                    property_name,
+                    x,
+                    property_family,
+                    property_type,
+                    base_path,
+                    base_url,
+                    default_language     
+                    ) 
+                for x in property_value]
+    
+    # 1.2 If the value is a string, replace it with an object with a @value 
+    #  property whose value is that string. If a default language is specified, 
+    #  add a @language property whose value is that default language.
+    elif isinstance(property_value,str):
+        
+        if default_language=='und':
+        
+            normalized_value={
+                '@value': property_value
+                }
+    
+        else:
+            
+            normalized_value={
+                '@value': property_value,
+                '@language': default_language
+                }
+    
+    
+    # 1.3 If the value is an object with a @value property, it remains as is.
+    elif isinstance(property_value,dict) and '@value' in property_value:
+        
+        normalized_value=property_value
+    
+    # 1.4 If the value is any other object, normalize each property of that 
+    #  object as follows:
+    elif isinstance(property_value,dict):
+        
+        d={}
+        
+        for p1_name, p1_value in property_value.items():
+        
+            # 1.4.1 If the property is @id, expand any prefixed names and resolve 
+            #  its value against the base URL.
+            if p1_name=='@id':
+                
+                
+                x=get_expanded_prefixed_name(
+                    p1_value
+                    )
+                
+                x=get_resolved_path_or_url_from_link_string(
+                    x,
+                    base_path,
+                    base_url
+                    )
+        
+            # 1.4.2 If the property is @type, then its value remains as is.
+            elif p1_name=='@type':
+                
+                x=p1_value
+            
+            # 1.4.3 Otherwise, normalize the value of the property as if it were 
+            #  a common property, according to this algorithm.
+            else:
+                
+                x=normalize_common_property(
+                    p1_name,
+                    p1_value,
+                    property_family,
+                    property_type,
+                    base_path,
+                    base_url,
+                    default_language     
+                    )
+            
+            d[p1_name]=x
+            
+        normalized_value=d
+    
+    
+    # 1.5 Otherwise, the value remains as is.
+    else:
+        
+        normalized_value=property_value
+    
+    return normalized_value
+    
+    
+#%% Locating Metadata
+
+# Model for Tabular Data and Metadata, Section 5. 
+
+def get_embedded_metadata_from_csv_file(
+        csv_file_path_or_url
+        ):
+    """
+    """
+    csv_file_path, csv_file_url=\
+        get_path_and_url_from_file_location(
+            csv_file_path_or_url
+            )
+    
+    csv_text_line_generator=get_text_line_generator_from_path_or_url(
+        csv_file_path, 
+        csv_file_url
+        )  
+    
+    column_titles=get_column_titles_of_csv_file_text_line_generator(
+        csv_text_line_generator
+        )
+    column_description_objects=[{'titles':[column_title]}
+                                for column_title in column_titles]
+    
+    schema_description_object={
+        'columns': column_description_objects
+        }
+    
+    table_description_object={
+        '@context': "http://www.w3.org/ns/csvw",
+        '@type': 'Table', 
+        'url': csv_file_path or csv_file_url,
+        'tableSchema': schema_description_object
+        }
+    
+    return table_description_object
+    
+
+#%% Processing Tables
+
+# Model for Tabular Data and Metadata, Section 6.
+
+
+def create_annotated_table_from_metadata_file(
+        metadata_file_path_or_url
+        ):
+    """
+    
+    Model for Tabular Data and Metadata, Section 6.1.
+    
+    """
+    
+    #After locating metadata, metadata is normalized and coerced into a 
+    # single table group description. When starting with a metadata file, 
+    # this involves normalizing the provided metadata file and verifying 
+    # that the embedded metadata for each tabular data file referenced 
+    # from the metadata is compatible with the metadata. 
+    
+    # normalize metadata file
+    metadata_obj_dict=\
+        normalize_metadata_file(
+            metadata_file_path_or_url
+            )
+    
+    # convert to TableGroup if needed
+    metadata_type=\
+        get_type_of_metadata_object(
+            json_dict
+            )
+    if metadata_type=='TableGroup':
+        metadata_table_group_dict=metadata_obj_dict
+        
+    elif metadata_type=='Table':
+        metadata_table_group_dict={
+            '@context': "http://www.w3.org/ns/csvw",
+            '@type': 'TableGroup',
+            'tables': [metadata_obj_dict]
+            }
+        metadata_table_group_dict['tables'][0].pop('@context')
+    
+    
+
+
+#%% Parsing Tabular Data
+
+# Model for Tabular Data and Metadata, Section 8. 
+
+def get_column_titles_of_csv_file_text_line_generator(
+        text_line_generator
+        ):
+    """
+    """
+    reader=csv.reader(text_line_generator)
+    first_row=next(reader)
+    return first_row
+    
+    
+#%% General Functions
 
 
 def add_types_to_metadata(
@@ -261,11 +708,34 @@ def get_text_from_path_or_url(
         
         with open(file_path) as f:
             return f.read()
-    
+            
+        
     elif not file_url is None:
         
-        response = requests.get(file_url)
+        response = requests.get(file_url, stream=True)
         return response.text
+        
+    else:
+        raise Exception
+
+
+def get_text_line_generator_from_path_or_url(
+        file_path, 
+        file_url
+        ):
+    """
+    """
+    if not file_path is None:
+        
+        for line in open(file_path):
+            yield line
+            
+        
+    elif not file_url is None:
+        
+        response = requests.get(file_url, stream=True)
+        for line in response.iter_lines():
+            yield line.decode()
         
     else:
         raise Exception
@@ -285,52 +755,9 @@ def get_default_language_of_metadata_object(
         return 'und'
     
     
-def get_embedded_metadata_from_csv_file(
-        csv_file_path_or_url
-        ):
-    """
-    """
-    csv_file_path, csv_file_url=\
-        get_path_and_url_from_file_location(
-            csv_file_path_or_url
-            )
+
     
-    csv_text=get_text_from_path_or_url(
-        csv_file_path, 
-        csv_file_url
-        )  # this will load all the csv text which might slow things down...
-    
-    column_titles=get_column_titles_of_csv_file_text(
-        csv_text
-        )
-    column_description_objects=[{'titles':[column_title]}
-                                for column_title in column_titles]
-    
-    schema_description_object={
-        'columns': column_description_objects
-        }
-    
-    table_description_object={
-        '@context': "http://www.w3.org/ns/csvw",
-        '@type': 'Table', 
-        'url': csv_file_path or csv_file_url,
-        'tableSchema': schema_description_object
-        }
-    
-    return table_description_object
-    
-    
-    
-    
-def get_column_titles_of_csv_file_text(
-        text
-        ):
-    """
-    """
-    reader=csv.reader(text.split('\n'))
-    first_row=next(reader)
-    return first_row
-    
+
     
     
 def get_expanded_prefixed_name(
@@ -388,9 +815,6 @@ def get_obj_dict_from_path_or_url(
     return json.loads(text)
     
     
-    
-    
-
 
 def get_optional_properties_from_type(
         type_
@@ -429,7 +853,7 @@ def get_path_and_url_from_file_location(
             file_path=os.path.abspath(file_path_or_url)
             #metadata_file_dir=os.path.dirname(metadata_file_path)
             file_url=None
-    except FileNotFoundError:
+    except (OSError,FileNotFoundError):
         file_path=None
         file_url=file_path_or_url
 
@@ -611,11 +1035,7 @@ def get_type_of_metadata_object(
         
         raise ValueError
     
-    
-    
-    
-    
-    
+
     
     
     
