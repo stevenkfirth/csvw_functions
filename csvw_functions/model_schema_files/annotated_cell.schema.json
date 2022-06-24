@@ -1,8 +1,8 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema" ,
-    "$id": "cell.schema.json",
+    "$id": "annotated_cell.schema.json",
     "title": "Schema for cell object",
-    "description": "A group of tables comprises a set of annotated tables and a set of annotations that relate to that group of tables.",
+    "description": "A cell represents a cell at the intersection of a row and a column within a table.",
     "$comment": "Model for tabular data and metadata, Section 4.5 Cells. ",
     "type": "object",
     "properties": {

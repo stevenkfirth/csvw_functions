@@ -36,10 +36,10 @@ class TestSchemaPrefixes(unittest.TestCase):
 class TestNormalizeMetadata(unittest.TestCase):
     ""
     
-    def test_normalize_metadata_example_41(self):
+    def test_normalize_metadata_from_file_path_example_41(self):
         ""
         metadata_file_url=r'metadata_vocabulary_example_files/example_41.json'
-        result=csvw_functions.normalize_metadata_file(metadata_file_url)
+        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_url)
         
         self.assertEqual(
             result,
@@ -52,10 +52,10 @@ class TestNormalizeMetadata(unittest.TestCase):
             )
         
         
-    def test_normalize_metadata_example_44(self):
+    def test_normalize_metadata_from_file_path_example_44(self):
         ""
         metadata_file_url=r'metadata_vocabulary_example_files/example_44.json'
-        result=csvw_functions.normalize_metadata_file(metadata_file_url)
+        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_url)
         
         self.assertEqual(
             result,
@@ -71,10 +71,10 @@ class TestNormalizeMetadata(unittest.TestCase):
             )
         
         
-    def test_normalize_metadata_example_46(self):
+    def test_normalize_metadata_from_file_path_example_46(self):
         ""
-        metadata_file_url=r'metadata_vocabulary_example_files/example_46.json'
-        result=csvw_functions.normalize_metadata_file(metadata_file_url)
+        metadata_file_path=r'metadata_vocabulary_example_files/example_46.json'
+        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_path)
         
         self.assertEqual(
             result,
@@ -87,10 +87,10 @@ class TestNormalizeMetadata(unittest.TestCase):
             )
         
         
-    def test_normalize_metadata_example_48(self):
+    def test_normalize_metadata_from_file_path_example_48(self):
         ""
         metadata_file_url=r'metadata_vocabulary_example_files/example_48.json'
-        result=csvw_functions.normalize_metadata_file(metadata_file_url)
+        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_url)
         
         self.assertEqual(
             result,
@@ -107,7 +107,7 @@ class TestNormalizeMetadata(unittest.TestCase):
             )
         
         
-class LocatingMetadata(unittest.TestCase):
+class TestLocatingMetadata(unittest.TestCase):
     ""
     
     def test_get_embedded_metadata_from_csv_file(self):
@@ -140,12 +140,16 @@ class LocatingMetadata(unittest.TestCase):
 class TestProcessingTables(unittest.TestCase):
     ""
     
-    def test_create_annotated_table_from_metadata_file(self):
+    def test_create_annotated_tables_from_metadata_file_url(self):
         ""
+        # example 15
         url='https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_15.json'
-        result=csvw_functions.create_annotated_table_from_metadata_file(
+        result=csvw_functions.create_annotated_tables_from_metadata_file_url(
             url
             )
+        #print(result)
+
+
 
 
 class TestGeneralFunctions(unittest.TestCase):
@@ -245,6 +249,38 @@ class TestGeneralFunctions(unittest.TestCase):
             result,
             'table_group_description.schema.json'
             )
+        
+    def test_get_text_and_headers_from_file_url(self):
+        ""
+        url='https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_15.json'
+        text,headers=csvw_functions.get_text_and_headers_from_file_url(url)
+        #print(text); print(headers)
+        
+        # headers as recorded on a request made on 15 June 2022
+            # {'Connection': 'keep-alive', 
+            #  'Content-Length': '188', 
+            #  'Cache-Control': 'max-age=300', 
+            #  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox", 
+            #  'Content-Type': 'text/plain; charset=utf-8', 
+            #  'ETag': 'W/"fcbe8a17772c280cc399fcaf8dbe8fa3ba658b66113125ec4e63528239fbafdb"', 
+            #  'Strict-Transport-Security': 'max-age=31536000', 
+            #  'X-Content-Type-Options': 'nosniff', 
+            #  'X-Frame-Options': 'deny', 
+            #  'X-XSS-Protection': '1; mode=block', 
+            #  'X-GitHub-Request-Id': '0B9C:D78F:202FFE:22FD4A:62A998AF', 
+            #  'Content-Encoding': 'gzip', 
+            #  'Accept-Ranges': 'bytes', 
+            #  'Date': 'Wed, 15 Jun 2022 08:36:05 GMT', 
+            #  'Via': '1.1 varnish', 
+            #  'X-Served-By': 'cache-lon4276-LON', 
+            #  'X-Cache': 'MISS', 
+            #  'X-Cache-Hits': '0', 
+            #  'X-Timer': 'S1655282165.972155,VS0,VE151', 
+            #  'Vary': 'Authorization,Accept-Encoding,Origin', 
+            #  'Access-Control-Allow-Origin': '*', 
+            #  'X-Fastly-Request-ID': 'edc6441601ccddd36b182976cfd64bb7bc05f52a', 
+            #  'Expires': 'Wed, 15 Jun 2022 08:41:05 GMT', 
+            #  'Source-Age': '0'}
         
         
     def test_get_top_level_properties_from_type(self):

@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema" ,
-    "$id": "column.schema.json",
+    "$id": "annotated_column.schema.json",
     "title": "Schema for column object",
     "description": "A column represents a vertical arrangement of cells within a table.",
     "$comment": "Model for tabular data and metadata, Section 4.3 Columns. ",
@@ -14,16 +14,18 @@
         "cells": {
             "description": "the list of cells in the column. A column must contain one cell from each row in the table. The order of the cells in the list must match the order of the rows in which they appear within the rows for the associated table.",
             "type": "array",
+            "items": {"$ref": "annotated_cell.schema.json"},
             "$comment": "core annotation"
         },
         "datatype": {
             "description": "the expected datatype for the values of cells in this column, as defined in [tabular-metadata].",
             "oneOf": [
                 {
-                    "type": "array"
+                    "type": "array",
+                    "items": {"$ref": "annotated_datatype.schema.json"}
                 },
                 {   
-                    "type": "object"
+                    "type": {"$ref": "annotated_datatype.schema.json"}
                 }
             ],
             "$comment": "core annotation"

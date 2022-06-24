@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema" ,
-    "$id": "datatype.schema.json",
+    "$id": "annotated_datatype.schema.json",
     "title": "Schema for datatype object",
     "description": "Columns and cell values within tables may be annotated with a datatype which indicates the type of the values obtained by parsing the string value of the cell.",
     "$comment": "Model for tabular data and metadata, Section 4.6 Datatypes. ",

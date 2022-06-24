@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema" ,
-    "$id": "table.schema.json",
+    "$id": "annotated_table.schema.json",
     "title": "Schema for table object",
     "description": "An annotated table is a table that is annotated with additional metadata.",
     "$comment": "Model for tabular data and metadata, Section 4.2 Tables. ",
@@ -9,6 +9,7 @@
         "columns": {
             "description": "the list of columns in the table. A table must have one or more columns and the order of the columns within the list is significant and must be preserved by applications.",
             "minItems": 1,
+            "items": {"$ref": "annotated_column.schema.json"},
             "type": "array",
             "$comment": "core annotation"
         },
@@ -38,6 +39,7 @@
             "description": "the list of rows in the table. A table must have one or more rows and the order of the rows within the list is significant and must be preserved by applications.",
             "minItems": 1,
             "type": "array",
+            "items": {"$ref": "annotated_row.schema.json"},
             "$comment": "core annotation"
         },
         "schema": {

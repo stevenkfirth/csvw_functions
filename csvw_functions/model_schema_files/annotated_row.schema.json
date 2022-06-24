@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema" ,
-    "$id": "row.schema.json",
+    "$id": "annotated_row.schema.json",
     "title": "Schema for row object",
     "description": "A row represents a horizontal arrangement of cells within a table.",
     "$comment": "Model for tabular data and metadata, Section 4.4 Rows.",
@@ -9,6 +9,7 @@
         "cells": {
             "description": "the list of cells in the row. A row must contain one cell from each column in the table. The order of the cells in the list must match the order of the columns in which they appear within the table columns for the row's table.",
             "type": "array",
+            "items": {"$ref": "annotated_datatype.schema.json"},
             "$comment": "core annotation"
         },
         "number": {
