@@ -1,3 +1,7 @@
+# USER IGNORES
+_dev/
+_github_w3c_csvw_tests/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

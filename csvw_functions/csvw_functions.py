@@ -130,6 +130,61 @@ prefixes=\
     "role": "http://www.w3.org/1999/xhtml/vocab#role"
   }
 
+#%% FUNCTIONS - Top Level Functions
+
+def validate_metadata_document(
+        metadata_file_path_or_url
+        ):
+    """
+    """
+    
+def validate_csv_document(
+        file_path_or_url,
+        validate_metadata=True
+        ):
+    """
+    
+    :param file_path_or_url: CSV file or metadata.json file
+    :type file_path_or_url: str
+    
+    """
+    
+    
+def convert_csvw_to_annotated_table_group(
+        file_path_or_url,
+        validate_metadata=True,
+        validate_csv=True
+        ):
+    """
+    """
+    annotated_table_group_dict={}
+    
+    
+    
+    return annotated_table_group_dict
+    
+
+def convert_annotated_table_group_to_jsonld(
+        annotated_table_group_dict
+        ):
+    """
+    """
+
+
+def convert_annotated_table_group_to_rdf(
+        nnotated_table_group_dict
+        ):
+    """
+    """
+    
+
+    
+    
+    
+    
+    
+
+
 
 #%% FUNCTIONS - Metadata Vocabulary for Tabular Data
 
@@ -238,7 +293,7 @@ def annotate_table_group(
     for i in range(len(annotated_table_group_dict['tables'])):
         y=annotate_table(
             annotated_table_group_dict['tables'][i],
-            metadata_table_group_dict['tables'][i]
+            metadata_table_group_obj_dict['tables'][i]
             )
         x.append(y)
     annotated_table_group_dict['tables']=x
