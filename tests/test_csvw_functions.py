@@ -20,6 +20,9 @@ with open(os.path.join('csvw_primer_example_files','example_5.json')) as f:
 with open(os.path.join('metadata_vocabulary_example_files','example_41.json')) as f:
      metadata_vocabulary_example_41=json.load(f)     
 
+with open(os.path.join('model_for_tabular_data_and_metadata_example_files','example_14.csv')) as f:
+     model_for_tabular_data_and_metadata_example_14=f.read()
+
 #import os
 #print(os.listdir('../csvw_functions/schema_files'))
 
@@ -135,22 +138,147 @@ class TestLocatingMetadata(unittest.TestCase):
              }
             )
         
+#%% FUNCTIONS - Model for Tabular Data and Metadata
 
+#%% Section 6.1 - Creating Annotated Tables
 
-class TestProcessingTables(unittest.TestCase):
+class TestSection6_1(unittest.TestCase):
     ""
     
-    def test_create_annotated_tables_from_metadata_file_url(self):
+    
+    def test_create_annotated_tables_from_csv_file_path_or_url(self):
+        ""
+        # example 14
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
+        result=csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+            fp
+            )
+        #print(result)
+    
+    
+    def xtest_create_annotated_tables_from_metadata_file_url(self):
         ""
         # example 15
         url='https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_15.json'
         result=csvw_functions.create_annotated_tables_from_metadata_file_url(
             url
             )
-        #print(result)
+        
+        # check first column
+        self.assertEqual(
+            result['tables'][0]['columns'][0],
+            {'table': result['tables'][0], 
+             'number': 1, 
+             'sourceNumber': 1, 
+             'name': None, 
+             'titles': {'und': ['GID']}, 
+             'virtual': False, 
+             'suppressOutput': False, 
+             'datatype': 'string', 
+             'default': '', 
+             'lang': 'und', 
+             'null': '', 
+             'ordered': False, 
+             'required': False, 
+             'separator': None, 
+             'textDirection': 'auto', 
+             'aboutURL': None, 
+             'propertyURL': None, 
+             'valueURL': None, 
+             'cells': [
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][0], 
+                  'row': result['tables'][0]['rows'][0], 
+                  'stringValue': '1', 
+                  'value': '1', 
+                  'errors': [], 
+                  'textDirection': 'auto', 
+                  'ordered': False, 
+                  'aboutURL': None, 
+                  'propertyURL': None, 
+                  'valueURL': None}, 
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][0], 
+                  'row': result['tables'][0]['rows'][1], 
+                  'stringValue': '2', 
+                  'value': '2', 
+                  'errors': [], 
+                  'textDirection': 'auto', 
+                  'ordered': False, 
+                  'aboutURL': None, 
+                  'propertyURL': None, 
+                  'valueURL': None}
+                 ]
+             }
+            )
+        
+        # check first row
+        self.assertEqual(
+            result['tables'][0]['rows'][0],
+            {'table': result['tables'][0], 
+             'number': 1, 
+             'sourceNumber': 2, 
+             'primaryKey': [], 
+             'referencedRows': [], 
+             'cells': [
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][0], 
+                  'row': result['tables'][0]['rows'][0], 
+                  'stringValue': '1', 'value': '1', 'errors': [], 
+                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
+                  'propertyURL': None, 'valueURL': None}, 
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][1], 
+                  'row': result['tables'][0]['rows'][0], 
+                  'stringValue': 'ADDISON AV', 'value': 'ADDISON AV', 'errors': [], 
+                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
+                  'propertyURL': None, 'valueURL': None}, 
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][2], 
+                  'row': result['tables'][0]['rows'][0], 
+                  'stringValue': 'Celtis australis', 'value': 'Celtis australis', 
+                  'errors': [], 
+                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
+                  'propertyURL': None, 'valueURL': None}, 
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][3], 
+                  'row': result['tables'][0]['rows'][0], 
+                  'stringValue': 'Large Tree Routine Prune', 
+                  'value': 'Large Tree Routine Prune', 'errors': [], 
+                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
+                  'propertyURL': None, 'valueURL': None}, 
+                 {'table': result['tables'][0], 
+                  'column': result['tables'][0]['columns'][4], 
+                  'row': result['tables'][0]['rows'][0], 
+                  'stringValue': '10/18/2010', 'value': '10/18/2010', 'errors': [], 
+                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
+                  'propertyURL': None, 'valueURL': None}
+                 ]
+             }
+            )
+        
+        # check first cell
+        self.assertEqual(
+            result['tables'][0]['columns'][0]['cells'][0],
+            {'table': result['tables'][0], 
+             'column': result['tables'][0]['columns'][0], 
+             'row': result['tables'][0]['rows'][0], 
+             'stringValue': '1', 
+             'value': '1', 
+             'errors': [], 
+             'textDirection': 'auto', 
+             'ordered': False, 
+             'aboutURL': None, 
+             'propertyURL': None, 
+             'valueURL': None}
+            )
+        
+        
+        
+        print(result['tables'][0]['id'])
 
 
-
+#%% FUNCTIONS - General
 
 class TestGeneralFunctions(unittest.TestCase):
     ""

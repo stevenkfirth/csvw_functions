@@ -289,14 +289,13 @@ def annotate_table_group(
     
     
     # annotate each table
-    x=[]
-    for i in range(len(annotated_table_group_dict['tables'])):
-        y=annotate_table(
-            annotated_table_group_dict['tables'][i],
+    
+    tables=annotated_table_group_dict['tables']
+    for i in range(len(tables)):
+        tables[i]=annotate_table(
+            tables[i],
             metadata_table_group_obj_dict['tables'][i]
             )
-        x.append(y)
-    annotated_table_group_dict['tables']=x
 
     return annotated_table_group_dict
 
@@ -310,6 +309,25 @@ def annotate_table(
     """
     """
     
+    # columns
+    columns=annotated_table_dict['columns']
+    for i in range(len(columns)):
+        columns[i]=annotate_column(
+            columns[i],
+            metadata_table_obj_dict['tableSchema']['columns'][i]
+            )
+        
+    # rows
+    rows=annotated_table_dict['rows']
+    for i in range(len(rows)):
+        rows[i]=annotate_row(
+            rows[i],
+            metadata_table_obj_dict
+            )
+    
+    
+    return annotated_table_dict
+    
     
 def annotate_column(
         annotated_column_dict,
@@ -317,12 +335,22 @@ def annotate_column(
         ):
     """
     """
+    annotated_column_dict['titles']=metadata_column_obj_dict['titles']
+    # NEEDS COMPLETING
+    # there will be other properties to copy from metadata to annotated table
+    
+    return annotated_column_dict
+    
     
     
 def annotate_row(
+        annotated_row,
+        metadata_table_obj_dict
         ):
     """
     """
+    
+    return annotated_row
     
     
 def annotate_cell(
@@ -363,6 +391,8 @@ def compare_schema_descriptions(
         ):
     """
     """
+    #print(TM_schema)
+    #print(EM_schema)
     
     # Two schemas are compatible if they have the same number of non-virtual 
     # column descriptions, and the non-virtual column descriptions at the 
@@ -384,12 +414,12 @@ def compare_schema_descriptions(
         if not 'name' in TM_column and not 'titles' in TM_column:
             continue
         
-        elif not 'name' in EM_column and not 'titles' in EM_column:
+        if not 'name' in EM_column and not 'titles' in EM_column:
             continue
         
         
         # If there is a case-sensitive match between the name properties of the columns.
-        elif 'name' in TM_column and 'name' in EM_column:
+        if 'name' in TM_column and 'name' in EM_column:
             if TM_column['name']==EM_column['name']:
                 continue
         
@@ -398,15 +428,48 @@ def compare_schema_descriptions(
         # matches any language, and languages match if they are equal when 
         # truncated, as defined in [BCP47], to the length of the shortest language tag.
         
-        # NOT YET IMPLEMENTED
+        intersection=False
+        for TM_lang_tag,TM_titles in TM_column['titles'].items():
+            
+            if TM_lang_tag=='und':
+                
+                for EM_titles in TM_column['titles'].values():
+                
+                    for title in TM_titles:
+                        if title in EM_titles:
+                            intersection=True
+                            break
+                
+            else:
+                raise NotImplementedError # TO DO
+                
+        if intersection:
+            continue
+        
+        
+        
+        
         
         # If not validating, and one schema has a name property but not a 
         # titles property, and the other has a titles property but not a name property.
 
-        # NOT YET IMPLEMENED
+        if ('name' in TM_column 
+            and not 'titles' in TM_column
+            and not 'name' in EM_column 
+            and 'titles' in EM_column
+            ):
+            if validate==False:
+                continue
+        
+        if (not 'name' in TM_column 
+            and 'titles' in TM_column
+            and 'name' in EM_column 
+            and not 'titles' in EM_column
+            ):
+            if validate==False:
+                continue
 
-        else:
-            raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
+        raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
 
     
     
@@ -860,6 +923,88 @@ def get_embedded_metadata_from_csv_file(
 
 #%% Section 6.1 - Creating Annotated Tables
 
+
+def create_annotated_tables_from_csv_file_path_or_url(
+        csv_file_path_or_url,
+        metadata_file_path_or_url=None,
+        validate=False
+        ):
+    """
+    """
+    csv_file_path, csv_file_url=\
+        get_path_and_url_from_file_location(
+            csv_file_path_or_url
+            )
+    
+    # 1 Retrieve the tabular data file.
+    
+    # 2 Retrieve the first metadata file (FM) as described in section 5. Locating Metadata:
+        
+    # 2.1 metadata supplied by the user (see section 5.1 Overriding Metadata).
+    
+    if not metadata_file_path_or_url is None:
+    
+        metadata_file_path, metadata_file_url=\
+            get_path_and_url_from_file_location(
+                metadata_file_path_or_url
+                )
+            
+        if not metadata_file_path is None:
+            
+            metadata_file_text=\
+                get_text_from_file_path(
+                    metadata_file_path)
+            
+        elif not metadata_file_url is None:
+        
+            metadata_file_text, headers=\
+                get_text_and_headers_from_file_url(
+                    metadata_file_url)
+        
+        else:
+            raise Exception
+        
+        metadata_root_obj_dict=json.loads(metadata_file_text)
+    
+        return create_annotated_tables_from_metadata_root_object(
+            metadata_root_obj_dict,
+            metadata_file_path,
+            metadata_file_url,
+            validate=validate
+            )
+
+    # 2.2 metadata referenced from a Link Header that may be returned when 
+    #     retrieving the tabular data file (see section 5.2 Link Header).
+        
+    # TO DO
+    
+    if not csv_file_url is None:
+        
+        pass
+    
+    # 2.3 metadata retrieved through a site-wide location configuration 
+    #     (see section 5.3 Default Locations and Site-wide Location Configuration).
+
+    # TO DO
+    
+    # 2.4 embedded metadata as defined in section 5.4 Embedded Metadata with 
+    #     a single tables entry where the url property is set from that of the 
+    #     tabular data file.
+    
+    return create_annotated_tables_from_metadata_root_object(
+        metadata_root_obj_dict={
+            'url': csv_file_path_or_url,
+            '@type': 'Table',
+            'tableSchema':{}
+            },
+        metadata_file_path='.',
+        metadata_file_url=None,
+        validate=validate,
+        embedded_metadata=True
+        )
+
+
+
 def create_annotated_tables_from_metadata_file_path_or_url(
         metadata_file_path_or_url
         ):
@@ -934,10 +1079,11 @@ def create_annotated_tables_from_metadata_file_url(
 
 
 def create_annotated_tables_from_metadata_root_object(
-        metadata_root_obj_dict,
-        metadata_file_path,
-        metadata_file_url,
-        validate=False
+        metadata_root_obj_dict=None,
+        metadata_file_path=None,
+        metadata_file_url=None,
+        validate=False,
+        embedded_metadata=False
         ):
     """
     
@@ -961,6 +1107,8 @@ def create_annotated_tables_from_metadata_root_object(
     # 2 Normalize UM using the process defined in Normalization in 
     #   [tabular-metadata], coercing UM into a table group description, 
     #   if necessary.
+    
+    
     
     # get and normalize metadata file
     normalized_metadata_obj_dict=\
@@ -988,8 +1136,7 @@ def create_annotated_tables_from_metadata_root_object(
         
     else:
         raise Exception
-    #print(metadata_table_group_dict)
-    
+                 
     # 3 For each table (TM) in UM in order, create one or more annotated tables:
     
     for table_index,metadata_table_obj_dict in \
@@ -1098,6 +1245,14 @@ def create_annotated_tables_from_metadata_root_object(
                 )
         
         
+        # if called with embedded_metadata=True
+        if embedded_metadata:
+            metadata_table_obj_dict=embedded_metadata_dict
+            metadata_table_obj_dict.pop('@context')
+            metadata_table_group_obj_dict['tables'][table_index]=metadata_table_obj_dict
+            #print(metadata_table_group_obj_dict)
+        
+        
         
         # 3.4 If a Content-Language HTTP header was found when retrieving the 
         #     tabular data file, and the value provides a single language, set 
@@ -1118,12 +1273,7 @@ def create_annotated_tables_from_metadata_root_object(
             validate=validate
             )
         
-        
-        
-        
-        
         annotated_table_group_dict['tables'].append(table_dict)
-        
         
     # 3.6 Use the metadata TM to add annotations to the tabular data model 
     #     T as described in Section 2 Annotating Tables in [tabular-metadata].
@@ -1134,6 +1284,7 @@ def create_annotated_tables_from_metadata_root_object(
             metadata_table_group_obj_dict
             )
         
+    print(metadata_table_group_obj_dict)
         
     return annotated_table_group_dict
      
@@ -1251,30 +1402,6 @@ def parse_tabular_data_from_text(
     # ALREADY READ THE FILE
     character_index=0  # index for processing each character in the file
 
-
-    # # splits the text according to the supplied line_terminators
-    # x=tabular_data_text
-    # for terminator in line_terminators:
-    #     x=x.replace(terminator,'\n')
-    # tabular_data_lines=x.split('\n')
-    
-    
-    # # create a generator
-    # tabular_data_lines_generator=(x for x in tabular_data_lines)
-    
-    
-    # reads the lines using csv.reader
-    # csv_reader=csv.reader(tabular_data_lines,
-    #                       delimiter=delimiter,
-    #                       doublequote=True,  # the default
-    #                       escapechar=escape_character,
-    #                       quoting=csv.QUOTE_MINIMAL,  # the default
-    #                       quotechar=quote_character,
-    #                       skipinitialspace=False,  # the default
-    #                       strict=False ## the default
-    #                       )
-
-
     # 6 Repeat the following the number of times indicated by skip rows:
     
     for _ in range(skip_rows): 
@@ -1353,7 +1480,7 @@ def parse_tabular_data_from_text(
                 
             # sets up the metatdata column description objects
             metadata_dict['tableSchema']['columns']=\
-                [{'title':[],
+                [{'titles':[],
                   '@type':'Column'} 
                  for x in range(len(list_of_cell_values_non_skipped))]
                 
@@ -1370,8 +1497,8 @@ def parse_tabular_data_from_text(
                 # value that is the value at index i in the list of cell values.
                 # AND
                 # 7.3.2.3 Otherwise, add the value at index i in the list of 
-                # cell values to the array at M.tableSchema.columns[i].title.
-                metadata_dict['tableSchema']['columns'][i]['title'].append(
+                # cell values to the array at M.tableSchema.columns[i].titles.
+                metadata_dict['tableSchema']['columns'][i]['titles'].append(
                     value
                     )
                 
@@ -1476,7 +1603,7 @@ def parse_tabular_data_from_text(
             # cells set to an empty list
             else:
                 row_dict=dict(
-                    table=table_name, 
+                    table=table_dict, #table_name, 
                     number=row_number,
                     sourceNumber=source_row_number,
                     primaryKey=[],
@@ -1526,7 +1653,7 @@ def parse_tabular_data_from_text(
                     # cells set to an empty list
                 
                     column_dict=dict(
-                        table=table_name,
+                        table=table_dict, #table_name,
                         number=i+1,
                         sourceNumber=source_column_number,
                         name=None,
@@ -1564,9 +1691,9 @@ def parse_tabular_data_from_text(
                 # value URL set to null
                 
                 cell_dict=dict(
-                    table=table_name,
-                    column=f'{table_name}C{i+1}',
-                    row=f'{table_name}R{row_number}',
+                    table=table_dict, #table_name,
+                    column=column_dict, #f'{table_name}C{i+1}',
+                    row=row_dict, #f'{table_name}R{row_number}',
                     stringValue=value,
                     value=value,
                     errors=[],
@@ -1598,7 +1725,15 @@ def parse_tabular_data_from_text(
     
     # 12 Return the table T and the embedded metadata M.
         
-    return table_dict, metadata_dict
+    normalized_metadata_dict=\
+        normalize_metadata_root_object(
+            metadata_dict,
+            metadata_file_path='.', 
+            metadata_file_url=None
+            )
+    
+
+    return table_dict, normalized_metadata_dict
     
     
 
@@ -1875,31 +2010,6 @@ def get_column_titles_of_csv_file_text_line_generator(
     
 
 
-    
-# def read_row(
-#         csv_reader,
-#         trim
-#         ):
-#     """
-#     """
-#     row_list=next(csv_reader)
-    
-#     if trim==True:
-#         row_list=[x.strip() for x in row_list]
-#     elif trim==False:
-#         pass
-#     elif trim=='true':
-#         row_list=[x.strip() for x in row_list]
-#     elif trim=='false':
-#         pass
-#     elif trim=='start':
-#         row_list=[x.lstrip() for x in row_list]
-#     elif trim=='end':
-#         row_list=[x.rstrip() for x in row_list]
-    
-#     return row_list
-    
-
 #%% FUNCTIONS - General
 
 def add_types_to_metadata(
@@ -2009,11 +2119,12 @@ def get_base_path_and_url_of_metadata_object(
             base_url=urllib.parse.urljoin(metadata_file_url,
                                           '.')  
             
+    else:
+        base_path=None
+        base_url=None
+            
     return base_path, base_url
     
-    
-        
-
     
 def get_common_properties_of_metadata_object(
         json_dict
@@ -2073,7 +2184,6 @@ def get_text_and_headers_from_file_url(
     return response.text, response.headers
 
 
-
 def get_text_line_generator_from_path_or_url(
         file_path, 
         file_url,
@@ -2117,11 +2227,6 @@ def get_default_language_of_metadata_object(
         return 'und'
     
     
-
-    
-
-    
-    
 def get_expanded_prefixed_name(
         name
         ):
@@ -2137,8 +2242,6 @@ def get_expanded_prefixed_name(
     else:
         return name
         
-    
-
 
 def get_inherited_properties_from_type(
         type_
@@ -2163,25 +2266,6 @@ def get_inherited_properties_from_type(
     return []
 
 
-
-
-
-
-# def get_obj_dict_from_path_or_url(
-#         metadata_file_path, 
-#         metadata_file_url
-#         ):
-#     """
-#     """
-#     text=get_text_from_path_or_url(
-#         metadata_file_path, 
-#         metadata_file_url
-#         )
-    
-#     return json.loads(text)
-    
-    
-
 def get_optional_properties_from_type(
         type_
         ):
@@ -2205,11 +2289,6 @@ def get_optional_properties_from_type(
     
     return x
     
-
-
-
-
-
 
 def get_path_and_url_from_file_location(
         file_path_or_url
@@ -2255,10 +2334,6 @@ def get_property_type(
     except KeyError:
         return None
     
-    
-    
-
-
 
 def get_required_properties_from_type(
         type_
@@ -2301,8 +2376,6 @@ def get_resolved_path_or_url_from_link_string(
             return urllib.parse.urljoin(base_url,link_string)
     
     
-    
-
 def get_schema_from_schema_name(
         schema_name
         ):
@@ -2318,8 +2391,6 @@ def get_schema_from_schema_name(
     return schemas[schema_name]
     
     
-
-
 def get_schema_name_from_type(
         type_
         ):
@@ -2409,24 +2480,5 @@ def get_type_of_metadata_object(
         raise ValueError
     
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
 
