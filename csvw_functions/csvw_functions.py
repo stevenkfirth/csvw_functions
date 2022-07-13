@@ -2998,25 +2998,31 @@ def get_common_properties_of_metadata_object(
 
 
 def get_default_language_of_metadata_object(
-        obj_dict
+        metadata_dict
         ):
     """Returns the default language of the metadata object.
     
+    :returns: The language code as specified in the '@context' property.
+        If not present then 'und' is returned.
     :rtype: str
     
     """
     try:
-        return obj_dict['@context'][1]['@language']
+        return metadata_dict['@context'][1]['@language']
     except (KeyError,IndexError,TypeError):
         return 'und'
-    
-
 
     
 def get_expanded_prefixed_name(
         name
         ):
-    """
+    """Returns the full, expanded version of a prefixed uri.
+    
+    :param name: The prefixed name.
+    :type name: str
+    
+    :rtype: str
+    
     """
     x=name.split(':')
     if len(x)==2:
@@ -3079,20 +3085,34 @@ def get_optional_properties_from_type(
 def get_path_and_url_from_file_location(
         file_path_or_url
         ):
-    """
-    """
+    """Returns separate absolute path and url from the supplied path or url .
     
+    :param file_path_or_url: Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :param file_path_or_url: str
+    
+    :returns: A tuple of (file_absolute_path, file_url).
+        file_absolute_path is the absolute local file path, 
+        or None if supplied value is a URL.
+        file_url is the full URL, or None if supplied value is a local file path.
+    
+    :rtype: tuple
+    
+    """
     # is argument a local path or a url?
     try:
+        
         with open(file_path_or_url):
-            file_path=os.path.abspath(file_path_or_url)
-            #metadata_file_dir=os.path.dirname(metadata_file_path)
+            
+            file_absolute_path=os.path.abspath(file_path_or_url)
             file_url=None
+            
     except (OSError,FileNotFoundError):
-        file_path=None
+        
+        file_absolute_path=None
         file_url=file_path_or_url
 
-    return file_path, file_url
+    return file_absolute_path, file_url
 
 
 def get_property_family(
