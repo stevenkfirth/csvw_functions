@@ -20,7 +20,7 @@
         },
         "primaryKey": {
             "description": "a possibly empty list of cells whose values together provide a unique identifier for this row. This is similar to the name of a column.",
-            "type": "string",
+            "type": "array",
             "$comment": "core annotation"
         },
         "titles": {

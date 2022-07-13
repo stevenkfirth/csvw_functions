@@ -4,11 +4,12 @@
     "title": "Schema for csvw dialect description object",
     "description": "A dialect description provides hints to parsers about how to parse the file linked to from the url property in a table description.",
     "type": "object",
+    "$comment": "Note that commentPrefix is given a default value of null rather than #, due to a discrepancy in the standard documents.",
     "properties": {
         "commentPrefix": {
             "description": "An atomic property that sets the comment prefix flag to the single provided value, which must be a string.",
             "type": "string",
-            "default": "#",
+            "default": null,
             "$comment": "atomic property"
         },
         "delimiter": {

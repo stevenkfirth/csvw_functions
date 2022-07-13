@@ -7,6 +7,10 @@ import urllib.parse
 import os
 import requests
 import csv
+import re
+import datetime
+import langcodes
+import uritemplate
 
 
 #%% read metadata schemas
@@ -226,15 +230,22 @@ def apply_metadata_default_values(
 def annotate_table_group(
         annotated_table_group_dict,
         metadata_table_group_obj_dict,
+        default_language,
         validate=False
         ):
     """
     """
     
+    #print(metadata_table_group_obj_dict)
+    
+    # All compliant applications must generate errors and stop processing if 
+    # a metadata document:
+    # - does not use valid JSON syntax defined by [RFC7159].
+    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+    # - does not specify a property that it is required to specify.
     check_metadata_document(
             metadata_table_group_obj_dict
             )
-    
     
     # Compliant applications must ignore properties (aside from common 
     # properties) which are not defined in this specification and must 
@@ -242,9 +253,18 @@ def annotate_table_group(
     
     # NEEDS COMPLETING
     
-   
-    
-    
+    # If a property has a value that is not permitted by this specification, 
+    # then if a default value is provided for that property, compliant 
+    # applications must generate a warning and use that default value. 
+    # If no default value is provided for that property, compliant 
+    # applications must generate a warning and behave as if the property 
+    # had not been specified. Additionally, including:
+    # - properties (aside from common properties) which are not defined in 
+    #   this specification, and
+    # - properties having invalid values for a given property.
+    apply_metadata_default_values(
+        metadata_table_group_obj_dict
+        )
     
     # Metadata documents contain descriptions of groups of tables, tables, 
     # columns, rows, and cells, which are used to create annotations on an 
@@ -279,23 +299,48 @@ def annotate_table_group(
     
     
     
-    # 
-    
-    
-    
     
     
     # inherited properties
+    inherited_properties={}
+    for name in get_inherited_properties_from_type('TableGroup'):
+        if name in metadata_table_group_obj_dict:
+            inherited_properties[name]=metadata_table_group_obj_dict[name]
     
+    # annotate this table group
+    #?? Initially, use this simple version
+    for k,v in metadata_table_group_obj_dict.items():
+        
+        if k=='tables':
+            
+            tables=annotated_table_group_dict['tables']
+            
+            for i in range(len(tables)):
+                tables[i]=annotate_table(
+                    tables[i],
+                    v[i],
+                    default_language,
+                    inherited_properties,
+                    validate=validate
+                    )
+        
+        elif k=='notes':
+            
+            notes=annotated_table_group_dict['notes']
+            
+            if isinstance(v,list):
+                
+                notes.extend(v)
+            
+            else:
+                
+                notes.append(v)
+        
+        else:
+            
+            annotated_table_group_dict[k]=v
+        
     
-    # annotate each table
-    
-    tables=annotated_table_group_dict['tables']
-    for i in range(len(tables)):
-        tables[i]=annotate_table(
-            tables[i],
-            metadata_table_group_obj_dict['tables'][i]
-            )
 
     return annotated_table_group_dict
 
@@ -304,59 +349,290 @@ def annotate_table_group(
 def annotate_table(
         annotated_table_dict,
         metadata_table_obj_dict,
+        default_language,
+        inherited_properties,
         validate=False
         ):
     """
     """
     
-    # columns
-    columns=annotated_table_dict['columns']
-    for i in range(len(columns)):
-        columns[i]=annotate_column(
-            columns[i],
-            metadata_table_obj_dict['tableSchema']['columns'][i]
-            )
-        
-    # rows
-    rows=annotated_table_dict['rows']
-    for i in range(len(rows)):
-        rows[i]=annotate_row(
-            rows[i],
-            metadata_table_obj_dict
-            )
+    # add inherited properties that were passed
+    for k,v in inherited_properties.items():
+        if k=='aboutUrl': k='aboutURL'
+        if k=='propertyUrl': k='propertyURL'
+        if k=='valueUrl': k='valueURL'
+        if k in annotated_table_dict:
+            annotated_table_dict[k]=v
+            
+    # include new inherited properties from metadata
+    for name in get_inherited_properties_from_type('Table'):
+        if name in metadata_table_obj_dict:
+            inherited_properties[name]=metadata_table_obj_dict[name]
     
+    # annotate this table
+    #?? Initially, use this simple version
+    for k,v in metadata_table_obj_dict.items():
+        
+        if k=='tableSchema':
+            
+            # include new inherited properties from metadata
+            for name in get_inherited_properties_from_type('Schema'):
+                if name in v:
+                    inherited_properties[name]=v[name]
+            
+            #print(inherited_properties)
+            
+            for k1,v1 in v.items():
+                
+                if k1=='columns':
+                    columns=annotated_table_dict['columns']
+                    for i in range(len(columns)):
+                        columns[i]=annotate_column(
+                            columns[i],
+                            v['columns'][i],
+                            default_language,
+                            inherited_properties=inherited_properties
+                            )
+                
+                elif k1=='primaryKey':
+                    pk=v1
+                    if not isinstance(pk,list):
+                        pk=[pk]
+                    column_indexes=[]
+                    for x in pk:
+                        for i,column in enumerate(annotated_table_dict['columns']):
+                            if x==columns[i]['name']:
+                                column_indexes.append(i)
+                    for row in annotated_table_dict['rows']:
+                        for column_index in column_indexes:
+                            row['primaryKey'].append(row['cells'][column_index])
+                
+        
+        elif k=='notes':
+            
+            notes=annotated_table_dict['notes']
+            
+            if isinstance(v,list):
+                
+                notes.extend(v)
+            
+            else:
+                
+                notes.append(v)
+        
+        else:
+            
+            annotated_table_dict[k]=v
     
     return annotated_table_dict
     
     
+    
 def annotate_column(
         annotated_column_dict,
-        metadata_column_obj_dict
+        metadata_column_obj_dict,
+        default_language,
+        inherited_properties,
         ):
     """
     """
-    annotated_column_dict['titles']=metadata_column_obj_dict['titles']
-    # NEEDS COMPLETING
-    # there will be other properties to copy from metadata to annotated table
+    # add inherited properties that were passed
+    for k,v in inherited_properties.items():
+        if k=='aboutUrl': k='aboutURL'
+        if k=='propertyUrl': k='propertyURL'
+        if k=='valueUrl': k='valueURL'
+        if k in annotated_column_dict:
+            annotated_column_dict[k]=v
+    
+    # include new inherited properties from metadata
+    for name in get_inherited_properties_from_type('Column'):
+        if name in metadata_column_obj_dict:
+            inherited_properties[name]=metadata_column_obj_dict[name]
+    
+    # annotate this column
+    for k,v in metadata_column_obj_dict.items():
+        annotated_column_dict[k]=v
+        
+    # annotate cells
+    cells=annotated_column_dict['cells']
+    for i in range(len(cells)):
+        cells[i]=annotate_cell(
+            cells[i],
+            inherited_properties
+            )
+    
+    # If there is no name property defined on this column, the first titles 
+    # value having the same language tag as default language, or und or if 
+    # no default language is specified, becomes the name annotation for the 
+    # described column. 
+    # This annotation must be percent-encoded as necessary to conform to 
+    # the syntactic requirements defined in [RFC3986].
+    if annotated_column_dict['name'] is None:
+        title=annotated_column_dict['titles'][default_language][0]
+        title=urllib.parse.quote(title.encode('utf8'))
+        annotated_column_dict['name']=title
+    
     
     return annotated_column_dict
     
     
-    
-def annotate_row(
-        annotated_row,
-        metadata_table_obj_dict
-        ):
-    """
-    """
-    
-    return annotated_row
-    
-    
 def annotate_cell(
+        annotated_cell_dict,
+        inherited_properties
         ):
     """
     """    
+    # add inherited properties that were passed
+    for k,v in inherited_properties.items():
+        if k=='aboutUrl': k='aboutURL'
+        if k=='propertyUrl': k='propertyURL'
+        if k=='valueUrl': k='valueURL'
+        if k in annotated_cell_dict:
+            annotated_cell_dict[k]=v
+    
+    
+    
+    return annotated_cell_dict
+    
+
+
+#%% Section 5.1.3 - URI Template Properties
+
+def get_URI_from_URI_template(
+        uri_template_string,
+        annotated_cell_dict,
+        table_path,
+        table_url
+        ):
+    """
+    """
+    
+    # If the supplied value of a URI template property is not a string 
+    # (e.g. if it is an integer), compliant applications must issue a 
+    # warning and proceed as if the property had been supplied with an empty string.
+    
+    # TO DO
+    
+    # URI template properties contain a [URI-TEMPLATE] which can be 
+    # used to generate a URI.
+    # These URI templates are expanded in the context of each row by 
+    # combining the template with a set of variables with values as 
+    # defined in [URI-TEMPLATE]. 
+    
+    # The following variables are set:
+    variables={}
+    
+    # column names
+    # a variable is set for each column within the schema; the name of the 
+    # variable is the column name of the column from the annotated table 
+    # and the value is derived from the value of the cell in that column 
+    # in the row that is currently being processed, namely one of:
+        # null,
+        # the canonical representation of the value of the cell, based on 
+        #  its datatype as defined in [xmlschema11-2], if it has a single value, or
+        # a list of canonical representations of the values of the cell, 
+        #  if it has a sequence value.
+    
+    for cell in annotated_cell_dict['row']['cells']:
+        name=cell['column']['name']
+        if not name is None:
+            value=cell['value']
+            if value is None:
+                pass
+            elif isinstance(value,list):
+                value=[get_canonical_representation_of_cell_value(
+                    x,
+                    cell['column']['datatype']) for x in value]
+            else:
+                value=get_canonical_representation_of_cell_value(value,
+                                                                 cell['column']['datatype'])
+            variables[name]=value
+            
+    # _column
+    # _column is set to the column number of the column from the annotated 
+    # table that is currently being processed.
+    variables['_column']=annotated_cell_dict['column']['number']
+    
+    # _sourceColumn
+    #_sourceColumn is set to the source number of the column that is currently 
+    # being processed; this usually varies from _column by skip columns.
+    variables['_sourceColumn']=annotated_cell_dict['column']['sourceNumber']
+
+    #_row
+    #_row is set to the row number of the row from the annotated table that is 
+    # currently being processed.
+    variables['_row']=annotated_cell_dict['row']['number']
+
+    #_sourceRow
+    #_sourceRow is set to the source number of the row that is currently 
+    # being processed; this usually varies from _row by skip rows and header rows.
+    variables['_sourceRow']=annotated_cell_dict['row']['sourceNumber']
+
+    #_name
+    #_name is set to the URI decoded column name annotation, as defined 
+    # in [tabular-data-model], for the column that is currently being 
+    # processed. (Percent-decoding is necessary as name may have been encoded 
+    # if taken from titles; this prevents double percent-encoding.)
+    variables['_name']=urllib.parse.unquote(annotated_cell_dict['column']['name'])        
+        
+    # The annotation value is the result of:
+        
+    # 1 applying the template against the cell in that column in the row that 
+    # is currently being processed.
+    uri=uritemplate.expand(uri_template_string,
+                           variables)
+    
+    # 2 expanding any prefixes as if the value were the name of a common 
+    # property, as described in section 5.8 Common Properties.
+    uri=get_expanded_prefixed_name(uri)
+    
+    # 3 resolving the resulting URL against the base URL of the table url if not null.
+    
+    # if absolute path
+    if os.path.isabs(uri):
+        return uri
+    
+    # if absolute url
+    elif bool(urllib.parse.urlparse(uri).netloc): 
+        return uri
+    
+    else: # if relative path or url, resolve against table path or base table
+    
+        if not table_path is None:
+            
+            return table_path + uri
+        
+        elif not table_url is None:
+
+            # remove fragments            
+            x=urllib.parse.urljoin(table_url, urllib.parse.urlparse(table_url).path) 
+
+            return urllib.parse.urljoin(x,uri)  # NEED CHECKING
+    
+    
+            
+    
+def get_canonical_representation_of_cell_value(
+        value,
+        datatype
+        ):
+    """
+    """
+    if isinstance(value,datetime.date) or isinstance(value,datetime.datetime):
+        
+        return value.isoformat()
+    
+    elif isinstance(value,dict):
+        return get_canonical_representation_of_cell_value(
+                list(value.values())[0],
+                datatype
+                )
+    
+    else:
+        return str(value)
+    
+    
+    
     
 
 #%% Section 5.4.3 - Table Description Compatibility
@@ -428,23 +704,51 @@ def compare_schema_descriptions(
         # matches any language, and languages match if they are equal when 
         # truncated, as defined in [BCP47], to the length of the shortest language tag.
         
+        
         intersection=False
-        for TM_lang_tag,TM_titles in TM_column['titles'].items():
+        
+        for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
             
-            if TM_lang_tag=='und':
+            for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
                 
-                for EM_titles in TM_column['titles'].values():
-                
+                if TM_lang_tag=='und' or EM_lang_tag=='und' \
+                    or langcodes.standardize_tag(TM_lang_tag)== \
+                        langcodes.standardize_tag(EM_lang_tag):
+                            
                     for title in TM_titles:
                         if title in EM_titles:
                             intersection=True
                             break
-                
-            else:
-                raise NotImplementedError # TO DO
-                
+              
+                if intersection:
+                    break
+              
+            if intersection:
+                break
+              
         if intersection:
             continue
+              
+                
+        
+        
+        
+        # intersection=False
+        # for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+            
+        #     if TM_lang_tag=='und':
+                
+        #         for EM_titles in EM_column.get('titles',{}).values():
+                
+        #             for title in TM_titles:
+        #                 if title in EM_titles:
+        #                     intersection=True
+        #                     break
+                
+        #     else:
+        #         raise NotImplementedError # TO DO
+                
+        
         
         
         
@@ -970,7 +1274,8 @@ def create_annotated_tables_from_csv_file_path_or_url(
             metadata_root_obj_dict,
             metadata_file_path,
             metadata_file_url,
-            validate=validate
+            validate=validate,
+            from_csv=True
             )
 
     # 2.2 metadata referenced from a Link Header that may be returned when 
@@ -1000,7 +1305,8 @@ def create_annotated_tables_from_csv_file_path_or_url(
         metadata_file_path='.',
         metadata_file_url=None,
         validate=validate,
-        embedded_metadata=True
+        embedded_metadata=True,
+        from_csv=True
         )
 
 
@@ -1083,7 +1389,8 @@ def create_annotated_tables_from_metadata_root_object(
         metadata_file_path=None,
         metadata_file_url=None,
         validate=False,
-        embedded_metadata=False
+        embedded_metadata=False,
+        from_csv=False
         ):
     """
     
@@ -1116,6 +1423,20 @@ def create_annotated_tables_from_metadata_root_object(
             metadata_root_obj_dict,
             metadata_file_path,
             metadata_file_url
+            )
+        
+    # get base path & url
+    base_path, base_url=\
+        get_base_path_and_url_of_metadata_object(
+            metadata_root_obj_dict,
+            metadata_file_path,
+            metadata_file_url
+            )
+        
+    # get default language
+    default_language=\
+        get_default_language_of_metadata_object(
+            metadata_root_obj_dict
             )
     
     # convert to TableGroup if needed
@@ -1243,16 +1564,13 @@ def create_annotated_tables_from_metadata_root_object(
                 dialect_description_obj_dict,
                 table_name
                 )
-        
-        
+            
         # if called with embedded_metadata=True
         if embedded_metadata:
             metadata_table_obj_dict=embedded_metadata_dict
             metadata_table_obj_dict.pop('@context')
             metadata_table_group_obj_dict['tables'][table_index]=metadata_table_obj_dict
             #print(metadata_table_group_obj_dict)
-        
-        
         
         # 3.4 If a Content-Language HTTP header was found when retrieving the 
         #     tabular data file, and the value provides a single language, set 
@@ -1275,16 +1593,119 @@ def create_annotated_tables_from_metadata_root_object(
         
         annotated_table_group_dict['tables'].append(table_dict)
         
+        # Not directly in this section of the standard, but Section 8.2.1.1
+        # suggests that the metadata_table_obj_dict is merged with the embedded metadata
+        # Here this is done for certain properties which are present in the 
+        # embedded metadata but not present in the metadata_table_obj_dict
+        # NOTE - may need improving, might not work for all properties and cases
+        # at present
+        
+        if from_csv:        
+        
+            metadata_table_obj_dict=\
+                merge_metadata_objs(
+                    metadata_table_obj_dict,
+                    embedded_metadata_dict
+                    )
+        
+        
     # 3.6 Use the metadata TM to add annotations to the tabular data model 
     #     T as described in Section 2 Annotating Tables in [tabular-metadata].
     
     annotated_table_group_dict=\
         annotate_table_group(
             annotated_table_group_dict,
-            metadata_table_group_obj_dict
+            metadata_table_group_obj_dict,
+            default_language
             )
+            
+    # Not directly in this section of the standard, but at this stage the 
+    # cell values are parsed.
+    # This is done after the metadata annotations are included in the 
+    # annotated_table_group_dict
+    
+    for annotated_table_dict in annotated_table_group_dict['tables']:
+        #print(annotated_table_dict)
         
-    print(metadata_table_group_obj_dict)
+        for annotated_column_dict in annotated_table_dict['columns']:
+            
+            for annotated_cell_dict in annotated_column_dict['cells']:
+                
+                annotated_cell_dict['value']=\
+                    parse_cell(
+                        string_value=annotated_cell_dict['stringValue'],
+                        datatype=annotated_column_dict['datatype'],
+                        default=annotated_column_dict['default'],
+                        lang=annotated_column_dict['lang'],
+                        null=annotated_column_dict['null'],
+                        required=annotated_column_dict['required'],
+                        separator=annotated_column_dict['separator']
+                        )
+                #print(annotated_column_dict['aboutURL'])
+                
+    # generate URIs
+                
+    for annotated_table_dict in annotated_table_group_dict['tables']:
+        
+        tabular_data_file_path, tabular_data_file_url=\
+            get_path_and_url_from_file_location(
+                annotated_table_dict['url']
+                )
+        
+        for annotated_column_dict in annotated_table_dict['columns']:
+            
+            for annotated_cell_dict in annotated_column_dict['cells']:
+                
+                tabular_data_file_path, tabular_data_file_url=\
+                    get_path_and_url_from_file_location(
+                        tabular_data_file_path_or_url
+                        )
+                
+                # If there is a about URL annotation on the column, it becomes 
+                # the about URL annotation on the cell, after being transformed 
+                # into an absolute URL as described in URI Template Properties 
+                # of [tabular-metadata].
+                if not annotated_cell_dict['aboutURL'] is None:
+                    annotated_cell_dict['aboutURL']=\
+                        get_URI_from_URI_template(
+                            annotated_cell_dict['aboutURL'],
+                            annotated_cell_dict,
+                            tabular_data_file_path, 
+                            tabular_data_file_url
+                            )  
+                        
+                # If there is a property URL annotation on the column, it becomes 
+                # the property URL annotation on the cell, after being transformed 
+                # into an absolute URL as described in URI Template Properties 
+                # of [tabular-metadata].
+                if not annotated_cell_dict['propertyURL'] is None:
+                    annotated_cell_dict['propertyURL']=\
+                        get_URI_from_URI_template(
+                            annotated_cell_dict['propertyURL'],
+                            annotated_cell_dict,
+                            tabular_data_file_path, 
+                            tabular_data_file_url
+                            )  
+                        
+                # If there is a value URL annotation on the column, it becomes 
+                # the value URL annotation on the cell, after being transformed 
+                # into an absolute URL as described in URI Template Properties 
+                # of [tabular-metadata]. The value URL annotation is null if the cell value is null and the column virtual annotation is false.
+                if not annotated_cell_dict['valueURL'] is None:
+                    annotated_cell_dict['valueURL']=\
+                        get_URI_from_URI_template(
+                            annotated_cell_dict['valueURL'],
+                            annotated_cell_dict,
+                            tabular_data_file_path, 
+                            tabular_data_file_url
+                            )  
+     
+             
+     
+ 
+ 
+        
+    #print(metadata_table_group_obj_dict)
         
     return annotated_table_group_dict
      
@@ -1292,22 +1713,266 @@ def create_annotated_tables_from_metadata_root_object(
 #%% Section 6.4 - Parsing Cells
 
 def parse_cell(
-        cell_string_value
+        string_value,
+        datatype,
+        default,
+        lang,
+        null,
+        required,
+        separator
         ):
     """
     """
     
-    # The process of parsing the string value into a single value or a list of values is as follows:
-        
-    # 1 unless the datatype base is string, json, xml, html or anyAtomicType, replace all carriage return (#xD), line feed (#xA), and tab (#x9) characters with space characters.
+    if not isinstance(datatype,dict):
+        datatype={'base':datatype}
+    #print(datatype)
     
-    # etc.
+    if not isinstance(null,list):
+        null=[null]
+    
+    
+    value=string_value
+    
+    # The process of parsing the string value into a single value or a list 
+    # of values is as follows:
+        
+    # 1 unless the datatype base is string, json, xml, html or anyAtomicType, 
+    # replace all carriage return (#xD), line feed (#xA), and tab (#x9) 
+    # characters with space characters.
+    if datatype['base'] not in ['string','json','xml','html','anyAtomicType']:
+        value=value.replace('\r',' ')
+        value=value.replace('\n',' ')
+        value=value.replace('\t',' ')
+    
+    # 2 unless the datatype base is string, json, xml, html, anyAtomicType, 
+    # or normalizedString, strip leading and trailing whitespace from the 
+    # string value and replace all instances of two or more whitespace #
+    # characters with a single space character.
+    if datatype['base'] not in ['string','json','xml','html','anyAtomicType','normalizedString']:
+        value=value.strip()
+        value=" ".join(value.split()) # includes whitespace such as '\n' etc.
+                                      # if this should be spaces only,  
+                                      # could use st=re.sub(' +',' ', st)
+                                
+    # 3 if the normalized string is an empty string, apply the remaining 
+    # steps to the string given by the column default annotation.
+    if value=='':
+        value=default
+        
+    # 4 if the column separator annotation is not null and the normalized 
+    # string is an empty string, the cell value is an empty list. If the 
+    # column required annotation is true, add an error to the list of errors for the cell.
+    if not separator is None and value=='':
+        
+        value=[]
+        
+        if required:
+            
+            # ADD ERROR
+            raise NotImplementedError
+            
+        return value
+        
+    # 5 if the column separator annotation is not null, the cell value is a 
+    # list of values; set the list annotation on the cell to true, and create 
+    # the cell value created by:
+    if not separator is None:
+        
+        # "set the list annotation on the cell to true"
+        # - not done, as there is no 'list' annotation on the cell object
+        
+        # 5.1 if the normalized string is the same as any one of the values 
+        # of the column null annotation, then the resulting value is null.
+        if value in null:
+            
+            value=None
+            
+            return value
+            
+        # 5.2 split the normalized string at the character specified by the 
+        # column separator annotation.
+        else:
+            
+            value=value.split(separator)
+                
+            # 5.3 unless the datatype base is string or anyAtomicType, strip 
+            # leading and trailing whitespace from these strings.  
+            if not datatype['base'] not in ['string','anyAtomicType']:
+                value=[x.strip() for x in value]
+                
+            # 5.4 applying the remaining steps to each of the strings in turn.
+            
+            return [parse_cell_part_2(
+                        x,
+                        datatype,
+                        default,
+                        lang,
+                        null,
+                        required,
+                        separator
+                        )
+                for x in value]
+                    
+    return parse_cell_part_2(
+            value,
+            datatype,
+            default,
+            lang,
+            null,
+            required,
+            separator
+            )
 
 
+def parse_cell_part_2(
+        value,
+        datatype,
+        default,
+        lang,
+        null,
+        required,
+        separator
+        ):
+    """
+    """
+    # 6 if the string is an empty string, apply the remaining steps to the 
+    # string given by the column default annotation.
+    if value=='':
+        value=default
+        
+    # 7 if the string is the same as any one of the values of the column null 
+    # annotation, then the resulting value is null. If the column separator 
+    # annotation is null and the column required annotation is true, add 
+    # an error to the list of errors for the cell.
+    if value in null:
+        
+        value=None
+        
+        if separator is None and required==True:
+            
+            # ADD ERROR
+            raise NotImplementedError
+        
+        return value
+    
+    # 8 parse the string using the datatype format if one is specified, as 
+    # described below to give a value with an associated datatype. 
+    # If the datatype base is string, or there is no datatype, the value has 
+    # an associated language from the column lang annotation. 
+    # If there are any errors, add them to the list of errors for the cell; 
+    # in this case the value has a datatype of string; if the datatype base 
+    # is string, or there is no datatype, the value has an associated language 
+    # from the column lang annotation.
+    
+    if datatype['base']=='string' or datatype is None:
+        
+        if 'format' in datatype:
+            
+            raise NotImplementedError
+            
+        else:
+        
+            value={lang:value}
+    
+    elif datatype['base']=='number':
+        
+        if 'format' in datatype:
+            
+            raise NotImplementedError
+            
+        else:
+        
+            value=float(value)
+    
+    elif datatype['base']=='date':
+        
+        value=parse_date(
+            value,
+            datatype.get('format',None)
+            )
+            
+            
+        
+    else:
+        
+        raise Exception
+    
+    
+    
+    
+    # 9 validate the value based on the length constraints described in 
+    # section 4.6.1 Length Constraints, the value constraints described 
+    # in section 4.6.2 Value Constraints and the datatype format annotation 
+    # if one is specified, as described below. 
+    # If there are any errors, add them to the list of errors for the cell.
+    
+    # TO DO
+    
+    
+    return value
 
 
+#%% Section 6.4.4. Formats for dates and times
 
+def parse_date(
+        value,
+        format_
+        ):
+    """
+    """
+    
+    # By default, dates and times are assumed to be in the format defined 
+    # in [xmlschema11-2]. However dates and times are commonly represented 
+    # in tabular data in other formats.
 
+    if format_ is None:
+        
+        return datetime.date.fromisoformat(value)
+
+    # If the datatype base is a date or time type, the datatype format 
+    # annotation indicates the expected format for that date or time.
+    
+    # The supported date and time format patterns listed here are 
+    # expressed in terms of the date field symbols defined in [UAX35]. 
+    # These formats must be recognised by implementations and must be 
+    # interpreted as defined in that specification. 
+    # Implementations may additionally recognise other date format patterns. 
+    # Implementations must issue a warning if the date format pattern is 
+    # invalid or not recognised and proceed as if no date format 
+    # pattern had been provided.
+
+    if format_ in [
+            'yyyy-MM-dd',
+            'yyyyMMdd',
+            'dd-MM-yyyy',
+            'd-M-yyyy',
+            'MM-dd-yyyy',
+            'M-d-yyyy',
+            'dd/MM/yyyy',
+            'd/M/yyyy',
+            'MM/dd/yyyy',
+            'M/d/yyyy',
+            'dd.MM.yyyy',
+            'd.M.yyyy',
+            'MM.dd.yyyy',
+            'M.d.yyyy',
+            ]:
+        
+        x=format_
+        x=x.replace('yyyy','%Y')
+        x=x.replace('MM','%m')
+        x=x.replace('M','%m')
+        x=x.replace('dd','%d')
+        x=x.replace('d','%d')
+        
+        dt=datetime.datetime.strptime(value, x)  # NEEDS CHECKING
+        return dt.date()
+        
+    else:
+        
+        raise Exception
+        
 
 
 #%% Section 8 - Parsing Tabular Data
@@ -2114,7 +2779,7 @@ def get_base_path_and_url_of_metadata_object(
         base_path=None
         if not base_url_property_value is None:
             base_url=urllib.parse.urljoin(metadata_file_url,
-                                          base_url)
+                                          base_url) # should this be base_url_property_value??
         else:
             base_url=urllib.parse.urljoin(metadata_file_url,
                                           '.')  
@@ -2480,5 +3145,62 @@ def get_type_of_metadata_object(
         raise ValueError
     
 
+def merge_metadata_objs(
+        obj1,        
+        obj2
+        ):
+    """
+    """
+    # not sure if this will handle all cases
+    # i.e. an existing titles list, to whcih further (embedded) titles are added
+    
+    if isinstance(obj2,dict):
+        
+        if not isinstance(obj1,dict):
+            
+            return obj1
+        
+        else:
+            
+            for k, v in obj2.items():
+                
+                if k in obj1:
+                    
+                    obj1[k]=merge_metadata_objs(
+                        obj1[k],
+                        v
+                        )
+        
+                else:
+                    
+                    obj1[k]=v
+                    
+            return obj1
+        
+    elif isinstance(obj2,list):
+        
+        if isinstance(obj1,list):
+            
+            x=[]            
+            
+            for i in range(len(obj2)):
+                
+                x.append(merge_metadata_objs(
+                    obj1[i],
+                    obj2[i]
+                    ))
+                
+            return x
+                
+        else:
+            
+            return obj1
+    
+    else:
+        
+        return obj1
+        
+    
+    
     
 

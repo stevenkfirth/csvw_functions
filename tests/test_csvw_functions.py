@@ -8,6 +8,7 @@ Created on Fri Jun 10 09:59:59 2022
 import unittest
 import os
 import json
+import datetime
 
 from csvw_functions import csvw_functions
 
@@ -138,22 +139,13 @@ class TestLocatingMetadata(unittest.TestCase):
              }
             )
         
-#%% FUNCTIONS - Model for Tabular Data and Metadata
+#%% TESTS - Model for Tabular Data and Metadata
 
 #%% Section 6.1 - Creating Annotated Tables
 
 class TestSection6_1(unittest.TestCase):
     ""
     
-    
-    def test_create_annotated_tables_from_csv_file_path_or_url(self):
-        ""
-        # example 14
-        fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
-        result=csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
-            fp
-            )
-        #print(result)
     
     
     def xtest_create_annotated_tables_from_metadata_file_url(self):
@@ -275,8 +267,630 @@ class TestSection6_1(unittest.TestCase):
         
         
         
-        print(result['tables'][0]['id'])
+        #print(result['tables'][0]['id'])
 
+
+#%% Section 6.4 - Parsing Cells
+
+class TestSection6_4(unittest.TestCase):
+    ""
+    
+    
+
+
+
+#%% Section 8 - Parsing Tabular Data
+
+
+class TestSection8(unittest.TestCase):
+    ""
+    
+    
+    def test_section_8_2_1_Simple_Example(self):
+        ""
+        # Example 8.2.1.
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+                fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [2,2,2,2,2]
+            )
+        # titles
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['GID']}, 
+             {'und': ['On Street']}, 
+             {'und': ['Species']}, 
+             {'und': ['Trim Cycle']}, 
+             {'und': ['Inventory Date']}]
+            )
+        
+        #---check embedded metadata---
+        # url
+        self.assertEqual(
+            annotated_table_dict['url'],
+            'model_for_tabular_data_and_metadata_example_files/example_14.csv'
+            )
+        
+        # column titles
+        #... see above
+        
+        #--- check annotated rows---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_rows_list],
+            [1,2]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_rows_list],
+            [2,3]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_rows_list],
+            [5,5]
+            )
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [1,1,1,1,1]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['1', 'ADDISON AV', 'Celtis australis', 'Large Tree Routine Prune', '10/18/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '1'}, 
+             {'und': 'ADDISON AV'}, 
+             {'und': 'Celtis australis'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             {'und': '10/18/2010'}]
+            )
+        #---second row---
+        annotated_cells_list=annotated_rows_list[1]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [2,2,2,2,2]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['2', 'EMERSON ST', 'Liquidambar styraciflua', 'Large Tree Routine Prune', '6/2/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '2'}, 
+             {'und': 'EMERSON ST'}, 
+             {'und': 'Liquidambar styraciflua'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             {'und': '6/2/2010'}]
+            )
+        
+
+    def test_section_8_2_1_1_Using_overriding_metadata(self):
+        ""
+        # 8.2.1.1 Using Overriding Metadata
+        csv_fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
+        json_fp=r'model_for_tabular_data_and_metadata_example_files/example_17.json'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+                csv_file_path_or_url=csv_fp,
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #--check embedded metadata
+        # titles
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['GID']}, 
+             {'und': ['On Street']}, 
+             {'und': ['Species']}, 
+             {'und': ['Trim Cycle']}, 
+             {'und': ['Inventory Date']}]
+            )  
+        # name
+        self.assertEqual(
+            [x['name'] for x in annotated_columns_list],
+            ['GID', 'on_street', 'species', 'trim_cycle', 'inventory_date']
+            )
+        # datatype
+        self.assertEqual(
+            [x['datatype'] for x in annotated_columns_list],
+            [{'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'date', 'format': 'M/d/yyyy'}]
+            )
+        
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [2,2,2,2,2]
+            )
+        # name
+        self.assertEqual(
+            [x['name'] for x in annotated_columns_list],
+            ['GID', 'on_street', 'species', 'trim_cycle', 'inventory_date']
+            )
+        # titles
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['GID']}, 
+             {'und': ['On Street']}, 
+             {'und': ['Species']}, 
+             {'und': ['Trim Cycle']}, 
+             {'und': ['Inventory Date']}]
+            )
+        # datatype
+        self.assertEqual(
+            [x['datatype'] for x in annotated_columns_list],
+            [{'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'date', 'format': 'M/d/yyyy'}]
+            )   
+
+
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [1,1,1,1,1]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['1', 'ADDISON AV', 'Celtis australis', 'Large Tree Routine Prune', '10/18/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '1'}, 
+             {'und': 'ADDISON AV'}, 
+             {'und': 'Celtis australis'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             datetime.date(2010, 10, 18)]
+            )
+        #---second row---
+        annotated_cells_list=annotated_rows_list[1]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [2,2,2,2,2]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['2', 'EMERSON ST', 'Liquidambar styraciflua', 'Large Tree Routine Prune', '6/2/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '2'}, 
+             {'und': 'EMERSON ST'}, 
+             {'und': 'Liquidambar styraciflua'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             datetime.date(2010, 6, 2)]
+            )
+        
+    def test_section_8_2_1_2_Using_a_metadata_metadata(self):
+        ""
+        # 8.2.1.1 Using Overriding Metadata
+        json_fp=r'model_for_tabular_data_and_metadata_example_files/example_19.json'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_tables_from_metadata_file_path_or_url(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+
+        #---check annotated table---
+        # dc:title
+        self.assertEqual(
+            annotated_table_dict['dc:title'],
+            {'@value': 'Tree Operations', '@language': 'en'}
+            )
+        # dcat:keyword
+        self.assertEqual(
+            annotated_table_dict['dcat:keyword'],
+            [{"@value": "tree", "@language": "en"}, 
+             {"@value": "street", "@language": "en"}, 
+             {"@value": "maintenance", "@language": "en"}]
+            )
+        # dc:publisher
+        self.assertEqual(
+            annotated_table_dict['dc:publisher'],
+            {'schema:name': {'@value': 'Example Municipality', '@language': 'en'}, 
+             'schema:url': {'@id': 'http://example.org'}}  # NOTE different to example solution
+            )
+        # dc:license
+        self.assertEqual(
+            annotated_table_dict['dc:license'],
+            {"@id": "http://opendefinition.org/licenses/cc-by/"}
+            )
+        # dc:modified
+        self.assertEqual(
+            annotated_table_dict['dc:modified'],
+            {"@value": "2010-12-31", "@type": "xsd:date"}  # NOTE different to example solution
+            )
+
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [2,2,2,2,2]
+            )
+        # name
+        self.assertEqual(
+            [x['name'] for x in annotated_columns_list],
+            ['GID', 'on_street', 'species', 'trim_cycle', 'inventory_date']
+            )
+        # titles
+        #print([x['titles'] for x in annotated_columns_list])
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'en': ['GID', 'Generic Identifier']}, 
+             {'en': ['On Street']}, 
+             {'en': ['Species']}, 
+             {'en': ['Trim Cycle']}, 
+             {'en': ['Inventory Date']}]
+            )
+        # datatype
+        self.assertEqual(
+            [x['datatype'] for x in annotated_columns_list],
+            [{'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'string'}, 
+             {'base': 'date', 'format': 'M/d/yyyy'}]
+            )   
+        # dc:description
+        #print([x['dc:description'] for x in annotated_columns_list])
+        self.assertEqual(
+            [x['dc:description'] for x in annotated_columns_list],
+            [{'@value': 'An identifier for the operation on a tree.', '@language': 'en'}, 
+             {'@value': 'The street that the tree is on.', '@language': 'en'}, 
+             {'@value': 'The species of the tree.', '@language': 'en'}, 
+             {'@value': 'The operation performed on the tree.', '@language': 'en'}, 
+             {'@value': 'The date of the operation that was performed.', '@language': 'en'}]
+            )
+        
+        #--- check annotated rows---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_rows_list],
+            [1,2]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_rows_list],
+            [2,3]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_rows_list],
+            [5,5]
+            )
+        # primary key
+        #print([x['primaryKey'][0]['column']['number'] for x in annotated_rows_list])
+        #print([x['primaryKey'][0]['row']['number'] for x in annotated_rows_list])
+        self.assertEqual(
+            [x['primaryKey'] for x in annotated_rows_list],
+            [[x['cells'][0]] for x in annotated_rows_list]
+            )
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [1,1,1,1,1]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['1', 'ADDISON AV', 'Celtis australis', 'Large Tree Routine Prune', '10/18/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '1'}, 
+             {'und': 'ADDISON AV'}, 
+             {'und': 'Celtis australis'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             datetime.date(2010, 10, 18)]
+            )
+        # aboutURL
+        #print([os.path.basename(x['aboutURL']) for x in annotated_cells_list])
+        self.assertEqual(
+            [os.path.basename(x['aboutURL']) for x in annotated_cells_list],  # hides the full path and checks on the filename only
+            ['tree-ops.csv#gid-1', 
+             'tree-ops.csv#gid-1', 
+             'tree-ops.csv#gid-1', 
+             'tree-ops.csv#gid-1', 
+             'tree-ops.csv#gid-1']
+            )
+        
+        #---second row---
+        annotated_cells_list=annotated_rows_list[1]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [2,2,2,2,2]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['2', 'EMERSON ST', 'Liquidambar styraciflua', 'Large Tree Routine Prune', '6/2/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '2'}, 
+             {'und': 'EMERSON ST'}, 
+             {'und': 'Liquidambar styraciflua'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             datetime.date(2010, 6, 2)]
+            )
+        # aboutURL
+        #print([os.path.basename(x['aboutURL']) for x in annotated_cells_list])
+        self.assertEqual(
+            [os.path.basename(x['aboutURL']) for x in annotated_cells_list],  # hides the full path and checks on the filename only
+            ['tree-ops.csv#gid-2', 
+             'tree-ops.csv#gid-2', 
+             'tree-ops.csv#gid-2', 
+             'tree-ops.csv#gid-2', 
+             'tree-ops.csv#gid-2']
+            )
+        
+    def test_section_8_2_2_Empty_and_Quoted_Cells(self):
+        ""
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_20.csv'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+                fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [1,1,1,1,1]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['1', 'ADDISON AV', 'Celtis australis', 'Large Tree Routine Prune', '10/18/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '1'}, 
+             {'und': 'ADDISON AV'}, 
+             {'und': 'Celtis australis'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             {'und': '10/18/2010'}]
+            )
+        #---second row---
+        annotated_cells_list=annotated_rows_list[1]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [2,2,2,2,2]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['2', '', 'Liquidambar styraciflua', 'Large Tree Routine Prune', '']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '2'}, 
+             None, 
+             {'und': 'Liquidambar styraciflua'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             None]
+            )
+
+    def test_section_8_2_3_1_Naive_Parsing(self):
+        ""
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+                fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [1]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [6]
+            )
+        # titles
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['#\tpublisher\tCity of Palo Alto']}]
+            )
+        
+        #--- check annotated rows---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_rows_list],
+            [1,2,3,4,5,6]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_rows_list],
+            [2,3,4,5,6,7]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_rows_list],
+            [1,1,1,1,1,1]
+            )
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_columns_list[0]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,1,1,1,1,1]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5,6]
+            )
+        # string value
+        #print([x['stringValue'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['#\tupdated\t12/31/2010', 
+             '#name\tGID\ton_street\tspecies\ttrim_cycle\tinventory_date', 
+             '#datatype\tstring\tstring\tstring\tstring\tdate:M/D/YYYY', 
+             'GID\tOn Street\tSpecies\tTrim Cycle\tInventory Date', 
+             '1\tADDISON AV\tCeltis australis\tLarge Tree Routine Prune\t10/18/2010', 
+             '2\tEMERSON ST\tLiquidambar styraciflua\tLarge Tree Routine Prune\t6/2/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '#\tupdated\t12/31/2010'}, 
+             {'und': '#name\tGID\ton_street\tspecies\ttrim_cycle\tinventory_date'}, 
+             {'und': '#datatype\tstring\tstring\tstring\tstring\tdate:M/D/YYYY'}, 
+             {'und': 'GID\tOn Street\tSpecies\tTrim Cycle\tInventory Date'}, 
+             {'und': '1\tADDISON AV\tCeltis australis\tLarge Tree Routine Prune\t10/18/2010'}, 
+             {'und': '2\tEMERSON ST\tLiquidambar styraciflua\tLarge Tree Routine Prune\t6/2/2010'}]
+            )
+        
 
 #%% FUNCTIONS - General
 
