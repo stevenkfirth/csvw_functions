@@ -24,121 +24,7 @@ with open(os.path.join('metadata_vocabulary_example_files','example_41.json')) a
 with open(os.path.join('model_for_tabular_data_and_metadata_example_files','example_14.csv')) as f:
      model_for_tabular_data_and_metadata_example_14=f.read()
 
-#import os
-#print(os.listdir('../csvw_functions/schema_files'))
 
-
-class TestReadSchemas(unittest.TestCase):
-    ""
-    
-class TestIdentifySchemaProperties(unittest.TestCase):
-    ""
-    
-class TestSchemaPrefixes(unittest.TestCase):
-    ""
-
-class TestNormalizeMetadata(unittest.TestCase):
-    ""
-    
-    def test_normalize_metadata_from_file_path_example_41(self):
-        ""
-        metadata_file_url=r'metadata_vocabulary_example_files/example_41.json'
-        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_url)
-        
-        self.assertEqual(
-            result,
-            {'@context': 'http://www.w3.org/ns/csvw', 
-             '@type': 'Table', 
-             'url': 'http://example.com/table.csv', 
-             'tableSchema': {}, 
-             'dc:title': {'@value': 'The title of this Table', 
-                          '@language': 'en'}}
-            )
-        
-        
-    def test_normalize_metadata_from_file_path_example_44(self):
-        ""
-        metadata_file_url=r'metadata_vocabulary_example_files/example_44.json'
-        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_url)
-        
-        self.assertEqual(
-            result,
-            {'@context': 'http://www.w3.org/ns/csvw', 
-             '@type': 'Table', 
-             'url': 'http://example.com/table.csv', 
-             'tableSchema': {}, 
-             'dc:title': [
-                 {'@value': 'The title of this Table', '@language': 'en'}, 
-                 {'@value': 'Der Titel dieser Tabelle', '@language': 'de'}
-                 ]
-             }
-            )
-        
-        
-    def test_normalize_metadata_from_file_path_example_46(self):
-        ""
-        metadata_file_path=r'metadata_vocabulary_example_files/example_46.json'
-        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_path)
-        
-        self.assertEqual(
-            result,
-            {'@context': 'http://www.w3.org/ns/csvw', 
-             '@type': 'Table', 
-             'url': 'http://example.com/table.csv', 
-             'tableSchema': {}, 
-             'schema:url': {'@id': 'http://example.com/table.csv'}
-             }
-            )
-        
-        
-    def test_normalize_metadata_from_file_path_example_48(self):
-        ""
-        metadata_file_url=r'metadata_vocabulary_example_files/example_48.json'
-        result=csvw_functions.normalize_metadata_from_file_path(metadata_file_url)
-        
-        self.assertEqual(
-            result,
-            {'@context': 'http://www.w3.org/ns/csvw', 
-             '@type': 'Table', 
-             'url': 'http://example.com/table.csv', 
-             'tableSchema': {}, 
-             'dc:publisher': [
-                 {'schema:name': {'@value': 'Example Municipality'}, 
-                  'schema:url': {'@id': 'http://example.org'}
-                  }
-                 ]
-             }
-            )
-        
-        
-class TestLocatingMetadata(unittest.TestCase):
-    ""
-    
-    # def test_get_embedded_metadata_from_csv_file(self):
-    #     ""
-        
-        
-    #     result=csvw_functions.get_embedded_metadata_from_csv_file(
-    #         'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_14.csv'
-    #         )
-        
-    #     self.assertEqual(
-    #         result,
-    #         {'@context': 'http://www.w3.org/ns/csvw', 
-    #          '@type': 'Table', 
-    #          'url': 'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_14.csv', 
-    #          'tableSchema': {
-    #              'columns': [
-    #                  {'titles': ['GID']}, 
-    #                  {'titles': ['On Street']}, 
-    #                  {'titles': ['Species']}, 
-    #                  {'titles': ['Trim Cycle']}, 
-    #                  {'titles': ['Inventory Date']}
-    #                  ]
-    #              }
-    #          }
-    #         )
-        
     
     
 #%% TESTS - Top Level Functions
@@ -146,13 +32,14 @@ class TestLocatingMetadata(unittest.TestCase):
 class TestTopLevelFunctions(unittest.TestCase):
     ""
     
-    def test_get_embedded_metadata(self):
+    def test_get_embedded_metadata_from_csv(self):
         ""
         # example 14
         fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
-        result=csvw_functions.get_embedded_metadata(
+        result=csvw_functions.get_embedded_metadata_from_csv(
             fp
             )
+        result['url']=os.path.basename(result['url'])
         self.assertEqual(
             result,
             {'@context': 'http://www.w3.org/ns/csvw', 
@@ -169,14 +56,15 @@ class TestTopLevelFunctions(unittest.TestCase):
                      {'titles': {'und': ['Inventory Date']}, 
                       '@type': 'Column'}], 
                  '@type': 'Table'}, 
-             'url': 'model_for_tabular_data_and_metadata_example_files/example_14.csv'}
+             'url': 'example_14.csv'}
             )
         
         # example 21 - default dialect
         fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
-        result=csvw_functions.get_embedded_metadata(
+        result=csvw_functions.get_embedded_metadata_from_csv(
             fp
             )
+        result['url']=os.path.basename(result['url'])
         #print(result)
         self.assertEqual(
             result,
@@ -186,18 +74,19 @@ class TestTopLevelFunctions(unittest.TestCase):
                      {'titles': {'und': ['#\tpublisher\tCity of Palo Alto']}, 
                       '@type': 'Column'}], 
                  '@type': 'Table'}, 
-             'url': 'model_for_tabular_data_and_metadata_example_files/example_21.csv'}
+             'url': 'example_21.csv'}
             )
     
         # example 21 - custom dialect with flags
         fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
-        result=csvw_functions.get_embedded_metadata(
+        result=csvw_functions.get_embedded_metadata_from_csv(
             fp,
             delimiter='\t',
             skip_rows=4,
             skip_columns=1,
             comment_prefix='#'
             )
+        result['url']=os.path.basename(result['url'])
         self.assertEqual(
             result,
             {'@context': 'http://www.w3.org/ns/csvw', 
@@ -217,138 +106,11 @@ class TestTopLevelFunctions(unittest.TestCase):
                      ], 
                  '@type': 'Table'
                  }, 
-             'url': 'model_for_tabular_data_and_metadata_example_files/example_21.csv'}
+             'url': 'example_21.csv'}
             )
+ 
     
 #%% TESTS - Model for Tabular Data and Metadata
-
-#%% Section 6.1 - Creating Annotated Tables
-
-class TestSection6_1(unittest.TestCase):
-    ""
-    
-    
-    
-    def xtest_create_annotated_tables_from_metadata_file_url(self):
-        ""
-        # example 15
-        url='https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_15.json'
-        result=csvw_functions.create_annotated_tables_from_metadata_file_url(
-            url
-            )
-        
-        # check first column
-        self.assertEqual(
-            result['tables'][0]['columns'][0],
-            {'table': result['tables'][0], 
-             'number': 1, 
-             'sourceNumber': 1, 
-             'name': None, 
-             'titles': {'und': ['GID']}, 
-             'virtual': False, 
-             'suppressOutput': False, 
-             'datatype': 'string', 
-             'default': '', 
-             'lang': 'und', 
-             'null': '', 
-             'ordered': False, 
-             'required': False, 
-             'separator': None, 
-             'textDirection': 'auto', 
-             'aboutURL': None, 
-             'propertyURL': None, 
-             'valueURL': None, 
-             'cells': [
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][0], 
-                  'row': result['tables'][0]['rows'][0], 
-                  'stringValue': '1', 
-                  'value': '1', 
-                  'errors': [], 
-                  'textDirection': 'auto', 
-                  'ordered': False, 
-                  'aboutURL': None, 
-                  'propertyURL': None, 
-                  'valueURL': None}, 
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][0], 
-                  'row': result['tables'][0]['rows'][1], 
-                  'stringValue': '2', 
-                  'value': '2', 
-                  'errors': [], 
-                  'textDirection': 'auto', 
-                  'ordered': False, 
-                  'aboutURL': None, 
-                  'propertyURL': None, 
-                  'valueURL': None}
-                 ]
-             }
-            )
-        
-        # check first row
-        self.assertEqual(
-            result['tables'][0]['rows'][0],
-            {'table': result['tables'][0], 
-             'number': 1, 
-             'sourceNumber': 2, 
-             'primaryKey': [], 
-             'referencedRows': [], 
-             'cells': [
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][0], 
-                  'row': result['tables'][0]['rows'][0], 
-                  'stringValue': '1', 'value': '1', 'errors': [], 
-                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
-                  'propertyURL': None, 'valueURL': None}, 
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][1], 
-                  'row': result['tables'][0]['rows'][0], 
-                  'stringValue': 'ADDISON AV', 'value': 'ADDISON AV', 'errors': [], 
-                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
-                  'propertyURL': None, 'valueURL': None}, 
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][2], 
-                  'row': result['tables'][0]['rows'][0], 
-                  'stringValue': 'Celtis australis', 'value': 'Celtis australis', 
-                  'errors': [], 
-                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
-                  'propertyURL': None, 'valueURL': None}, 
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][3], 
-                  'row': result['tables'][0]['rows'][0], 
-                  'stringValue': 'Large Tree Routine Prune', 
-                  'value': 'Large Tree Routine Prune', 'errors': [], 
-                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
-                  'propertyURL': None, 'valueURL': None}, 
-                 {'table': result['tables'][0], 
-                  'column': result['tables'][0]['columns'][4], 
-                  'row': result['tables'][0]['rows'][0], 
-                  'stringValue': '10/18/2010', 'value': '10/18/2010', 'errors': [], 
-                  'textDirection': 'auto', 'ordered': False, 'aboutURL': None, 
-                  'propertyURL': None, 'valueURL': None}
-                 ]
-             }
-            )
-        
-        # check first cell
-        self.assertEqual(
-            result['tables'][0]['columns'][0]['cells'][0],
-            {'table': result['tables'][0], 
-             'column': result['tables'][0]['columns'][0], 
-             'row': result['tables'][0]['rows'][0], 
-             'stringValue': '1', 
-             'value': '1', 
-             'errors': [], 
-             'textDirection': 'auto', 
-             'ordered': False, 
-             'aboutURL': None, 
-             'propertyURL': None, 
-             'valueURL': None}
-            )
-        
-        
-        
-        #print(result['tables'][0]['id'])
 
 
 #%% Section 6.4 - Parsing Cells
@@ -356,16 +118,11 @@ class TestSection6_1(unittest.TestCase):
 class TestSection6_4(unittest.TestCase):
     ""
     
-    
-
-
 
 #%% Section 8 - Parsing Tabular Data
 
-
 class TestSection8(unittest.TestCase):
     ""
-    
     
     def test_section_8_2_1_Simple_Example(self):
         ""
@@ -408,8 +165,8 @@ class TestSection8(unittest.TestCase):
         #---check embedded metadata---
         # url
         self.assertEqual(
-            annotated_table_dict['url'],
-            'model_for_tabular_data_and_metadata_example_files/example_14.csv'
+            os.path.basename(annotated_table_dict['url']),
+            'example_14.csv'
             )
         
         # column titles
@@ -1218,11 +975,13 @@ class TestSection8(unittest.TestCase):
              {'und': ['Municipality', '#adm2']}]
             )
         
-        embedded_metadata=csvw_functions.get_embedded_metadata(
+        # embedded metadata
+        embedded_metadata=csvw_functions.get_embedded_metadata_from_csv(
             fp_csv,
             skip_rows=1,
             header_row_count=2,
             )
+        embedded_metadata['url']=os.path.basename(embedded_metadata['url'])
         
         self.assertEqual(
             embedded_metadata,
@@ -1238,10 +997,90 @@ class TestSection8(unittest.TestCase):
                      ],
                  '@type': 'Table'
                  },
-             'url': 'model_for_tabular_data_and_metadata_example_files/example_24.csv'}
+             'url': 'example_24.csv'}
             )        
+    
+    
+#%% TESTS - Metadata Vocabulary for Tabular Data
+    
+#%% 6. Normalization
 
-#%% FUNCTIONS - General
+class TestSection6(unittest.TestCase):
+    
+    def test_section_6_1_example_41(self):
+        ""
+        metadata_file_url=r'metadata_vocabulary_example_files/example_41.json'
+        result=csvw_functions.normalize_metadata_from_file_path_or_url(metadata_file_url)[0]
+        
+        self.assertEqual(
+            result,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             '@type': 'Table', 
+             'url': 'http://example.com/table.csv', 
+             'tableSchema': {}, 
+             'dc:title': {'@value': 'The title of this Table', 
+                          '@language': 'en'}}
+            )
+        
+        
+    def test_section_6_1_example_44(self):
+        ""
+        metadata_file_url=r'metadata_vocabulary_example_files/example_44.json'
+        result=csvw_functions.normalize_metadata_from_file_path_or_url(metadata_file_url)[0]
+        
+        self.assertEqual(
+            result,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             '@type': 'Table', 
+             'url': 'http://example.com/table.csv', 
+             'tableSchema': {}, 
+             'dc:title': [
+                 {'@value': 'The title of this Table', '@language': 'en'}, 
+                 {'@value': 'Der Titel dieser Tabelle', '@language': 'de'}
+                 ]
+             }
+            )
+        
+        
+    def test_section_6_1_example_46(self):
+        ""
+        metadata_file_path=r'metadata_vocabulary_example_files/example_46.json'
+        result=csvw_functions.normalize_metadata_from_file_path_or_url(metadata_file_path)[0]
+        
+        self.assertEqual(
+            result,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             '@type': 'Table', 
+             'url': 'http://example.com/table.csv', 
+             'tableSchema': {}, 
+             'schema:url': {'@id': 'http://example.com/table.csv'}
+             }
+            )
+        
+        
+    def test_section_6_1_example_48(self):
+        ""
+        metadata_file_url=r'metadata_vocabulary_example_files/example_48.json'
+        result=csvw_functions.normalize_metadata_from_file_path_or_url(metadata_file_url)[0]
+        
+        self.assertEqual(
+            result,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             '@type': 'Table', 
+             'url': 'http://example.com/table.csv', 
+             'tableSchema': {}, 
+             'dc:publisher': [
+                 {'schema:name': {'@value': 'Example Municipality'}, 
+                  'schema:url': {'@id': 'http://example.org'}
+                  }
+                 ]
+             }
+            )
+        
+
+
+
+#%% TESTS - General Functions
 
 class TestGeneralFunctions(unittest.TestCase):
     ""
@@ -1258,25 +1097,7 @@ class TestGeneralFunctions(unittest.TestCase):
                          'TableGroup')
         
         
-    def test_add_types_to_metadata(self):
-        ""
-        
-        result=csvw_functions.add_types_to_metadata(csvw_primer_example_4)
-        self.assertEqual(
-            result,
-            {'@context': 'http://www.w3.org/ns/csvw', 'url': 'countries.csv', '@type': 'Table'}
-            )
-        
-        result=csvw_functions.add_types_to_metadata(csvw_primer_example_5)
-        self.assertEqual(
-            result,
-            {'@context': 'http://www.w3.org/ns/csvw', 
-             'tables': [{'url': 'countries.csv', '@type': 'Table'}, 
-                        {'url': 'country-groups.csv', '@type': 'Table'}, 
-                        {'url': 'unemployment.csv', '@type': 'Table'}], 
-             '@type': 'TableGroup'}
-            )
-        
+    
         
     def test_get_common_properties_of_metadata_object(self):
         ""
@@ -1287,9 +1108,6 @@ class TestGeneralFunctions(unittest.TestCase):
             ['dc:title']
             )
         
-        
-    
-    
         
     def test_get_inherited_properties_from_type(self):
         ""

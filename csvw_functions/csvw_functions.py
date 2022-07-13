@@ -134,10 +134,10 @@ prefixes=\
     "role": "http://www.w3.org/1999/xhtml/vocab#role"
   }
 
+
 #%% FUNCTIONS - Top Level Functions
 
-
-def get_embedded_metadata(
+def get_embedded_metadata_from_csv(
         csv_file_path_or_url,
         comment_prefix=None,
         delimiter=None,
@@ -148,8 +148,80 @@ def get_embedded_metadata(
         skip_blank_rows=None,
         skip_columns=None,
         skip_rows=None,
+        trim=None
         ):
-    """
+    """Returns the embedded metadata from a CSV file.
+    
+    :param csv_file_path_or_url: Location of the CSV file.
+        Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :type csv_file_path_or_url: str
+    
+    :param comment_prefix: A string that, when it appears at the beginning of 
+        a row, indicates that the row is a comment that should be associated 
+        as a rdfs:comment annotation to the table. This is set by the 
+        commentPrefix property of a dialect description. The default 
+        is null, which means no rows are treated as comments. A value 
+        other than null may mean that the source numbers of rows are 
+        different from their numbers.
+    :type comment_prefix: str
+        
+    :param delimiter: The separator between cells, set by the delimiter 
+        property of a dialect description. The default is ,.
+    :type delimiter: str
+    
+    :param escape_character: The string that is used to escape the quote 
+        character within escaped cells, or null, set by the doubleQuote 
+        property of a dialect description. The default is " (such that "" 
+        is used to escape " within an escaped cell).
+    :type escape_character: str
+    
+    :param header_row_count: The number of header rows (following the 
+        skipped rows) in the file, set by the header or headerRowCount 
+        property of a dialect description. The default is 1. A value other 
+        than 0 will mean that the source numbers of rows will be different 
+        from their numbers.
+    :type header_row_count: int
+    
+    :param line_terminators: The strings that can be used at the end of a 
+        row, set by the lineTerminators property of a dialect description. 
+        The default is [CRLF, LF].
+    :type line_terminators: list
+    
+    :param quote_character: The string that is used around escaped 
+        cells, or null, set by the quoteChar property of a dialect 
+        description. The default is ".
+    :type quote_character: str
+    
+    :param skip_blank_rows: Indicates whether to ignore wholly empty 
+        rows (i.e. rows in which all the cells are empty), set by the 
+        skipBlankRows property of a dialect description. The default is 
+        false. A value other than false may mean that the source numbers 
+        of rows are different from their numbers.
+    :type skip_blank_rows: bool
+        
+    :param skip_columns: The number of columns to skip at the beginning 
+        of each row, set by the skipColumns property of a dialect 
+        description. The default is 0. A value other than 0 will mean 
+        that the source numbers of columns will be different from their 
+        numbers.
+    :type skip_columns: int
+        
+    :param skip_rows: The number of rows to skip at the beginning of the 
+        file, before a header row or tabular data, set by the skipRows 
+        property of a dialect description. The default is 0. A value 
+        greater than 0 will mean that the source numbers of rows will be 
+        different from their numbers.
+    :type skip_rows: int
+    
+    :param trim: Indicates whether to trim whitespace around cells; may 
+        be true, false, start, or end, set by the skipInitialSpace or 
+        trim property of a dialect description. The default is true.
+    :type trim: str or bool
+    
+    :returns: A CSVW metadata.json file as a Python dictionary.
+    :rtype: dict
+    
     """
     dialect_flags=dict(
         commentPrefix=comment_prefix,
@@ -209,7 +281,84 @@ def get_annotated_table_group_from_csv(
         skip_columns=None,
         skip_rows=None,
         ):
-    """
+    """Returns an annotated table group derived from a CSV file.
+    
+    :param csv_file_path_or_url: Location of the CSV file.
+        Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :type csv_file_path_or_url: str
+    
+    :param overriding_metadata_file_path_or_url: Location of a metadata.json
+        file to be used as "overriding metadata".
+        Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :type overriding_metadata_file_path_or_url: str
+    
+    :param comment_prefix: A string that, when it appears at the beginning of 
+        a row, indicates that the row is a comment that should be associated 
+        as a rdfs:comment annotation to the table. This is set by the 
+        commentPrefix property of a dialect description. The default 
+        is null, which means no rows are treated as comments. A value 
+        other than null may mean that the source numbers of rows are 
+        different from their numbers.
+    :type comment_prefix: str
+        
+    :param delimiter: The separator between cells, set by the delimiter 
+        property of a dialect description. The default is ,.
+    :type delimiter: str
+    
+    :param escape_character: The string that is used to escape the quote 
+        character within escaped cells, or null, set by the doubleQuote 
+        property of a dialect description. The default is " (such that "" 
+        is used to escape " within an escaped cell).
+    :type escape_character: str
+    
+    :param header_row_count: The number of header rows (following the 
+        skipped rows) in the file, set by the header or headerRowCount 
+        property of a dialect description. The default is 1. A value other 
+        than 0 will mean that the source numbers of rows will be different 
+        from their numbers.
+    :type header_row_count: int
+    
+    :param line_terminators: The strings that can be used at the end of a 
+        row, set by the lineTerminators property of a dialect description. 
+        The default is [CRLF, LF].
+    :type line_terminators: list
+    
+    :param quote_character: The string that is used around escaped 
+        cells, or null, set by the quoteChar property of a dialect 
+        description. The default is ".
+    :type quote_character: str
+    
+    :param skip_blank_rows: Indicates whether to ignore wholly empty 
+        rows (i.e. rows in which all the cells are empty), set by the 
+        skipBlankRows property of a dialect description. The default is 
+        false. A value other than false may mean that the source numbers 
+        of rows are different from their numbers.
+    :type skip_blank_rows: bool
+        
+    :param skip_columns: The number of columns to skip at the beginning 
+        of each row, set by the skipColumns property of a dialect 
+        description. The default is 0. A value other than 0 will mean 
+        that the source numbers of columns will be different from their 
+        numbers.
+    :type skip_columns: int
+        
+    :param skip_rows: The number of rows to skip at the beginning of the 
+        file, before a header row or tabular data, set by the skipRows 
+        property of a dialect description. The default is 0. A value 
+        greater than 0 will mean that the source numbers of rows will be 
+        different from their numbers.
+    :type skip_rows: int
+    
+    :param trim: Indicates whether to trim whitespace around cells; may 
+        be true, false, start, or end, set by the skipInitialSpace or 
+        trim property of a dialect description. The default is true.
+    :type trim: str or bool
+    
+    :returns: A CSVW annotated table group object, as a Python dictionary.
+    :rtype: dict
+    
     """
     # dialect_flags
     dialect_flags=dict(
@@ -243,7 +392,16 @@ def get_annotated_table_group_from_csv(
 def get_annotated_table_group_from_metadata(
         metadata_file_path_or_url
         ):
-    """
+    """Returns an annotated table group derived from a metadata.json file.
+    
+    :param metadata_file_path_or_url: Location of the metadata.json file.
+        Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :type overriding_metadata_file_path_or_url: str
+    
+    :returns: A CSVW annotated table group object, as a Python dictionary.
+    :rtype: dict
+    
     """
     annotated_table_group_dict=\
         create_annotated_tables_from_metadata_file_path_or_url(
@@ -269,1008 +427,6 @@ def convert_annotated_table_group_to_rdf(
 
     
     
-    
-    
-    
-
-
-
-#%% FUNCTIONS - Metadata Vocabulary for Tabular Data
-
-#%% Section 4- Annotating Tables
-
-def check_metadata_document(
-        metadata_obj_dict
-        ):
-    """
-    """
-    # All compliant applications must generate errors and stop processing if 
-    # a metadata document:
-    # - does not use valid JSON syntax defined by [RFC7159].
-    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
-    # - does not specify a property that it is required to specify.
-    
-    # NEEDS COMPLETING
-
-
-def apply_metadata_default_values(
-        metadata_obj_dict
-        ):
-    """
-    """
-    
-    # If a property has a value that is not permitted by this specification, 
-    # then if a default value is provided for that property, compliant 
-    # applications must generate a warning and use that default value. 
-    # If no default value is provided for that property, compliant 
-    # applications must generate a warning and behave as if the property 
-    # had not been specified. Additionally, including:
-    # - properties (aside from common properties) which are not defined in 
-    #   this specification, and
-    # - properties having invalid values for a given property.
-
-    # NEEDS COMPLETING
-
-
-def annotate_table_group(
-        annotated_table_group_dict,
-        metadata_table_group_obj_dict,
-        default_language,
-        validate=False
-        ):
-    """
-    """
-    
-    #print(metadata_table_group_obj_dict)
-    
-    # All compliant applications must generate errors and stop processing if 
-    # a metadata document:
-    # - does not use valid JSON syntax defined by [RFC7159].
-    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
-    # - does not specify a property that it is required to specify.
-    check_metadata_document(
-            metadata_table_group_obj_dict
-            )
-    
-    # Compliant applications must ignore properties (aside from common 
-    # properties) which are not defined in this specification and must 
-    # generate a warning when they are encoutered.
-    
-    # NEEDS COMPLETING
-    
-    # If a property has a value that is not permitted by this specification, 
-    # then if a default value is provided for that property, compliant 
-    # applications must generate a warning and use that default value. 
-    # If no default value is provided for that property, compliant 
-    # applications must generate a warning and behave as if the property 
-    # had not been specified. Additionally, including:
-    # - properties (aside from common properties) which are not defined in 
-    #   this specification, and
-    # - properties having invalid values for a given property.
-    apply_metadata_default_values(
-        metadata_table_group_obj_dict
-        )
-    
-    # Metadata documents contain descriptions of groups of tables, tables, 
-    # columns, rows, and cells, which are used to create annotations on an 
-    # annotated tabular data model. A description object is a JSON object 
-    # that describes a component of the annotated tabular data model (a group 
-    # of tables, a table or a column) and has one or more properties that 
-    # are mapped into properties on that component. There are two types of 
-    # description objects:
-    # - descriptions of particular groups of tables or tables within a single 
-    #   tabular data file — these are used for notes or flags on particular data.
-    # - descriptions of columns that appear within a schema, and that may 
-    #   apply across multiple tabular data files — these are used to describe 
-    #   the general structure of a tabular data file.
-    
-    # NEEDS COMPLETING
-    
-    # The description objects contain a number of properties. These are:
-    # - properties that are used to identify the table or column that the 
-    #   annotations should appear on; these match up to core annotations on 
-    #   those objects in the annotated tabular data model defined in 
-    #   [tabular-data-model] and do not create new annotations.
-    # - properties that are used to create annotations that appear directly 
-    #   on the group of tables, table or column whose description they appear 
-    #   on, such as the name of a column or the dc:provenance of a table.
-    # - properties that are inherited, for example by being specified on 
-    #   the description of a group of tables and being inherited by each 
-    #   table in that group, or being specified for a table or column but 
-    #   being used to create or affect the values of annotations on each of 
-    #   the cells that appear in that table or column.
-    
-    # NEEDS COMPLETING
-    
-    
-    
-    
-    
-    # inherited properties
-    inherited_properties={}
-    for name in get_inherited_properties_from_type('TableGroup'):
-        if name in metadata_table_group_obj_dict:
-            inherited_properties[name]=metadata_table_group_obj_dict[name]
-    
-    # annotate this table group
-    #?? Initially, use this simple version
-    for k,v in metadata_table_group_obj_dict.items():
-        
-        if k=='tables':
-            
-            tables=annotated_table_group_dict['tables']
-            
-            for i in range(len(tables)):
-                tables[i]=annotate_table(
-                    tables[i],
-                    v[i],
-                    default_language,
-                    inherited_properties,
-                    validate=validate
-                    )
-        
-        elif k=='notes':
-            
-            notes=annotated_table_group_dict['notes']
-            
-            if isinstance(v,list):
-                
-                notes.extend(v)
-            
-            else:
-                
-                notes.append(v)
-        
-        else:
-            
-            annotated_table_group_dict[k]=v
-        
-    
-
-    return annotated_table_group_dict
-
-
-
-def annotate_table(
-        annotated_table_dict,
-        metadata_table_obj_dict,
-        default_language,
-        inherited_properties,
-        validate=False
-        ):
-    """
-    """
-    
-    # add inherited properties that were passed
-    for k,v in inherited_properties.items():
-        if k=='aboutUrl': k='aboutURL'
-        if k=='propertyUrl': k='propertyURL'
-        if k=='valueUrl': k='valueURL'
-        if k in annotated_table_dict:
-            annotated_table_dict[k]=v
-            
-    # include new inherited properties from metadata
-    for name in get_inherited_properties_from_type('Table'):
-        if name in metadata_table_obj_dict:
-            inherited_properties[name]=metadata_table_obj_dict[name]
-    
-    # annotate this table
-    #?? Initially, use this simple version
-    for k,v in metadata_table_obj_dict.items():
-        
-        if k=='tableSchema':
-            
-            # include new inherited properties from metadata
-            for name in get_inherited_properties_from_type('Schema'):
-                if name in v:
-                    inherited_properties[name]=v[name]
-            
-            #print(inherited_properties)
-            
-            for k1,v1 in v.items():
-                
-                if k1=='columns':
-                    columns=annotated_table_dict['columns']
-                    for i in range(len(columns)):
-                        columns[i]=annotate_column(
-                            columns[i],
-                            v['columns'][i],
-                            default_language,
-                            inherited_properties=inherited_properties
-                            )
-                
-                elif k1=='primaryKey':
-                    pk=v1
-                    if not isinstance(pk,list):
-                        pk=[pk]
-                    column_indexes=[]
-                    for x in pk:
-                        for i,column in enumerate(annotated_table_dict['columns']):
-                            if x==columns[i]['name']:
-                                column_indexes.append(i)
-                    for row in annotated_table_dict['rows']:
-                        for column_index in column_indexes:
-                            row['primaryKey'].append(row['cells'][column_index])
-                
-        
-        elif k=='notes':
-            
-            notes=annotated_table_dict['notes']
-            
-            if isinstance(v,list):
-                
-                notes.extend(v)
-            
-            else:
-                
-                notes.append(v)
-        
-        else:
-            
-            annotated_table_dict[k]=v
-    
-    return annotated_table_dict
-    
-    
-    
-def annotate_column(
-        annotated_column_dict,
-        metadata_column_obj_dict,
-        default_language,
-        inherited_properties,
-        ):
-    """
-    """
-    # add inherited properties that were passed
-    for k,v in inherited_properties.items():
-        if k=='aboutUrl': k='aboutURL'
-        if k=='propertyUrl': k='propertyURL'
-        if k=='valueUrl': k='valueURL'
-        if k in annotated_column_dict:
-            annotated_column_dict[k]=v
-    
-    # include new inherited properties from metadata
-    for name in get_inherited_properties_from_type('Column'):
-        if name in metadata_column_obj_dict:
-            inherited_properties[name]=metadata_column_obj_dict[name]
-    
-    # annotate this column
-    for k,v in metadata_column_obj_dict.items():
-        annotated_column_dict[k]=v
-        
-    # annotate cells
-    cells=annotated_column_dict['cells']
-    for i in range(len(cells)):
-        cells[i]=annotate_cell(
-            cells[i],
-            inherited_properties
-            )
-    
-    # If there is no name property defined on this column, the first titles 
-    # value having the same language tag as default language, or und or if 
-    # no default language is specified, becomes the name annotation for the 
-    # described column. 
-    # This annotation must be percent-encoded as necessary to conform to 
-    # the syntactic requirements defined in [RFC3986].
-    if annotated_column_dict['name'] is None:
-        title=annotated_column_dict['titles'][default_language][0]
-        title=urllib.parse.quote(title.encode('utf8'))
-        annotated_column_dict['name']=title
-    
-    
-    return annotated_column_dict
-    
-    
-def annotate_cell(
-        annotated_cell_dict,
-        inherited_properties
-        ):
-    """
-    """    
-    # add inherited properties that were passed
-    for k,v in inherited_properties.items():
-        if k=='aboutUrl': k='aboutURL'
-        if k=='propertyUrl': k='propertyURL'
-        if k=='valueUrl': k='valueURL'
-        if k in annotated_cell_dict:
-            annotated_cell_dict[k]=v
-    
-    
-    
-    return annotated_cell_dict
-    
-
-
-#%% Section 5.1.3 - URI Template Properties
-
-def get_URI_from_URI_template(
-        uri_template_string,
-        annotated_cell_dict,
-        table_path,
-        table_url
-        ):
-    """
-    """
-    
-    # If the supplied value of a URI template property is not a string 
-    # (e.g. if it is an integer), compliant applications must issue a 
-    # warning and proceed as if the property had been supplied with an empty string.
-    
-    # TO DO
-    
-    # URI template properties contain a [URI-TEMPLATE] which can be 
-    # used to generate a URI.
-    # These URI templates are expanded in the context of each row by 
-    # combining the template with a set of variables with values as 
-    # defined in [URI-TEMPLATE]. 
-    
-    # The following variables are set:
-    variables={}
-    
-    # column names
-    # a variable is set for each column within the schema; the name of the 
-    # variable is the column name of the column from the annotated table 
-    # and the value is derived from the value of the cell in that column 
-    # in the row that is currently being processed, namely one of:
-        # null,
-        # the canonical representation of the value of the cell, based on 
-        #  its datatype as defined in [xmlschema11-2], if it has a single value, or
-        # a list of canonical representations of the values of the cell, 
-        #  if it has a sequence value.
-    
-    for cell in annotated_cell_dict['row']['cells']:
-        name=cell['column']['name']
-        if not name is None:
-            value=cell['value']
-            if value is None:
-                pass
-            elif isinstance(value,list):
-                value=[get_canonical_representation_of_cell_value(
-                    x,
-                    cell['column']['datatype']) for x in value]
-            else:
-                value=get_canonical_representation_of_cell_value(value,
-                                                                 cell['column']['datatype'])
-            variables[name]=value
-            
-    # _column
-    # _column is set to the column number of the column from the annotated 
-    # table that is currently being processed.
-    variables['_column']=annotated_cell_dict['column']['number']
-    
-    # _sourceColumn
-    #_sourceColumn is set to the source number of the column that is currently 
-    # being processed; this usually varies from _column by skip columns.
-    variables['_sourceColumn']=annotated_cell_dict['column']['sourceNumber']
-
-    #_row
-    #_row is set to the row number of the row from the annotated table that is 
-    # currently being processed.
-    variables['_row']=annotated_cell_dict['row']['number']
-
-    #_sourceRow
-    #_sourceRow is set to the source number of the row that is currently 
-    # being processed; this usually varies from _row by skip rows and header rows.
-    variables['_sourceRow']=annotated_cell_dict['row']['sourceNumber']
-
-    #_name
-    #_name is set to the URI decoded column name annotation, as defined 
-    # in [tabular-data-model], for the column that is currently being 
-    # processed. (Percent-decoding is necessary as name may have been encoded 
-    # if taken from titles; this prevents double percent-encoding.)
-    variables['_name']=urllib.parse.unquote(annotated_cell_dict['column']['name'])        
-        
-    # The annotation value is the result of:
-        
-    # 1 applying the template against the cell in that column in the row that 
-    # is currently being processed.
-    uri=uritemplate.expand(uri_template_string,
-                           variables)
-    
-    # 2 expanding any prefixes as if the value were the name of a common 
-    # property, as described in section 5.8 Common Properties.
-    uri=get_expanded_prefixed_name(uri)
-    
-    # 3 resolving the resulting URL against the base URL of the table url if not null.
-    
-    # if absolute path
-    if os.path.isabs(uri):
-        return uri
-    
-    # if absolute url
-    elif bool(urllib.parse.urlparse(uri).netloc): 
-        return uri
-    
-    else: # if relative path or url, resolve against table path or base table
-    
-        if not table_path is None:
-            
-            return table_path + uri
-        
-        elif not table_url is None:
-
-            # remove fragments            
-            x=urllib.parse.urljoin(table_url, urllib.parse.urlparse(table_url).path) 
-
-            return urllib.parse.urljoin(x,uri)  # NEED CHECKING
-    
-    
-            
-    
-def get_canonical_representation_of_cell_value(
-        value,
-        datatype
-        ):
-    """
-    """
-    if isinstance(value,datetime.date) or isinstance(value,datetime.datetime):
-        
-        return value.isoformat()
-    
-    elif isinstance(value,dict):
-        return get_canonical_representation_of_cell_value(
-                list(value.values())[0],
-                datatype
-                )
-    
-    else:
-        return str(value)
-    
-    
-    
-    
-
-#%% Section 5.4.3 - Table Description Compatibility
-
-def compare_table_descriptions(
-        TM,  # table_dict
-        EM,  # embedded dict
-        validate=False
-        ):
-    """
-    """
-    # Two table descriptions are compatible if they have equivalent 
-    # normalized url properties, and have compatible schemas as defined 
-    # in section 5.5.1 Schema Compatibility.
-    
-    if not TM['url']==EM['url']:
-        raise Exception  # NEEDS FUTHER WORK
-        
-    compare_schema_descriptions(
-        TM['tableSchema'],
-        EM['tableSchema']
-        )
-    
-        
-    
-#%% Section 5.5.1 - Schema Compatibility
-    
-def compare_schema_descriptions(
-        TM_schema,
-        EM_schema,
-        validate=False
-        ):
-    """
-    """
-    #print(TM_schema)
-    #print(EM_schema)
-    
-    # Two schemas are compatible if they have the same number of non-virtual 
-    # column descriptions, and the non-virtual column descriptions at the 
-    # same index within each are compatible with each other. 
-    TM_columns=TM_schema.get('columns',[])
-    EM_columns=EM_schema.get('columns',[])
-    
-    if not len(TM_columns)==len(EM_columns):
-        raise Exception  # TO DO
-        
-    for i in range(len(TM_columns)):
-        TM_column=TM_columns[i]
-        EM_column=EM_columns[i]
-    
-        # Column descriptions are compatible under the following conditions:
-
-        # If either column description has neither name nor titles properties.
-        
-        if not 'name' in TM_column and not 'titles' in TM_column:
-            continue
-        
-        if not 'name' in EM_column and not 'titles' in EM_column:
-            continue
-        
-        
-        # If there is a case-sensitive match between the name properties of the columns.
-        if 'name' in TM_column and 'name' in EM_column:
-            if TM_column['name']==EM_column['name']:
-                continue
-        
-        # If there is a non-empty case-sensitive intersection between the 
-        # titles values, where matches must have a matching language; und 
-        # matches any language, and languages match if they are equal when 
-        # truncated, as defined in [BCP47], to the length of the shortest language tag.
-        
-        
-        intersection=False
-        
-        for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
-            
-            for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
-                
-                if TM_lang_tag=='und' or EM_lang_tag=='und' \
-                    or langcodes.standardize_tag(TM_lang_tag)== \
-                        langcodes.standardize_tag(EM_lang_tag):
-                            
-                    for title in TM_titles:
-                        if title in EM_titles:
-                            intersection=True
-                            break
-              
-                if intersection:
-                    break
-              
-            if intersection:
-                break
-              
-        if intersection:
-            continue
-              
-                
-        
-        
-        
-        # intersection=False
-        # for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
-            
-        #     if TM_lang_tag=='und':
-                
-        #         for EM_titles in EM_column.get('titles',{}).values():
-                
-        #             for title in TM_titles:
-        #                 if title in EM_titles:
-        #                     intersection=True
-        #                     break
-                
-        #     else:
-        #         raise NotImplementedError # TO DO
-                
-        
-        
-        
-        
-        
-        
-        # If not validating, and one schema has a name property but not a 
-        # titles property, and the other has a titles property but not a name property.
-
-        if ('name' in TM_column 
-            and not 'titles' in TM_column
-            and not 'name' in EM_column 
-            and 'titles' in EM_column
-            ):
-            if validate==False:
-                continue
-        
-        if (not 'name' in TM_column 
-            and 'titles' in TM_column
-            and 'name' in EM_column 
-            and not 'titles' in EM_column
-            ):
-            if validate==False:
-                continue
-
-        raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
-
-    
-    
-#%% Section 6 - (Metadata) Normalization
-
-def normalize_metadata_from_file_path_or_url(
-        metadata_file_path_or_url
-        ):
-    """
-    """
-    metadata_file_path, metadata_file_url=\
-        get_path_and_url_from_file_location(
-            metadata_file_path_or_url
-            )
-        
-    if not metadata_file_path is None:
-        
-        normalized_metadata_object=\
-            normalize_metadata_from_file_path(
-                metadata_file_path
-                )
-        headers=None
-        
-    elif not metadata_file_url is None:
-    
-        normalized_metadata_object, headers=\
-            normalize_metadata_from_file_url(
-                metadata_file_url
-                )
-    
-    else:
-        
-        raise Exception
-        
-    return normalized_metadata_object, headers
-    
-    
-    
-
-def normalize_metadata_from_file_path(
-        metadata_file_path
-        ):
-    """
-    """
-    metadata_file_text=\
-        get_text_from_file_path(
-            metadata_file_path)
-    
-    metadata_root_obj_dict=json.loads(metadata_file_text)
-    
-    normalized_metadata_object=\
-        normalize_metadata_root_object(
-                metadata_root_obj_dict=metadata_root_obj_dict,
-                metadata_file_path=metadata_file_path, 
-                metadata_file_url=None
-                )
-
-    return normalized_metadata_object
-
-
-def normalize_metadata_from_file_url(
-        metadata_file_url
-        ):
-    """
-    """
-    metadata_file_text, headers=\
-        get_text_and_headers_from_file_url(
-            metadata_file_url)
-    
-    metadata_root_obj_dict=json.loads(metadata_file_text)
-    
-    normalized_metadata_object=\
-        normalize_metadata_root_object(
-                metadata_root_obj_dict=metadata_root_obj_dict,
-                metadata_file_path=None, 
-                metadata_file_url=metadata_file_url
-                )
-    
-    return normalized_metadata_object, headers
-    
-    
-def normalize_metadata_root_object(
-        metadata_root_obj_dict,
-        metadata_file_path, 
-        metadata_file_url
-        ):
-    """Normalizes a CSVW metadata file.
-    
-    This follows the procedure given in Section 6 of the 
-    'Metadata Vacabulary for Tabular Data' W3C recomendation 
-    https://www.w3.org/TR/2015/REC-tabular-metadata-20151217/.
-    
-    :param metadata_file_path_or_url: 
-    :type metadata_file_path_or_url: str
-    
-    :returns: A normalized copy of the CSVW metadata.json file.
-    :rtype: dict
-    
-    """
-    
-    base_path, base_url=\
-        get_base_path_and_url_of_metadata_object(
-            metadata_root_obj_dict,
-            metadata_file_path,
-            metadata_file_url
-            )
-        
-    default_language=\
-        get_default_language_of_metadata_object(
-            metadata_root_obj_dict
-            )
-    
-    return normalize_metadata_object(
-        metadata_root_obj_dict,
-        base_path,
-        base_url,
-        default_language
-        )
-
-
-def normalize_metadata_object(
-        obj_dict,
-        base_path,
-        base_url,
-        default_language
-        ):
-    """Normalizes a CSVW metadata object.
-    
-    This follows the procedure given in Section 6 of the 
-    'Metadata Vacabulary for Tabular Data' W3C recomendation 
-    https://www.w3.org/TR/2015/REC-tabular-metadata-20151217/.
-    
-    :type obj_dict: dict
-    
-    :returns: A normalized copy of the CSVW metadata.json file.
-    :rtype: dict
-    """
-    d={}
-    
-    for property_name, property_value in obj_dict.items():
-        
-        property_family=\
-            get_property_family(property_name)
-        property_type=\
-            get_property_type(property_name)
-            
-        #print(property_name, property_family, property_type)
-        
-        normalized_value=\
-            normalize_metadata_property(
-                property_name,
-                property_value,
-                property_family,
-                property_type,
-                base_path,
-                base_url,
-                default_language       
-                )
-                
-        d[property_name]=normalized_value
-    
-    return d
-    
-
-def normalize_metadata_property(
-        property_name,
-        property_value,
-        property_family,
-        property_type,
-        base_path,
-        base_url,
-        default_language       
-        ):
-    """
-    """
-    
-     # Following this normalization process, the @base and @language 
-     #  properties within the @context are no longer relevant; the normalized 
-     #  metadata can have its @context set to http://www.w3.org/ns/csvw.
-    if property_name=='@context':
-        
-        normalized_value='http://www.w3.org/ns/csvw'
-    
-    
-    # 1 If the property is a common property or notes the value must be 
-    #  normalized as follows:
-    elif property_family=='common property' or property_name=='notes':
-        
-        normalized_value=normalize_common_property(
-            property_name,
-            property_value,
-            property_family,
-            property_type,
-            base_path,
-            base_url,
-            default_language     
-            )
-        
-    # 2 If the property is an array property each element of the value is 
-    #  normalized using this algorithm.
-    elif property_type=='array property':
-        
-        normalized_value=[]
-        for x in property_value:
-            if isinstance(x,dict):
-                normalized_value.append(
-                    normalize_metadata_object(
-                        x,
-                        base_path,
-                        base_url,
-                        default_language
-                        )
-                    )
-            else:
-                raise Exception # what to do if not an object??
-        
-    # 3 If the property is a link property the value is turned into an 
-    #  absolute URL using the base URL and normalized as described in 
-    #  URL Normalization [tabular-data-model].
-    elif property_type=='link property':
-        
-        normalized_value=\
-            get_resolved_path_or_url_from_link_string(
-                    property_value,
-                    base_path,
-                    base_url
-                    )
-        
-    # 4 If the property is an object property with a string value, 
-    #  the string is a URL referencing a JSON document containing a single 
-    #  object. Fetch this URL to retrieve an object, which may have a 
-    #  local @context. Normalize each property in the resulting object 
-    #  recursively using this algorithm and with its local @context 
-    #  then remove the local @context property. If the resulting object 
-    #  does not have an @id property, add an @id whose value is the 
-    #  original URL. This object becomes the value of the original 
-    #  object property.
-    elif property_type=='object property' and isinstance(property_value,str): 
-    
-        resolved_url=\
-            get_resolved_path_or_url_from_link_string(
-                    property_value,
-                    base_path,
-                    base_url
-                    )
-        
-        # get normalised version of file at the resolved url
-        obj_dict=\
-            normalize_metadata_from_file_path_or_url(
-                resolved_url
-                )[0]
-        
-        # remove @context if it exists
-        obj_dict.pop('@context',None)
-        
-        # add @id if it does not exist
-        if not '@id' in obj_dict:
-            obj_dict['@id']=property_value
-            
-        normalized_value=obj_dict
-        
-    
-    # 5 If the property is an object property with an object value, 
-    #  normalize each property recursively using this algorithm.
-    elif property_type=='object property':
-    
-        normalized_value=\
-            normalize_metadata_object(
-                property_value,
-                base_path,
-                base_url,
-                default_language
-                )
-    
-    # 6 If the property is a natural language property and the value is 
-    #  not already an object, it is turned into an object whose properties 
-    #  are language codes and where the values of those properties are arrays. 
-    #  The suitable language code for the values is determined through the 
-    #  default language; if it can't be determined the language code und 
-    #  must be used.
-    elif property_type=='natural language property' and not isinstance(property_value,dict):
-        
-        if isinstance(property_value,str):
-            x=[property_value]
-        else:  # i.e. property value is an array
-            x=property_value
-        
-        normalized_value={default_language: x}
-    
-    # 7 If the property is an atomic property that can be a string or an 
-    #  object, normalize to the object form as described for that property.
-    elif property_name=='format' and isinstance(property_value,str):
-        normalized_value={'pattern':property_value}
-    
-    elif property_name=='datatype' and isinstance(property_value,str):
-        normalized_value={'base':property_value}
-    
-    
-    # otherwise...
-    else:
-        
-        normalized_value=property_value
-        
-    return normalized_value
-
-            
-def normalize_common_property(
-        property_name,
-        property_value,
-        property_family,
-        property_type,
-        base_path,
-        base_url,
-        default_language     
-        ):
-    """
-    """
-    
-    # 1.1 If the value is an array, each value within the array is normalized 
-    #  in place as described here.
-    if isinstance(property_value,list):
-        
-        normalized_value=[normalize_common_property(
-                    property_name,
-                    x,
-                    property_family,
-                    property_type,
-                    base_path,
-                    base_url,
-                    default_language     
-                    ) 
-                for x in property_value]
-    
-    # 1.2 If the value is a string, replace it with an object with a @value 
-    #  property whose value is that string. If a default language is specified, 
-    #  add a @language property whose value is that default language.
-    elif isinstance(property_value,str):
-        
-        if default_language=='und':
-        
-            normalized_value={
-                '@value': property_value
-                }
-    
-        else:
-            
-            normalized_value={
-                '@value': property_value,
-                '@language': default_language
-                }
-    
-    
-    # 1.3 If the value is an object with a @value property, it remains as is.
-    elif isinstance(property_value,dict) and '@value' in property_value:
-        
-        normalized_value=property_value
-    
-    # 1.4 If the value is any other object, normalize each property of that 
-    #  object as follows:
-    elif isinstance(property_value,dict):
-        
-        d={}
-        
-        for p1_name, p1_value in property_value.items():
-        
-            # 1.4.1 If the property is @id, expand any prefixed names and resolve 
-            #  its value against the base URL.
-            if p1_name=='@id':
-                
-                
-                x=get_expanded_prefixed_name(
-                    p1_value
-                    )
-                
-                x=get_resolved_path_or_url_from_link_string(
-                    x,
-                    base_path,
-                    base_url
-                    )
-        
-            # 1.4.2 If the property is @type, then its value remains as is.
-            elif p1_name=='@type':
-                
-                x=p1_value
-            
-            # 1.4.3 Otherwise, normalize the value of the property as if it were 
-            #  a common property, according to this algorithm.
-            else:
-                
-                x=normalize_common_property(
-                    p1_name,
-                    p1_value,
-                    property_family,
-                    property_type,
-                    base_path,
-                    base_url,
-                    default_language     
-                    )
-            
-            d[p1_name]=x
-            
-        normalized_value=d
-    
-    
-    # 1.5 Otherwise, the value remains as is.
-    else:
-        
-        normalized_value=property_value
-    
-    return normalized_value
-    
-
 #%% FUNCTIONS - Model for Tabular Data and Metadata
 
 #%% Section 5 - Locating Metadata
@@ -1321,8 +477,13 @@ def create_annotated_tables_from_csv_file_path_or_url(
         dialect_flags=None
         ):
     """
+    
+    :param csv_file_path_or_url: Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :type csv_file_path_or_url: str
+    
     """
-    csv_file_path, csv_file_url=\
+    csv_file_absolute_path, csv_file_url=\
         get_path_and_url_from_file_location(
             csv_file_path_or_url
             )
@@ -1369,11 +530,7 @@ def create_annotated_tables_from_csv_file_path_or_url(
             table_dict=metadata_root_obj_dict
         
         # include csv file path or url in metadata
-        csv_absolute_file_path, csv_file_url=\
-            get_path_and_url_from_file_location(
-                csv_file_path_or_url
-                )
-        table_dict['url']=csv_absolute_file_path or csv_file_url
+        table_dict['url']=csv_file_absolute_path or csv_file_url
         
         # add dialect_flags
         if not dialect_flags is None:
@@ -1410,7 +567,7 @@ def create_annotated_tables_from_csv_file_path_or_url(
     #     tabular data file.
     
     metadata_root_obj_dict={
-        'url': csv_file_path_or_url,
+        'url': csv_file_absolute_path or csv_file_url,
         '@type': 'Table',
         'tableSchema':{}
         }
@@ -1443,63 +600,38 @@ def create_annotated_tables_from_metadata_file_path_or_url(
         
     if not metadata_file_path is None:
         
+        metadata_file_text=\
+            get_text_from_file_path(
+                metadata_file_path)
+        
+        metadata_root_obj_dict=json.loads(metadata_file_text)
+        
         annotated_tables_dict=\
-            create_annotated_tables_from_metadata_file_path(
-                metadata_file_path
-                )
+            create_annotated_tables_from_metadata_root_object(
+                    metadata_root_obj_dict,
+                    metadata_file_path=metadata_file_path,
+                    metadata_file_url=None
+                    )
+            
         
     elif not metadata_file_url is None:
     
+        metadata_file_text, headers=\
+            get_text_and_headers_from_file_url(
+                metadata_file_url)
+        
+        metadata_root_obj_dict=json.loads(metadata_file_text)
+        
         annotated_tables_dict=\
-            create_annotated_tables_from_metadata_file_url(
-                metadata_file_url
-                )
+            create_annotated_tables_from_metadata_root_object(
+                    metadata_root_obj_dict,
+                    metadata_file_path=None,
+                    metadata_file_url=metadata_file_url
+                    )
     
     else:
         
         raise Exception
-        
-    return annotated_tables_dict
-
-
-def create_annotated_tables_from_metadata_file_path(
-        metadata_file_path
-        ):
-    """
-    """
-    metadata_file_text=\
-        get_text_from_file_path(
-            metadata_file_path)
-    
-    metadata_root_obj_dict=json.loads(metadata_file_text)
-    
-    annotated_tables_dict=\
-        create_annotated_tables_from_metadata_root_object(
-                metadata_root_obj_dict,
-                metadata_file_path=metadata_file_path,
-                metadata_file_url=None
-                )
-        
-    return annotated_tables_dict
-    
-    
-def create_annotated_tables_from_metadata_file_url(
-        metadata_file_url
-        ):
-    """
-    """
-    metadata_file_text, headers=\
-        get_text_and_headers_from_file_url(
-            metadata_file_url)
-    
-    metadata_root_obj_dict=json.loads(metadata_file_text)
-    
-    annotated_tables_dict=\
-        create_annotated_tables_from_metadata_root_object(
-                metadata_root_obj_dict,
-                metadata_file_path=None,
-                metadata_file_url=metadata_file_url
-                )
         
     return annotated_tables_dict
 
@@ -2124,7 +1256,6 @@ def parse_tabular_data_from_text(
     skip_blank_rows=dialect_description_obj_dict.get('skipBlankRows',False)
     skip_columns=dialect_description_obj_dict.get('skipColumns',0)
     skip_rows=dialect_description_obj_dict.get('skipRows',0)
-    
     trim=dialect_description_obj_dict.get('trim',True)
         # one of True, False, "true", "false", "start", "end"
         # skipInitialSpace is ignored as there is a contradiction here...
@@ -2805,72 +1936,984 @@ def get_column_titles_of_csv_file_text_line_generator(
     reader=csv.reader(text_line_generator)
     first_row=next(reader)
     return first_row
+     
     
+    
+
+
+
+#%% FUNCTIONS - Metadata Vocabulary for Tabular Data
+
+#%% Section 4- Annotating Tables
+
+def check_metadata_document(
+        metadata_obj_dict
+        ):
+    """
+    """
+    # All compliant applications must generate errors and stop processing if 
+    # a metadata document:
+    # - does not use valid JSON syntax defined by [RFC7159].
+    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+    # - does not specify a property that it is required to specify.
+    
+    # NEEDS COMPLETING
+
+
+def apply_metadata_default_values(
+        metadata_obj_dict
+        ):
+    """
+    """
+    
+    # If a property has a value that is not permitted by this specification, 
+    # then if a default value is provided for that property, compliant 
+    # applications must generate a warning and use that default value. 
+    # If no default value is provided for that property, compliant 
+    # applications must generate a warning and behave as if the property 
+    # had not been specified. Additionally, including:
+    # - properties (aside from common properties) which are not defined in 
+    #   this specification, and
+    # - properties having invalid values for a given property.
+
+    # NEEDS COMPLETING
+
+
+def annotate_table_group(
+        annotated_table_group_dict,
+        metadata_table_group_obj_dict,
+        default_language,
+        validate=False
+        ):
+    """
+    """
+    
+    #print(metadata_table_group_obj_dict)
+    
+    # All compliant applications must generate errors and stop processing if 
+    # a metadata document:
+    # - does not use valid JSON syntax defined by [RFC7159].
+    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+    # - does not specify a property that it is required to specify.
+    check_metadata_document(
+            metadata_table_group_obj_dict
+            )
+    
+    # Compliant applications must ignore properties (aside from common 
+    # properties) which are not defined in this specification and must 
+    # generate a warning when they are encoutered.
+    
+    # NEEDS COMPLETING
+    
+    # If a property has a value that is not permitted by this specification, 
+    # then if a default value is provided for that property, compliant 
+    # applications must generate a warning and use that default value. 
+    # If no default value is provided for that property, compliant 
+    # applications must generate a warning and behave as if the property 
+    # had not been specified. Additionally, including:
+    # - properties (aside from common properties) which are not defined in 
+    #   this specification, and
+    # - properties having invalid values for a given property.
+    apply_metadata_default_values(
+        metadata_table_group_obj_dict
+        )
+    
+    # Metadata documents contain descriptions of groups of tables, tables, 
+    # columns, rows, and cells, which are used to create annotations on an 
+    # annotated tabular data model. A description object is a JSON object 
+    # that describes a component of the annotated tabular data model (a group 
+    # of tables, a table or a column) and has one or more properties that 
+    # are mapped into properties on that component. There are two types of 
+    # description objects:
+    # - descriptions of particular groups of tables or tables within a single 
+    #   tabular data file — these are used for notes or flags on particular data.
+    # - descriptions of columns that appear within a schema, and that may 
+    #   apply across multiple tabular data files — these are used to describe 
+    #   the general structure of a tabular data file.
+    
+    # NEEDS COMPLETING
+    
+    # The description objects contain a number of properties. These are:
+    # - properties that are used to identify the table or column that the 
+    #   annotations should appear on; these match up to core annotations on 
+    #   those objects in the annotated tabular data model defined in 
+    #   [tabular-data-model] and do not create new annotations.
+    # - properties that are used to create annotations that appear directly 
+    #   on the group of tables, table or column whose description they appear 
+    #   on, such as the name of a column or the dc:provenance of a table.
+    # - properties that are inherited, for example by being specified on 
+    #   the description of a group of tables and being inherited by each 
+    #   table in that group, or being specified for a table or column but 
+    #   being used to create or affect the values of annotations on each of 
+    #   the cells that appear in that table or column.
+    
+    # NEEDS COMPLETING
+    
+    
+    
+    
+    
+    # inherited properties
+    inherited_properties={}
+    for name in get_inherited_properties_from_type('TableGroup'):
+        if name in metadata_table_group_obj_dict:
+            inherited_properties[name]=metadata_table_group_obj_dict[name]
+    
+    # annotate this table group
+    #?? Initially, use this simple version
+    for k,v in metadata_table_group_obj_dict.items():
+        
+        if k=='tables':
+            
+            tables=annotated_table_group_dict['tables']
+            
+            for i in range(len(tables)):
+                tables[i]=annotate_table(
+                    tables[i],
+                    v[i],
+                    default_language,
+                    inherited_properties,
+                    validate=validate
+                    )
+        
+        elif k=='notes':
+            
+            notes=annotated_table_group_dict['notes']
+            
+            if isinstance(v,list):
+                
+                notes.extend(v)
+            
+            else:
+                
+                notes.append(v)
+        
+        else:
+            
+            annotated_table_group_dict[k]=v
+        
+    
+
+    return annotated_table_group_dict
+
+
+
+def annotate_table(
+        annotated_table_dict,
+        metadata_table_obj_dict,
+        default_language,
+        inherited_properties,
+        validate=False
+        ):
+    """
+    """
+    
+    # add inherited properties that were passed
+    for k,v in inherited_properties.items():
+        if k=='aboutUrl': k='aboutURL'
+        if k=='propertyUrl': k='propertyURL'
+        if k=='valueUrl': k='valueURL'
+        if k in annotated_table_dict:
+            annotated_table_dict[k]=v
+            
+    # include new inherited properties from metadata
+    for name in get_inherited_properties_from_type('Table'):
+        if name in metadata_table_obj_dict:
+            inherited_properties[name]=metadata_table_obj_dict[name]
+    
+    # annotate this table
+    #?? Initially, use this simple version
+    for k,v in metadata_table_obj_dict.items():
+        
+        if k=='tableSchema':
+            
+            # include new inherited properties from metadata
+            for name in get_inherited_properties_from_type('Schema'):
+                if name in v:
+                    inherited_properties[name]=v[name]
+            
+            #print(inherited_properties)
+            
+            for k1,v1 in v.items():
+                
+                if k1=='columns':
+                    columns=annotated_table_dict['columns']
+                    for i in range(len(columns)):
+                        columns[i]=annotate_column(
+                            columns[i],
+                            v['columns'][i],
+                            default_language,
+                            inherited_properties=inherited_properties
+                            )
+                
+                elif k1=='primaryKey':
+                    pk=v1
+                    if not isinstance(pk,list):
+                        pk=[pk]
+                    column_indexes=[]
+                    for x in pk:
+                        for i,column in enumerate(annotated_table_dict['columns']):
+                            if x==columns[i]['name']:
+                                column_indexes.append(i)
+                    for row in annotated_table_dict['rows']:
+                        for column_index in column_indexes:
+                            row['primaryKey'].append(row['cells'][column_index])
+                
+        
+        elif k=='notes':
+            
+            notes=annotated_table_dict['notes']
+            
+            if isinstance(v,list):
+                
+                notes.extend(v)
+            
+            else:
+                
+                notes.append(v)
+        
+        else:
+            
+            annotated_table_dict[k]=v
+    
+    return annotated_table_dict
+    
+    
+    
+def annotate_column(
+        annotated_column_dict,
+        metadata_column_obj_dict,
+        default_language,
+        inherited_properties,
+        ):
+    """
+    """
+    # add inherited properties that were passed
+    for k,v in inherited_properties.items():
+        if k=='aboutUrl': k='aboutURL'
+        if k=='propertyUrl': k='propertyURL'
+        if k=='valueUrl': k='valueURL'
+        if k in annotated_column_dict:
+            annotated_column_dict[k]=v
+    
+    # include new inherited properties from metadata
+    for name in get_inherited_properties_from_type('Column'):
+        if name in metadata_column_obj_dict:
+            inherited_properties[name]=metadata_column_obj_dict[name]
+    
+    # annotate this column
+    for k,v in metadata_column_obj_dict.items():
+        annotated_column_dict[k]=v
+        
+    # annotate cells
+    cells=annotated_column_dict['cells']
+    for i in range(len(cells)):
+        cells[i]=annotate_cell(
+            cells[i],
+            inherited_properties
+            )
+    
+    # If there is no name property defined on this column, the first titles 
+    # value having the same language tag as default language, or und or if 
+    # no default language is specified, becomes the name annotation for the 
+    # described column. 
+    # This annotation must be percent-encoded as necessary to conform to 
+    # the syntactic requirements defined in [RFC3986].
+    if annotated_column_dict['name'] is None:
+        title=annotated_column_dict['titles'][default_language][0]
+        title=urllib.parse.quote(title.encode('utf8'))
+        annotated_column_dict['name']=title
+    
+    
+    return annotated_column_dict
+    
+    
+def annotate_cell(
+        annotated_cell_dict,
+        inherited_properties
+        ):
+    """
+    """    
+    # add inherited properties that were passed
+    for k,v in inherited_properties.items():
+        if k=='aboutUrl': k='aboutURL'
+        if k=='propertyUrl': k='propertyURL'
+        if k=='valueUrl': k='valueURL'
+        if k in annotated_cell_dict:
+            annotated_cell_dict[k]=v
+    
+    
+    
+    return annotated_cell_dict
+    
+
+
+#%% Section 5.1.3 - URI Template Properties
+
+def get_URI_from_URI_template(
+        uri_template_string,
+        annotated_cell_dict,
+        table_path,
+        table_url
+        ):
+    """
+    """
+    
+    # If the supplied value of a URI template property is not a string 
+    # (e.g. if it is an integer), compliant applications must issue a 
+    # warning and proceed as if the property had been supplied with an empty string.
+    
+    # TO DO
+    
+    # URI template properties contain a [URI-TEMPLATE] which can be 
+    # used to generate a URI.
+    # These URI templates are expanded in the context of each row by 
+    # combining the template with a set of variables with values as 
+    # defined in [URI-TEMPLATE]. 
+    
+    # The following variables are set:
+    variables={}
+    
+    # column names
+    # a variable is set for each column within the schema; the name of the 
+    # variable is the column name of the column from the annotated table 
+    # and the value is derived from the value of the cell in that column 
+    # in the row that is currently being processed, namely one of:
+        # null,
+        # the canonical representation of the value of the cell, based on 
+        #  its datatype as defined in [xmlschema11-2], if it has a single value, or
+        # a list of canonical representations of the values of the cell, 
+        #  if it has a sequence value.
+    
+    for cell in annotated_cell_dict['row']['cells']:
+        name=cell['column']['name']
+        if not name is None:
+            value=cell['value']
+            if value is None:
+                pass
+            elif isinstance(value,list):
+                value=[get_canonical_representation_of_cell_value(
+                    x,
+                    cell['column']['datatype']) for x in value]
+            else:
+                value=get_canonical_representation_of_cell_value(value,
+                                                                 cell['column']['datatype'])
+            variables[name]=value
+            
+    # _column
+    # _column is set to the column number of the column from the annotated 
+    # table that is currently being processed.
+    variables['_column']=annotated_cell_dict['column']['number']
+    
+    # _sourceColumn
+    #_sourceColumn is set to the source number of the column that is currently 
+    # being processed; this usually varies from _column by skip columns.
+    variables['_sourceColumn']=annotated_cell_dict['column']['sourceNumber']
+
+    #_row
+    #_row is set to the row number of the row from the annotated table that is 
+    # currently being processed.
+    variables['_row']=annotated_cell_dict['row']['number']
+
+    #_sourceRow
+    #_sourceRow is set to the source number of the row that is currently 
+    # being processed; this usually varies from _row by skip rows and header rows.
+    variables['_sourceRow']=annotated_cell_dict['row']['sourceNumber']
+
+    #_name
+    #_name is set to the URI decoded column name annotation, as defined 
+    # in [tabular-data-model], for the column that is currently being 
+    # processed. (Percent-decoding is necessary as name may have been encoded 
+    # if taken from titles; this prevents double percent-encoding.)
+    variables['_name']=urllib.parse.unquote(annotated_cell_dict['column']['name'])        
+        
+    # The annotation value is the result of:
+        
+    # 1 applying the template against the cell in that column in the row that 
+    # is currently being processed.
+    uri=uritemplate.expand(uri_template_string,
+                           variables)
+    
+    # 2 expanding any prefixes as if the value were the name of a common 
+    # property, as described in section 5.8 Common Properties.
+    uri=get_expanded_prefixed_name(uri)
+    
+    # 3 resolving the resulting URL against the base URL of the table url if not null.
+    
+    # if absolute path
+    if os.path.isabs(uri):
+        return uri
+    
+    # if absolute url
+    elif bool(urllib.parse.urlparse(uri).netloc): 
+        return uri
+    
+    else: # if relative path or url, resolve against table path or base table
+    
+        if not table_path is None:
+            
+            return table_path + uri
+        
+        elif not table_url is None:
+
+            # remove fragments            
+            x=urllib.parse.urljoin(table_url, urllib.parse.urlparse(table_url).path) 
+
+            return urllib.parse.urljoin(x,uri)  # NEED CHECKING
+    
+    
+            
+    
+def get_canonical_representation_of_cell_value(
+        value,
+        datatype
+        ):
+    """
+    """
+    if isinstance(value,datetime.date) or isinstance(value,datetime.datetime):
+        
+        return value.isoformat()
+    
+    elif isinstance(value,dict):
+        return get_canonical_representation_of_cell_value(
+                list(value.values())[0],
+                datatype
+                )
+    
+    else:
+        return str(value)
+    
+    
+    
+    
+
+#%% Section 5.4.3 - Table Description Compatibility
+
+def compare_table_descriptions(
+        TM,  # table_dict
+        EM,  # embedded dict
+        validate=False
+        ):
+    """
+    """
+    # Two table descriptions are compatible if they have equivalent 
+    # normalized url properties, and have compatible schemas as defined 
+    # in section 5.5.1 Schema Compatibility.
+    
+    if not TM['url']==EM['url']:
+        raise Exception  # NEEDS FUTHER WORK
+        
+    compare_schema_descriptions(
+        TM['tableSchema'],
+        EM['tableSchema']
+        )
+    
+        
+    
+#%% Section 5.5.1 - Schema Compatibility
+    
+def compare_schema_descriptions(
+        TM_schema,
+        EM_schema,
+        validate=False
+        ):
+    """
+    """
+    #print(TM_schema)
+    #print(EM_schema)
+    
+    # Two schemas are compatible if they have the same number of non-virtual 
+    # column descriptions, and the non-virtual column descriptions at the 
+    # same index within each are compatible with each other. 
+    TM_columns=TM_schema.get('columns',[])
+    EM_columns=EM_schema.get('columns',[])
+    
+    if not len(TM_columns)==len(EM_columns):
+        raise Exception  # TO DO
+        
+    for i in range(len(TM_columns)):
+        TM_column=TM_columns[i]
+        EM_column=EM_columns[i]
+    
+        # Column descriptions are compatible under the following conditions:
+
+        # If either column description has neither name nor titles properties.
+        
+        if not 'name' in TM_column and not 'titles' in TM_column:
+            continue
+        
+        if not 'name' in EM_column and not 'titles' in EM_column:
+            continue
+        
+        
+        # If there is a case-sensitive match between the name properties of the columns.
+        if 'name' in TM_column and 'name' in EM_column:
+            if TM_column['name']==EM_column['name']:
+                continue
+        
+        # If there is a non-empty case-sensitive intersection between the 
+        # titles values, where matches must have a matching language; und 
+        # matches any language, and languages match if they are equal when 
+        # truncated, as defined in [BCP47], to the length of the shortest language tag.
+        
+        
+        intersection=False
+        
+        for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+            
+            for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
+                
+                if TM_lang_tag=='und' or EM_lang_tag=='und' \
+                    or langcodes.standardize_tag(TM_lang_tag)== \
+                        langcodes.standardize_tag(EM_lang_tag):
+                            
+                    for title in TM_titles:
+                        if title in EM_titles:
+                            intersection=True
+                            break
+              
+                if intersection:
+                    break
+              
+            if intersection:
+                break
+              
+        if intersection:
+            continue
+              
+                
+        
+        
+        
+        # intersection=False
+        # for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+            
+        #     if TM_lang_tag=='und':
+                
+        #         for EM_titles in EM_column.get('titles',{}).values():
+                
+        #             for title in TM_titles:
+        #                 if title in EM_titles:
+        #                     intersection=True
+        #                     break
+                
+        #     else:
+        #         raise NotImplementedError # TO DO
+                
+        
+        
+        
+        
+        
+        
+        # If not validating, and one schema has a name property but not a 
+        # titles property, and the other has a titles property but not a name property.
+
+        if ('name' in TM_column 
+            and not 'titles' in TM_column
+            and not 'name' in EM_column 
+            and 'titles' in EM_column
+            ):
+            if validate==False:
+                continue
+        
+        if (not 'name' in TM_column 
+            and 'titles' in TM_column
+            and 'name' in EM_column 
+            and not 'titles' in EM_column
+            ):
+            if validate==False:
+                continue
+
+        raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
+
+    
+    
+#%% Section 6 - (Metadata) Normalization
+
+def normalize_metadata_from_file_path_or_url(
+        metadata_file_path_or_url
+        ):
+    """
+    """
+    metadata_file_path, metadata_file_url=\
+        get_path_and_url_from_file_location(
+            metadata_file_path_or_url
+            )
+        
+    if not metadata_file_path is None:
+        
+        metadata_file_text=\
+            get_text_from_file_path(
+                metadata_file_path)
+        
+        metadata_root_obj_dict=json.loads(metadata_file_text)
+        
+        normalized_metadata_object=\
+            normalize_metadata_root_object(
+                    metadata_root_obj_dict=metadata_root_obj_dict,
+                    metadata_file_path=metadata_file_path, 
+                    metadata_file_url=None
+                    )
+            
+        headers=None
+        
+    elif not metadata_file_url is None:
+    
+        metadata_file_text, headers=\
+            get_text_and_headers_from_file_url(
+                metadata_file_url)
+        
+        metadata_root_obj_dict=json.loads(metadata_file_text)
+        
+        normalized_metadata_object=\
+            normalize_metadata_root_object(
+                    metadata_root_obj_dict=metadata_root_obj_dict,
+                    metadata_file_path=None, 
+                    metadata_file_url=metadata_file_url
+                    )
+    
+    else:
+        
+        raise Exception
+        
+    return normalized_metadata_object, headers
+    
+    
+    
+def normalize_metadata_root_object(
+        metadata_root_obj_dict,
+        metadata_file_path, 
+        metadata_file_url
+        ):
+    """Normalizes a CSVW metadata file.
+    
+    :param metadata_file_path_or_url: 
+    :type metadata_file_path_or_url: str
+    
+    :returns: A normalized copy of the CSVW metadata.json file.
+    :rtype: dict
+    
+    """
+    
+    base_path, base_url=\
+        get_base_path_and_url_of_metadata_object(
+            metadata_root_obj_dict,
+            metadata_file_path,
+            metadata_file_url
+            )
+        
+    default_language=\
+        get_default_language_of_metadata_object(
+            metadata_root_obj_dict
+            )
+    
+    return normalize_metadata_object(
+        metadata_root_obj_dict,
+        base_path,
+        base_url,
+        default_language
+        )
+
+
+def normalize_metadata_object(
+        obj_dict,
+        base_path,
+        base_url,
+        default_language
+        ):
+    """Normalizes a CSVW metadata object.
+    
+    This follows the procedure given in Section 6 of the 
+    'Metadata Vacabulary for Tabular Data' W3C recomendation 
+    https://www.w3.org/TR/2015/REC-tabular-metadata-20151217/.
+    
+    :type obj_dict: dict
+    
+    :returns: A normalized copy of the CSVW metadata.json file.
+    :rtype: dict
+    """
+    d={}
+    
+    for property_name, property_value in obj_dict.items():
+        
+        property_family=\
+            get_property_family(property_name)
+        property_type=\
+            get_property_type(property_name)
+            
+        #print(property_name, property_family, property_type)
+        
+        normalized_value=\
+            normalize_metadata_property(
+                property_name,
+                property_value,
+                property_family,
+                property_type,
+                base_path,
+                base_url,
+                default_language       
+                )
+                
+        d[property_name]=normalized_value
+    
+    return d
+    
+
+def normalize_metadata_property(
+        property_name,
+        property_value,
+        property_family,
+        property_type,
+        base_path,
+        base_url,
+        default_language       
+        ):
+    """
+    """
+    
+     # Following this normalization process, the @base and @language 
+     #  properties within the @context are no longer relevant; the normalized 
+     #  metadata can have its @context set to http://www.w3.org/ns/csvw.
+    if property_name=='@context':
+        
+        normalized_value='http://www.w3.org/ns/csvw'
+    
+    
+    # 1 If the property is a common property or notes the value must be 
+    #  normalized as follows:
+    elif property_family=='common property' or property_name=='notes':
+        
+        normalized_value=normalize_common_property(
+            property_name,
+            property_value,
+            property_family,
+            property_type,
+            base_path,
+            base_url,
+            default_language     
+            )
+        
+    # 2 If the property is an array property each element of the value is 
+    #  normalized using this algorithm.
+    elif property_type=='array property':
+        
+        normalized_value=[]
+        for x in property_value:
+            if isinstance(x,dict):
+                normalized_value.append(
+                    normalize_metadata_object(
+                        x,
+                        base_path,
+                        base_url,
+                        default_language
+                        )
+                    )
+            else:
+                raise Exception # what to do if not an object??
+        
+    # 3 If the property is a link property the value is turned into an 
+    #  absolute URL using the base URL and normalized as described in 
+    #  URL Normalization [tabular-data-model].
+    elif property_type=='link property':
+        
+        normalized_value=\
+            get_resolved_path_or_url_from_link_string(
+                    property_value,
+                    base_path,
+                    base_url
+                    )
+        
+    # 4 If the property is an object property with a string value, 
+    #  the string is a URL referencing a JSON document containing a single 
+    #  object. Fetch this URL to retrieve an object, which may have a 
+    #  local @context. Normalize each property in the resulting object 
+    #  recursively using this algorithm and with its local @context 
+    #  then remove the local @context property. If the resulting object 
+    #  does not have an @id property, add an @id whose value is the 
+    #  original URL. This object becomes the value of the original 
+    #  object property.
+    elif property_type=='object property' and isinstance(property_value,str): 
+    
+        resolved_url=\
+            get_resolved_path_or_url_from_link_string(
+                    property_value,
+                    base_path,
+                    base_url
+                    )
+        
+        # get normalised version of file at the resolved url
+        obj_dict=\
+            normalize_metadata_from_file_path_or_url(
+                resolved_url
+                )[0]
+        
+        # remove @context if it exists
+        obj_dict.pop('@context',None)
+        
+        # add @id if it does not exist
+        if not '@id' in obj_dict:
+            obj_dict['@id']=property_value
+            
+        normalized_value=obj_dict
+        
+    
+    # 5 If the property is an object property with an object value, 
+    #  normalize each property recursively using this algorithm.
+    elif property_type=='object property':
+    
+        normalized_value=\
+            normalize_metadata_object(
+                property_value,
+                base_path,
+                base_url,
+                default_language
+                )
+    
+    # 6 If the property is a natural language property and the value is 
+    #  not already an object, it is turned into an object whose properties 
+    #  are language codes and where the values of those properties are arrays. 
+    #  The suitable language code for the values is determined through the 
+    #  default language; if it can't be determined the language code und 
+    #  must be used.
+    elif property_type=='natural language property' and not isinstance(property_value,dict):
+        
+        if isinstance(property_value,str):
+            x=[property_value]
+        else:  # i.e. property value is an array
+            x=property_value
+        
+        normalized_value={default_language: x}
+    
+    # 7 If the property is an atomic property that can be a string or an 
+    #  object, normalize to the object form as described for that property.
+    elif property_name=='format' and isinstance(property_value,str):
+        normalized_value={'pattern':property_value}
+    
+    elif property_name=='datatype' and isinstance(property_value,str):
+        normalized_value={'base':property_value}
+    
+    
+    # otherwise...
+    else:
+        
+        normalized_value=property_value
+        
+    return normalized_value
+
+            
+def normalize_common_property(
+        property_name,
+        property_value,
+        property_family,
+        property_type,
+        base_path,
+        base_url,
+        default_language     
+        ):
+    """
+    """
+    
+    # 1.1 If the value is an array, each value within the array is normalized 
+    #  in place as described here.
+    if isinstance(property_value,list):
+        
+        normalized_value=[normalize_common_property(
+                    property_name,
+                    x,
+                    property_family,
+                    property_type,
+                    base_path,
+                    base_url,
+                    default_language     
+                    ) 
+                for x in property_value]
+    
+    # 1.2 If the value is a string, replace it with an object with a @value 
+    #  property whose value is that string. If a default language is specified, 
+    #  add a @language property whose value is that default language.
+    elif isinstance(property_value,str):
+        
+        if default_language=='und':
+        
+            normalized_value={
+                '@value': property_value
+                }
+    
+        else:
+            
+            normalized_value={
+                '@value': property_value,
+                '@language': default_language
+                }
+    
+    
+    # 1.3 If the value is an object with a @value property, it remains as is.
+    elif isinstance(property_value,dict) and '@value' in property_value:
+        
+        normalized_value=property_value
+    
+    # 1.4 If the value is any other object, normalize each property of that 
+    #  object as follows:
+    elif isinstance(property_value,dict):
+        
+        d={}
+        
+        for p1_name, p1_value in property_value.items():
+        
+            # 1.4.1 If the property is @id, expand any prefixed names and resolve 
+            #  its value against the base URL.
+            if p1_name=='@id':
+                
+                
+                x=get_expanded_prefixed_name(
+                    p1_value
+                    )
+                
+                x=get_resolved_path_or_url_from_link_string(
+                    x,
+                    base_path,
+                    base_url
+                    )
+        
+            # 1.4.2 If the property is @type, then its value remains as is.
+            elif p1_name=='@type':
+                
+                x=p1_value
+            
+            # 1.4.3 Otherwise, normalize the value of the property as if it were 
+            #  a common property, according to this algorithm.
+            else:
+                
+                x=normalize_common_property(
+                    p1_name,
+                    p1_value,
+                    property_family,
+                    property_type,
+                    base_path,
+                    base_url,
+                    default_language     
+                    )
+            
+            d[p1_name]=x
+            
+        normalized_value=d
+    
+    
+    # 1.5 Otherwise, the value remains as is.
+    else:
+        
+        normalized_value=property_value
+    
+    return normalized_value
+    
+
+
 
 
 #%% FUNCTIONS - General
 
-def add_types_to_metadata(
-        json_dict
-        ):
-    """Adds '@type' properties to the object and its child objects.
-    
-    For example, adds the name:value pair `"@type": "Column"` to any Column objects.
-    
-    :param json_dict: The metadata object
-    :type json_dict: dict
-    
-    """
-    
-    d=json_dict
-    
-    if isinstance(d,dict):
-        
-        if not '@type' in d:
-            try:
-                d['@type']=get_type_of_metadata_object(d)
-            except ValueError:
-                pass
-        
-        d1={}
-        
-        for k,v in d.items():
-            
-            if k=='tables':
-                
-                for x in v:
-                    x['@type']='Table'
-                
-            elif k=='dialect':
-                v['@type']='Dialect'
-                
-            elif k=='transformations':
-                v['@type']='Template'
-                
-            elif k=='tableSchema':
-                v['@type']='Schema'
-                
-            elif k=='columns':
-                for x in v:
-                    x['@type']='Column'
-                    
-            elif k=='datatype':
-                v['@type']='Datatype'
-                
-                
-            d1[k]=add_types_to_metadata(d[k])
-            
-        return d1
-        
-    elif isinstance(d,list):
-        
-        return list(add_types_to_metadata(x) for x in d)
-        
-    else:
-    
-        return d
-    
-    
+
 def get_base_path_and_url_of_metadata_object(
         obj_dict,
         metadata_file_path,
@@ -2952,65 +2995,8 @@ def get_common_properties_of_metadata_object(
         )
     
     return [x for x in d if not x in all_properties]
-   
-
-def get_text_from_file_path(
-        file_path,
-        encoding=None
-        ):
-    """
-    """
-    with open(file_path, encoding=None) as f:
-        return f.read()
-    
-
-def get_text_and_headers_from_file_url(
-        file_url,
-        encoding=None
-        ):
-    """
-    
-    
-    
-    """
-    response = requests.get(file_url, stream=True)
-    
-    # apply encoding if specified
-    if not encoding is None:
-        response.encoding = encoding  # NEEDS TESTING
-    
-    return response.text, response.headers
 
 
-def get_text_line_generator_from_path_or_url(
-        file_path, 
-        file_url,
-        encoding=None
-        ):
-    """
-    """
-    if not file_path is None:
-        
-        for line in open(file_path, 
-                         encoding=encoding):
-            yield line
-            
-        
-    elif not file_url is None:
-        
-        response = requests.get(file_url, stream=True)
-        
-        # apply encoding if specified
-        if not encoding is None:
-            response.encoding = encoding  # NEEDS TESTING
-        
-        for line in response.iter_lines():
-            yield line.decode()
-        
-    else:
-        raise Exception
-     
-    
 def get_default_language_of_metadata_object(
         obj_dict
         ):
@@ -3024,6 +3010,8 @@ def get_default_language_of_metadata_object(
     except (KeyError,IndexError,TypeError):
         return 'und'
     
+
+
     
 def get_expanded_prefixed_name(
         name
@@ -3212,6 +3200,65 @@ def get_schema_name_from_type(
        'Datatype':'datatype_description.schema.json'
        }
     return d[type_]
+
+
+def get_text_from_file_path(
+        file_path,
+        encoding=None
+        ):
+    """
+    """
+    with open(file_path, encoding=None) as f:
+        return f.read()
+    
+
+def get_text_and_headers_from_file_url(
+        file_url,
+        encoding=None
+        ):
+    """
+    
+    """
+    response = requests.get(file_url, stream=True)
+    
+    # apply encoding if specified
+    if not encoding is None:
+        response.encoding = encoding  # NEEDS TESTING
+    
+    return response.text, response.headers
+
+
+def get_text_line_generator_from_path_or_url(
+        file_path, 
+        file_url,
+        encoding=None
+        ):
+    """
+    """
+    if not file_path is None:
+        
+        for line in open(file_path, 
+                         encoding=encoding):
+            yield line
+            
+        
+    elif not file_url is None:
+        
+        response = requests.get(file_url, stream=True)
+        
+        # apply encoding if specified
+        if not encoding is None:
+            response.encoding = encoding  # NEEDS TESTING
+        
+        for line in response.iter_lines():
+            yield line.decode()
+        
+    else:
+        raise Exception
+     
+    
+
+    
 
 
 def get_top_level_properties_from_type(
