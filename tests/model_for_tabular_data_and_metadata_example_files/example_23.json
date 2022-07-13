@@ -1,0 +1,32 @@
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "example_21.csv",
+  "dc:publisher": "City of Palo Alto",
+  "dc:updated": "12/31/2010",
+  "tableSchema": {
+    "columns": [{
+      "name": "GID",
+      "titles": "GID",
+      "datatype": "string"
+    }, {
+      "name": "on_street",
+      "titles": "On Street",
+      "datatype": "string"
+    }, {
+      "name": "species",
+      "titles": "Species",
+      "datatype": "string"
+    }, {
+      "name": "trim_cycle",
+      "titles": "Trim Cycle",
+      "datatype": "string"
+    }, {
+      "name": "inventory_date",
+      "titles": "Inventory Date",
+      "datatype": {
+        "base": "date",
+        "format": "M/d/yyyy"
+      }
+    }]
+  }
+}

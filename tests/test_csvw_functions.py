@@ -114,31 +114,112 @@ class TestNormalizeMetadata(unittest.TestCase):
 class TestLocatingMetadata(unittest.TestCase):
     ""
     
-    def test_get_embedded_metadata_from_csv_file(self):
+    # def test_get_embedded_metadata_from_csv_file(self):
+    #     ""
+        
+        
+    #     result=csvw_functions.get_embedded_metadata_from_csv_file(
+    #         'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_14.csv'
+    #         )
+        
+    #     self.assertEqual(
+    #         result,
+    #         {'@context': 'http://www.w3.org/ns/csvw', 
+    #          '@type': 'Table', 
+    #          'url': 'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_14.csv', 
+    #          'tableSchema': {
+    #              'columns': [
+    #                  {'titles': ['GID']}, 
+    #                  {'titles': ['On Street']}, 
+    #                  {'titles': ['Species']}, 
+    #                  {'titles': ['Trim Cycle']}, 
+    #                  {'titles': ['Inventory Date']}
+    #                  ]
+    #              }
+    #          }
+    #         )
+        
+    
+    
+#%% TESTS - Top Level Functions
+
+class TestTopLevelFunctions(unittest.TestCase):
+    ""
+    
+    def test_get_embedded_metadata(self):
         ""
-        
-        
-        result=csvw_functions.get_embedded_metadata_from_csv_file(
-            'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_14.csv'
+        # example 14
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
+        result=csvw_functions.get_embedded_metadata(
+            fp
             )
-        
         self.assertEqual(
             result,
             {'@context': 'http://www.w3.org/ns/csvw', 
-             '@type': 'Table', 
-             'url': 'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/model_for_tabular_data_and_metadata_example_files/example_14.csv', 
              'tableSchema': {
                  'columns': [
-                     {'titles': ['GID']}, 
-                     {'titles': ['On Street']}, 
-                     {'titles': ['Species']}, 
-                     {'titles': ['Trim Cycle']}, 
-                     {'titles': ['Inventory Date']}
-                     ]
-                 }
-             }
+                     {'titles': {'und': ['GID']}, 
+                      '@type': 'Column'}, 
+                     {'titles': {'und': ['On Street']}, 
+                      '@type': 'Column'}, 
+                     {'titles': {'und': ['Species']}, 
+                      '@type': 'Column'}, 
+                     {'titles': {'und': ['Trim Cycle']}, 
+                      '@type': 'Column'}, 
+                     {'titles': {'und': ['Inventory Date']}, 
+                      '@type': 'Column'}], 
+                 '@type': 'Table'}, 
+             'url': 'model_for_tabular_data_and_metadata_example_files/example_14.csv'}
             )
         
+        # example 21 - default dialect
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
+        result=csvw_functions.get_embedded_metadata(
+            fp
+            )
+        #print(result)
+        self.assertEqual(
+            result,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             'tableSchema': {
+                 'columns': [
+                     {'titles': {'und': ['#\tpublisher\tCity of Palo Alto']}, 
+                      '@type': 'Column'}], 
+                 '@type': 'Table'}, 
+             'url': 'model_for_tabular_data_and_metadata_example_files/example_21.csv'}
+            )
+    
+        # example 21 - custom dialect with flags
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
+        result=csvw_functions.get_embedded_metadata(
+            fp,
+            delimiter='\t',
+            skip_rows=4,
+            skip_columns=1,
+            comment_prefix='#'
+            )
+        self.assertEqual(
+            result,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             'rdfs:comment': [
+                 {'@value': '\tpublisher\tCity of Palo Alto'}, 
+                 {'@value': '\tupdated\t12/31/2010'}, 
+                 {'@value': 'name\tGID\ton_street\tspecies\ttrim_cycle\tinventory_date'}, 
+                 {'@value': 'datatype\tstring\tstring\tstring\tstring\tdate:M/D/YYYY'}
+                 ], 
+             'tableSchema': {
+                 'columns': [
+                     {'titles': {'und': ['GID']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['On Street']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Species']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Trim Cycle']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Inventory Date']}, '@type': 'Column'}
+                     ], 
+                 '@type': 'Table'
+                 }, 
+             'url': 'model_for_tabular_data_and_metadata_example_files/example_21.csv'}
+            )
+    
 #%% TESTS - Model for Tabular Data and Metadata
 
 #%% Section 6.1 - Creating Annotated Tables
@@ -291,7 +372,7 @@ class TestSection8(unittest.TestCase):
         # Example 8.2.1.
         fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
         annotated_table_group_dict=\
-            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+            csvw_functions.get_annotated_table_group_from_csv(
                 fp
                 )
         annotated_table_dict=annotated_table_group_dict['tables'][0]
@@ -410,13 +491,12 @@ class TestSection8(unittest.TestCase):
 
     def test_section_8_2_1_1_Using_overriding_metadata(self):
         ""
-        # 8.2.1.1 Using Overriding Metadata
         csv_fp=r'model_for_tabular_data_and_metadata_example_files/example_14.csv'
         json_fp=r'model_for_tabular_data_and_metadata_example_files/example_17.json'
         annotated_table_group_dict=\
-            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+            csvw_functions.get_annotated_table_group_from_csv(
                 csv_file_path_or_url=csv_fp,
-                metadata_file_path_or_url=json_fp
+                overriding_metadata_file_path_or_url=json_fp
                 )
         annotated_table_dict=annotated_table_group_dict['tables'][0]
         annotated_columns_list=annotated_table_dict['columns']
@@ -544,12 +624,11 @@ class TestSection8(unittest.TestCase):
              datetime.date(2010, 6, 2)]
             )
         
-    def test_section_8_2_1_2_Using_a_metadata_metadata(self):
+    def test_section_8_2_1_2_Using_a_Metadata_File(self):
         ""
-        # 8.2.1.1 Using Overriding Metadata
         json_fp=r'model_for_tabular_data_and_metadata_example_files/example_19.json'
         annotated_table_group_dict=\
-            csvw_functions.create_annotated_tables_from_metadata_file_path_or_url(
+            csvw_functions.get_annotated_table_group_from_metadata(
                 metadata_file_path_or_url=json_fp
                 )
         annotated_table_dict=annotated_table_group_dict['tables'][0]
@@ -742,7 +821,7 @@ class TestSection8(unittest.TestCase):
         ""
         fp=r'model_for_tabular_data_and_metadata_example_files/example_20.csv'
         annotated_table_group_dict=\
-            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+            csvw_functions.get_annotated_table_group_from_csv(
                 fp
                 )
         annotated_table_dict=annotated_table_group_dict['tables'][0]
@@ -809,7 +888,7 @@ class TestSection8(unittest.TestCase):
         ""
         fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
         annotated_table_group_dict=\
-            csvw_functions.create_annotated_tables_from_csv_file_path_or_url(
+            csvw_functions.get_annotated_table_group_from_csv(
                 fp
                 )
         annotated_table_dict=annotated_table_group_dict['tables'][0]
@@ -878,7 +957,7 @@ class TestSection8(unittest.TestCase):
              'GID\tOn Street\tSpecies\tTrim Cycle\tInventory Date', 
              '1\tADDISON AV\tCeltis australis\tLarge Tree Routine Prune\t10/18/2010', 
              '2\tEMERSON ST\tLiquidambar styraciflua\tLarge Tree Routine Prune\t6/2/2010']
-            )
+            )  # NOTE, example in standard seems to have tabs replaced with spaces??
         # value
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
@@ -889,8 +968,278 @@ class TestSection8(unittest.TestCase):
              {'und': 'GID\tOn Street\tSpecies\tTrim Cycle\tInventory Date'}, 
              {'und': '1\tADDISON AV\tCeltis australis\tLarge Tree Routine Prune\t10/18/2010'}, 
              {'und': '2\tEMERSON ST\tLiquidambar styraciflua\tLarge Tree Routine Prune\t6/2/2010'}]
+            )  # NOTE, example in standard seems to have tabs replaced with spaces??
+        
+    
+    def test_section_8_2_3_2_Parsing_with_Flags(self):
+        ""
+        fp=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp,
+                delimiter='\t',
+                skip_rows=4,
+                skip_columns=1,
+                comment_prefix='#'
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+    
+        #---check annotated table---
+        # rdfs:comment
+        #print(annotated_table_dict['rdfs:comment'])
+        self.assertEqual(
+            annotated_table_dict['rdfs:comment'],
+            [{'@value': '\tpublisher\tCity of Palo Alto'}, 
+             {'@value': '\tupdated\t12/31/2010'}, 
+             {'@value': 'name\tGID\ton_street\tspecies\ttrim_cycle\tinventory_date'}, 
+             {'@value': 'datatype\tstring\tstring\tstring\tstring\tdate:M/D/YYYY'}
+             ]  # NOTE these values still contain the tabs but tabs are not 
+                # shown in the example solution
+            )
+    
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [2,3,4,5,6]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [2,2,2,2,2]
+            )
+        # titles
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['GID']},  
+             {'und': ['On Street']},  
+             {'und': ['Species']},
+             {'und': ['Trim Cycle']}, 
+             {'und': ['Inventory Date']}, 
+             ]
             )
         
+        #--- check annotated rows---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_rows_list],
+            [1,2]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_rows_list],
+            [6,7]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_rows_list],
+            [5,5]
+            )
+        
+    def test_section_8_2_3_3_Recognizing_Tabular_Data_Formats(self):
+        ""
+        fp_csv=r'model_for_tabular_data_and_metadata_example_files/example_21.csv'
+        fp_json=r'model_for_tabular_data_and_metadata_example_files/example_23.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                csv_file_path_or_url=fp_csv,
+                overriding_metadata_file_path_or_url=fp_json,
+                delimiter='\t',
+                skip_rows=4,
+                skip_columns=1,
+                comment_prefix='#'
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated table---
+        # dc:publisher
+        self.assertEqual(
+            annotated_table_dict['dc:publisher'],
+            {'@value': 'City of Palo Alto'}
+            )
+        # dc@updated
+        self.assertEqual(
+            annotated_table_dict['dc:updated'],
+            {'@value': '12/31/2010'}
+            )
+        
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [2,3,4,5,6]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [2,2,2,2,2]
+            )
+        # name
+        self.assertEqual(
+            [x['name'] for x in annotated_columns_list],
+            ['GID', 'on_street', 'species', 'trim_cycle', 'inventory_date']
+            )
+        # titles
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['GID']},  
+             {'und': ['On Street']},  
+             {'und': ['Species']},
+             {'und': ['Trim Cycle']}, 
+             {'und': ['Inventory Date']}, 
+             ]
+            )
+        
+        #--- check annotated rows---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_rows_list],
+            [1,2]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_rows_list],
+            [6,7]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_rows_list],
+            [5,5]
+            )
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [1,1,1,1,1]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['1', 'ADDISON AV', 'Celtis australis', 'Large Tree Routine Prune', '10/18/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '1'}, 
+             {'und': 'ADDISON AV'}, 
+             {'und': 'Celtis australis'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             datetime.date(2010, 10, 18)]
+            )
+        #---second row---
+        annotated_cells_list=annotated_rows_list[1]['cells']
+        # column number
+        self.assertEqual(
+            [x['column']['number'] for x in annotated_cells_list],
+            [1,2,3,4,5]
+            )
+        # row number
+        self.assertEqual(
+            [x['row']['number'] for x in annotated_cells_list],
+            [2,2,2,2,2]
+            )
+        # string value
+        self.assertEqual(
+            [x['stringValue'] for x in annotated_cells_list],
+            ['2', 'EMERSON ST', 'Liquidambar styraciflua', 'Large Tree Routine Prune', '6/2/2010']
+            )
+        # value
+        #print([x['value'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['value'] for x in annotated_cells_list],
+            [{'und': '2'}, 
+             {'und': 'EMERSON ST'}, 
+             {'und': 'Liquidambar styraciflua'}, 
+             {'und': 'Large Tree Routine Prune'}, 
+             datetime.date(2010, 6, 2)]
+            )
+        
+        
+    def test_section_8_2_4_Parsing_Multiple_Header_Lines(self):
+        ""
+        fp_csv=r'model_for_tabular_data_and_metadata_example_files/example_24.csv'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                csv_file_path_or_url=fp_csv,
+                skip_rows=1,
+                header_row_count=2,
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #--- check annotated columns---
+        # number
+        self.assertEqual(
+            [x['number'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # source number
+        self.assertEqual(
+            [x['sourceNumber'] for x in annotated_columns_list],
+            [1,2,3,4,5]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(x['cells']) for x in annotated_columns_list],
+            [2,2,2,2,2]
+            )
+        # titles
+        #print([x['titles'] for x in annotated_columns_list])
+        self.assertEqual(
+            [x['titles'] for x in annotated_columns_list],
+            [{'und': ['Organization', '#org']}, 
+             {'und': ['Sector', '#sector']}, 
+             {'und': ['Subsector', '#subsector']}, 
+             {'und': ['Department', '#adm1']}, 
+             {'und': ['Municipality', '#adm2']}]
+            )
+        
+        embedded_metadata=csvw_functions.get_embedded_metadata(
+            fp_csv,
+            skip_rows=1,
+            header_row_count=2,
+            )
+        
+        self.assertEqual(
+            embedded_metadata,
+            {'@context': 'http://www.w3.org/ns/csvw', 
+             'rdfs:comment': [{'@value': 'Who,What,,Where,'}], 
+             'tableSchema': {
+                 'columns': [
+                     {'titles': {'und': ['Organization', '#org']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Sector', '#sector']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Subsector', '#subsector']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Department', '#adm1']}, '@type': 'Column'}, 
+                     {'titles': {'und': ['Municipality', '#adm2']}, '@type': 'Column'}
+                     ],
+                 '@type': 'Table'
+                 },
+             'url': 'model_for_tabular_data_and_metadata_example_files/example_24.csv'}
+            )        
 
 #%% FUNCTIONS - General
 

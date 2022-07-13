@@ -136,15 +136,57 @@ prefixes=\
 
 #%% FUNCTIONS - Top Level Functions
 
-def validate_metadata_document(
+
+def get_embedded_metadata(
+        csv_file_path_or_url,
+        comment_prefix=None,
+        delimiter=None,
+        escape_character=None,
+        header_row_count=None,
+        line_terminators=None,
+        quote_character=None,
+        skip_blank_rows=None,
+        skip_columns=None,
+        skip_rows=None,
+        ):
+    """
+    """
+    dialect_flags=dict(
+        commentPrefix=comment_prefix,
+        delimiter=delimiter,
+        escapeCharacter=escape_character,
+        headerRowCount=header_row_count,
+        lineTerminators=line_terminators,
+        quoteCharacter=quote_character,
+        skipBlankRows=skip_blank_rows,
+        skipColumns=skip_columns,
+        skipRows=skip_rows
+        )
+    dialect_flags={k:v for k,v in dialect_flags.items() if v}
+    if len(dialect_flags)==0:
+        dialect_flags=None
+    
+    embedded_metadata=\
+        create_annotated_tables_from_csv_file_path_or_url(
+            csv_file_path_or_url,
+            overriding_metadata_file_path_or_url=None,
+            validate=False,
+            return_embedded_metadata=True,
+            dialect_flags=dialect_flags
+            )
+    return embedded_metadata
+    
+
+
+def validate_metadata(
         metadata_file_path_or_url
         ):
     """
     """
     
-def validate_csv_document(
-        file_path_or_url,
-        validate_metadata=True
+def validate_csv(
+        csv_file_path_or_url,
+        metadata_file_path_or_url
         ):
     """
     
@@ -154,17 +196,60 @@ def validate_csv_document(
     """
     
     
-def convert_csvw_to_annotated_table_group(
-        file_path_or_url,
-        validate_metadata=True,
-        validate_csv=True
+def get_annotated_table_group_from_csv(
+        csv_file_path_or_url,
+        overriding_metadata_file_path_or_url=None,
+        comment_prefix=None,
+        delimiter=None,
+        escape_character=None,
+        header_row_count=None,
+        line_terminators=None,
+        quote_character=None,
+        skip_blank_rows=None,
+        skip_columns=None,
+        skip_rows=None,
         ):
     """
     """
-    annotated_table_group_dict={}
+    # dialect_flags
+    dialect_flags=dict(
+        commentPrefix=comment_prefix,
+        delimiter=delimiter,
+        escapeCharacter=escape_character,
+        headerRowCount=header_row_count,
+        lineTerminators=line_terminators,
+        quoteCharacter=quote_character,
+        skipBlankRows=skip_blank_rows,
+        skipColumns=skip_columns,
+        skipRows=skip_rows
+        )
+    dialect_flags={k:v for k,v in dialect_flags.items() if v}
+    if len(dialect_flags)==0:
+        dialect_flags=None
     
-    
-    
+    # get annotated table group dict
+    annotated_table_group_dict=\
+        create_annotated_tables_from_csv_file_path_or_url(
+            csv_file_path_or_url,
+            overriding_metadata_file_path_or_url=overriding_metadata_file_path_or_url,
+            validate=False,
+            return_embedded_metadata=False,
+            dialect_flags=dialect_flags
+            )
+
+    return annotated_table_group_dict
+
+
+def get_annotated_table_group_from_metadata(
+        metadata_file_path_or_url
+        ):
+    """
+    """
+    annotated_table_group_dict=\
+        create_annotated_tables_from_metadata_file_path_or_url(
+                metadata_file_path_or_url
+                )
+        
     return annotated_table_group_dict
     
 
@@ -1190,39 +1275,39 @@ def normalize_common_property(
 
 #%% Section 5 - Locating Metadata
 
-def get_embedded_metadata_from_csv_file(
-        csv_file_path_or_url
-        ):
-    """
-    """
-    csv_file_path, csv_file_url=\
-        get_path_and_url_from_file_location(
-            csv_file_path_or_url
-            )
+# def get_embedded_metadata_from_csv_file(
+#         csv_file_path_or_url
+#         ):
+#     """
+#     """
+#     csv_file_path, csv_file_url=\
+#         get_path_and_url_from_file_location(
+#             csv_file_path_or_url
+#             )
     
-    csv_text_line_generator=get_text_line_generator_from_path_or_url(
-        csv_file_path, 
-        csv_file_url
-        )  
+#     csv_text_line_generator=get_text_line_generator_from_path_or_url(
+#         csv_file_path, 
+#         csv_file_url
+#         )  
     
-    column_titles=get_column_titles_of_csv_file_text_line_generator(
-        csv_text_line_generator
-        )
-    column_description_objects=[{'titles':[column_title]}
-                                for column_title in column_titles]
+#     column_titles=get_column_titles_of_csv_file_text_line_generator(
+#         csv_text_line_generator
+#         )
+#     column_description_objects=[{'titles':[column_title]}
+#                                 for column_title in column_titles]
     
-    schema_description_object={
-        'columns': column_description_objects
-        }
+#     schema_description_object={
+#         'columns': column_description_objects
+#         }
     
-    table_description_object={
-        '@context': "http://www.w3.org/ns/csvw",
-        '@type': 'Table', 
-        'url': csv_file_path or csv_file_url,
-        'tableSchema': schema_description_object
-        }
+#     table_description_object={
+#         '@context': "http://www.w3.org/ns/csvw",
+#         '@type': 'Table', 
+#         'url': csv_file_path or csv_file_url,
+#         'tableSchema': schema_description_object
+#         }
     
-    return table_description_object
+#     return table_description_object
     
 
 #%% Section 6.1 - Creating Annotated Tables
@@ -1230,8 +1315,10 @@ def get_embedded_metadata_from_csv_file(
 
 def create_annotated_tables_from_csv_file_path_or_url(
         csv_file_path_or_url,
-        metadata_file_path_or_url=None,
-        validate=False
+        overriding_metadata_file_path_or_url=None,
+        validate=False,
+        return_embedded_metadata=False,
+        dialect_flags=None
         ):
     """
     """
@@ -1246,11 +1333,11 @@ def create_annotated_tables_from_csv_file_path_or_url(
         
     # 2.1 metadata supplied by the user (see section 5.1 Overriding Metadata).
     
-    if not metadata_file_path_or_url is None:
+    if not overriding_metadata_file_path_or_url is None:
     
         metadata_file_path, metadata_file_url=\
             get_path_and_url_from_file_location(
-                metadata_file_path_or_url
+                overriding_metadata_file_path_or_url
                 )
             
         if not metadata_file_path is None:
@@ -1269,13 +1356,39 @@ def create_annotated_tables_from_csv_file_path_or_url(
             raise Exception
         
         metadata_root_obj_dict=json.loads(metadata_file_text)
+        
+        metadata_type=\
+            get_type_of_metadata_object(
+                metadata_root_obj_dict
+                )
+        
+        if metadata_type=='TableGroup':
+            table_dict=metadata_root_obj_dict['tables'][0]  # NOTE assumed first table present is used...?
+            
+        elif metadata_type=='Table':
+            table_dict=metadata_root_obj_dict
+        
+        # include csv file path or url in metadata
+        csv_absolute_file_path, csv_file_url=\
+            get_path_and_url_from_file_location(
+                csv_file_path_or_url
+                )
+        table_dict['url']=csv_absolute_file_path or csv_file_url
+        
+        # add dialect_flags
+        if not dialect_flags is None:
+            
+            x=table_dict.setdefault('dialect',{})
+            x.update(dialect_flags)
+        
     
         return create_annotated_tables_from_metadata_root_object(
             metadata_root_obj_dict,
             metadata_file_path,
             metadata_file_url,
             validate=validate,
-            from_csv=True
+            from_csv=True,
+            return_embedded_metadata=return_embedded_metadata,
             )
 
     # 2.2 metadata referenced from a Link Header that may be returned when 
@@ -1296,17 +1409,24 @@ def create_annotated_tables_from_csv_file_path_or_url(
     #     a single tables entry where the url property is set from that of the 
     #     tabular data file.
     
+    metadata_root_obj_dict={
+        'url': csv_file_path_or_url,
+        '@type': 'Table',
+        'tableSchema':{}
+        }
+    if dialect_flags:
+        metadata_root_obj_dict['dialect']=dialect_flags
+    
+    #print(metadata_root_obj_dict)
+    
     return create_annotated_tables_from_metadata_root_object(
-        metadata_root_obj_dict={
-            'url': csv_file_path_or_url,
-            '@type': 'Table',
-            'tableSchema':{}
-            },
+        metadata_root_obj_dict=metadata_root_obj_dict,
         metadata_file_path='.',
         metadata_file_url=None,
         validate=validate,
         embedded_metadata=True,
-        from_csv=True
+        from_csv=True,
+        return_embedded_metadata=return_embedded_metadata
         )
 
 
@@ -1390,7 +1510,8 @@ def create_annotated_tables_from_metadata_root_object(
         metadata_file_url=None,
         validate=False,
         embedded_metadata=False,
-        from_csv=False
+        from_csv=False,
+        return_embedded_metadata=False
         ):
     """
     
@@ -1463,8 +1584,6 @@ def create_annotated_tables_from_metadata_root_object(
     for table_index,metadata_table_obj_dict in \
         enumerate(metadata_table_group_obj_dict['tables']):
             
-        table_name=f'TG1T{table_index+1}'
-        
         # 3.1 Extract the dialect description (DD) from UM for the table 
         #     associated with the tabular data file. If there is no such 
         #     dialect description, extract the first available dialect 
@@ -1531,6 +1650,8 @@ def create_annotated_tables_from_metadata_root_object(
             
             raise Exception
         
+        #print(tabular_data_text)
+        
         # 3.2 If using the default dialect description, override default values 
         #     in DD based on HTTP headers found when retrieving the tabular data file:
         #     - If the media type from the Content-Type header is text/tab-separated-values, 
@@ -1561,9 +1682,11 @@ def create_annotated_tables_from_metadata_root_object(
             parse_tabular_data_from_text(
                 tabular_data_text,
                 tabular_data_file_path_or_url,
-                dialect_description_obj_dict,
-                table_name
+                dialect_description_obj_dict
                 )
+            
+        if return_embedded_metadata:  # function only returns the embedded metadata
+            return embedded_metadata_dict
             
         # if called with embedded_metadata=True
         if embedded_metadata:
@@ -1980,13 +2103,17 @@ def parse_date(
 def parse_tabular_data_from_text(
         tabular_data_text,
         tabular_data_file_path_or_url,
-        dialect_description_obj_dict,
-        table_name):
+        dialect_description_obj_dict
+        ):
     """
     """
     # 8. Parsing Tabular Data
     
     # ... hard coded the defaults here...
+    
+    #print(tabular_data_text)
+    
+    #print(dialect_description_obj_dict)
     
     comment_prefix=dialect_description_obj_dict.get('commentPrefix',None)
     delimiter=dialect_description_obj_dict.get('delimiter',',')
@@ -2071,6 +2198,8 @@ def parse_tabular_data_from_text(
     
     for _ in range(skip_rows): 
         
+        #print(_)
+        
         # 6.1 Read a row to provide the row content.
         character_index, row_content=\
             get_row_content(
@@ -2080,6 +2209,9 @@ def parse_tabular_data_from_text(
                 quote_character,
                 line_terminators
                 )
+            
+        #print(character_index)
+        #print(row_content)
         
         # 6.2 If the comment prefix is not null and the row content begins 
         # with the comment prefix, strip that prefix from the row content, 
@@ -2144,10 +2276,11 @@ def parse_tabular_data_from_text(
             # of cell values:
                 
             # sets up the metatdata column description objects
-            metadata_dict['tableSchema']['columns']=\
-                [{'titles':[],
-                  '@type':'Column'} 
-                 for x in range(len(list_of_cell_values_non_skipped))]
+            if len(metadata_dict['tableSchema']['columns'])==0:
+                metadata_dict['tableSchema']['columns']=\
+                    [{'titles':[],
+                      '@type':'Column'} 
+                     for x in range(len(list_of_cell_values_non_skipped))]
                 
             for i, value in enumerate(list_of_cell_values_non_skipped):
                 
@@ -2411,8 +2544,8 @@ def get_row_content(
         ):
     """
     """
-    # print(tabular_data_text)
-    # print(i)
+    #print(tabular_data_text)
+    #print(i)
     # print(escape_character)
     # print(quote_character)
     # print(line_terminators)
