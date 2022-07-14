@@ -1,7 +1,7 @@
 {
   "@context": "http://www.w3.org/ns/csvw",
   "@type": "Table",
-  "url": "../model_for_tabular_data_and_metadata_example_files/example_14.csv",
+  "url": "tree-ops.csv",
   "tableSchema": {
     "columns": [
       {"titles": [ "GID" ],

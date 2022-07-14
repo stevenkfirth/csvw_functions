@@ -1271,7 +1271,28 @@ class TestSection5_3_1(unittest.TestCase):
              'http://example.org/tree/EMERSON%20ST/2']
             )
         
-
+        
+    def test_section_5_3_1_example_10(self):
+        ""
+        json_url=r'https://raw.githubusercontent.com/stevenkfirth/csvw_functions/main/tests/metadata_vocabulary_example_files/example_10.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_url
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first column---
+        annotated_cells_list=annotated_columns_list[0]['cells']
+        # aboutURL
+        #print([x['aboutURL'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['aboutURL'] for x in annotated_cells_list],
+            [json_url+'#row.1',
+             json_url+'#row.2']
+            )
 
 
 #%% 6. Normalization
