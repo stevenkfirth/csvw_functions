@@ -110,14 +110,212 @@ class TestTopLevelFunctions(unittest.TestCase):
             )
  
     
+    def test_validate_metadata(self):
+        ""
+        json_fp=r'model_for_tabular_data_and_metadata_example_files/example_17.json'
+        
+        csvw_functions.validate_metadata(json_fp)
+    
+    
+    
 #%% TESTS - Model for Tabular Data and Metadata
 
 
 #%% Section 6.4 - Parsing Cells
 
-class TestSection6_4(unittest.TestCase):
+class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
     ""
     
+    def test_section_6_4_1(self):
+        ""
+        kwargs=dict(
+            default='',
+            lang='und',
+            null=None,
+            required=False,
+            separator=None
+            )
+    
+        # string
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='99',
+                datatype=None,
+                #p=True,
+                **kwargs
+                ),
+            ({'@value': '99', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', 
+              '@language': 'und'},
+             [])
+            )
+        
+        # integer - example 9
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='99',
+                datatype='integer',
+                #p=True,
+                **kwargs
+                ),
+            ({'@value': '99', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+             [])
+            )
+        
+        # integer - string value is 'one'
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='one',
+                datatype='integer',
+                #p=True,
+                **kwargs
+                ),
+            ({'@value': 'one', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+             ['Value "one" is not a valid integer'])
+            )
+        
+        # integer - string value is '1.0'
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='1.0',
+                datatype='integer',
+                #p=True,
+                **kwargs
+                ),
+            ({'@value': '1.0', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+             ['Value "1.0" is not a valid integer'])
+            )
+    
+        # example 10 - integer with null - string value is '5'
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='5',
+                datatype={
+                  "base": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                default='',
+                lang='und',
+                null=99,
+                required=False,
+                separator=None
+                ),
+            ({'@value': '5', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+             [])
+            )
+        
+        # example 10 - integer with null - string value is '99'
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='99',
+                datatype={
+                  "base": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                default='',
+                lang='und',
+                null='99',
+                required=False,
+                separator=None
+                ),
+            (None,
+             [])
+            )
+        
+        # example 11 - integer with default - string value is ''
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='',
+                datatype={
+                  "base": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                default='5',
+                lang='und',
+                null=None,
+                required=False,
+                separator=None
+                ),
+            ({'@value': '5', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+             [])
+            )
+        
+        # example 11 - integer with default - string value is ' '
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value=' ',
+                datatype={
+                  "base": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                default='5',
+                lang='und',
+                null=None,
+                required=False,
+                separator=None
+                ),
+            ({'@value': '5', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+             [])
+            )
+        
+        # example 12 - sequence of values - string value is '1 5 7.0'
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='1 5 7.0',
+                datatype={
+                  "base": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                default='5',
+                lang='und',
+                null=None,
+                required=False,
+                separator=' '
+                ),
+            ([{'@value': '1', 
+               '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+              {'@value': '5', 
+                 '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+              {'@value': '7.0', 
+                 '@type': 'http://www.w3.org/2001/XMLSchema#integer'}],
+             ['Value "7.0" is not a valid integer'])
+            )
+        
+        # example 12 - sequence of values - string value is ''
+        self.assertEqual(
+            csvw_functions.parse_cell(
+                string_value='',
+                datatype={
+                  "base": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                default='5',
+                lang='und',
+                null=None,
+                required=False,
+                separator=' '
+                ),
+            ([],
+             [])
+            )
+        
+        # example 13
+        
+        # TO DO
+        
+        
 
 #%% Section 8 - Parsing Tabular Data
 
@@ -155,11 +353,11 @@ class TestSection8(unittest.TestCase):
         # titles
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['GID']}, 
-             {'und': ['On Street']}, 
-             {'und': ['Species']}, 
-             {'und': ['Trim Cycle']}, 
-             {'und': ['Inventory Date']}]
+            [[{'@language': 'und', '@value': 'GID'}],
+             [{'@language': 'und', '@value': 'On Street'}],
+             [{'@language': 'und', '@value': 'Species'}],
+             [{'@language': 'und', '@value': 'Trim Cycle'}],
+             [{'@language': 'und', '@value': 'Inventory Date'}]]
             )
         
         #---check embedded metadata---
@@ -211,11 +409,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '1'}, 
-             {'und': 'ADDISON AV'}, 
-             {'und': 'Celtis australis'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             {'und': '10/18/2010'}]
+            [{'@value': '1', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'ADDISON AV', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Celtis australis', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '10/18/2010', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}
+             ]
             )
         #---second row---
         annotated_cells_list=annotated_rows_list[1]['cells']
@@ -238,11 +437,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '2'}, 
-             {'und': 'EMERSON ST'}, 
-             {'und': 'Liquidambar styraciflua'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             {'und': '6/2/2010'}]
+            [{'@value': '2', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'EMERSON ST', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Liquidambar styraciflua', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '6/2/2010', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}
+             ]
             )
         
 
@@ -263,11 +463,11 @@ class TestSection8(unittest.TestCase):
         # titles
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['GID']}, 
-             {'und': ['On Street']}, 
-             {'und': ['Species']}, 
-             {'und': ['Trim Cycle']}, 
-             {'und': ['Inventory Date']}]
+            [[{'@language': 'und', '@value': 'GID'}],
+             [{'@language': 'und', '@value': 'On Street'}],
+             [{'@language': 'und', '@value': 'Species'}],
+             [{'@language': 'und', '@value': 'Trim Cycle'}],
+             [{'@language': 'und', '@value': 'Inventory Date'}]]
             )  
         # name
         self.assertEqual(
@@ -308,11 +508,11 @@ class TestSection8(unittest.TestCase):
         # titles
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['GID']}, 
-             {'und': ['On Street']}, 
-             {'und': ['Species']}, 
-             {'und': ['Trim Cycle']}, 
-             {'und': ['Inventory Date']}]
+            [[{'@language': 'und', '@value': 'GID'}],
+             [{'@language': 'und', '@value': 'On Street'}],
+             [{'@language': 'und', '@value': 'Species'}],
+             [{'@language': 'und', '@value': 'Trim Cycle'}],
+             [{'@language': 'und', '@value': 'Inventory Date'}]]
             )
         # datatype
         self.assertEqual(
@@ -347,11 +547,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '1'}, 
-             {'und': 'ADDISON AV'}, 
-             {'und': 'Celtis australis'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             datetime.date(2010, 10, 18)]
+            [{'@value': '1', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'ADDISON AV', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Celtis australis', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2010-10-18', '@type': 'http://www.w3.org/2001/XMLSchema#date'}
+             ]
             )
         #---second row---
         annotated_cells_list=annotated_rows_list[1]['cells']
@@ -374,11 +575,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '2'}, 
-             {'und': 'EMERSON ST'}, 
-             {'und': 'Liquidambar styraciflua'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             datetime.date(2010, 6, 2)]
+            [{'@value': '2', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'EMERSON ST', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Liquidambar styraciflua', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2010-06-02', '@type': 'http://www.w3.org/2001/XMLSchema#date'}
+             ]
             )
         
     def test_section_8_2_1_2_Using_a_Metadata_File(self):
@@ -447,11 +649,12 @@ class TestSection8(unittest.TestCase):
         #print([x['titles'] for x in annotated_columns_list])
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'en': ['GID', 'Generic Identifier']}, 
-             {'en': ['On Street']}, 
-             {'en': ['Species']}, 
-             {'en': ['Trim Cycle']}, 
-             {'en': ['Inventory Date']}]
+            [[{'@language': 'en', '@value': 'GID'},
+              {'@language': 'en', '@value': 'Generic Identifier'}],
+             [{'@language': 'en', '@value': 'On Street'}],
+             [{'@language': 'en', '@value': 'Species'}],
+             [{'@language': 'en', '@value': 'Trim Cycle'}],
+             [{'@language': 'en', '@value': 'Inventory Date'}]]
             )
         # datatype
         self.assertEqual(
@@ -519,11 +722,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '1'}, 
-             {'und': 'ADDISON AV'}, 
-             {'und': 'Celtis australis'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             datetime.date(2010, 10, 18)]
+            [{'@value': '1', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'ADDISON AV', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Celtis australis', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2010-10-18', '@type': 'http://www.w3.org/2001/XMLSchema#date'}
+             ]
             )
         # aboutURL
         #print([os.path.basename(x['aboutURL']) for x in annotated_cells_list])
@@ -557,11 +761,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '2'}, 
-             {'und': 'EMERSON ST'}, 
-             {'und': 'Liquidambar styraciflua'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             datetime.date(2010, 6, 2)]
+            [{'@value': '2', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'EMERSON ST', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Liquidambar styraciflua', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2010-06-02', '@type': 'http://www.w3.org/2001/XMLSchema#date'}
+             ]
             )
         # aboutURL
         #print([os.path.basename(x['aboutURL']) for x in annotated_cells_list])
@@ -607,11 +812,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '1'}, 
-             {'und': 'ADDISON AV'}, 
-             {'und': 'Celtis australis'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             {'und': '10/18/2010'}]
+            [{'@value': '1', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'ADDISON AV', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Celtis australis', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '10/18/2010', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}
+             ]
             )
         #---second row---
         annotated_cells_list=annotated_rows_list[1]['cells']
@@ -634,10 +840,10 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '2'}, 
+            [{'@value': '2', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
              None, 
-             {'und': 'Liquidambar styraciflua'}, 
-             {'und': 'Large Tree Routine Prune'}, 
+             {'@value': 'Liquidambar styraciflua', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
              None]
             )
 
@@ -671,7 +877,9 @@ class TestSection8(unittest.TestCase):
         # titles
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['#\tpublisher\tCity of Palo Alto']}]
+            [
+                [{'@language': 'und', '@value': '#\tpublisher\tCity of Palo Alto'}]
+            ]
             )
         
         #--- check annotated rows---
@@ -719,12 +927,19 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '#\tupdated\t12/31/2010'}, 
-             {'und': '#name\tGID\ton_street\tspecies\ttrim_cycle\tinventory_date'}, 
-             {'und': '#datatype\tstring\tstring\tstring\tstring\tdate:M/D/YYYY'}, 
-             {'und': 'GID\tOn Street\tSpecies\tTrim Cycle\tInventory Date'}, 
-             {'und': '1\tADDISON AV\tCeltis australis\tLarge Tree Routine Prune\t10/18/2010'}, 
-             {'und': '2\tEMERSON ST\tLiquidambar styraciflua\tLarge Tree Routine Prune\t6/2/2010'}]
+            [{'@value': '#\tupdated\t12/31/2010', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '#name\tGID\ton_street\tspecies\ttrim_cycle\tinventory_date', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '#datatype\tstring\tstring\tstring\tstring\tdate:M/D/YYYY', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'GID\tOn Street\tSpecies\tTrim Cycle\tInventory Date', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '1\tADDISON AV\tCeltis australis\tLarge Tree Routine Prune\t10/18/2010', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2\tEMERSON ST\tLiquidambar styraciflua\tLarge Tree Routine Prune\t6/2/2010', 
+              '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}
+             ]
             )  # NOTE, example in standard seems to have tabs replaced with spaces??
         
     
@@ -775,12 +990,11 @@ class TestSection8(unittest.TestCase):
         # titles
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['GID']},  
-             {'und': ['On Street']},  
-             {'und': ['Species']},
-             {'und': ['Trim Cycle']}, 
-             {'und': ['Inventory Date']}, 
-             ]
+            [[{'@language': 'und', '@value': 'GID'}],
+             [{'@language': 'und', '@value': 'On Street'}],
+             [{'@language': 'und', '@value': 'Species'}],
+             [{'@language': 'und', '@value': 'Trim Cycle'}],
+             [{'@language': 'und', '@value': 'Inventory Date'}]]
             )
         
         #--- check annotated rows---
@@ -853,12 +1067,11 @@ class TestSection8(unittest.TestCase):
         # titles
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['GID']},  
-             {'und': ['On Street']},  
-             {'und': ['Species']},
-             {'und': ['Trim Cycle']}, 
-             {'und': ['Inventory Date']}, 
-             ]
+            [[{'@language': 'und', '@value': 'GID'}],
+             [{'@language': 'und', '@value': 'On Street'}],
+             [{'@language': 'und', '@value': 'Species'}],
+             [{'@language': 'und', '@value': 'Trim Cycle'}],
+             [{'@language': 'und', '@value': 'Inventory Date'}]]
             )
         
         #--- check annotated rows---
@@ -900,11 +1113,11 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '1'}, 
-             {'und': 'ADDISON AV'}, 
-             {'und': 'Celtis australis'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             datetime.date(2010, 10, 18)]
+            [{'@value': '1', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'ADDISON AV', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Celtis australis', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2010-10-18', '@type': 'http://www.w3.org/2001/XMLSchema#date'}]
             )
         #---second row---
         annotated_cells_list=annotated_rows_list[1]['cells']
@@ -927,11 +1140,12 @@ class TestSection8(unittest.TestCase):
         #print([x['value'] for x in annotated_cells_list])
         self.assertEqual(
             [x['value'] for x in annotated_cells_list],
-            [{'und': '2'}, 
-             {'und': 'EMERSON ST'}, 
-             {'und': 'Liquidambar styraciflua'}, 
-             {'und': 'Large Tree Routine Prune'}, 
-             datetime.date(2010, 6, 2)]
+            [{'@value': '2', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'EMERSON ST', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Liquidambar styraciflua', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Large Tree Routine Prune', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2010-06-02', '@type': 'http://www.w3.org/2001/XMLSchema#date'}
+             ]
             )
         
         
@@ -968,11 +1182,16 @@ class TestSection8(unittest.TestCase):
         #print([x['titles'] for x in annotated_columns_list])
         self.assertEqual(
             [x['titles'] for x in annotated_columns_list],
-            [{'und': ['Organization', '#org']}, 
-             {'und': ['Sector', '#sector']}, 
-             {'und': ['Subsector', '#subsector']}, 
-             {'und': ['Department', '#adm1']}, 
-             {'und': ['Municipality', '#adm2']}]
+            [[{'@value': 'Organization', '@language': 'und'}, 
+              {'@value': '#org', '@language': 'und'}], 
+             [{'@value': 'Sector', '@language': 'und'}, 
+              {'@value': '#sector', '@language': 'und'}], 
+             [{'@value': 'Subsector', '@language': 'und'}, 
+              {'@value': '#subsector', '@language': 'und'}], 
+             [{'@value': 'Department', '@language': 'und'}, 
+              {'@value': '#adm1', '@language': 'und'}], 
+             [{'@value': 'Municipality', '@language': 'und'}, 
+              {'@value': '#adm2', '@language': 'und'}]]
             )
         
         # embedded metadata
@@ -1003,6 +1222,58 @@ class TestSection8(unittest.TestCase):
     
 #%% TESTS - Metadata Vocabulary for Tabular Data
     
+#%% Section 5.1.3 - URI Template Properties
+
+class TestSection5_3_1(unittest.TestCase):
+    ""
+    
+    def test_section_5_3_1_example_8(self):
+        ""
+        json_fp=r'metadata_vocabulary_example_files/example_8.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first column---
+        annotated_cells_list=annotated_columns_list[0]['cells']
+        # aboutURL
+        #print([x['aboutURL'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['aboutURL'] for x in annotated_cells_list],
+            ['http://example.org/example.csv#row.1', 
+             'http://example.org/example.csv#row.2']
+            )
+        
+    def test_section_5_3_1_example_9(self):
+        ""
+        json_fp=r'metadata_vocabulary_example_files/example_9.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first column---
+        annotated_cells_list=annotated_columns_list[0]['cells']
+        # aboutURL
+        #print([x['aboutURL'] for x in annotated_cells_list])
+        self.assertEqual(
+            [x['aboutURL'] for x in annotated_cells_list],
+            ['http://example.org/tree/ADDISON%20AV/1',
+             'http://example.org/tree/EMERSON%20ST/2']
+            )
+        
+
+
+
 #%% 6. Normalization
 
 class TestSection6(unittest.TestCase):

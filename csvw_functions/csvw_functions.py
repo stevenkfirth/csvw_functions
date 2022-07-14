@@ -135,6 +135,91 @@ prefixes=\
   }
 
 
+#%% datatypes
+
+# Metadata Section 5.11.1
+datatypes={
+    'anyAtomicType':'http://www.w3.org/2001/XMLSchema#anyAtomicType',
+    'anyURI':'http://www.w3.org/2001/XMLSchema#anyURI',
+    'base64Binary':'http://www.w3.org/2001/XMLSchema#base64Binary',
+    'boolean':'http://www.w3.org/2001/XMLSchema#boolean',
+    'date':'http://www.w3.org/2001/XMLSchema#date',
+    'dateTime':'http://www.w3.org/2001/XMLSchema#dateTime',
+    'dateTimeStamp':'http://www.w3.org/2001/XMLSchema#dateTimeStamp',
+    'decimal':'http://www.w3.org/2001/XMLSchema#decimal',
+    'integer':'http://www.w3.org/2001/XMLSchema#integer',
+    'long':'http://www.w3.org/2001/XMLSchema#long',
+    'int':'http://www.w3.org/2001/XMLSchema#int',
+    'short':'http://www.w3.org/2001/XMLSchema#short',
+    'byte':'http://www.w3.org/2001/XMLSchema#byte',
+    'nonNegativeInteger':'http://www.w3.org/2001/XMLSchema#nonNegativeInteger',
+    'postiveInteger':'http://www.w3.org/2001/XMLSchema#positiveInteger',
+    'unsignedLong':'http://www.w3.org/2001/XMLSchema#unsignedLong',
+    'unsignedInt':'http://www.w3.org/2001/XMLSchema#unsignedInt',
+    'unsignedShort':'http://www.w3.org/2001/XMLSchema#UnsignedShort',
+    'unsignedByte':'http://www.w3.org/2001/XMLSchema#unsignedByte',
+    'nonPositiveInteger':'http://www.w3.org/2001/XMLSchema#nonPositiveInteger',
+    'negativeInteger':'http://www.w3.org/2001/XMLSchema#negativeInteger',
+    'double':'http://www.w3.org/2001/XMLSchema#double',
+    'duration':'http://www.w3.org/2001/XMLSchema#duration',
+    'dayTimeDuration':'http://www.w3.org/2001/XMLSchema#dayTimeDuration',
+    'yearMonthDuration':'http://www.w3.org/2001/XMLSchema#yearMonthDuration',
+    'float':'http://www.w3.org/2001/XMLSchema#float',
+    'gDay':'http://www.w3.org/2001/XMLSchema#gDay',
+    'gMonth':'http://www.w3.org/2001/XMLSchema#gMonth',
+    'gYear':'http://www.w3.org/2001/XMLSchema#gYear',
+    'gYearMonth':'http://www.w3.org/2001/XMLSchema#gYearMonth',
+    'hexBinary':'http://www.w3.org/2001/XMLSchema#hexBinary',
+    'QName':'http://www.w3.org/2001/XMLSchema#QName',
+    'string':'http://www.w3.org/2001/XMLSchema#string',
+    'normalizedString':'http://www.w3.org/2001/XMLSchema#normalisedString',
+    'token':'http://www.w3.org/2001/XMLSchema#token',
+    'language':'http://www.w3.org/2001/XMLSchema#language',
+    'Name':'http://www.w3.org/2001/XMLSchema#Name',
+    'NMTOKEN':'http://www.w3.org/2001/XMLSchema#NMTOKEN',
+    'xml':'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral',  #  indicates the value is an XML fragment
+    'html':'http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML',  #  indicates the value is an HTML fragment
+    'json':'http://www.w3.org/ns/csvw#JSON',  # indicates the value is serialized JSON
+    'time':'http://www.w3.org/2001/XMLSchema#time'
+    }
+
+datatypes['number']=datatypes['double']
+datatypes['binary']=datatypes['base64Binary']
+datatypes['datetime']=datatypes['dateTime']
+datatypes['any']=datatypes['anyAtomicType']
+
+
+# lists of datatype collections
+
+datatypes_tokens=[
+    'token',
+    'language',
+    'Name',
+    'NMTOKEN'
+    ]
+
+datatypes_normalizedStrings=['normalizedString']+datatypes_tokens
+
+datatypes_strings=['string']+datatypes_normalizedStrings+['xml','html','json'] 
+
+
+
+
+
+
+
+
+#%% custom exceptions and warnings
+
+class ValidationError(Exception):
+    ""
+    
+    
+class ValidationWarning(Warning):
+    ""
+
+
+
 #%% FUNCTIONS - Top Level Functions
 
 def get_embedded_metadata_from_csv(
@@ -253,8 +338,48 @@ def get_embedded_metadata_from_csv(
 def validate_metadata(
         metadata_file_path_or_url
         ):
+    """Validates a metadata.json file.
+    
+    :param metadata_file_path_or_url: Location of the metadata.json file.
+        Either a) a relative local file path; b) 
+        an absolute local file path; or c) a full URL
+    :type overriding_metadata_file_path_or_url: str
+    
+    
+    
+    :returns: True if the metadata document is valid; False if not valid
+    :rtype: bool
+    
     """
-    """
+    result=True
+    
+    metadata_file_path, metadata_file_url=\
+        get_path_and_url_from_file_location(
+            metadata_file_path_or_url
+            )
+        
+    if not metadata_file_path is None:
+        
+        metadata_file_text=\
+            get_text_from_file_path(
+                metadata_file_path)
+        headers=None
+            
+    
+    elif not metadata_file_url is None:
+    
+        metadata_file_text, headers=\
+            get_text_and_headers_from_file_url(
+                metadata_file_url)
+        
+    
+    
+    
+    
+    return result
+    
+    
+    
     
 def validate_csv(
         csv_file_path_or_url,
@@ -886,7 +1011,7 @@ def create_annotated_tables_from_metadata_root_object(
             
             for annotated_cell_dict in annotated_column_dict['cells']:
                 
-                annotated_cell_dict['value']=\
+                value,errors=\
                     parse_cell(
                         string_value=annotated_cell_dict['stringValue'],
                         datatype=annotated_column_dict['datatype'],
@@ -896,6 +1021,9 @@ def create_annotated_tables_from_metadata_root_object(
                         required=annotated_column_dict['required'],
                         separator=annotated_column_dict['separator']
                         )
+                    
+                annotated_cell_dict['value']=value
+                annotated_cell_dict['errors'].append(errors)
                 #print(annotated_column_dict['aboutURL'])
                 
     # generate URIs
@@ -974,10 +1102,13 @@ def parse_cell(
         lang,
         null,
         required,
-        separator
+        separator,
+        p=False
         ):
     """
     """
+    
+    errors=[]
     
     if not isinstance(datatype,dict):
         datatype={'base':datatype}
@@ -1012,7 +1143,7 @@ def parse_cell(
                                 
     # 3 if the normalized string is an empty string, apply the remaining 
     # steps to the string given by the column default annotation.
-    if value=='':
+    if separator is None and value=='':
         value=default
         
     # 4 if the column separator annotation is not null and the normalized 
@@ -1027,7 +1158,7 @@ def parse_cell(
             # ADD ERROR
             raise NotImplementedError
             
-        return value
+        return value,errors
         
     # 5 if the column separator annotation is not null, the cell value is a 
     # list of values; set the list annotation on the cell to true, and create 
@@ -1058,39 +1189,58 @@ def parse_cell(
                 
             # 5.4 applying the remaining steps to each of the strings in turn.
             
-            return [parse_cell_part_2(
+            value_list=[]
+            for x in value:
+                
+                value2,errors=parse_cell_part_2(
                         x,
+                        errors,
                         datatype,
                         default,
                         lang,
                         null,
                         required,
-                        separator
+                        separator,
+                        p=p
                         )
-                for x in value]
+                
+                value_list.append(value2)
+                
+            return value_list,errors
+                
                     
-    return parse_cell_part_2(
+    value,errors=\
+        parse_cell_part_2(
             value,
+            errors,
             datatype,
             default,
             lang,
             null,
             required,
-            separator
+            separator,
+            p=p
             )
+        
+    return value,errors
 
 
 def parse_cell_part_2(
         value,
+        errors,
         datatype,
         default,
         lang,
         null,
         required,
-        separator
+        separator,
+        p=False
         ):
     """
     """
+    
+    if p: print('datatype', datatype)
+    
     # 6 if the string is an empty string, apply the remaining steps to the 
     # string given by the column default annotation.
     if value=='':
@@ -1102,14 +1252,14 @@ def parse_cell_part_2(
     # an error to the list of errors for the cell.
     if value in null:
         
-        value=None
+        result=None
         
         if separator is None and required==True:
             
             # ADD ERROR
             raise NotImplementedError
         
-        return value
+        return result, errors  # returns None
     
     # 8 parse the string using the datatype format if one is specified, as 
     # described below to give a value with an associated datatype. 
@@ -1120,32 +1270,81 @@ def parse_cell_part_2(
     # is string, or there is no datatype, the value has an associated language 
     # from the column lang annotation.
     
-    if datatype['base']=='string' or datatype is None:
+    if (datatype['base'] in datatypes_strings
+        or datatype['base'] is None):
         
-        if 'format' in datatype:
-            
-            raise NotImplementedError
-            
+        
+        
+        # format & validate value
+        # TO DO
+        lexical_value=value
+        
+        if datatype['base'] is None:        
+        
+            result={
+                '@value':lexical_value,
+                '@type':datatypes['string'],
+                '@language':lang
+                }
+        
         else:
-        
-            value={lang:value}
+            
+            result={
+                '@value':lexical_value,
+                '@type':datatypes[datatype['base']],
+                '@language':lang
+                }
+            
+        return result, errors
+    
     
     elif datatype['base']=='number':
         
-        if 'format' in datatype:
-            
-            raise NotImplementedError
-            
-        else:
+        # format & validate value
+        # TO DO
+        lexical_value=value
         
-            value=float(value)
+        result={
+            '@value':lexical_value,
+            '@type':datatypes[datatype['base']]
+            }
+        
+        return result, errors
+    
+    elif datatype['base']=='integer':
+        
+        # format & validate value
+        # TO DO
+        lexical_value=value
+        
+        try:
+            int(lexical_value)
+        except ValueError:
+            errors.append(f'Value "{lexical_value}" is not a valid integer')
+        
+        result={
+            '@value':lexical_value,
+            '@type':datatypes[datatype['base']]
+            }
+    
+        return result, errors
     
     elif datatype['base']=='date':
         
-        value=parse_date(
+        # format & validate value
+        dt=parse_date(
             value,
             datatype.get('format',None)
             )
+        lexical_value=dt.isoformat()
+        
+        result={
+            '@value':lexical_value,
+            '@type':datatypes[datatype['base']]
+            }
+        return result, errors
+        
+        
             
             
         
@@ -1165,7 +1364,7 @@ def parse_cell_part_2(
     # TO DO
     
     
-    return value
+    return result, errors
 
 
 #%% Section 6.4.4. Formats for dates and times
@@ -2203,7 +2402,22 @@ def annotate_column(
     
     # annotate this column
     for k,v in metadata_column_obj_dict.items():
-        annotated_column_dict[k]=v
+        
+        if k=='titles':
+            x=[]
+            for lang_code,titles in v.items():  # lang_code, list of titles
+                for title in titles:
+                    x.append(
+                        {'@value':title,
+                         '@language':lang_code
+                            }
+                        )
+        
+            annotated_column_dict[k]=x
+        
+        else:
+        
+            annotated_column_dict[k]=v
         
     # annotate cells
     cells=annotated_column_dict['cells']
@@ -2220,7 +2434,7 @@ def annotate_column(
     # This annotation must be percent-encoded as necessary to conform to 
     # the syntactic requirements defined in [RFC3986].
     if annotated_column_dict['name'] is None:
-        title=annotated_column_dict['titles'][default_language][0]
+        title=metadata_column_obj_dict['titles'][default_language][0]
         title=urllib.parse.quote(title.encode('utf8'))
         annotated_column_dict['name']=title
     
