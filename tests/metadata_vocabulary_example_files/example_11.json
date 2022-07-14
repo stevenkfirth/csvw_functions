@@ -1,0 +1,15 @@
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "@type": "Table",
+  "url": "tree-ops.csv",
+  "tableSchema": {
+    "columns": [
+      {"titles": [ "GID" ],
+      "propertyUrl": "{#_name}"},
+      {"titles": [ "On Street" ]},
+      {"titles": [ "Species" ]},
+      {"titles": [ "Trim Cycle" ]},
+      {"titles": [ "Inventory Date" ]}
+    ]
+  }
+}
