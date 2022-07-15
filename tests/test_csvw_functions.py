@@ -312,8 +312,9 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
             )
         
         # example 13
-        
-        # TO DO
+        # Not done as largely a repeat of metadata vocab example 12.
+        # Also looks like a possible error with the solution
+        # shoudl be "1.0,5.0,7.0" rather than "?values=1.0,5.0,7.0" ??
         
         
 
@@ -1316,10 +1317,75 @@ class TestSection5_3_1(unittest.TestCase):
             ['tree-ops.csv#GID', 'tree-ops.csv#GID']
             )
         
-    # EXAMPLE 12
-    # TO DO
+    def test_section_5_3_1_example_12(self):
+        ""
+        json_fp=r'metadata_vocabulary_example_files/example_12.csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # aboutURL
+        self.assertEqual(
+            annotated_cells_list[1]['valueURL'],
+            'http://xmlns.com/foaf/0.1/Project'
+            )
+        self.assertEqual(
+            annotated_cells_list[2]['valueURL'],
+            'https://duckduckgo.com/?q=table,data,conversion'
+            )
+        
+    def test_section_5_3_1_example_12b(self):
+        ""
+        json_fp=r'metadata_vocabulary_example_files/example_12b.csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # aboutURL
+        self.assertEqual(
+            annotated_cells_list[1]['valueURL'],
+            'http://xmlns.com/foaf/0.1/Project'
+            )
+        self.assertEqual(
+            annotated_cells_list[2]['valueURL'],
+            'https://duckduckgo.com/?q='
+            )
     
-    
+        
+    def test_section_5_3_1_example_13(self):
+        ""
+        json_fp=r'metadata_vocabulary_example_files/example_13.csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        
+        #---check annotated cells---
+        #---first row---
+        annotated_cells_list=annotated_rows_list[0]['cells']
+        # aboutURL
+        self.assertEqual(
+            annotated_cells_list[0]['aboutURL'],
+            'http://example.org/event/2010-10-18'
+            )
+        
 
 
 #%% 6. Normalization

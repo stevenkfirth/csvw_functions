@@ -1,0 +1,21 @@
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "@type": "Table",
+  "url": "example_12.csv",
+  "tableSchema": {
+    "columns": [
+      {
+        "titles": [ "project_name" ]
+      },
+      {
+        "titles": [ "project_type" ],
+        "valueUrl": "{project_type}"
+      },
+      {
+        "titles": [ "keywords" ],
+        "valueUrl": "https://duckduckgo.com/?q={keywords}",
+        "separator": ";"
+      }
+    ]
+  }
+}

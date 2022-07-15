@@ -2506,12 +2506,9 @@ def get_URI_from_URI_template(
             if value is None:
                 pass
             elif isinstance(value,list):
-                value=[get_canonical_representation_of_cell_value(
-                    x,
-                    cell['column']['datatype']) for x in value]
+                value=[x['@value'] for x in value]
             else:
-                value=get_canonical_representation_of_cell_value(value,
-                                                                 cell['column']['datatype'])
+                value=value['@value'],
             variables[name]=value
             
     # _column
@@ -2578,25 +2575,7 @@ def get_URI_from_URI_template(
     
             
     
-def get_canonical_representation_of_cell_value(
-        value,
-        datatype
-        ):
-    """
-    """
-    if isinstance(value,datetime.date) or isinstance(value,datetime.datetime):
-        
-        return value.isoformat()
-    
-    elif isinstance(value,dict):
-        return get_canonical_representation_of_cell_value(
-                list(value.values())[0],
-                datatype
-                )
-    
-    else:
-        return str(value)
-    
+
     
     
     
@@ -3238,7 +3217,11 @@ def get_expanded_prefixed_name(
     :rtype: str
     
     """
-    x=name.split(':')
+    if ':' in name:
+        x=name.split(':')
+    else:
+        x=name.split('%3A')  # this is the percent encoded version
+        
     if len(x)==2:
         if x[0] in prefixes:
             return prefixes[x[0]]+x[1]

@@ -1,0 +1,31 @@
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "example_13.csv",
+  "tableSchema": {
+    "columns": [{
+      "name": "GID",
+      "titles": "GID",
+      "datatype": "string",
+      "aboutUrl": "http://example.org/event/{inventory_date}"
+    }, {
+      "name": "on_street",
+      "titles": "On Street",
+      "datatype": "string"
+    }, {
+      "name": "species",
+      "titles": "Species",
+      "datatype": "string"
+    }, {
+      "name": "trim_cycle",
+      "titles": "Trim Cycle",
+      "datatype": "string"
+    }, {
+      "name": "inventory_date",
+      "titles": "Inventory Date",
+      "datatype": {
+        "base": "date",
+        "format": "M/d/yyyy"
+      }
+    }]
+  }
+}
