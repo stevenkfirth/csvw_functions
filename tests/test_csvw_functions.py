@@ -158,7 +158,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                 #p=True,
                 **kwargs
                 ),
-            ({'@value': '99', 
+            ({'@value': 99, 
               '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
              [])
             )
@@ -186,7 +186,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                 ),
             ({'@value': '1.0', 
               '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
-             ['Value "1.0" is not a valid integer'])
+             ['Value "1.0" not valid as it contains the decimalChar character "."'])
             )
     
         # example 10 - integer with null - string value is '5'
@@ -204,7 +204,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                 required=False,
                 separator=None
                 ),
-            ({'@value': '5', 
+            ({'@value': 5, 
               '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
              [])
             )
@@ -237,13 +237,13 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                   "minimum": 1,
                   "maximum": 10
                 },
-                default='5',
+                default=5,
                 lang='und',
                 null=None,
                 required=False,
                 separator=None
                 ),
-            ({'@value': '5', 
+            ({'@value': 5, 
               '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
              [])
             )
@@ -257,13 +257,13 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                   "minimum": 1,
                   "maximum": 10
                 },
-                default='5',
+                default=5,
                 lang='und',
                 null=None,
                 required=False,
                 separator=None
                 ),
-            ({'@value': '5', 
+            ({'@value': 5, 
               '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
              [])
             )
@@ -277,19 +277,19 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                   "minimum": 1,
                   "maximum": 10
                 },
-                default='5',
+                default=5,
                 lang='und',
                 null=None,
                 required=False,
                 separator=' '
                 ),
-            ([{'@value': '1', 
+            ([{'@value': 1, 
                '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
-              {'@value': '5', 
+              {'@value': 5, 
                  '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
               {'@value': '7.0', 
                  '@type': 'http://www.w3.org/2001/XMLSchema#integer'}],
-             ['Value "7.0" is not a valid integer'])
+             ['Value "7.0" not valid as it contains the decimalChar character "."'])
             )
         
         # example 12 - sequence of values - string value is ''
@@ -315,6 +315,39 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
         # Not done as largely a repeat of metadata vocab example 12.
         # Also looks like a possible error with the solution
         # shoudl be "1.0,5.0,7.0" rather than "?values=1.0,5.0,7.0" ??
+        
+        
+        
+class TestSection6_4_2_Formats_for_numeric_type(unittest.TestCase):
+    ""
+    
+    def test_section_6_4_2(self):
+        ""
+        
+        # test values taken from here: http://www.unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns
+        
+        decimal_char=','
+        group_char=' '
+        
+        string_value='1 234,57'
+        pattern='#,##0.##'
+        
+        result=csvw_functions.parse_number(
+            string_value,
+            'number',
+            dict(
+                decimalChar=decimal_char,
+                groupChar=group_char,
+                pattern=pattern
+                ),
+            errors=[]
+            )
+        
+        self.assertEqual(
+            result,
+            (1234.57, [])
+            )
+        
         
         
 

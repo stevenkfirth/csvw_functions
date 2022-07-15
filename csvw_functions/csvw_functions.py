@@ -11,6 +11,7 @@ import re
 import datetime
 import langcodes
 import uritemplate
+import warnings
 
 
 #%% read metadata schemas
@@ -202,9 +203,25 @@ datatypes_normalizedStrings=['normalizedString']+datatypes_tokens
 
 datatypes_strings=['string']+datatypes_normalizedStrings+['xml','html','json'] 
 
+datatypes_longs=['long','int','short','byte']
+datatypes_nonNegativeIntegers=['nonNegativeInteger',
+                               'positiveInteger',
+                               'unsignedLong',
+                               'unsingedInt',
+                               'unsingedShort',
+                               'unsingedByte'
+                               ]
+datatypes_nonPositiveIntegers=['nonPositiveInteger',
+                              'negativeInteger']
+datatypes_integers=(['integer']
+                    +datatypes_longs
+                    +datatypes_nonNegativeIntegers
+                    +datatypes_nonPositiveIntegers)
+datatypes_decimals=(['decimal']
+                    +datatypes_integers)
+datatypes_numbers=['double','number']+datatypes_decimals
 
-
-
+datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
 
 
 
@@ -1106,9 +1123,14 @@ def parse_cell(
         p=False
         ):
     """
-    """
     
-    errors=[]
+    
+    :returns: (Cell value {@value:..., @type:...},
+               errors)
+    :rtype: tuple
+    
+    
+    """
     
     if not isinstance(datatype,dict):
         datatype={'base':datatype}
@@ -1117,8 +1139,14 @@ def parse_cell(
     if not isinstance(null,list):
         null=[null]
     
+    base=datatype['base']
     
-    value=string_value
+    if not base is None:
+        type_=datatypes[base]
+    else:
+        type_=datatypes['string']
+    
+    errors=[]
     
     # The process of parsing the string value into a single value or a list 
     # of values is as follows:
@@ -1126,39 +1154,42 @@ def parse_cell(
     # 1 unless the datatype base is string, json, xml, html or anyAtomicType, 
     # replace all carriage return (#xD), line feed (#xA), and tab (#x9) 
     # characters with space characters.
-    if datatype['base'] not in ['string','json','xml','html','anyAtomicType']:
-        value=value.replace('\r',' ')
-        value=value.replace('\n',' ')
-        value=value.replace('\t',' ')
+    if base not in ['string','json','xml','html','anyAtomicType']:
+        string_value=string_value.replace('\r',' ')
+        string_value=string_value.replace('\n',' ')
+        string_value=string_value.replace('\t',' ')
     
     # 2 unless the datatype base is string, json, xml, html, anyAtomicType, 
     # or normalizedString, strip leading and trailing whitespace from the 
     # string value and replace all instances of two or more whitespace #
     # characters with a single space character.
-    if datatype['base'] not in ['string','json','xml','html','anyAtomicType','normalizedString']:
-        value=value.strip()
-        value=" ".join(value.split()) # includes whitespace such as '\n' etc.
-                                      # if this should be spaces only,  
-                                      # could use st=re.sub(' +',' ', st)
+    if base not in ['string','json','xml','html','anyAtomicType','normalizedString']:
+        string_value=string_value.strip()
+        string_value=" ".join(string_value.split()) # includes whitespace such as '\n' etc.
+                                                      # if this should be spaces only,  
+                                                      # could use st=re.sub(' +',' ', st)
                                 
     # 3 if the normalized string is an empty string, apply the remaining 
     # steps to the string given by the column default annotation.
-    if separator is None and value=='':
-        value=default
+    if separator is None and string_value=='':
+        string_value=str(default)
         
     # 4 if the column separator annotation is not null and the normalized 
     # string is an empty string, the cell value is an empty list. If the 
     # column required annotation is true, add an error to the list of errors for the cell.
-    if not separator is None and value=='':
+    if not separator is None and string_value=='':
         
-        value=[]
+        list_of_cell_values=[]
         
         if required:
             
             # ADD ERROR
             raise NotImplementedError
             
-        return value,errors
+        #cell_value={'@value':list_of_json_values,
+        #            '@type':type_}
+            
+        return list_of_cell_values,errors
         
     # 5 if the column separator annotation is not null, the cell value is a 
     # list of values; set the list annotation on the cell to true, and create 
@@ -1170,30 +1201,35 @@ def parse_cell(
         
         # 5.1 if the normalized string is the same as any one of the values 
         # of the column null annotation, then the resulting value is null.
-        if value in null:
+        if string_value in null:
             
-            value=None
+            cell_value=None
             
-            return value
+            # json_value=None
+            
+            # cell_value={'@value':json_value,
+            #             '@type':type_}
+            
+            return cell_value, errors
             
         # 5.2 split the normalized string at the character specified by the 
         # column separator annotation.
         else:
             
-            value=value.split(separator)
+            list_of_string_values=string_value.split(separator)
                 
             # 5.3 unless the datatype base is string or anyAtomicType, strip 
             # leading and trailing whitespace from these strings.  
-            if not datatype['base'] not in ['string','anyAtomicType']:
-                value=[x.strip() for x in value]
+            if not base not in ['string','anyAtomicType']:
+                list_of_string_values=[x.strip() for x in list_of_string_values]
                 
             # 5.4 applying the remaining steps to each of the strings in turn.
             
-            value_list=[]
-            for x in value:
+            list_of_cell_values=[]
+            for string_value in list_of_string_values:
                 
-                value2,errors=parse_cell_part_2(
-                        x,
+                json_value,language,errors=parse_cell_part_2(
+                        string_value,
                         errors,
                         datatype,
                         default,
@@ -1204,14 +1240,20 @@ def parse_cell(
                         p=p
                         )
                 
-                value_list.append(value2)
+                cell_value={'@value':json_value,
+                            '@type':type_}
                 
-            return value_list,errors
+                if not language is None:
+                    cell_value['@language']:lang
+                
+                list_of_cell_values.append(cell_value)
+                
+            return list_of_cell_values,errors
                 
                     
-    value,errors=\
+    json_value,language,errors=\
         parse_cell_part_2(
-            value,
+            string_value,
             errors,
             datatype,
             default,
@@ -1222,11 +1264,23 @@ def parse_cell(
             p=p
             )
         
-    return value,errors
+    if not json_value is None:
+        
+        cell_value={'@value':json_value,
+                    '@type':type_}
+            
+        if not language is None:
+            cell_value['@language']=lang
+            
+    else:
+        
+        cell_value=None
+        
+    return cell_value,errors
 
 
 def parse_cell_part_2(
-        value,
+        string_value,
         errors,
         datatype,
         default,
@@ -1237,29 +1291,37 @@ def parse_cell_part_2(
         p=False
         ):
     """
+    
+    
+    :returns: (json_value, language, errors)
+    :rtype: tuple
+    
     """
     
     if p: print('datatype', datatype)
     
+    language=None
+    
     # 6 if the string is an empty string, apply the remaining steps to the 
     # string given by the column default annotation.
-    if value=='':
-        value=default
+    if string_value=='':
+        string_value=str(default)
         
     # 7 if the string is the same as any one of the values of the column null 
     # annotation, then the resulting value is null. If the column separator 
     # annotation is null and the column required annotation is true, add 
     # an error to the list of errors for the cell.
-    if value in null:
+    if string_value in null:
         
-        result=None
+        json_value=None
+        language=None
         
         if separator is None and required==True:
             
             # ADD ERROR
             raise NotImplementedError
         
-        return result, errors  # returns None
+        return json_value, language, errors  # returns None
     
     # 8 parse the string using the datatype format if one is specified, as 
     # described below to give a value with an associated datatype. 
@@ -1270,90 +1332,53 @@ def parse_cell_part_2(
     # is string, or there is no datatype, the value has an associated language 
     # from the column lang annotation.
     
-    if (datatype['base'] in datatypes_strings
-        or datatype['base'] is None):
+    # numbers
+    if datatype['base'] in datatypes_numbers:
         
-        
-        
-        # format & validate value
-        # TO DO
-        lexical_value=value
-        
-        if datatype['base'] is None:        
-        
-            result={
-                '@value':lexical_value,
-                '@type':datatypes['string'],
-                '@language':lang
-                }
-        
-        else:
-            
-            result={
-                '@value':lexical_value,
-                '@type':datatypes[datatype['base']],
-                '@language':lang
-                }
-            
-        return result, errors
-    
-    
-    elif datatype['base']=='number':
-        
-        # format & validate value
-        # TO DO
-        lexical_value=value
-        
-        result={
-            '@value':lexical_value,
-            '@type':datatypes[datatype['base']]
-            }
-        
-        return result, errors
-    
-    elif datatype['base']=='integer':
-        
-        # format & validate value
-        # TO DO
-        lexical_value=value
-        
-        try:
-            int(lexical_value)
-        except ValueError:
-            errors.append(f'Value "{lexical_value}" is not a valid integer')
-        
-        result={
-            '@value':lexical_value,
-            '@type':datatypes[datatype['base']]
-            }
-    
-        return result, errors
-    
-    elif datatype['base']=='date':
-        
-        # format & validate value
-        dt=parse_date(
-            value,
-            datatype.get('format',None)
+        json_value, errors=parse_number(
+            string_value,
+            datatype['base'],
+            datatype.get('format',None),
+            errors
             )
-        lexical_value=dt.isoformat()
         
-        result={
-            '@value':lexical_value,
-            '@type':datatypes[datatype['base']]
-            }
-        return result, errors
+    # booleans
+    elif datatype['base']=='boolean':
         
+        json_value=parse_boolean(
+            string_value,
+            datatype['base'],
+            datatype.get('format',None),
+            errors
+            )
         
-            
-            
+    # dates and times
+    elif datatype['base']in datatypes_dates_and_times:
         
+        json_value,errors=parse_date_and_time(
+            string_value,
+            datatype['base'],
+            datatype.get('format',None),
+            errors
+            )
+        
+    # durations
+    
+    
+    # other types
     else:
+    
+        # format & validate value
+        # TO DO
         
-        raise Exception
-    
-    
-    
+        language=lang
+        
+        json_value, errors=parse_other_types(
+            string_value,
+            datatype['base'],
+            datatype.get('format',None),
+            errors)
+            
     
     # 9 validate the value based on the length constraints described in 
     # section 4.6.1 Length Constraints, the value constraints described 
@@ -1364,14 +1389,255 @@ def parse_cell_part_2(
     # TO DO
     
     
-    return result, errors
+    
+    #print(json_value, language, errors)
+    
+    return json_value, language, errors
+
+
+#%% Section 6.4.2 Formats for numeric type
+
+def parse_number(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
+        ):
+    """
+    """
+    
+    # the datatype format annotation indicates the expected format for that 
+    # number. Its value must be either a single string or an object with one 
+    # or more of the properties
+    
+    # decimalChar
+    # A string whose value is used to represent a decimal point within the number. 
+    # The default value is ".". If the supplied value is not a string, 
+    # implementations must issue a warning and proceed as if the property 
+    # had not been specified.
+    
+    decimal_char='.'
+    
+    if isinstance(datatype_format,dict) and 'decimalChar' in datatype_format:
+        
+        decimal_char=datatype_format['decimalChar']
+            
+        if not isinstance(decimal_char,str):
+         
+             # ISSUE WARNING
+             decimal_char='.'
+        
+    # groupChar
+    # A string whose value is used to group digits within the number. 
+    # The default value is null. If the supplied value is not a string, 
+    # implementations must issue a warning and proceed as if the property had 
+    # not been specified.
+    
+    group_char=None
+    
+    if isinstance(datatype_format,dict) and 'groupChar' in datatype_format:
+        
+        group_char=datatype_format['groupChar']
+            
+        if not isinstance(group_char,str):
+         
+             # ISSUE WARNING
+             group_char=None
+    
+    
+    # pattern
+    # A number format pattern as defined in [UAX35]. 
+    # Implementations must recognise number format patterns containing the 
+    # symbols 0, #, the specified decimalChar (or "." if unspecified), the 
+    # specified groupChar (or "," if unspecified), E, +, % and ‰. 
+    # Implementations may additionally recognise number format patterns 
+    # containing other special pattern characters defined in [UAX35]. 
+    # If the supplied value is not a string, or if it contains an invalid 
+    # number format pattern or uses special pattern characters that the 
+    # implementation does not recognise, implementations must issue a warning 
+    # and proceed as if the property had not been specified.
+    
+    pattern=None
+    
+    if isinstance(datatype_format,dict) and 'pattern' in datatype_format:
+        
+        pattern=datatype_format['pattern']
+        
+        if not isinstance(pattern,str):
+            
+            # ISSUE WARNING
+            pattern=None
+            
+    # If the datatype format annotation is a single string, this is 
+    # interpreted in the same way as if it were an object with a pattern 
+    # property whose value is that string.
+    elif isinstance(datatype_format,str):
+                  
+        pattern=datatype_format
+        
+        if not isinstance(pattern,str):
+            
+            # ISSUE WARNING
+            pattern=None
+    
+    
+    #  If the groupChar is specified, but no pattern is supplied, when parsing 
+    # the string value of a cell against this format specification, 
+    # implementations must recognise and parse numbers that consist of:
+
+    # 1. an optional + or - sign,
+    # 2. followed by a decimal digit (0-9),
+    # 3. followed by any number of decimal digits (0-9) and the string 
+    #    specified as the groupChar,
+    # 4. followed by an optional decimalChar followed by one or more decimal 
+    #    digits (0-9),
+    # 5. followed by an optional exponent, consisting of an E followed by an 
+    #    optional + or - sign followed by one or more decimal digits (0-9), or
+    # 6. followed by an optional percent (%) or per-mille (‰) sign.
+    
+    # or that are one of the special values:
+    
+    # 1. NaN,
+    # 2. INF, or
+    # 3. -INF.
+    
+    
+
+    
+    
+    # Implementations may also recognise numeric values that are in any of the 
+    # standard-decimal, standard-percent or standard-scientific formats listed 
+    # in the Unicode Common Locale Data Repository.
+    
+    # TO DO
+    
+    
+    # Implementations must add a validation error to the errors annotation 
+    # for the cell, and set the cell value to a string rather than a number 
+    # if the string being parsed:
+
+    # - is not in the format specified in the pattern, if one is defined
+    # - otherwise, if the string
+    #     - does not meet the numeric format defined above,
+    #     - contains two consecutive groupChar strings,
+    
+    # TO DO
+    
+    # - contains the decimalChar, if the datatype base is integer or one of 
+    #   its sub-types,
+    
+    if datatype_base in datatypes_integers:
+        
+        if decimal_char in string_value:
+            
+            json_value=string_value
+            errors.append(f'Value "{string_value}" not valid as it contains the decimalChar character "{decimal_char}"')
+            
+            return json_value, errors  # TYPE NOT SET TO STRING...  TO DO
+            
+    # - contains an exponent, if the datatype base is decimal or one of its 
+    #   sub-types, or
+    
+    # DONE BELOW
+    
+    # - is one of the special values NaN, INF, or -INF, if the datatype base 
+    #   is decimal or one of its sub-types.
+    
+    if datatype_base=='decimal':
+        
+        if string_value in ['Nan','INF','-INF']:
+            
+            json_value=string_value
+            errors.append(f'Value "{string_value}" not valid as it ...')  # TO DO
+            
+            return json_value, errors  # TYPE NOT SET TO STRING...  TO DO
+    
+    
+    # Implementations must use the sign, exponent, percent, and per-mille signs 
+    # when parsing the string value of a cell to provide the value of the cell. 
+    # For example, the string value "-25%" must be interpreted as -0.25 and 
+    # the string value "1E6" as 1000000.
+    
+    
+    
+    
+    # deals with percent and permille
+    modifier=1
+    if string_value.endswith('%'):
+        string_value=string_value[:-1]
+        modifier=0.01
+    elif string_value.endswith('‰'):
+        string_value=string_value[:-1]
+        modifier=0.001
+    
+    
+    # replace decimal_char and group_char characters
+    if not decimal_char=='.':
+        string_value=string_value.replace(decimal_char,'.')
+    if not group_char is None: 
+        string_value=string_value.replace(group_char,'')
+    
+    # convert string to number    
+    if datatype_base in datatypes_integers:
+    
+        try:
+            json_value=int(string_value)  # will fail if an exponential number
+            json_value=json_value*modifier
+        except ValueError:
+            json_value=string_value
+            errors.append(f'Value "{string_value}" is not a valid integer')
+    
+    elif datatype_base=='decimal':
+        
+        try:
+            json_value=float(string_value)  # will not fail if an exponential number
+            json_value=json_value*modifier
+            
+        except ValueError:
+            json_value=string_value
+            errors.append(f'Value "{string_value}" is not a valid decimal')
+    
+        try:
+            for x in string_value.split['.']:
+                int(x)  # will fail if an expoential number
+             
+        except ValueError:
+            json_value=string_value
+            errors.append(f'Value "{string_value}" is not a valid decimal')
+    
+    
+    else:
+        
+        try:
+            json_value=float(string_value)  # assuming that this will work for all valid cases of ULDM number formats...
+            json_value=json_value*modifier
+        except ValueError:
+            json_value=string_value
+            errors.append(f'Value "{string_value}" is not a valid number')
+            
+    
+    return json_value, errors
+
+
+#%% 6.4.3 Formats for booleans
+
+def parse_boolean(
+        ):
+    """
+    """
+    
+    
+    return
+
 
 
 #%% Section 6.4.4. Formats for dates and times
 
-def parse_date(
-        value,
-        format_
+def parse_date_and_time(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
         ):
     """
     """
@@ -1380,9 +1646,9 @@ def parse_date(
     # in [xmlschema11-2]. However dates and times are commonly represented 
     # in tabular data in other formats.
 
-    if format_ is None:
+    if datatype_format is None:
         
-        return datetime.date.fromisoformat(value)
+        return string_value
 
     # If the datatype base is a date or time type, the datatype format 
     # annotation indicates the expected format for that date or time.
@@ -1396,37 +1662,60 @@ def parse_date(
     # invalid or not recognised and proceed as if no date format 
     # pattern had been provided.
 
-    if format_ in [
-            'yyyy-MM-dd',
-            'yyyyMMdd',
-            'dd-MM-yyyy',
-            'd-M-yyyy',
-            'MM-dd-yyyy',
-            'M-d-yyyy',
-            'dd/MM/yyyy',
-            'd/M/yyyy',
-            'MM/dd/yyyy',
-            'M/d/yyyy',
-            'dd.MM.yyyy',
-            'd.M.yyyy',
-            'MM.dd.yyyy',
-            'M.d.yyyy',
-            ]:
-        
-        x=format_
-        x=x.replace('yyyy','%Y')
-        x=x.replace('MM','%m')
-        x=x.replace('M','%m')
-        x=x.replace('dd','%d')
-        x=x.replace('d','%d')
-        
-        dt=datetime.datetime.strptime(value, x)  # NEEDS CHECKING
-        return dt.date()
+    if datatype_base=='date':
+
+        if datatype_format in [
+                'yyyy-MM-dd',
+                'yyyyMMdd',
+                'dd-MM-yyyy',
+                'd-M-yyyy',
+                'MM-dd-yyyy',
+                'M-d-yyyy',
+                'dd/MM/yyyy',
+                'd/M/yyyy',
+                'MM/dd/yyyy',
+                'M/d/yyyy',
+                'dd.MM.yyyy',
+                'd.M.yyyy',
+                'MM.dd.yyyy',
+                'M.d.yyyy',
+                ]:
+            
+            x=datatype_format
+            x=x.replace('yyyy','%Y')
+            x=x.replace('MM','%m')
+            x=x.replace('M','%m')
+            x=x.replace('dd','%d')
+            x=x.replace('d','%d')
+            
+            dt=datetime.datetime.strptime(string_value, x)  # NEEDS CHECKING
+            
+            json_value=dt.date().isoformat()
+            
+            return json_value, errors
         
     else:
         
         raise Exception
         
+#%% 6.4.6 Formats for other types
+
+def parse_other_types(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
+        ):
+    """
+    """
+
+    json_value=string_value
+
+    return json_value,errors
+
+    
+
+
 
 
 #%% Section 8 - Parsing Tabular Data
