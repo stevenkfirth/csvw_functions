@@ -172,7 +172,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                 **kwargs
                 ),
             ({'@value': 'one', 
-              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+              '@type': 'http://www.w3.org/2001/XMLSchema#string'},
              ['Value "one" is not a valid integer'])
             )
         
@@ -185,7 +185,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
                 **kwargs
                 ),
             ({'@value': '1.0', 
-              '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
+              '@type': 'http://www.w3.org/2001/XMLSchema#string'},
              ['Value "1.0" not valid as it contains the decimalChar character "."'])
             )
     
@@ -288,7 +288,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
               {'@value': 5, 
                  '@type': 'http://www.w3.org/2001/XMLSchema#integer'},
               {'@value': '7.0', 
-                 '@type': 'http://www.w3.org/2001/XMLSchema#integer'}],
+                 '@type': 'http://www.w3.org/2001/XMLSchema#string'}],
              ['Value "7.0" not valid as it contains the decimalChar character "."'])
             )
         
@@ -321,7 +321,7 @@ class TestSection6_4_1_Parsing_Examples(unittest.TestCase):
 class TestSection6_4_2_Formats_for_numeric_type(unittest.TestCase):
     ""
     
-    def test_section_6_4_2(self):
+    def xtest_section_6_4_2(self):
         ""
         
         # test values taken from here: http://www.unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns
@@ -347,6 +347,17 @@ class TestSection6_4_2_Formats_for_numeric_type(unittest.TestCase):
             result,
             (1234.57, [])
             )
+        
+        
+        
+    def test_parse_number_pattern(self):
+        ""
+    
+        result=csvw_functions.parse_number_pattern(
+            pattern='#,##0.##'
+            )
+        
+        #print(result)
         
         
         
@@ -1495,6 +1506,10 @@ class TestSection6(unittest.TestCase):
              }
             )
         
+
+#%% TESTS - Generating JSON from Tabular Data on the Web
+
+
 
 
 

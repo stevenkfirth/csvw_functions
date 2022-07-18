@@ -390,7 +390,7 @@ def validate_metadata(
                 metadata_file_url)
         
     
-    
+    # TO DO
     
     
     return result
@@ -408,6 +408,8 @@ def validate_csv(
     :type file_path_or_url: str
     
     """
+    
+    # TO DO
     
     
 def get_annotated_table_group_from_csv(
@@ -553,11 +555,14 @@ def get_annotated_table_group_from_metadata(
     return annotated_table_group_dict
     
 
-def convert_annotated_table_group_to_jsonld(
+def get_json_ld_from_annotated_table_group(
         annotated_table_group_dict
         ):
     """
     """
+    
+
+
 
 
 def convert_annotated_table_group_to_rdf(
@@ -1141,11 +1146,6 @@ def parse_cell(
     
     base=datatype['base']
     
-    if not base is None:
-        type_=datatypes[base]
-    else:
-        type_=datatypes['string']
-    
     errors=[]
     
     # The process of parsing the string value into a single value or a list 
@@ -1228,7 +1228,7 @@ def parse_cell(
             list_of_cell_values=[]
             for string_value in list_of_string_values:
                 
-                json_value,language,errors=parse_cell_part_2(
+                json_value,language,type_,errors=parse_cell_part_2(
                         string_value,
                         errors,
                         datatype,
@@ -1241,7 +1241,7 @@ def parse_cell(
                         )
                 
                 cell_value={'@value':json_value,
-                            '@type':type_}
+                            '@type':datatypes[type_]}
                 
                 if not language is None:
                     cell_value['@language']:lang
@@ -1251,7 +1251,7 @@ def parse_cell(
             return list_of_cell_values,errors
                 
                     
-    json_value,language,errors=\
+    json_value,language,type_,errors=\
         parse_cell_part_2(
             string_value,
             errors,
@@ -1267,7 +1267,7 @@ def parse_cell(
     if not json_value is None:
         
         cell_value={'@value':json_value,
-                    '@type':type_}
+                    '@type':datatypes[type_]}
             
         if not language is None:
             cell_value['@language']=lang
@@ -1300,6 +1300,12 @@ def parse_cell_part_2(
     
     if p: print('datatype', datatype)
     
+    if not datatype['base'] is None:
+        type_=datatype['base']
+    else:
+        type_='string'
+    
+    
     language=None
     
     # 6 if the string is an empty string, apply the remaining steps to the 
@@ -1321,7 +1327,7 @@ def parse_cell_part_2(
             # ADD ERROR
             raise NotImplementedError
         
-        return json_value, language, errors  # returns None
+        return json_value, language, type_, errors  # returns None
     
     # 8 parse the string using the datatype format if one is specified, as 
     # described below to give a value with an associated datatype. 
@@ -1335,9 +1341,9 @@ def parse_cell_part_2(
     # numbers
     if datatype['base'] in datatypes_numbers:
         
-        json_value, errors=parse_number(
+        json_value,type_,errors=parse_number(
             string_value,
-            datatype['base'],
+            type_,
             datatype.get('format',None),
             errors
             )
@@ -1345,9 +1351,9 @@ def parse_cell_part_2(
     # booleans
     elif datatype['base']=='boolean':
         
-        json_value=parse_boolean(
+        json_value,type_,errors=parse_boolean(
             string_value,
-            datatype['base'],
+            type_,
             datatype.get('format',None),
             errors
             )
@@ -1355,9 +1361,9 @@ def parse_cell_part_2(
     # dates and times
     elif datatype['base']in datatypes_dates_and_times:
         
-        json_value,errors=parse_date_and_time(
+        json_value,type_,errors=parse_date_and_time(
             string_value,
-            datatype['base'],
+            type_,
             datatype.get('format',None),
             errors
             )
@@ -1373,9 +1379,9 @@ def parse_cell_part_2(
         
         language=lang
         
-        json_value, errors=parse_other_types(
+        json_value, type_, errors=parse_other_types(
             string_value,
-            datatype['base'],
+            type_,
             datatype.get('format',None),
             errors)
             
@@ -1392,7 +1398,7 @@ def parse_cell_part_2(
     
     #print(json_value, language, errors)
     
-    return json_value, language, errors
+    return json_value, language, type_, errors
 
 
 #%% Section 6.4.2 Formats for numeric type
@@ -1405,6 +1411,8 @@ def parse_number(
         ):
     """
     """
+    
+    type_=datatype_base
     
     # the datatype format annotation indicates the expected format for that 
     # number. Its value must be either a single string or an object with one 
@@ -1517,6 +1525,11 @@ def parse_number(
     # if the string being parsed:
 
     # - is not in the format specified in the pattern, if one is defined
+    
+    if not pattern is None:
+        
+        raise NotImplementedError
+    
     # - otherwise, if the string
     #     - does not meet the numeric format defined above,
     #     - contains two consecutive groupChar strings,
@@ -1531,9 +1544,12 @@ def parse_number(
         if decimal_char in string_value:
             
             json_value=string_value
+            
+            type_='string'
+            
             errors.append(f'Value "{string_value}" not valid as it contains the decimalChar character "{decimal_char}"')
             
-            return json_value, errors  # TYPE NOT SET TO STRING...  TO DO
+            return json_value, type_, errors  
             
     # - contains an exponent, if the datatype base is decimal or one of its 
     #   sub-types, or
@@ -1548,9 +1564,12 @@ def parse_number(
         if string_value in ['Nan','INF','-INF']:
             
             json_value=string_value
+            
+            type_='string'
+            
             errors.append(f'Value "{string_value}" not valid as it ...')  # TO DO
             
-            return json_value, errors  # TYPE NOT SET TO STRING...  TO DO
+            return json_value, type_, errors  
     
     
     # Implementations must use the sign, exponent, percent, and per-mille signs 
@@ -1585,6 +1604,7 @@ def parse_number(
             json_value=json_value*modifier
         except ValueError:
             json_value=string_value
+            type_='string'
             errors.append(f'Value "{string_value}" is not a valid integer')
     
     elif datatype_base=='decimal':
@@ -1595,6 +1615,7 @@ def parse_number(
             
         except ValueError:
             json_value=string_value
+            type_='string'
             errors.append(f'Value "{string_value}" is not a valid decimal')
     
         try:
@@ -1603,6 +1624,7 @@ def parse_number(
              
         except ValueError:
             json_value=string_value
+            type_='string'
             errors.append(f'Value "{string_value}" is not a valid decimal')
     
     
@@ -1616,18 +1638,285 @@ def parse_number(
             errors.append(f'Value "{string_value}" is not a valid number')
             
     
-    return json_value, errors
+    return json_value, type_, errors
+
+
+def parse_number_pattern(
+        pattern,
+        p=False
+        ):
+    """Breaks down a number pattern into constituent components.
+    
+    :param pattern: A number patter as specified in the Unicode Locale
+        Data Markup Language.
+    
+    """
+    if p: print('pattern',pattern)
+    
+    x=pattern.split(';')
+    positive_pattern=x[0].strip()
+    if len(x)==2:
+        negative_pattern=x[1].strip()
+    else:
+        negative_pattern=None
+    if p: print('positive_pattern',positive_pattern)
+    if p: print('negative_pattern',negative_pattern)
+        
+    # mantissa and exponent in scientific notation
+    x=positive_pattern.split('E')
+    positive_pattern_mantissa_part=x[0]
+    if len(x)==2:
+        positive_pattern_exponent_part=x[1]
+    else:
+        positive_pattern_exponent_part=None
+    if p: print('positive_pattern_mantissa_part',
+                positive_pattern_mantissa_part)
+    if p: print('positive_pattern_exponent_part',
+                positive_pattern_exponent_part)
+    
+    # integral and fractional parts
+    x=positive_pattern_mantissa_part.split('.')
+    positive_pattern_integral_part=x[0]
+    if len(x)==2:
+        positive_pattern_fractional_part=x[1]
+    else:
+        postive_pattern_fractional_part=None
+    if p: print('positive_pattern_integral_part',
+                positive_pattern_integral_part)
+    if p: print('positive_pattern_fractional_part',
+                positive_pattern_fractional_part)
+
+    reverse_positive_pattern_integral_part=positive_pattern_integral_part[::-1]
+    if p: print('reverse_positive_pattern_integral_part',
+                reverse_positive_pattern_integral_part)    
+    
+    # integral grouping size
+    positive_pattern_integral_part_primary_grouping_size=None
+    positive_pattern_integral_part_secondary_grouping_size=None
+    positions_of_group_char=[i for i, x 
+                             in enumerate(reverse_positive_pattern_integral_part) 
+                             if x==',']
+    if p: print('positions_of_group_char',positions_of_group_char)
+    if len(positions_of_group_char)>0:
+        positive_pattern_integral_part_primary_grouping_size=positions_of_group_char[0]
+    if len(positions_of_group_char)>1:
+        positive_pattern_integral_part_secondary_grouping_size=\
+            positions_of_group_char[1]-positions_of_group_char[0]
+    if p: print('positive_pattern_integral_part_primary_grouping_size',
+                positive_pattern_integral_part_primary_grouping_size)
+    if p: print('positive_pattern_integral_part_secondary_grouping_size',
+                positive_pattern_integral_part_secondary_grouping_size)
+        
+    
+    reverse_positive_pattern_integral_part_no_group_char=\
+        reverse_positive_pattern_integral_part.replace(',','')
+    if p: print('reverse_positive_pattern_integral_part_no_group_char',
+          reverse_positive_pattern_integral_part_no_group_char)
+    
+    # positive_pattern_zero_padding_count
+    i=0
+    positive_pattern_integral_part_zero_padding_count=0
+    while True:
+        if i==len(reverse_positive_pattern_integral_part_no_group_char):
+            break
+        if reverse_positive_pattern_integral_part_no_group_char[i]=='0':
+            positive_pattern_integral_part_zero_padding_count+=1
+            i+=1
+        else:
+            break
+    if p: print('positive_pattern_integral_part_zero_padding_count',
+          positive_pattern_integral_part_zero_padding_count)
+           
+    # skip past hash symbols
+    while True:
+        if i==len(reverse_positive_pattern_integral_part_no_group_char):
+            break
+        if reverse_positive_pattern_integral_part_no_group_char[i]=='#':
+            i+=1
+        else:
+            break
+    
+    # prefix
+    reverse_positive_pattern_integral_part_prefix=''
+    while True:
+        if i==len(reverse_positive_pattern_integral_part_no_group_char):
+            break
+        x=reverse_positive_pattern_integral_part_no_group_char[i]
+        if x in ['+','-','%','‰']:
+            reverse_positive_pattern_integral_part_prefix+=x
+            i+=1
+        else:
+            raise Exception
+    positive_pattern_integral_part_prefix=reverse_positive_pattern_integral_part_prefix[::-1]
+    if p: print('positive_pattern_integral_part_prefix',
+                positive_pattern_integral_part_prefix)
+    
+    # positive_pattern_fractional_part_zero_padding_count
+    i=0
+    positive_pattern_fractional_part_zero_padding_count=0
+    while True:
+        if i==len(positive_pattern_fractional_part):
+            break
+        if positive_pattern_fractional_part[i]=='0':
+            positive_pattern_fractional_part_zero_padding_count+=1
+            i+=1
+        else:
+            break
+    if p: print('positive_pattern_fractional_part_zero_padding_count',
+                positive_pattern_fractional_part_zero_padding_count)
+           
+    # positive_pattern_fractional_part_hash_padding_count
+    positive_pattern_fractional_part_hash_padding_count=0
+    while True:
+        if i==len(positive_pattern_fractional_part):
+            break
+        if positive_pattern_fractional_part[i]=='#':
+            positive_pattern_fractional_part_hash_padding_count+=1
+            i+=1
+        else:
+            break
+    if p: print('positive_pattern_fractional_part_hash_padding_count',
+                positive_pattern_fractional_part_hash_padding_count)
+    
+    # suffix
+    positive_pattern_fractional_part_suffix=''
+    while True:
+        if i==len(positive_pattern_fractional_part):
+            break
+        x=positive_pattern_fractional_part[i]
+        if x in ['+','-','%','‰']:
+            positive_pattern_fractional_part_suffix+=x
+            i+=1
+        else:
+            raise Exception
+    if p: print('positive_pattern_fractional_part_suffix',
+                positive_pattern_fractional_part_suffix)
+    
+    return dict(
+        positive_pattern_integral_part_primary_grouping_size=\
+            positive_pattern_integral_part_primary_grouping_size,
+        positive_pattern_integral_part_secondary_grouping_size=\
+            positive_pattern_integral_part_secondary_grouping_size,
+        positive_pattern_integral_part_zero_padding_count=\
+            positive_pattern_integral_part_zero_padding_count,
+        positive_pattern_integral_part_prefix=\
+            positive_pattern_integral_part_prefix,
+        positive_pattern_fractional_part_zero_padding_count=\
+            positive_pattern_fractional_part_zero_padding_count,
+        positive_pattern_fractional_part_hash_padding_count=\
+            positive_pattern_fractional_part_hash_padding_count,
+        positive_pattern_fractional_part_suffix=\
+            positive_pattern_fractional_part_suffix,
+        
+        
+        )
+        
+        
+        
+    print(positive_pattern.index('#'))
+    print(positive_pattern.index('0'))
+    print(positive_pattern.index('+'))
+    print(positive_pattern.index('-'))
+    
+    
+    
+    
+    
+        
+        
+        
+    
+
+    
+
+
 
 
 #%% 6.4.3 Formats for booleans
 
 def parse_boolean(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
         ):
     """
     """
+    type_=datatype_base
+    
+    # Boolean values may be represented in many ways aside from the standard 
+    # 1 and 0 or true and false.
+    
+    if string_value in ['1','true']:
+        
+        json_value=True
+        
+        return json_value, type_, errors
+    
+    elif string_value in ['0','false']:
+        
+        json_value=False
+        
+        return json_value, type_, errors
+    
+    #If the datatype base for a cell is boolean, the datatype format 
+    # annotation provides the true value followed by the false value, 
+    # separated by |. 
+    # For example if format is Y|N then cells must hold either Y or N with 
+    # Y meaning true and N meaning false. 
+    # If the format does not follow this syntax, implementations must 
+    # issue a warning and proceed as if no format had been provided.
+    
+    if not datatype_format is None:
+        
+        x=datatype_format.split('|')
+        
+        if len(x)==0:
+            
+            warnings.warn('')
+            
+        elif len(x)>2:
+            
+            warnings.warn('')
+            
+        else:
+            
+            true_string=x[0]
+            
+            if len(true_string)==0:
+                
+                warnings.warn()
+                
+            else:
+                
+                false_string=x[1]
+                
+                if len(false_string)==0:
+                    
+                    warnings.warn()
+                    
+                else:
+                    
+                    if string_value in true_string:
+                        
+                        json_value=True
+                        
+                        return json_value, type_, errors
+                    
+                    elif string_value in false_string:
+                        
+                        json_value=False
+                        
+                        return json_value, type_, errors
+            
+    # if no match
+    json_value=string_value
+    type_='string'
+    errors.append('no match to boolean')        
+    
+    return json_value, type_, errors
     
     
-    return
 
 
 
@@ -1642,13 +1931,17 @@ def parse_date_and_time(
     """
     """
     
+    type_=datatype_base
+    
     # By default, dates and times are assumed to be in the format defined 
     # in [xmlschema11-2]. However dates and times are commonly represented 
     # in tabular data in other formats.
 
     if datatype_format is None:
         
-        return string_value
+        json_value=string_value
+        
+        return json_value, type_, errors
 
     # If the datatype base is a date or time type, the datatype format 
     # annotation indicates the expected format for that date or time.
@@ -1692,7 +1985,7 @@ def parse_date_and_time(
             
             json_value=dt.date().isoformat()
             
-            return json_value, errors
+            return json_value, type_, errors
         
     else:
         
@@ -1710,8 +2003,10 @@ def parse_other_types(
     """
 
     json_value=string_value
+    
+    type_=datatype_base
 
-    return json_value,errors
+    return json_value,type_,errors
 
     
 
@@ -3389,6 +3684,9 @@ def normalize_common_property(
     
     return normalized_value
     
+
+
+#%% FUNCTIONS - Generating JSON from Tabular Data on the Web
 
 
 
