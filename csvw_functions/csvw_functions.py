@@ -556,9 +556,13 @@ def get_annotated_table_group_from_metadata(
     
 
 def get_json_ld_from_annotated_table_group(
-        annotated_table_group_dict
+        annotated_table_group_dict,
+        mode='standard'
         ):
     """
+    
+    :param mode: Either 'standard' or 'minimal'
+    
     """
     
 
@@ -3688,9 +3692,507 @@ def normalize_common_property(
 
 #%% FUNCTIONS - Generating JSON from Tabular Data on the Web
 
+#%% Section 4.2 Generating JSON
+
+def get_minimal_json_from_annotated_table_group(
+        annotated_table_group_dict
+        ):
+    """
+    """
+    # The steps in the algorithm defined here apply to minimal mode.
+    
+    # 1 Insert an empty array A into the JSON output. 
+    #   The objects containing the name-value pairs associated with the cell 
+    #   values will be subsequently inserted into this array.
+    
+    output=[]
+    
+    # 2 Each table is processed sequentially in the order they are referenced 
+    #   in the group of tables. 
+    #   For each table where the suppress output annotation is false:
+    for annotated_table_dict in annotated_table_group_dict['tables']:
+        
+        if annotated_table_dict['supress_output']==False:
+            
+            # 2.1 Each row within the table is processed sequentially in order. 
+            #     For each row in the current table:
+            
+            for annotated_row_dict in annotated_table_dict['rows']:
+                
+                # 2.1.1 Generate a sequence of objects, S1 to Sn, each of 
+                #       which corresponds to a subject described by the 
+                #       current row, as described in 4.3 Generating Objects.
+                
+                sequence_of_objects=generate_objects(
+                    annotated_row_dict
+                    )
+                
+                # 2.1.2 As described in 4.4 Generating Nested Objects, 
+                # process the sequence of objects, S1 to Sn, to produce a 
+                # new sequence of root objects, SR1 to SRm, that may 
+                # include nested objects.
+                
+                sequence_of_root_objects=\
+                    generate_nested_objects(
+                        annotated_row_dict,
+                        sequence_of_objects 
+                        )
+                
+                output.append(sequence_of_root_objects)
+                
+    return output
+        
+#%% Section 4.3 Generating Objects
+
+def generate_objects(
+        annotated_row_dict
+        ):
+    """
+    """
+    
+    sequence_of_objects=[]
+    
+    # The steps in the algorithm defined here apply to both standard and 
+    # minimal modes.
+        
+    # This algorithm generates a sequence of objects, S1 to Sn, each of which 
+    # corresponds to a subject described by the current row. 
+    # The algorithm inserts name-value pairs into Si depending on the cell 
+    # values as outlined in the following steps.
+        
+    # 1 Determine the unique subjects for the current row. 
+    #   The subject(s) described by each row are determined according to the 
+    #   about URL annotation for each cell in the current row. 
+    #   A default subject for the row is used for any cells where about URL 
+    #   is undefined.
+        
+    subjects=[]
+    
+    for annotated_cell_dict in annotated_row_dict['cells']:
+        
+        subject=annotated_cell_dict['aboutURL']
+        if not subject in subjects:
+            subjects.append(subject)
+        
+    # 2 For each subject that the current row describes where at least one 
+    #   of the cells that refers to that subject has a value or value URL 
+    #   that is not null, and is associated with a column where suppress 
+    #   output annotation is false:
+    
+    for subject in subjects:
+        
+        for annotated_cell_dict in annotated_row_dict['cells']:
+            
+            cell_subject=annotated_cell_dict['aboutURL']
+            
+            if not annotated_cell_dict['value'] is None:
+                cell_value_or_valueURL=annotated_cell_dict['value']
+            else:
+                cell_value_or_valueURL=annotated_cell_dict['valueURL']
+            
+            column_suppress_output=annotated_cell_dict['column']['supress_output']
+            
+            if (cell_subject==subject
+                and cell_value_or_valueURL is not None
+                and column_suppress_output==False):
+                    
+                # 2.1 Create an empty object Si to represent the subject i.
+                
+                #     (i is the index number with values from 1 to n, 
+                #     where n is the number of subjects for the row)
+
+                #     Subject i is identified according to the about URL 
+                #     annotation of its associated cells: IS. 
+                #     For a default subject where about URL is not 
+                #     specified by its cells, IS is null.
+        
+                object_={}
+                Is=cell_subject
+                
+                # 2.2 If the identifier for subject i, IS, is not null, 
+                #     then insert the following name-value pair into object Si:
+                #     name:@id; value:IS
+                
+                if not Is is None:
+                    object_['@id']=Is
+                    
+                sequence_of_objects.append(object_)        
+        
+                break
+    
+    # 2.3 Each cell referring to subject i is then processed sequentially 
+    # according to the order of the columns.
+        
+    for object_ in sequence_of_objects:
+      
+        for annotated_cell_dict in annotated_row_dict['cells']:
+        
+            cell_subject=annotated_cell_dict['aboutURL']
+            
+            column_suppress_output=annotated_cell_dict['column']['supress_output']
+
+            # For each cell referring to subject i, where the suppress output 
+            # annotation for the column associated with that cell is false, 
+            # insert a name-value pair into object Si as described below:
+            
+            if (object_.get('@id',None)==cell_subject
+                and column_suppress_output==False):
+                
+                # 2.3.1 If the value of property URL for the cell is not null, 
+                #       then name N takes the value of property URL compacted 
+                #       according to the rules as defined in URL Compaction 
+                #       in [tabular-metadata].
+
+                #       Else, name N takes the URI decoded value of the name 
+                #       annotation for the column associated with the cell. 
+                #       (URI decoding is necessary as name may have been 
+                #       encoded if it was taken from a supplied title.)
+                
+                property_url=annotated_cell_dict['propertyURL']
+                
+                if not property_url is None:
+                    
+                    object_name=property_url
+                    
+                    raise Exception  # NEED TO COMPACT THIS
+                    
+                else:
+                    
+                    object_name=annotated_cell_dict['column']['name']
+                    
+                    raise Exception  # NEED TO DECODE THIS
+                    
+                # 2.3.2 If the value URL for the current cell is not null, 
+                #       then insert the following name-value pair into 
+                #       object Si:
+                #       name:N, value:Vurl
+                #
+                # where Vurl is the value of value URL annotation for the 
+                # current cell expressed as a string in the JSON output. 
+                # If N is @type, compact Vurl according to the rules as 
+                # defined in URL Compaction in [tabular-metadata].
+                
+                value_url=annotated_cell_dict['valueURL']
+                cell_value=annotated_cell_dict['value']
+                
+                
+                if not value_url is None:
+                
+                    if object_name=='@type':
+                        
+                        object_value=value_url
+                        
+                        raise Exception  # NEED TO DECODE THIS
+                        
+                    else:
+                    
+                        object_value=value_url
+        
+                
+                # 2.3.3 Else, if the cell value is a list that is not empty, 
+                #       then the cell value provides a sequence of values for 
+                #       inclusion within the JSON output; insert an array Av 
+                #       containing each value V of the sequence into object Si:
+                #       name:N, value:Av
+                #       Each of the values V derived from the sequence must 
+                #       be expressed in the JSON output according to the 
+                #       datatype of V as defined below in section 4.5 
+                #       Interpreting datatypes.           
+        
+                elif isinstance(cell_value,list) and len(cell_value)>0:
+                    
+                    object_value=[x for x in cell_value]
+                        
+                        
+                # 2.3.4 Else, if the cell value is not null, then the cell 
+                #       value provides a single value V for inclusion within the 
+                #       JSON output; insert the following name-value pair into 
+                #       object Si:
+                #       name:N,value:V
+                #       Value V derived from the cell values must be expressed 
+                #       in the JSON output according to the datatype of the 
+                #       value as defined in section 4.5 Interpreting datatypes.
+                        
+                elif not cell_value is None:
+                    
+                    object_value=cell_value
+                    
+                # 2.4 If name N occurs more than once within object Si, 
+                #     the name-value pairs from each occurrence of name N 
+                #     must be compacted to form a single name-value pair with 
+                #     name N and whose value is an array containing all values 
+                #     from each of those name-value pairs. Where the value 
+                #     from one or more contributing name-value pairs is of 
+                #     type array, the values from contributing arrays are 
+                #     included directly to the resulting array (i.e. arrays 
+                #     of values are flattened).
+                
+                if object_name in object_:
+                    
+                    if not isinstance(object_[object_name],list):
+                        
+                        object_[object_name]=[object_[object_name]]
+                    
+                    if isinstance(object_value,list):
+                    
+                        object_[object_name].extend(object_value)
+                    
+                    else:
+                    
+                        object_[object_name].append(object_value)
+                    
+                else:
+                
+                    object_[object_name]=object_value
+               
+    return sequence_of_objects 
+  
+
+#%% Section 4.4 Generating Nested Objects
+
+def generate_nested_objects(
+        annotated_row_dict,
+        sequence_of_objects 
+        ):
+    """
+    """
+    # The steps in the algorithm defined herein apply to both standard and 
+    # minimal modes.
+    
+    # Where the current row describes multiple subjects, it may be possible 
+    # to organize the objects associated with those subjects such that some 
+    # objects are nested within others; e.g. where the value URL annotation 
+    # for one cell matches the about URL annotation for another cell in the 
+    # same row. 
+    # This algorithm considers a sequence of objects generated according to
+    # 4.3 Generating Objects, S1 to Sn, each of which corresponds to a 
+    # subject described by the current row. 
+    # It generates a new sequence of root objects, SR1 to SRm, that may 
+    # include nested objects.
+
+    # Where the current row describes only a single subject, this algorithm 
+    # may be bypassed as no nesting is possible. 
+    # In such a case, the root object SR1 is identical to the original 
+    # object S1.
+    
+    if len(sequence_of_objects)==1:
+        return sequence_of_objects
+    
+    # This nesting algorithm is based on the interrelationships between 
+    # subjects described within a given row that are specified using the 
+    # value URL annotation. 
+    # Cell values expressing the identity of a subject in the current 
+    # row (i.e., as a simple literal) will be ignored by this algorithm.
+    
+    # The nesting algorithm is defined as follows:
+        
+    # 1 For all cells in the current row, determine the value URLs, Vurl, 
+    # that occur only once. 
+    # The list of these uniquely occurring value URLs is referred to as 
+    # the URL-list.
+    
+    url_list=[]
+    cache=[]
+    
+    for annotated_cell_dict in annotated_row_dict['cells']:
+        
+        value_url=annotated_cell_dict['valueURL']
+        
+        if not value_url is None and not value_url in cache:
+            
+            if value_url in url_list:
+                cache.append(value_url)
+                url_list.remove(value_url)
+            
+            else:
+                url_list.append(value_url)
+        
+    # 2 Create an empty forest F. Vertices in the trees of this forest 
+    # represent the subjects described by the current row.
+    forest=[]
+    
+    # 3 For each object Si in the sequence S1 to Sn:
+        
+    for object_ in sequence_of_objects:
+        
+        # 3.1 Determine the identity of object Si: IS. 
+        #     If present in object Si, the name-value pair with name 
+        #     @id provides the value of IS. 
+        #     Else, object Si is not explicitly identified and IS is null.
+    
+        Is=object_.get('@id',None)
+        
+        # 3.2 Check whether there is a vertex N in forest F that represents 
+        #     object Si. 
+        
+        N=None
+        forest_nodes=[node for tree in forest for node in tree['nodes']]
+        for node in forest_nodes:
+            if node['object_']==object_:
+                N=node
+                break
+                    
+        #     If none of the existing vertices in forest F represent 
+        #     object Si, then insert a new tree into forest F whose 
+        #     root is a vertex N that represents object Si and has 
+        #     identity IS.
+        
+        if N is None:
+        
+            tree=dict(
+                nodes=[],
+                edges=[]
+                )
+            N=dict(
+                id_=Is,
+                object_=object_,
+                root=True,
+                tree=tree,
+                )
+            tree['nodes'].append(N)
+            forest.append(tree)
+            
+        # 3.3 For all cells associated with the current object Si (e.g. 
+        #     whose about URL annotation matches IS):
+        
+        annotated_cell_dicts=[x for x in annotated_row_dict['cells']
+                              if x['aboutURL']==Is]
+        
+        for annotated_cell_dict in annotated_cell_dicts:
+            
+            # 3.3.1 If the value URL annotation of the current cell is 
+            #       defined and its value, Vurl, appears in the URL-list, 
+            #       then check each of the other objects in the sequence S1 
+            #       to Sn to determine if Vurl identifies one of those objects.
+        
+            value_url=annotated_cell_dict['valueURL']
+            
+            if not value_url is None and value_url in url_list:
+                
+                for object2_ in sequence_of_objects:
+                    
+                    if object2_==object_:
+                        
+                        continue
+                
+                    # For object Sj, if the name-value pair with name @id is 
+                    # present and its value matches Vurl, then:
+                
+                    if '@id' in object2_ and object2_['@id']==value_url:
+                        
+                        # 3.3.1.1 If the root of the tree containing vertex N 
+                        #         is a vertex that represents object Sj, then 
+                        #         object Si is already a descendant of object 
+                        #         Sj; no further action should be taken for 
+                        #         this instance of Vurl.
+        
+                        tree=N['tree']
+                        root=[x for x in tree['nodes'] if x['root']==True][0]
+                        
+                        if root['object_']==object2_:
+                            
+                            break 
+                            
+                        # 3.3.1.2 Else, if there is a root vertex M in forest 
+                        #         F that represents object Sj, then set vertex 
+                        #         M as a child of vertex N and remove vertex 
+                        #         M from the list of roots in forest F (i.e., 
+                        #         the tree rooted by M becomes a sub-tree of N).
+                            
+                        else:
+                            
+                            roots=[node for node in tree for tree in forest
+                                   if node['root']==True]
+                            Ms=[node for node in roots if 
+                                node['object_']==object2_]
+                            
+                            if len(Ms)>0:
+                                
+                                M=Ms[0]
+                                
+                                M['root']=False
+                                M['tree']=tree
+                                tree['nodes'].append(M)
+                                tree['edges'].append((N,M))
+                                forest.remove(M['tree'])
+                                
+                            else:
+                            
+                                # 3.3.1.3 Else, create a new vertex M that 
+                                #         represents object Sj as a child of 
+                                #         vertex N.
+    
+                                M=dict(
+                                    id_=object2_.get('@id',None),
+                                    object_=object2_,
+                                    root=False,
+                                    tree=tree,
+                                    )
+                                tree['nodes'].append(M)
+                                tree['edges'].append((N,M))
+                                
+    # 4 Each vertex in forest F represents an object in the original 
+    #   sequence of objects S1 to Sn and is associated with a subject 
+    #   described by the current row. 
+    #   Rearrange objects S1 to Sn such that they mirror the structure 
+    #   of the trees in forest F as follows: 
+    #   - If vertex M, representing object Si, is a child of vertex N, 
+    #     representing object Sj, then the name-value pair in object Sj 
+    #     associated with the edge relating M and N must be modified 
+    #     such that the (literal) value, Vurl, from that name-value pair 
+    #     is replaced by object Si thus creating a nested object.
+    
+    forest_nodes=[node for tree in forest for node in tree['nodes']]
+    forest_edges=[edge for tree in forest for edge in tree['edges']]
+    
+    for object_ in sequence_of_objects:
+        
+        M=[node for node in forest_nodes if node['object_']==object_][0]
+        
+        NM_edges=[edge for edge in forest_edges if edge[1]==M]
+    
+        if len(NM_edges)>0:
+            
+            NM_edge=NM_edges[0]
+            
+            N=NM_edge[0]
+            
+            N['object_']['valueURL']=M['object_']
+            
+    # 5 Return the sequence of root objects, SR1 to SRm.
+    
+    sequence_of_root_objects=[]
+    
+    roots=[node for node in forest_nodes if node['root']==True]
+    
+    for root in roots:
+        
+        sequence_of_root_objects.append(root['object_'])
+        
+    return sequence_of_root_objects
+    
+    
+                        
+#%% Section 4.5 Interpreting datatypes
+   
+# This is already done in the annotated table dictionary
+# Cell values are stored as JSON objects there.
 
 
-
+def interpret_datatype(
+        datatype
+        ):
+    """
+    """
+    
+    
+    
+    
+    
+    
+    
+    
+    
 #%% FUNCTIONS - General
 
 
