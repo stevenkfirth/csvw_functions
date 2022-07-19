@@ -13,6 +13,8 @@ import langcodes
 import uritemplate
 import warnings
 
+import logging
+
 
 #%% read metadata schemas
 
@@ -565,6 +567,16 @@ def get_json_ld_from_annotated_table_group(
     
     """
     
+    if mode=='minimal':
+        
+        return get_minimal_json_from_annotated_table_group(
+                annotated_table_group_dict
+                )
+    
+    else:
+        
+        raise NotImplementedError
+    
 
 
 
@@ -1051,7 +1063,9 @@ def create_annotated_tables_from_metadata_root_object(
                 annotated_cell_dict['value']=value
                 annotated_cell_dict['errors'].append(errors)
                 #print(annotated_column_dict['aboutURL'])
-                
+     
+                #print(value)           
+     
     # generate URIs
                 
     for annotated_table_dict in annotated_table_group_dict['tables']:
@@ -1188,7 +1202,7 @@ def parse_cell(
         if required:
             
             # ADD ERROR
-            raise NotImplementedError
+            errors.append('Cell is required but not provided')
             
         #cell_value={'@value':list_of_json_values,
         #            '@type':type_}
@@ -1248,7 +1262,7 @@ def parse_cell(
                             '@type':datatypes[type_]}
                 
                 if not language is None:
-                    cell_value['@language']:lang
+                    cell_value['@language']=lang
                 
                 list_of_cell_values.append(cell_value)
                 
@@ -2026,6 +2040,10 @@ def parse_tabular_data_from_text(
         ):
     """
     """
+    logging.info('    FUNCTION: parse_tabular_data_from_text')
+    logging.debug(f'        ARGUMENT: tabular_data_file_path_or_url: {tabular_data_file_path_or_url}')
+    logging.debug(f'        ARGUMENT: dialect_description_obj_dict: {dialect_description_obj_dict}')
+    
     # 8. Parsing Tabular Data
     
     # ... hard coded the defaults here...
@@ -2072,7 +2090,7 @@ def parse_tabular_data_from_text(
         url=tabular_data_file_path_or_url,
         tableDirection='auto',
         suppressOutput=False,
-        notes=False,
+        notes=[],  # not False as stated in the standard
         foreignKeys=[],
         transformations=[]       
         )
@@ -2333,6 +2351,7 @@ def parse_tabular_data_from_text(
             # 10.4.4 Remove the first skip columns number of values from the 
             # list of cell values and add that number to the source column number.
             list_of_cell_values_non_skipped=list_of_cell_values[skip_columns:]
+            logging.debug(f'        VARIABLE: list_of_cell_values_non_skipped: {list_of_cell_values_non_skipped}')
             source_column_number+=skip_columns
             
             # 10.4.5 For each of the remaining values at index i in the list 
@@ -2534,6 +2553,13 @@ def get_quoted_value(
         ):
     """
     """
+    logging=False
+    
+    if logging: logging.info('    FUNCTION: get_quoted_value')
+    if logging: logging.debug(f'        ARGUMENT: characters: {characters}')
+    if logging: logging.debug(f'        ARGUMENT: escape_character: {escape_character}')
+    if logging: logging.debug(f'        ARGUMENT: quote_character: {quote_character}')
+    
     # To read a quoted value to provide a quoted value, perform the following steps:
         
     # 1 Set the quoted value to an empty string.
@@ -2546,13 +2572,19 @@ def get_quoted_value(
     # 3 Read initial characters and process as follows:
     i=1
     
-    while True:
+    while True:    
+        
+        current_character=characters[i]
+        try:
+            next_character=characters[i+1]
+        except IndexError:
+            next_character=None
     
         # 3.1 If the string starts with the escape character followed by the quote 
         # character, append both strings to the quoted value, and move on to 
         # process the string following the quote character.
-        if characters[i]==escape_character \
-            and characters[i+1]==quote_character:
+        if (current_character==escape_character 
+            and next_character==quote_character):
             quoted_value+=escape_character+quote_character
             i+=2
         
@@ -2560,22 +2592,25 @@ def get_quoted_value(
         # character is not the same as the quote character, append the escape 
         # character and the character following it to the quoted value and move 
         # on to process the string following that character.
-        elif characters[i]==escape_character and \
-            escape_character!=quote_character:
-            quoted_value+=characters[i:i+2]
+        elif (current_character==escape_character 
+              and escape_character!=quote_character):
+            quoted_value+=escape_character+next_character
             i+=2
         
         # 3.3 Otherwise, if the string starts with the quote character, return 
         # the quoted value.
-        elif characters[i]==quote_character:
+        elif current_character==quote_character:
+            quoted_value+=quote_character
             i+=1
             break
         
         # 3.4 Otherwise, append the first character to the quoted value and move 
         # on to process the string following that character.
         else:
-            quoted_value+=characters[i]
+            quoted_value+=current_character
             i+=1
+            
+    if logging: logging.debug(f'        RETURN VALUE: i, quoted_value: {i}, {quoted_value}')
             
     return i, quoted_value
 
@@ -2589,6 +2624,9 @@ def get_list_of_cell_values(
         ):
     """
     """
+    #logging.info('FUNCTION: get_list_of_cell_values')
+    
+    
     #print('get_list_of_cell_values')
     #print(characters)
     
@@ -2608,11 +2646,17 @@ def get_list_of_cell_values(
     
         #print(list_of_cell_values)    
     
+        current_character=characters[i]
+        try:
+            next_character=characters[i+1]
+        except IndexError:
+            next_character=None
+    
         # 3.1 If the string starts with the escape character followed by the 
         # quote character, append the quote character to the current cell 
         # value, and move on to process the string following the quote character.
-        if characters[i]==escape_character \
-            and characters[i+1]==quote_character:
+        if (current_character==escape_character
+            and next_character==quote_character):
             current_cell_value+=quote_character
             i+=2
         
@@ -2620,20 +2664,23 @@ def get_list_of_cell_values(
         # the escape character is not the same as the quote character, append 
         # the character following the escape character to the current cell 
         # value and move on to process the string following that character.
-        elif characters[i]==escape_character and \
-            escape_character!=quote_character:
-            current_cell_value+=characters[i+1]
+        elif (current_character==escape_character 
+              and escape_character!=quote_character):
+            current_cell_value+=next_character
             i+=2
         
         # 3.3 Otherwise, if the string starts with the quote character then:
-        elif characters[i]==quote_character:
+        elif current_character==quote_character:
             
             # 3.3.1 If quoted is false, set the quoted flag to true, and move on 
             # to process the remaining string. If the current cell value is not 
             # an empty string, raise an error.
             if quoted_flag==False:
-                quoted_flag==True
+                quoted_flag=True
                 if not current_cell_value=='':
+                    logging.critical(f'characters: {characters}')
+                    logging.critical(f'i: {i}')
+                    logging.critical(f'current_cell_value: {current_cell_value}')
                     raise Exception
                 i+=1
         
@@ -2642,12 +2689,17 @@ def get_list_of_cell_values(
             # delimiter, raise an error.
             else:
                 quoted_flag=False
-                if not characters[i+1]==delimiter:
-                    raise Exception
+                if not next_character is None:
+                    if not next_character==delimiter:
+                        logging.critical(f'characters: {characters}')
+                        logging.critical(f'i: {i}')
+                        logging.critical(f'current_cell_value: {current_cell_value}')
+                        logging.critical(f'next_character: {next_character}')
+                        raise Exception
                 i+=1
         
         # 3.4 Otherwise, if the string starts with the delimiter, then:
-        elif characters[i]==delimiter:
+        elif current_character==delimiter:
         
             # 3.4.1 If quoted is true, append the delimiter string to the current 
             # cell value and move on to process the remaining string.
@@ -2670,7 +2722,7 @@ def get_list_of_cell_values(
         # 3.5 Otherwise, append the first character to the current cell value 
         # and move on to process the remaining string.
         else:
-            current_cell_value+=characters[i]
+            current_cell_value+=current_character
             i+=1
             
         # 4 If there are no more characters to read, conditionally trim the 
@@ -2685,6 +2737,8 @@ def get_list_of_cell_values(
             break
 
     #print(list_of_cell_values)
+
+    #logging.debug(f'    RETURN VALUE: list_of_cell_values: {list_of_cell_values}')
 
     return list_of_cell_values
 
@@ -2774,6 +2828,7 @@ def annotate_table_group(
         ):
     """
     """
+    logging.info('    FUNCTION: annotate_table_group')
     
     #print(metadata_table_group_obj_dict)
     
@@ -2841,10 +2896,10 @@ def annotate_table_group(
     
     
     # inherited properties
-    inherited_properties={}
+    table_group_inherited_properties={}
     for name in get_inherited_properties_from_type('TableGroup'):
         if name in metadata_table_group_obj_dict:
-            inherited_properties[name]=metadata_table_group_obj_dict[name]
+            table_group_inherited_properties[name]=metadata_table_group_obj_dict[name]
     
     # annotate this table group
     #?? Initially, use this simple version
@@ -2859,7 +2914,7 @@ def annotate_table_group(
                     tables[i],
                     v[i],
                     default_language,
-                    inherited_properties,
+                    table_group_inherited_properties,
                     validate=validate
                     )
         
@@ -2889,14 +2944,16 @@ def annotate_table(
         annotated_table_dict,
         metadata_table_obj_dict,
         default_language,
-        inherited_properties,
+        table_group_inherited_properties,
         validate=False
         ):
     """
     """
+    logging.info('    FUNCTION: annotate_table')
+    logging.debug(f'    ARGUMENT:table_group_inherited_properties: {table_group_inherited_properties}')
     
     # add inherited properties that were passed
-    for k,v in inherited_properties.items():
+    for k,v in table_group_inherited_properties.items():
         if k=='aboutUrl': k='aboutURL'
         if k=='propertyUrl': k='propertyURL'
         if k=='valueUrl': k='valueURL'
@@ -2904,9 +2961,10 @@ def annotate_table(
             annotated_table_dict[k]=v
             
     # include new inherited properties from metadata
+    table_inherited_properties=dict(**table_group_inherited_properties)
     for name in get_inherited_properties_from_type('Table'):
         if name in metadata_table_obj_dict:
-            inherited_properties[name]=metadata_table_obj_dict[name]
+            table_inherited_properties[name]=metadata_table_obj_dict[name]
     
     # annotate this table
     #?? Initially, use this simple version
@@ -2915,22 +2973,31 @@ def annotate_table(
         if k=='tableSchema':
             
             # include new inherited properties from metadata
+            schema_inherited_properties=dict(**table_inherited_properties)
             for name in get_inherited_properties_from_type('Schema'):
                 if name in v:
-                    inherited_properties[name]=v[name]
+                    schema_inherited_properties[name]=v[name]
             
             #print(inherited_properties)
+            
+            metadata_column_obj_dicts=v['columns']
             
             for k1,v1 in v.items():
                 
                 if k1=='columns':
-                    columns=annotated_table_dict['columns']
-                    for i in range(len(columns)):
-                        columns[i]=annotate_column(
-                            columns[i],
-                            v['columns'][i],
+                    annotated_column_dicts=annotated_table_dict['columns']
+                    for i in range(len(annotated_column_dicts)):
+                        
+                        if i>len(metadata_column_obj_dicts)-1:
+                            logging.warning(i)
+                            logging.warning([x['name'] for x in annotated_column_dicts])
+                            logging.warning([x['name'] for x in metadata_column_obj_dicts])
+                        
+                        annotated_column_dicts[i]=annotate_column(
+                            annotated_column_dicts[i],
+                            metadata_column_obj_dicts[i],
                             default_language,
-                            inherited_properties=inherited_properties
+                            schema_inherited_properties=schema_inherited_properties
                             )
                 
                 elif k1=='primaryKey':
@@ -2939,8 +3006,8 @@ def annotate_table(
                         pk=[pk]
                     column_indexes=[]
                     for x in pk:
-                        for i,column in enumerate(annotated_table_dict['columns']):
-                            if x==columns[i]['name']:
+                        for i,column in enumerate(annotated_column_dicts):
+                            if x==annotated_column_dicts[i]['name']:
                                 column_indexes.append(i)
                     for row in annotated_table_dict['rows']:
                         for column_index in column_indexes:
@@ -2959,6 +3026,10 @@ def annotate_table(
                 
                 notes.append(v)
         
+        elif k=='@id':
+            
+            annotated_table_dict['id']=v
+        
         else:
             
             annotated_table_dict[k]=v
@@ -2971,12 +3042,17 @@ def annotate_column(
         annotated_column_dict,
         metadata_column_obj_dict,
         default_language,
-        inherited_properties,
+        schema_inherited_properties,
         ):
     """
     """
+    logging.info('    FUNCTION: annotate_column')
+    #logging.debug(f'    VARIABLE:annotated_column_dict["required"]: {annotated_column_dict["required"]}')
+    #logging.debug(f'    ARGUMENT:inherited_properties: {inherited_properties}')
+    
+    
     # add inherited properties that were passed
-    for k,v in inherited_properties.items():
+    for k,v in schema_inherited_properties.items():
         if k=='aboutUrl': k='aboutURL'
         if k=='propertyUrl': k='propertyURL'
         if k=='valueUrl': k='valueURL'
@@ -2984,9 +3060,13 @@ def annotate_column(
             annotated_column_dict[k]=v
     
     # include new inherited properties from metadata
+    column_inherited_properties=dict(**schema_inherited_properties)
     for name in get_inherited_properties_from_type('Column'):
         if name in metadata_column_obj_dict:
-            inherited_properties[name]=metadata_column_obj_dict[name]
+            column_inherited_properties[name]=metadata_column_obj_dict[name]
+    
+    #logging.debug(f'    VARIABLE:annotated_column_dict["required"]: {annotated_column_dict["required"]}')
+    
     
     # annotate this column
     for k,v in metadata_column_obj_dict.items():
@@ -3005,6 +3085,9 @@ def annotate_column(
         
         else:
         
+            if k=='required':
+                logging.debug(f'        VARIABLE: required: {v}')
+        
             annotated_column_dict[k]=v
         
     # annotate cells
@@ -3012,7 +3095,7 @@ def annotate_column(
     for i in range(len(cells)):
         cells[i]=annotate_cell(
             cells[i],
-            inherited_properties
+            column_inherited_properties
             )
     
     # If there is no name property defined on this column, the first titles 
@@ -3026,18 +3109,20 @@ def annotate_column(
         title=urllib.parse.quote(title.encode('utf8'))
         annotated_column_dict['name']=title
     
-    
     return annotated_column_dict
     
     
 def annotate_cell(
         annotated_cell_dict,
-        inherited_properties
+        column_inherited_properties
         ):
     """
     """    
+    logging.info('    FUNCTION: annotate_column')
+    
+    
     # add inherited properties that were passed
-    for k,v in inherited_properties.items():
+    for k,v in column_inherited_properties.items():
         if k=='aboutUrl': k='aboutURL'
         if k=='propertyUrl': k='propertyURL'
         if k=='valueUrl': k='valueURL'
@@ -3712,7 +3797,7 @@ def get_minimal_json_from_annotated_table_group(
     #   For each table where the suppress output annotation is false:
     for annotated_table_dict in annotated_table_group_dict['tables']:
         
-        if annotated_table_dict['supress_output']==False:
+        if annotated_table_dict['suppressOutput']==False:
             
             # 2.1 Each row within the table is processed sequentially in order. 
             #     For each row in the current table:
@@ -3738,7 +3823,9 @@ def get_minimal_json_from_annotated_table_group(
                         sequence_of_objects 
                         )
                 
-                output.append(sequence_of_root_objects)
+                # 2.1.3 Insert each root object, SR1 to SRm, into array A.
+                
+                output.extend(sequence_of_root_objects)
                 
     return output
         
@@ -3790,7 +3877,7 @@ def generate_objects(
             else:
                 cell_value_or_valueURL=annotated_cell_dict['valueURL']
             
-            column_suppress_output=annotated_cell_dict['column']['supress_output']
+            column_suppress_output=annotated_cell_dict['column']['suppressOutput']
             
             if (cell_subject==subject
                 and cell_value_or_valueURL is not None
@@ -3829,7 +3916,7 @@ def generate_objects(
         
             cell_subject=annotated_cell_dict['aboutURL']
             
-            column_suppress_output=annotated_cell_dict['column']['supress_output']
+            column_suppress_output=annotated_cell_dict['column']['suppressOutput']
 
             # For each cell referring to subject i, where the suppress output 
             # annotation for the column associated with that cell is false, 
@@ -3858,9 +3945,10 @@ def generate_objects(
                     
                 else:
                     
-                    object_name=annotated_cell_dict['column']['name']
-                    
-                    raise Exception  # NEED TO DECODE THIS
+                    object_name=\
+                        urllib.parse.unquote(
+                            annotated_cell_dict['column']['name']
+                            )
                     
                 # 2.3.2 If the value URL for the current cell is not null, 
                 #       then insert the following name-value pair into 
@@ -3901,7 +3989,8 @@ def generate_objects(
         
                 elif isinstance(cell_value,list) and len(cell_value)>0:
                     
-                    object_value=[x for x in cell_value]
+                    object_value=[interpret_datatype(x) 
+                                  for x in cell_value]
                         
                         
                 # 2.3.4 Else, if the cell value is not null, then the cell 
@@ -3915,7 +4004,10 @@ def generate_objects(
                         
                 elif not cell_value is None:
                     
-                    object_value=cell_value
+                    object_value=\
+                        interpret_datatype(
+                            cell_value
+                            )
                     
                 # 2.4 If name N occurs more than once within object Si, 
                 #     the name-value pairs from each occurrence of name N 
@@ -4180,10 +4272,40 @@ def generate_nested_objects(
 
 
 def interpret_datatype(
-        datatype
+        value
         ):
     """
     """
+    # NOTE
+    # Instances of JSON reserved characters within string values must be 
+    # escaped as defined in [RFC7159].
+    # JSON has no native support for expressing language information; 
+    # therefore the language of a value has no effect on the JSON output.
+    
+    # NOTE
+    # Only the base annotation value is used to determine the primitive 
+    # type used within the JSON output. 
+    # Additional restrictions to the cell value's datatype, such as the 
+    # id annotation, are ignored for the purposes of conversion to JSON.
+    
+    # NOTE
+    # A datatype's format is irrelevant to the conversion procedure defined 
+    # in this specification; the cell value has already been parsed from 
+    # the contents of the cell according to the format annotation.
+    # Cell errors must be recorded by applications where the contents 
+    # of a cell cannot be parsed or validated (see Parsing Cells and 
+    # Validating Tables in [tabular-data-model] respectively). 
+    # In cases where cell errors are recorded, applications may attempt 
+    # to determine the appropriate JSON primitive type during the 
+    # subsequent conversion process according to local rules.
+    
+    if isinstance(value,list):
+        
+        return [x['@value'] for x in value]
+    
+    else:
+    
+        return value['@value']
     
     
     
