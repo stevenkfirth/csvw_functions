@@ -3291,107 +3291,119 @@ def compare_schema_descriptions(
     # Two schemas are compatible if they have the same number of non-virtual 
     # column descriptions, and the non-virtual column descriptions at the 
     # same index within each are compatible with each other. 
-    TM_columns=TM_schema.get('columns',[])
-    EM_columns=EM_schema.get('columns',[])
+    TM_non_virtual_columns=[x for x in TM_schema.get('columns',[]) 
+                            if x.get('virtual',False)==False]
+    EM_non_virtual_columns=[x for x in TM_schema.get('columns',[]) 
+                            if x.get('virtual',False)==False]
     
-    if not len(TM_columns)==len(EM_columns):
+    if not len(TM_non_virtual_columns)==len(EM_non_virtual_columns):
         raise Exception  # TO DO
         
-    for i in range(len(TM_columns)):
-        TM_column=TM_columns[i]
-        EM_column=EM_columns[i]
+    for i in range(len(TM_non_virtual_columns)):
+        
+        TM_column=TM_non_virtual_columns[i]
+        EM_column=EM_non_virtual_columns[i]
     
-        # Column descriptions are compatible under the following conditions:
+        compare_column_descriptions(
+            TM_column,
+            EM_column,
+            validate=validate
+            )
+        
 
-        # If either column description has neither name nor titles properties.
+def compare_column_descriptions(
+        TM_column,
+        EM_column,
+        validate
+        ):
+    """
+    """
+    # Column descriptions are compatible under the following conditions:
+
+    # If either column description has neither name nor titles properties.
+    
+    if not 'name' in TM_column and not 'titles' in TM_column:
+        return
+    
+    if not 'name' in EM_column and not 'titles' in EM_column:
+        return
+    
+    
+    # If there is a case-sensitive match between the name properties of the columns.
+    if 'name' in TM_column and 'name' in EM_column:
+        if TM_column['name']==EM_column['name']:
+            return
+    
+    # If there is a non-empty case-sensitive intersection between the 
+    # titles values, where matches must have a matching language; und 
+    # matches any language, and languages match if they are equal when 
+    # truncated, as defined in [BCP47], to the length of the shortest language tag.
+    
+    
+    intersection=False
+    
+    for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
         
-        if not 'name' in TM_column and not 'titles' in TM_column:
-            continue
-        
-        if not 'name' in EM_column and not 'titles' in EM_column:
-            continue
-        
-        
-        # If there is a case-sensitive match between the name properties of the columns.
-        if 'name' in TM_column and 'name' in EM_column:
-            if TM_column['name']==EM_column['name']:
-                continue
-        
-        # If there is a non-empty case-sensitive intersection between the 
-        # titles values, where matches must have a matching language; und 
-        # matches any language, and languages match if they are equal when 
-        # truncated, as defined in [BCP47], to the length of the shortest language tag.
-        
-        
-        intersection=False
-        
-        for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+        for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
             
-            for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
-                
-                if TM_lang_tag=='und' or EM_lang_tag=='und' \
-                    or langcodes.standardize_tag(TM_lang_tag)== \
-                        langcodes.standardize_tag(EM_lang_tag):
-                            
-                    for title in TM_titles:
-                        if title in EM_titles:
-                            intersection=True
-                            break
-              
-                if intersection:
-                    break
-              
+            if TM_lang_tag=='und' or EM_lang_tag=='und' \
+                or langcodes.standardize_tag(TM_lang_tag)== \
+                    langcodes.standardize_tag(EM_lang_tag):
+                        
+                for title in TM_titles:
+                    if title in EM_titles:
+                        intersection=True
+                        break
+          
             if intersection:
                 break
-              
+          
         if intersection:
-            continue
-              
-                
+            break
+          
+    if intersection:
+        return
+          
+         
+    
+    # intersection=False
+    # for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
         
-        
-        
-        # intersection=False
-        # for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+    #     if TM_lang_tag=='und':
             
-        #     if TM_lang_tag=='und':
-                
-        #         for EM_titles in EM_column.get('titles',{}).values():
-                
-        #             for title in TM_titles:
-        #                 if title in EM_titles:
-        #                     intersection=True
-        #                     break
-                
-        #     else:
-        #         raise NotImplementedError # TO DO
-                
-        
-        
-        
-        
-        
-        
-        # If not validating, and one schema has a name property but not a 
-        # titles property, and the other has a titles property but not a name property.
+    #         for EM_titles in EM_column.get('titles',{}).values():
+            
+    #             for title in TM_titles:
+    #                 if title in EM_titles:
+    #                     intersection=True
+    #                     break
+            
+    #     else:
+    #         raise NotImplementedError # TO DO
+            
+    
+    
+    # If not validating, and one schema has a name property but not a 
+    # titles property, and the other has a titles property but not a name property.
 
-        if ('name' in TM_column 
-            and not 'titles' in TM_column
-            and not 'name' in EM_column 
-            and 'titles' in EM_column
-            ):
-            if validate==False:
-                continue
-        
-        if (not 'name' in TM_column 
-            and 'titles' in TM_column
-            and 'name' in EM_column 
-            and not 'titles' in EM_column
-            ):
-            if validate==False:
-                continue
+    if ('name' in TM_column 
+        and not 'titles' in TM_column
+        and not 'name' in EM_column 
+        and 'titles' in EM_column
+        ):
+        if validate==False:
+            return
+    
+    if (not 'name' in TM_column 
+        and 'titles' in TM_column
+        and 'name' in EM_column 
+        and not 'titles' in EM_column
+        ):
+        if validate==False:
+            return
 
-        raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
+    raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
+
 
     
     
@@ -3872,9 +3884,11 @@ def generate_objects(
             
             cell_subject=annotated_cell_dict['aboutURL']
             
-            if not annotated_cell_dict['value'] is None:
-                cell_value_or_valueURL=annotated_cell_dict['value']
-            else:
+            cell_value_or_valueURL=annotated_cell_dict['value']
+            
+            if (cell_value_or_valueURL is None
+                or cell_value_or_valueURL==[]):
+                
                 cell_value_or_valueURL=annotated_cell_dict['valueURL']
             
             column_suppress_output=annotated_cell_dict['column']['suppressOutput']
@@ -4002,12 +4016,16 @@ def generate_objects(
                 #       in the JSON output according to the datatype of the 
                 #       value as defined in section 4.5 Interpreting datatypes.
                         
-                elif not cell_value is None:
+                elif not cell_value is None and not cell_value==[]:
                     
                     object_value=\
                         interpret_datatype(
                             cell_value
                             )
+            
+                else:
+                    
+                    object_value=None
                     
                 # 2.4 If name N occurs more than once within object Si, 
                 #     the name-value pairs from each occurrence of name N 
@@ -4019,24 +4037,26 @@ def generate_objects(
                 #     included directly to the resulting array (i.e. arrays 
                 #     of values are flattened).
                 
-                if object_name in object_:
-                    
-                    if not isinstance(object_[object_name],list):
+                if not object_value is None:
+                
+                    if object_name in object_:
                         
-                        object_[object_name]=[object_[object_name]]
-                    
-                    if isinstance(object_value,list):
-                    
-                        object_[object_name].extend(object_value)
-                    
+                        if not isinstance(object_[object_name],list):
+                            
+                            object_[object_name]=[object_[object_name]]
+                        
+                        if isinstance(object_value,list):
+                        
+                            object_[object_name].extend(object_value)
+                        
+                        else:
+                        
+                            object_[object_name].append(object_value)
+                        
                     else:
                     
-                        object_[object_name].append(object_value)
-                    
-                else:
-                
-                    object_[object_name]=object_value
-               
+                        object_[object_name]=object_value
+                   
     return sequence_of_objects 
   
 

@@ -2028,8 +2028,68 @@ class TestSection6(unittest.TestCase):
                     mode='minimal'
                     )
             
-        print(json_ld)
+        #print(json_ld)
+
+        self.assertEqual(
+            json_ld,
+            [{'@id': 'http://example.org/tree-ops-ext#gid-1', 
+              'on_street': 'ADDISON AV', 
+              'species': 'Celtis australis', 
+              'trim_cycle': 'Large Tree Routine Prune', 
+              'dbh': 11, 
+              'inventory_date': '2010-10-18', 
+              'protected': False, 
+              'kml': '<Point><coordinates>-122.156485,37.440963</coordinates></Point>'}, 
+             {'@id': 'http://example.org/tree-ops-ext#gid-2', 
+              'on_street': 'EMERSON ST', 
+              'species': 'Liquidambar styraciflua', 
+              'trim_cycle': 'Large Tree Routine Prune', 
+              'dbh': 11, 
+              'inventory_date': '2010-06-02', 
+              'protected': False, 
+              'kml': '<Point><coordinates>-122.156749,37.440958</coordinates></Point>'}, 
+             {'@id': 'http://example.org/tree-ops-ext#gid-6', 
+              'on_street': 'ADDISON AV', 
+              'species': 'Robinia pseudoacacia', 
+              'trim_cycle': 'Large Tree Routine Prune', 
+              'dbh': 29, 
+              'inventory_date': '2010-06-01', 
+              'comments': [
+                  'cavity or decay', 
+                  'trunk decay', 
+                  'codominant leaders', 
+                  'included bark', 
+                  'large leader or limb decay', 
+                  'previous failure root damage', 
+                  'root decay', 
+                  'beware of BEES'
+                  ], 
+              'protected': True, 
+              'kml': '<Point><coordinates>-122.156299,37.441151</coordinates></Point>'}
+             ]
+            )
+
+    # standard mode - TO DO
+
+    
+
+    def test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row(self):
+        ""
+        logging.info('TEST: test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
         
+        fp=r'generating_json_from_tabular_data_example_files/events-listing.csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(fp)
+        
+        annotated_table_dict=annotated_table_group_dict['tables'][0]
+        annotated_columns_list=annotated_table_dict['columns']
+        annotated_rows_list=annotated_table_dict['rows']
+        annotated_cells_list=[cell 
+                              for row in annotated_rows_list 
+                              for cell in row['cells']]
+                
+
+
 
 #%% TESTS - General Functions
 
