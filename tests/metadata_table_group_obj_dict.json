@@ -1,0 +1,72 @@
+{
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [
+        {
+            "url": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\countries.csv",
+            "tableSchema": {
+                "columns": [
+                    {
+                        "name": "countryCode",
+                        "datatype": {
+                            "base": "string"
+                        },
+                        "propertyUrl": "http://www.geonames.org/ontology{#_name}"
+                    },
+                    {
+                        "name": "latitude",
+                        "datatype": {
+                            "base": "number"
+                        }
+                    },
+                    {
+                        "name": "longitude",
+                        "datatype": {
+                            "base": "number"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "datatype": {
+                            "base": "string"
+                        }
+                    }
+                ],
+                "aboutUrl": "http://example.org/countries.csv{#countryCode}",
+                "propertyUrl": "http://schema.org/{_name}",
+                "primaryKey": "countryCode"
+            }
+        },
+        {
+            "url": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\country_slice.csv",
+            "tableSchema": {
+                "columns": [
+                    {
+                        "name": "countryRef",
+                        "valueUrl": "http://example.org/countries.csv{#countryRef}"
+                    },
+                    {
+                        "name": "year",
+                        "datatype": {
+                            "base": "gYear"
+                        }
+                    },
+                    {
+                        "name": "population",
+                        "datatype": {
+                            "base": "integer"
+                        }
+                    }
+                ],
+                "foreignKeys": [
+                    {
+                        "columnReference": "countryRef",
+                        "reference": {
+                            "resource": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\countries.csv",
+                            "columnReference": "countryCode"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

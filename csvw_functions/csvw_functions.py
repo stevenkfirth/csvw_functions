@@ -549,6 +549,9 @@ def get_annotated_table_group_from_metadata(
     :rtype: dict
     
     """
+    logging.info('    FUNCTION: get_annotated_table_group_from_metadata')
+    logging.debug('        VARIABLE:')
+    
     annotated_table_group_dict=\
         create_annotated_tables_from_metadata_file_path_or_url(
                 metadata_file_path_or_url
@@ -813,6 +816,8 @@ def create_annotated_tables_from_metadata_root_object(
     Model for Tabular Data and Metadata, Section 6.1.
     
     """
+    logging.info('    FUNCTION: create_annotated_tables_from_metadata_root_object')
+    
     
     annotated_table_group_dict={
         'tables':[]
@@ -873,11 +878,17 @@ def create_annotated_tables_from_metadata_root_object(
         
     else:
         raise Exception
+        
+    with open('metadata_table_group_obj_dict.json','w') as f: 
+        json.dump(metadata_table_group_obj_dict,f,indent=4)
                  
     # 3 For each table (TM) in UM in order, create one or more annotated tables:
     
     for table_index,metadata_table_obj_dict in \
         enumerate(metadata_table_group_obj_dict['tables']):
+            
+        logging.debug(f'        VARIABLE: table_index: {table_index}')
+        logging.debug(f'        VARIABLE: metadata_table_obj_dict: {metadata_table_obj_dict}')
             
         # 3.1 Extract the dialect description (DD) from UM for the table 
         #     associated with the tabular data file. If there is no such 
@@ -892,11 +903,11 @@ def create_annotated_tables_from_metadata_root_object(
             
         # gets the first dialect description in the group of tables
         if dialect_description_obj_dict is None:
-            for metadata_table_obj_dict in \
+            for metadata_table_obj_dict2 in \
                 metadata_table_group_obj_dict['tables']:
-                    if 'dialect' in metadata_table_obj_dict:
+                    if 'dialect' in metadata_table_obj_dict2:
                         dialect_description_obj_dict=\
-                            metadata_table_obj_dict['dialect']
+                            metadata_table_obj_dict2['dialect']
                         break
 
         # gets the default dialect description
@@ -917,12 +928,14 @@ def create_annotated_tables_from_metadata_root_object(
         encoding=dialect_description_obj_dict.get('encoding',None)
         
         # load table
-        tabular_data_file_path_or_url=metadata_table_obj_dict['url']    
+        tabular_data_file_path_or_url=metadata_table_obj_dict['url']  
         
         tabular_data_file_path, tabular_data_file_url=\
             get_path_and_url_from_file_location(
                 tabular_data_file_path_or_url
                 )
+        
+            
             
         if not tabular_data_file_path is None:
             
@@ -989,6 +1002,57 @@ def create_annotated_tables_from_metadata_root_object(
             metadata_table_obj_dict.pop('@context')
             metadata_table_group_obj_dict['tables'][table_index]=metadata_table_obj_dict
             #print(metadata_table_group_obj_dict)
+            
+        # include virtual columns from metadata
+        #  as this isn't included when parsing the tabular data from text.
+        for i, metadata_column_obj_dict in \
+            enumerate(metadata_table_obj_dict['tableSchema']['columns']):
+                
+                if metadata_column_obj_dict.get('virtual')==True:
+                    
+                    column_dict=dict(
+                        table=table_dict, #table_name,
+                        number=i+1,
+                        sourceNumber=None,
+                        name=None,
+                        titles=[],
+                        virtual=False,
+                        suppressOutput=False,
+                        datatype='string', 
+                        default='',
+                        lang='und',
+                        null='',
+                        ordered=False,
+                        required=False,
+                        separator=None,
+                        textDirection='auto',
+                        aboutURL=None,
+                        propertyURL=None,
+                        valueURL=None,
+                        cells=[]
+                        )
+                    
+                    for row_dict in table_dict['rows']:
+                    
+                        cell_dict=dict(
+                            table=table_dict, 
+                            column=column_dict, 
+                            row=row_dict, 
+                            stringValue='',
+                            value=None,
+                            errors=[],
+                            textDirection='auto',
+                            ordered=False,
+                            aboutURL=None,
+                            propertyURL=None,
+                            valueURL=None
+                            )
+                    
+                        column_dict['cells'].append(cell_dict)
+                        row_dict['cells'].append(cell_dict)
+            
+                    table_dict['columns'].append(column_dict)
+            
         
         # 3.4 If a Content-Language HTTP header was found when retrieving the 
         #     tabular data file, and the value provides a single language, set 
@@ -1034,7 +1098,9 @@ def create_annotated_tables_from_metadata_root_object(
         annotate_table_group(
             annotated_table_group_dict,
             metadata_table_group_obj_dict,
-            default_language
+            default_language,
+            base_path,
+            base_url
             )
             
     # Not directly in this section of the standard, but at this stage the 
@@ -1376,10 +1442,40 @@ def parse_cell_part_2(
             errors
             )
         
-    # dates and times
-    elif datatype['base']in datatypes_dates_and_times:
+    # date
+    elif datatype['base']=='date':
         
-        json_value,type_,errors=parse_date_and_time(
+        json_value,type_,errors=parse_date(
+            string_value,
+            type_,
+            datatype.get('format',None),
+            errors
+            )
+        
+    # time
+    elif datatype['base']=='time':
+        
+        json_value,type_,errors=parse_time(
+            string_value,
+            type_,
+            datatype.get('format',None),
+            errors
+            )
+    
+    # datetime
+    elif datatype['base'] in ['dateTime', 'datetime']:
+        
+        json_value,type_,errors=parse_datetime(
+            string_value,
+            type_,
+            datatype.get('format',None),
+            errors
+            )
+    
+    # datetimestamp
+    elif datatype['base']=='dateTimeStamp':
+        
+        json_value,type_,errors=parse_datetimestamp(
             string_value,
             type_,
             datatype.get('format',None),
@@ -1940,7 +2036,25 @@ def parse_boolean(
 
 #%% Section 6.4.4. Formats for dates and times
 
-def parse_date_and_time(
+date_formats=[
+    'yyyy-MM-dd',
+    'yyyyMMdd',
+    'dd-MM-yyyy',
+    'd-M-yyyy',
+    'MM-dd-yyyy',
+    'M-d-yyyy',
+    'dd/MM/yyyy',
+    'd/M/yyyy',
+    'MM/dd/yyyy',
+    'M/d/yyyy',
+    'dd.MM.yyyy',
+    'd.M.yyyy',
+    'MM.dd.yyyy',
+    'M.d.yyyy',
+    ]
+
+
+def parse_date(
         string_value,
         datatype_base,
         datatype_format,
@@ -1957,9 +2071,7 @@ def parse_date_and_time(
 
     if datatype_format is None:
         
-        json_value=string_value
-        
-        return json_value, type_, errors
+        datatype_format='yyyy-MM-dd'  # NEEDS CHECKING ??
 
     # If the datatype base is a date or time type, the datatype format 
     # annotation indicates the expected format for that date or time.
@@ -1972,43 +2084,391 @@ def parse_date_and_time(
     # Implementations must issue a warning if the date format pattern is 
     # invalid or not recognised and proceed as if no date format 
     # pattern had been provided.
+    
+    date_and_timezone_format=datatype_format
+    
+    # separate date format and possible timezone format
+    timezone_format, timezone_gap=get_timezone_format(date_and_timezone_format)
 
-    if datatype_base=='date':
+    if not timezone_format is None:
 
-        if datatype_format in [
-                'yyyy-MM-dd',
-                'yyyyMMdd',
-                'dd-MM-yyyy',
-                'd-M-yyyy',
-                'MM-dd-yyyy',
-                'M-d-yyyy',
-                'dd/MM/yyyy',
-                'd/M/yyyy',
-                'MM/dd/yyyy',
-                'M/d/yyyy',
-                'dd.MM.yyyy',
-                'd.M.yyyy',
-                'MM.dd.yyyy',
-                'M.d.yyyy',
-                ]:
-            
-            x=datatype_format
-            x=x.replace('yyyy','%Y')
-            x=x.replace('MM','%m')
-            x=x.replace('M','%m')
-            x=x.replace('dd','%d')
-            x=x.replace('d','%d')
-            
-            dt=datetime.datetime.strptime(string_value, x)  # NEEDS CHECKING
-            
-            json_value=dt.date().isoformat()
-            
-            return json_value, type_, errors
+        date_format=date_and_timezone_format[:-len(timezone_format)-len(timezone_gap)]
         
     else:
+
+        date_format=date_and_timezone_format        
+
+    # check if date format is in the approved list
+    if not date_format in date_formats:
         
         raise Exception
         
+    # reformat timezone in string_value for Python parsing
+    if not timezone_format is None:
+        
+        timezone_string=get_timezone_string(string_value)
+        
+        reformatted_timezone_string=\
+            reformat_timezone_in_string_value(
+                timezone_string,
+                timezone_format
+                )
+    
+        string_value=\
+            string_value.replace(
+                timezone_string,
+                reformatted_timezone_string)
+    
+    # reformat date_format for Python parsing
+    
+    x=date_and_timezone_format
+    x=x.replace('yyyy','%Y')
+    x=x.replace('MM','%m')
+    x=x.replace('M','%m')
+    if 'dd' in x:
+        x=x.replace('dd','%d')
+    else:
+        x=x.replace('d','%d')
+    
+    if not timezone_format is None:
+        x=x.replace(timezone_format,'%z')
+    
+    # parse date
+    dt=datetime.datetime.strptime(string_value, x)  
+    dt_isoformat=dt.isoformat()
+    
+    # set date value
+    json_value=dt_isoformat.split('T')[0]
+    
+    # include timezone info as date
+    if not timezone_format is None:
+        json_value=json_value+dt_isoformat[-6:]
+    
+    return json_value, type_, errors
+    
+
+def reformat_timezone_in_string_value(
+        timezone_string,
+        timezone_format
+        ):
+    """
+    """
+    if timezone_string=='Z':
+        
+        if timezone_format in ['X','XX','XXX']:
+        
+            return '+0000'
+        
+        else:
+            
+            raise Exception  # 'Z' not allowed in formats x, xx, or xxx
+    
+    elif len(timezone_string)==3:
+        
+        if timezone_format in ['X','x']:
+            
+            return timezone_string+'00'
+        
+        else:
+            
+            raise Exception  # timezone string should include minutes
+            
+    elif len(timezone_string)==5:
+        
+        if timezone_format in ['X','XX','x','xx']:
+            
+            return timezone_string
+        
+        else:
+            
+            raise Exception  
+            
+    elif len(timezone_string)==6:
+        
+        if timezone_format in ['XXX','xxx']:
+            
+            return timezone_string.replace(':','')
+        
+        else:
+            
+            raise Exception  
+            
+            
+def get_timezone_string(
+        string_value
+        ):
+    """
+    """
+    x=string_value.strip()
+    
+    if x.endswith('Z'):
+        
+        return 'Z'
+    
+    elif x[-3] in ['+','-']:
+        
+        return x[-3:]
+    
+    elif x[-5] in ['+','-']:
+        
+        return x[-5:]
+    
+    elif x[-6] in ['+','-']:
+        
+        return x[-6:]
+    
+    else:
+        
+        raise Exception
+    
+        
+def get_timezone_format(
+        datatype_format
+        ):
+    """
+    """
+    x=datatype_format.strip()
+    
+    if x.endswith('XXX'):
+        timezone_format='XXX'
+    elif x.endswith('XX'):
+        timezone_format='XX'
+    elif x.endswith('X'):
+        timezone_format='X'
+    elif x.endswith('xxx'):
+        timezone_format='xxx'
+    elif x.endswith('xx'):
+        timezone_format='xx'
+    elif x.endswith('x'):
+        timezone_format='x'
+    else:
+        timezone_format=None
+        timezone_gap=''
+    
+    if not timezone_format is None:
+        x=len(timezone_format)
+        if datatype_format[-x-1]==' ':
+            timezone_gap=' '
+        else:
+            timezone_gap=''
+        
+    return timezone_format,timezone_gap
+        
+        
+def parse_time(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
+        ):
+    """
+    """
+    
+    type_=datatype_base
+    
+    # By default, dates and times are assumed to be in the format defined 
+    # in [xmlschema11-2]. However dates and times are commonly represented 
+    # in tabular data in other formats.
+
+    if datatype_format is None:
+        
+        datatype_format='HH:mm:ss'  
+
+    # If the datatype base is a date or time type, the datatype format 
+    # annotation indicates the expected format for that date or time.
+    
+    # The supported date and time format patterns listed here are 
+    # expressed in terms of the date field symbols defined in [UAX35]. 
+    # These formats must be recognised by implementations and must be 
+    # interpreted as defined in that specification. 
+    # Implementations may additionally recognise other date format patterns. 
+    # Implementations must issue a warning if the date format pattern is 
+    # invalid or not recognised and proceed as if no date format 
+    # pattern had been provided.
+    
+    time_and_timezone_format=datatype_format
+    
+    # separate time format and possible timezone format
+    timezone_format, timezone_gap=get_timezone_format(time_and_timezone_format)
+
+    if not timezone_format is None:
+
+        time_format=time_and_timezone_format[:-len(timezone_format)-len(timezone_gap)]
+        
+    else:
+
+        time_format=time_and_timezone_format        
+    
+    # separate main and fractional part
+    x=time_format.split('.')
+    main_time_format=x[0]
+    if len(x)==2:
+        fractional_time_format=x[1]
+    else:
+        fractional_time_format=None
+        
+    # check if main time format is in the approved list
+    main_time_formats=[
+        'HH:mm:ss',
+        'HHmmss',
+        'HH:mm',
+        'HHmm'
+        ]
+    if not main_time_format in main_time_formats:
+        raise Exception
+        
+    # check fractional time format
+    if not fractional_time_format is None:
+        for x in fractional_time_format:
+            if not x=='S':
+                raise Exception
+            
+    # reformat timezone in string_value for Python parsing
+    if not timezone_format is None:
+        
+        timezone_string=get_timezone_string(string_value)
+        
+        reformatted_timezone_string=\
+            reformat_timezone_in_string_value(
+                timezone_string,
+                timezone_format
+                )
+    
+        string_value=\
+            string_value.replace(
+                timezone_string,
+                reformatted_timezone_string)
+    
+    # reformat date_format for Python parsing
+    x=time_and_timezone_format
+    x=x.replace('HH','%H')
+    x=x.replace('mm','%M')
+    x=x.replace('S','%f')
+    x=x.replace('S','')
+    x=x.replace('ss','%S')
+    
+    if not timezone_format is None:
+        x=x.replace(timezone_format,'%z')
+    
+    # parse time
+    dt=datetime.datetime.strptime(string_value, x)  
+    
+    # split isoformat
+    x=dt.isoformat()
+    
+    if not timezone_format is None:
+        timezone_part=x[-6:]
+        x=x[:-6]
+    else:
+        timezone_part=''
+        
+    x=x.split('T')[1].split('.')
+    
+    main_part=x[0]
+    
+    if len(x)==2:
+        
+        time_frac=float('0.'+x[1])
+        
+        st='{:0.%sf}' % len(fractional_time_format)
+        
+        fractional_part=st.format(time_frac)[1:]
+        
+    else:
+        
+        fractional_part=''
+        
+    # create return value
+    json_value=main_part+fractional_part+timezone_gap+timezone_part
+    
+    
+    return json_value, type_, errors
+
+
+    
+def parse_datetime(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
+        ):
+    """
+    """
+    
+    type_=datatype_base
+    
+    # By default, dates and times are assumed to be in the format defined 
+    # in [xmlschema11-2]. However dates and times are commonly represented 
+    # in tabular data in other formats.
+
+    if datatype_format is None:
+        
+        datatype_format='yyyy-MM-ddTHH:mm:ss'  
+
+    # If the datatype base is a date or time type, the datatype format 
+    # annotation indicates the expected format for that date or time.
+    
+    # The supported date and time format patterns listed here are 
+    # expressed in terms of the date field symbols defined in [UAX35]. 
+    # These formats must be recognised by implementations and must be 
+    # interpreted as defined in that specification. 
+    # Implementations may additionally recognise other date format patterns. 
+    # Implementations must issue a warning if the date format pattern is 
+    # invalid or not recognised and proceed as if no date format 
+    # pattern had been provided.
+    
+    datetime_format=datatype_format
+    
+    # identify separator
+    if 'T' in datetime_format:
+        separator='T'
+    else:
+        separator=' '
+    
+    # separate date and time formats
+    date_format, time_format = datetime_format.split(separator)
+        
+    # separate date_string_value and time_string_value
+    date_string_value, time_string_value = string_value.split(separator)
+    
+    # get date json value
+    date_json_value, date_type_, errors=\
+        parse_date(
+            string_value=date_string_value,
+            datatype_base='date',
+            datatype_format=date_format,
+            errors=errors
+            )
+        
+    # get time json value
+    time_json_value, time_type_, errors=\
+        parse_time(
+            string_value=time_string_value,
+            datatype_base='time',
+            datatype_format=time_format,
+            errors=errors
+            )
+    
+    json_value=date_json_value+'T'+time_json_value
+    
+    return json_value, type_, errors
+    
+
+def parse_datetimestamp(
+        string_value,
+        datatype_base,
+        datatype_format,
+        errors
+        ):
+    """
+    """
+    
+    
+    
+
+    raise Exception
+
+    
 #%% 6.4.6 Formats for other types
 
 def parse_other_types(
@@ -2468,6 +2928,10 @@ def parse_tabular_data_from_text(
             )
     
 
+    logging.critical(len(table_dict['columns']))
+
+    logging.info('    RETURN:') 
+
     return table_dict, normalized_metadata_dict
     
     
@@ -2824,6 +3288,8 @@ def annotate_table_group(
         annotated_table_group_dict,
         metadata_table_group_obj_dict,
         default_language,
+        base_path,
+        base_url,
         validate=False
         ):
     """
@@ -2935,6 +3401,50 @@ def annotate_table_group(
             annotated_table_group_dict[k]=v
         
     
+    # do the foreign key annotations
+    # - need to do this after all column name properties are set.
+    
+    for i in range(len(metadata_table_group_obj_dict.get('tables',[]))):
+        
+        metadata_table_obj_dict=metadata_table_group_obj_dict['tables'][i]
+        annotated_table_dict=annotated_table_group_dict['tables'][i]
+        
+        if 'tableSchema' in metadata_table_obj_dict:
+            
+            metadata_schema_obj_dict=metadata_table_obj_dict['tableSchema']
+        
+            if 'foreignKeys' in metadata_schema_obj_dict:
+            
+                foreign_key_definitions=metadata_schema_obj_dict['foreignKeys']
+                
+                for foreign_key_definition in foreign_key_definitions:
+                    
+                    fkd_column_reference=\
+                        foreign_key_definition['columnReference']
+                        
+                    fkd_columns=\
+                        get_columns_from_column_reference(
+                            fkd_column_reference,
+                            annotated_table_dict,
+                            )
+                    
+                    foreign_key_reference=foreign_key_definition['reference']
+                    
+                    foriegn_key_reference_table, foriegn_key_reference_columns=\
+                        get_referenced_table_and_columns_from_foreign_key_reference(
+                            foreign_key_reference,
+                            annotated_table_group_dict,
+                            metadata_table_group_obj_dict,
+                            base_path,
+                            base_url
+                            )
+                    
+                annotated_table_dict['foreignKeys'].append(
+                    (fkd_columns,foriegn_key_reference_columns)
+                    )
+    
+    
+    
 
     return annotated_table_group_dict
 
@@ -2972,33 +3482,42 @@ def annotate_table(
         
         if k=='tableSchema':
             
+            metadata_schema_obj_dict=v
+            
             # include new inherited properties from metadata
             schema_inherited_properties=dict(**table_inherited_properties)
             for name in get_inherited_properties_from_type('Schema'):
                 if name in v:
                     schema_inherited_properties[name]=v[name]
-            
             #print(inherited_properties)
             
-            metadata_column_obj_dicts=v['columns']
-            
-            for k1,v1 in v.items():
+            # do columns first (to set column names first)
+            if 'columns' in metadata_schema_obj_dict:
+                
+                metadata_column_obj_dicts=metadata_schema_obj_dict['columns']
+                
+                annotated_column_dicts=annotated_table_dict['columns']
+                
+                for i in range(len(annotated_column_dicts)):
+                    
+                    if i>len(metadata_column_obj_dicts)-1:
+                        logging.warning(i)
+                        logging.warning([x['name'] for x in annotated_column_dicts])
+                        logging.warning([x['name'] for x in metadata_column_obj_dicts])
+                    
+                    annotated_column_dicts[i]=annotate_column(
+                        annotated_column_dicts[i],
+                        metadata_column_obj_dicts[i],
+                        default_language,
+                        schema_inherited_properties=schema_inherited_properties
+                        )
+                
+            # now do remaining properties
+            for k1,v1 in metadata_schema_obj_dict.items():
                 
                 if k1=='columns':
-                    annotated_column_dicts=annotated_table_dict['columns']
-                    for i in range(len(annotated_column_dicts)):
-                        
-                        if i>len(metadata_column_obj_dicts)-1:
-                            logging.warning(i)
-                            logging.warning([x['name'] for x in annotated_column_dicts])
-                            logging.warning([x['name'] for x in metadata_column_obj_dicts])
-                        
-                        annotated_column_dicts[i]=annotate_column(
-                            annotated_column_dicts[i],
-                            metadata_column_obj_dicts[i],
-                            default_language,
-                            schema_inherited_properties=schema_inherited_properties
-                            )
+                    
+                    pass
                 
                 elif k1=='primaryKey':
                     pk=v1
@@ -3109,6 +3628,8 @@ def annotate_column(
         title=urllib.parse.quote(title.encode('utf8'))
         annotated_column_dict['name']=title
     
+    logging.debug(f'        VARIABLE: annotated_column_dict["name"]: {annotated_column_dict["name"]}')
+    
     return annotated_column_dict
     
     
@@ -3118,7 +3639,7 @@ def annotate_cell(
         ):
     """
     """    
-    logging.info('    FUNCTION: annotate_column')
+    logging.info('    FUNCTION: annotate_cell')
     
     
     # add inherited properties that were passed
@@ -3246,8 +3767,47 @@ def get_URI_from_URI_template(
             return urllib.parse.urljoin(x,uri)  # NEED CHECKING
     
     
-            
+#%% Section 5.1.4 - Column Reference Properties
+
+def get_columns_from_column_reference(
+        column_reference,
+        annotated_table_dict,
+        ):
+    """
+    """
     
+    # Column reference properties hold one or more references to other 
+    # column description objects. 
+    # The referenced description object must have a name property.
+    # Column reference properties can then reference column description 
+    # objects through values that are:
+    # - strings — which must match the name on a column description object within the metadata document.
+    # - arrays — lists of strings as above.
+    
+    if not isinstance(column_reference,list):
+        
+        column_reference=[column_reference]
+        
+    columns=[]
+    
+    for column_reference_name in column_reference:
+    
+        for annotated_column_dict in annotated_table_dict['columns']:
+            
+            if column_reference_name==annotated_column_dict['name']:
+                
+                columns.append(annotated_column_dict)
+
+    # Compliant applications must issue a warning and proceed as if the 
+    # column reference property had not been specified if:
+    # - the supplied value is not a string or array (e.g. if it is an integer).
+    # - the supplied value is an empty array.
+    # - any of the values in the supplied array are not strings.
+    # - any of the supplied strings do not reference one or more columns.
+
+    # TO DO
+
+    return columns
 
     
     
@@ -3276,14 +3836,131 @@ def compare_table_descriptions(
     
         
     
-#%% Section 5.5.1 - Schema Compatibility
+#%% Section 5.5 - Schemas
+
+def get_referenced_table_and_columns_from_foreign_key_reference(
+        foreign_key_reference,
+        annotated_table_group_dict,
+        metadata_table_group_obj_dict,
+        base_path,
+        base_url        
+        ):
+    """
+    """
+    # resource
+    # A link property holding a URL that is the identifier for a specific 
+    # table that is being referenced. 
+    # If this property is present then schemaReference must not be present. 
+    # The table group must contain a table whose url annotation is identical 
+    # to the expanded value of this property. 
+    # That table is the referenced table.
+    resource=foreign_key_reference.get('resource',None)
+    
+    
+    if not resource is None:
+        
+        resource_expanded_url=get_resolved_path_or_url_from_link_string(
+                resource,
+                base_path,
+                base_url
+                )
+    
+        referenced_annotated_table_dicts=\
+            [annotated_table_dict
+             for annotated_table_dict in annotated_table_group_dict['tables']
+             if annotated_table_dict['url']==resource_expanded_url
+             ]
+        
+        if not len(referenced_annotated_table_dicts)==1:
+            
+            raise Exception
+    
+        else:
+            
+            referenced_annotated_table_dict=referenced_annotated_table_dicts[0]
+    
+    # schemaReference
+    # A link property holding a URL that is the identifier for a schema 
+    # that is being referenced. 
+    # If this property is present then resource must not be present. 
+    # The table group must contain a table with a tableSchema having 
+    # a @id that is identical to the expanded value of this property, 
+    # and there must not be more than one such table. 
+    # That table is the referenced table.
+    schema_reference=foreign_key_reference.get('schemaReference',None)
+    
+    if not resource is None and not schema_reference is None:
+        
+        raise Exception
+    
+    if not schema_reference is None:
+        
+        schema_reference_expanded_url=\
+            get_resolved_path_or_url_from_link_string(
+                schema_reference,
+                base_path,
+                base_url
+                )
+    
+        referenced_metadata_table_dicts_indexes=\
+            [i
+             for i, metadata_table_dict in enumerate(metadata_table_group_obj_dict['tables'])
+             if metadata_table_dict['tableSchema'].get('@id',None)==schema_reference_expanded_url
+             ]
+            
+        if not len(referenced_metadata_table_dicts_indexes)==1:
+            
+            raise Exception
+    
+        else:
+            
+            referenced_annotated_table_dict=\
+                annotated_table_group_dict['tables'][referenced_metadata_table_dicts_indexes[0]]
+    
+    # columnReference
+    # A column reference property that holds either a single reference 
+    # (by name) to a column description object within the tableSchema 
+    # of the referenced table, or an array of such references.
+    
+    column_reference=foreign_key_reference['columnReference']
+    
+    referenced_annotated_column_dicts=\
+        get_columns_from_column_reference(
+            column_reference,
+            referenced_annotated_table_dict,
+            )
+    
+    
+    
+    # The value of this property becomes the foreign keys annotation on the 
+    # table using this schema by creating a list of foreign keys comprising 
+    # a list of columns in the table and a list of columns in the 
+    # referenced table. 
+    # The value of this property is also used to create the value of the 
+    # referenced rows annotation on each of the rows in the table that 
+    # uses this schema, which is a pair of the relevant foreign key and the 
+    # referenced row in the referenced table.
+
+    # As defined in [tabular-data-model], validators must check that, 
+    # for each row, the combination of cells in the referencing columns 
+    # references a unique row within the referenced table through a 
+    # combination of cells in the referenced columns. 
+    # For examples, see section 5.5.2.1 Foreign Key Reference Between 
+    # Tables and section 5.5.2.2 Foreign Key Reference Between Schemas.
+    
+    # TO DO
+    
+    return referenced_annotated_table_dict, referenced_annotated_column_dicts
+    
+    
+    
     
 def compare_schema_descriptions(
         TM_schema,
         EM_schema,
         validate=False
         ):
-    """
+    """Section 5.5.1.
     """
     #print(TM_schema)
     #print(EM_schema)
@@ -3588,6 +4265,9 @@ def normalize_metadata_property(
                         )
                     )
             else:
+                print('x', x)
+                print('property_name', property_name)
+                print('property_value', property_value)
                 raise Exception # what to do if not an object??
         
     # 3 If the property is a link property the value is turned into an 
@@ -3786,6 +4466,54 @@ def normalize_common_property(
     return normalized_value
     
 
+#%% Section A.1. URL Compaction
+
+def compact_absolute_url(
+        absolute_url
+        ):
+    """
+    """
+    
+    # When normalizing metadata, prefixed names used in common properties 
+    # and notes are expanded to absolute URLs. For some serializations, 
+    # these are more appropriately presented using prefixed names or terms. 
+    # This algorithm compacts an absolute URL to a prefixed name or term.
+
+    # 1 If the URL exactly matches the absolute IRI associated with a term 
+    #   in [csvw-context], replace the URL with that term.
+    
+    # 2 Otherwise, if the URL starts with the absolute IRI associated with 
+    #   a term in [csvw-context], replace the matched part of that URL 
+    #   with the term separated with a : (U+0040) to create a prefixed name. 
+    #   If the resulting prefixed name is rdf:type, replace with @type.
+
+    
+    # assuming 'terms in csvw-context' refers to the prefixes -- NEEDS CHECKING
+    for k,v in prefixes.items():
+        
+        if absolute_url==v:
+            
+            return k
+        
+        else:
+            
+            if absolute_url.startswith(v):
+                
+                compact_url=k+':'+absolute_url[len(v):]
+                
+                if compact_url=='rdf:type':
+                    
+                    return '@type'
+                
+                else:
+                    
+                    return compact_url
+    
+    return absolute_url
+    
+
+
+
 
 #%% FUNCTIONS - Generating JSON from Tabular Data on the Web
 
@@ -3796,6 +4524,7 @@ def get_minimal_json_from_annotated_table_group(
         ):
     """
     """
+    logging.info('    FUNCTION: get_minimal_json_from_annotated_table_group')
     # The steps in the algorithm defined here apply to minimal mode.
     
     # 1 Insert an empty array A into the JSON output. 
@@ -3823,6 +4552,13 @@ def get_minimal_json_from_annotated_table_group(
                 sequence_of_objects=generate_objects(
                     annotated_row_dict
                     )
+                #print(len(sequence_of_objects))
+                #print(sequence_of_objects[0]['@id'])
+                #print([x for x in sequence_of_objects[0]])
+                #print(sequence_of_objects[1]['@id'])
+                #print([x for x in sequence_of_objects[1]])
+                #print(sequence_of_objects[2]['@id'])
+                #print([x for x in sequence_of_objects[2]])
                 
                 # 2.1.2 As described in 4.4 Generating Nested Objects, 
                 # process the sequence of objects, S1 to Sn, to produce a 
@@ -3953,9 +4689,7 @@ def generate_objects(
                 
                 if not property_url is None:
                     
-                    object_name=property_url
-                    
-                    raise Exception  # NEED TO COMPACT THIS
+                    object_name=compact_absolute_url(property_url)
                     
                 else:
                     
@@ -3982,9 +4716,7 @@ def generate_objects(
                 
                     if object_name=='@type':
                         
-                        object_value=value_url
-                        
-                        raise Exception  # NEED TO DECODE THIS
+                        object_value=compact_absolute_url(value_url)
                         
                     else:
                     
@@ -4068,6 +4800,9 @@ def generate_nested_objects(
         ):
     """
     """
+    #print(annotated_row_dict)
+    #print(sequence_of_objects)
+    
     # The steps in the algorithm defined herein apply to both standard and 
     # minimal modes.
     
@@ -4109,6 +4844,7 @@ def generate_nested_objects(
     for annotated_cell_dict in annotated_row_dict['cells']:
         
         value_url=annotated_cell_dict['valueURL']
+        #print(value_url)
         
         if not value_url is None and not value_url in cache:
             
@@ -4118,6 +4854,8 @@ def generate_nested_objects(
             
             else:
                 url_list.append(value_url)
+        
+    #print('url_list',url_list)
         
     # 2 Create an empty forest F. Vertices in the trees of this forest 
     # represent the subjects described by the current row.
@@ -4213,7 +4951,7 @@ def generate_nested_objects(
                             
                         else:
                             
-                            roots=[node for node in tree for tree in forest
+                            roots=[node for node in tree['nodes'] for tree in forest
                                    if node['root']==True]
                             Ms=[node for node in roots if 
                                 node['object_']==object2_]
@@ -4255,11 +4993,18 @@ def generate_nested_objects(
     #     is replaced by object Si thus creating a nested object.
     
     forest_nodes=[node for tree in forest for node in tree['nodes']]
+    #print('--len(forest_nodes)',len(forest_nodes))
+    
     forest_edges=[edge for tree in forest for edge in tree['edges']]
+    #print('--len(forest_edges)',len(forest_edges))
     
     for object_ in sequence_of_objects:
+        #print("--object_.get('@id',None)", object_.get('@id',None))
         
         M=[node for node in forest_nodes if node['object_']==object_][0]
+        
+        #print("--M['id_']", M['id_'])
+        #print("--M['object_']", M['object_'])
         
         NM_edges=[edge for edge in forest_edges if edge[1]==M]
     
@@ -4269,12 +5014,21 @@ def generate_nested_objects(
             
             N=NM_edge[0]
             
-            N['object_']['valueURL']=M['object_']
+            #print("--N['id_']", N['id_'])
+            
+            M['root']=False
+            
+            for k, v in N['object_'].items():
+                
+                if v==M['id_']:
+                    
+                    N['object_'][k]=M['object_']
             
     # 5 Return the sequence of root objects, SR1 to SRm.
     
     sequence_of_root_objects=[]
     
+    forest_nodes=[node for tree in forest for node in tree['nodes']]
     roots=[node for node in forest_nodes if node['root']==True]
     
     for root in roots:

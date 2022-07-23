@@ -373,7 +373,150 @@ class TestSection6_4_2_Formats_for_numeric_type(unittest.TestCase):
         
         #print(result)
         
+    
+#%% Section 6.4.4. Formats for dates and times
+
+class TestSection6_4_4_Formats_for_dates_and_times(unittest.TestCase):
+    ""
+
+    def test_get_timezone_format(self):
+        ""
         
+        self.assertEqual(
+            csvw_functions.get_timezone_format('yyyy-MM-ddXX'),
+            ('XX', '')
+            )
+        
+        self.assertEqual(
+            csvw_functions.get_timezone_format('yyyy-MM-dd x'),
+            ('x', ' ')
+            )
+        
+        
+    def test_parse_date(self):
+        ""
+        
+        self.assertEqual(
+            csvw_functions.parse_date(
+                string_value='2022-07-20',
+                datatype_base='date',
+                datatype_format='yyyy-MM-dd',
+                errors=[]),
+            ('2022-07-20', 'date', [])
+            )
+    
+        self.assertEqual(
+            csvw_functions.parse_date(
+                string_value='20-07-2022',
+                datatype_base='date',
+                datatype_format='dd-MM-yyyy',
+                errors=[]),
+            ('2022-07-20', 'date', [])
+            )
+        
+        self.assertEqual(
+            csvw_functions.parse_date(
+                string_value='2022-07-20Z',
+                datatype_base='date',
+                datatype_format='yyyy-MM-ddX',
+                errors=[]),
+            ('2022-07-20+00:00', 'date', [])
+            )
+    
+        self.assertEqual(
+            csvw_functions.parse_date(
+                string_value='2022-07-20+0100',
+                datatype_base='date',
+                datatype_format='yyyy-MM-ddXX',
+                errors=[]),
+            ('2022-07-20+01:00', 'date', [])
+            )
+    
+    
+    def test_parse_time(self):
+        ""
+        
+        self.assertEqual(
+            csvw_functions.parse_time(
+                string_value='12:13:14',
+                datatype_base='time',
+                datatype_format='HH:mm:ss',
+                errors=[]),
+            ('12:13:14', 'time', [])
+            )
+        
+        self.assertEqual(
+            csvw_functions.parse_time(
+                string_value='121314',
+                datatype_base='time',
+                datatype_format='HHmmss',
+                errors=[]),
+            ('12:13:14', 'time', [])
+            )
+        
+        self.assertEqual(
+            csvw_functions.parse_time(
+                string_value='12:13:14.5',
+                datatype_base='time',
+                datatype_format='HH:mm:ss.S',
+                errors=[]),
+            ('12:13:14.5', 'time', [])
+            )
+        
+        self.assertEqual(
+            csvw_functions.parse_time(
+                string_value='12:13:14.55',
+                datatype_base='time',
+                datatype_format='HH:mm:ss.S',
+                errors=[]),
+            ('12:13:14.6', 'time', [])
+            )
+        
+        self.assertEqual(
+            csvw_functions.parse_time(
+                string_value='12:13:14Z',
+                datatype_base='time',
+                datatype_format='HH:mm:ssX',
+                errors=[]),
+            ('12:13:14+00:00', 'time', [])
+            )
+    
+        self.assertEqual(
+            csvw_functions.parse_time(
+                string_value='12:13:14.5Z',
+                datatype_base='time',
+                datatype_format='HH:mm:ss.SX',
+                errors=[]),
+            ('12:13:14.5+00:00', 'time', [])
+            )
+        
+        
+    def test_parse_datetime(self):
+        ""
+        self.assertEqual(
+            csvw_functions.parse_datetime(
+                string_value='2022-07-20T01:02:03',
+                datatype_base='datetime',
+                datatype_format='yyyy-MM-ddTHH:mm:ss',
+                errors=[]),
+            ('2022-07-20T01:02:03', 'datetime', [])
+            )
+        self.assertEqual(
+            csvw_functions.parse_datetime(
+                string_value='2022-07-20 01:02:03',
+                datatype_base='datetime',
+                datatype_format='yyyy-MM-dd HH:mm:ss',
+                errors=[]),
+            ('2022-07-20T01:02:03', 'datetime', [])
+            )
+        self.assertEqual(
+            csvw_functions.parse_datetime(
+                string_value='2022-07-20T01:02:03Z',
+                datatype_base='datetime',
+                datatype_format='yyyy-MM-ddTHH:mm:ssX',
+                errors=[]),
+            ('2022-07-20T01:02:03+00:00', 'datetime', [])
+            )
         
 
 #%% Section 8 - Parsing Tabular Data
@@ -1475,7 +1618,46 @@ class TestSection5_3_1(unittest.TestCase):
             'http://example.org/event/2010-10-18'
             )
         
+#%% Section 5.5.2. (Foreign Keys) Examples
 
+class TestXSection5_5_2(unittest.TestCase):
+    ""
+    
+    def test_section_5_5_2_example_27(self):
+        ""
+        logging.info('TEST: test_section_5_5_2_example_27')
+        
+        json_fp=r'metadata_vocabulary_example_files/example_27.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dicts=annotated_table_group_dict['tables']
+        
+        #---check first table---
+        # url
+        print(os.path.basename(annotated_table_dicts[0]['url']))
+        self.assertEqual(
+            os.path.basename(annotated_table_dicts[0]['url']),
+            'countries.csv'
+            )
+        # primary key of first row
+        print(annotated_table_dicts[0]['rows'][0]['primaryKey'][0]['stringValue'])
+        self.assertEqual(
+            annotated_table_dicts[0]['rows'][0]['primaryKey'][0]['stringValue'],
+            'AD'
+            )
+        
+        #---check second table---
+        # url
+        print(os.path.basename(annotated_table_dicts[1]['url']))
+        self.assertEqual(
+            os.path.basename(annotated_table_dicts[1]['url']),
+            'country_slice.csv'
+            )
+        
+        # CONTINUE HERE
+        
 
 #%% 6. Normalization
 
@@ -1988,7 +2170,7 @@ class TestSection6(unittest.TestCase):
              {'@value': '<Point><coordinates>-122.156299,37.441151</coordinates></Point>', '@type': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral', '@language': 'und'}
              ]
             )
-        # property url
+        # about url
         self.assertEqual(
             [cell['aboutURL'] for cell in annotated_cells_list],
             ['http://example.org/tree-ops-ext#gid-1', 
@@ -2088,8 +2270,463 @@ class TestSection6(unittest.TestCase):
                               for row in annotated_rows_list 
                               for cell in row['cells']]
                 
-
-
+        #---check annotated table---
+        # url
+        self.assertEqual(
+            os.path.basename(annotated_table_dict['url']),
+            'events-listing.csv'
+            )
+        self.assertEqual(
+            len(annotated_table_dict['columns']),
+            10
+            )
+        self.assertEqual(
+            len(annotated_table_dict['rows']),
+            2
+            )
+        
+        #---check annotated columns---
+        # number
+        self.assertEqual(
+            [column['number'] for column in annotated_columns_list],
+            [1,2,3,4,5,6,7,8,9,10]
+            )
+        # source number
+        self.assertEqual(
+            [column['sourceNumber'] for column in annotated_columns_list],
+            [1,2,3,4,5,None,None,None,None,None]  # source numbers for virtual columns set to None -- different from example
+            )
+        # number of cells
+        self.assertEqual(
+            [len(column['cells']) for column in annotated_columns_list],
+            [2,2,2,2,2,2,2,2,2,2]
+            )
+        # name
+        #print([column['name'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['name'] for column in annotated_columns_list],
+            ['name', 
+             'start_date', 
+             'location_name', 
+             'location_address', 
+             'ticket_url', 
+             'type_event', 
+             'type_place', 
+             'type_offer', 
+             'location', 
+             'offers']
+            )
+        # title
+        #print([column['titles'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['titles'] for column in annotated_columns_list],
+            [[{'@value': 'Name', '@language': 'en'}], 
+             [{'@value': 'Start Date', '@language': 'en'}], 
+             [{'@value': 'Location Name', '@language': 'en'}], 
+             [{'@value': 'Location Address', '@language': 'en'}], 
+             [{'@value': 'Ticket Url', '@language': 'en'}], 
+             [], 
+             [], 
+             [], 
+             [], 
+             []]
+            )
+        # virtual
+        #print([column['virtual'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['virtual'] for column in annotated_columns_list],
+            [False, False, False, False, False, True, True, True, True, True]
+            )
+        
+        #---check annotated rows---
+        # number
+        self.assertEqual(
+            [row['number'] for row in annotated_rows_list],
+            [1,2]
+            )
+        # source number
+        self.assertEqual(
+            [row['sourceNumber'] for row in annotated_rows_list],
+            [2,3]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(row['cells']) for row in annotated_rows_list],
+            [10,10]
+            )
+        
+        #---check annotated cells---
+        # column number
+        #print([cell['column']['number'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['column']['number'] for cell in annotated_cells_list],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            )
+        # row number
+        #print([cell['row']['number'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['row']['number'] for cell in annotated_cells_list],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+            )
+        # string value
+        #print([cell['stringValue'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['stringValue'] for cell in annotated_cells_list],
+            ['B.B. King', 
+             '2014-04-12T19:30', 
+             'Lupoâ€™s Heartbreak Hotel', 
+             '79 Washington St., Providence, RI', 
+             'https://www.etix.com/ticket/1771656', 
+             '', 
+             '', 
+             '', 
+             '', 
+             '', 
+             'B.B. King', 
+             '2014-04-13T20:00', 
+             'Lynn Auditorium', 
+             'Lynn, MA, 01901', 
+             'http://frontgatetickets.com/venue.php?id=11766', 
+             '', 
+             '', 
+             '', 
+             '', 
+             '']
+            )
+        # value
+        #print([cell['value'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['value'] for cell in annotated_cells_list],
+            [{'@value': 'B.B. King', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2014-04-12T19:30:00', '@type': 'http://www.w3.org/2001/XMLSchema#dateTime'}, 
+             {'@value': 'Lupoâ€™s Heartbreak Hotel', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '79 Washington St., Providence, RI', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'https://www.etix.com/ticket/1771656', '@type': 'http://www.w3.org/2001/XMLSchema#anyURI', '@language': 'und'}, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             {'@value': 'B.B. King', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '2014-04-13T20:00:00', '@type': 'http://www.w3.org/2001/XMLSchema#dateTime'}, 
+             {'@value': 'Lynn Auditorium', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Lynn, MA, 01901', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'http://frontgatetickets.com/venue.php?id=11766', '@type': 'http://www.w3.org/2001/XMLSchema#anyURI', '@language': 'und'}, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None]
+            )
+        # about url
+        #print([os.path.basename(cell['aboutURL']) for cell in annotated_cells_list])
+        self.assertEqual(
+            [os.path.basename(cell['aboutURL']) for cell in annotated_cells_list],
+            ['events-listing.csv#event-1', 
+             'events-listing.csv#event-1', 
+             'events-listing.csv#place-1', 
+             'events-listing.csv#place-1', 
+             'events-listing.csv#offer-1', 
+             'events-listing.csv#event-1', 
+             'events-listing.csv#place-1', 
+             'events-listing.csv#offer-1', 
+             'events-listing.csv#event-1', 
+             'events-listing.csv#event-1', 
+             'events-listing.csv#event-2', 
+             'events-listing.csv#event-2', 
+             'events-listing.csv#place-2', 
+             'events-listing.csv#place-2', 
+             'events-listing.csv#offer-2', 
+             'events-listing.csv#event-2', 
+             'events-listing.csv#place-2', 
+             'events-listing.csv#offer-2', 
+             'events-listing.csv#event-2', 
+             'events-listing.csv#event-2']
+            )
+        # property url
+        #print([cell['propertyURL'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['propertyURL'] for cell in annotated_cells_list],
+            ['http://schema.org/name', 
+             'http://schema.org/startDate', 
+             'http://schema.org/name', 
+             'http://schema.org/address', 
+             'http://schema.org/url', 
+             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 
+             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 
+             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 
+             'http://schema.org/location', 
+             'http://schema.org/offers', 
+             'http://schema.org/name', 
+             'http://schema.org/startDate', 
+             'http://schema.org/name', 
+             'http://schema.org/address', 
+             'http://schema.org/url', 
+             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 
+             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 
+             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 
+             'http://schema.org/location', 
+             'http://schema.org/offers']
+            )
+        # value url
+        # print([os.path.basename(cell['valueURL']) 
+        #        if (not cell['valueURL'] is None and cell['valueURL'].startswith('C:'))
+        #        else cell['valueURL']
+        #        for cell in annotated_cells_list])
+        self.assertEqual(
+            [os.path.basename(cell['valueURL']) 
+                   if (not cell['valueURL'] is None and cell['valueURL'].startswith('C:'))
+                   else cell['valueURL']
+                   for cell in annotated_cells_list],
+            [None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://schema.org/MusicEvent', 
+             'http://schema.org/Place', 
+             'http://schema.org/Offer', 
+             'events-listing.csv#place-1',  # basename
+             'events-listing.csv#offer-1',  # basename 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://schema.org/MusicEvent', 
+             'http://schema.org/Place', 
+             'http://schema.org/Offer', 
+             'events-listing.csv#place-2',  # basename 
+             'events-listing.csv#offer-2'  # basename
+             ]
+            )
+        
+        # minimal mode
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal'
+                    )
+        #print(json_ld)
+        
+        #--check first item--
+        # keys of object
+        #print(list(json_ld[0].keys()))
+        self.assertEqual(
+            list(json_ld[0].keys()),
+            ['@id', 
+             'schema:name', 
+             'schema:startDate', 
+             '@type', 
+             'schema:location', 
+             'schema:offers']
+            )
+        # @id
+        #print(os.path.basename(json_ld[0]['@id']))
+        self.assertEqual(
+            os.path.basename(json_ld[0]['@id']),
+            'events-listing.csv#event-1'
+            )
+        # @type
+        #print(json_ld[0]['@type'])
+        self.assertEqual(
+            json_ld[0]['@type'],
+            'schema:MusicEvent'
+            )
+        # schema:name
+        #print(json_ld[0]['schema:name'])
+        self.assertEqual(
+            json_ld[0]['schema:name'],
+            'B.B. King'
+            )
+        # schema:startDate
+        #print(json_ld[0]['schema:startDate'])
+        self.assertEqual(
+            json_ld[0]['schema:startDate'],
+            '2014-04-12T19:30:00'
+            )
+        
+        # schema:location[@id]
+        #print(os.path.basename(json_ld[0]['schema:location']['@id']))
+        self.assertEqual(
+            os.path.basename(json_ld[0]['schema:location']['@id']),
+            'events-listing.csv#place-1'
+            )
+        # schema:location[schema:name]
+        #print(json_ld[0]['schema:location']['schema:name'])
+        self.assertEqual(
+            json_ld[0]['schema:location']['schema:name'],
+            'Lupoâ€™s Heartbreak Hotel'
+            )
+        # schema:location[schema:address]
+        #print(json_ld[0]['schema:location']['schema:address'])
+        self.assertEqual(
+            json_ld[0]['schema:location']['schema:address'],
+            '79 Washington St., Providence, RI'
+            )
+        # schema:location[@type]
+        #print(json_ld[0]['schema:location']['@type'])
+        self.assertEqual(
+            json_ld[0]['schema:location']['@type'],
+            'schema:Place'
+            )
+        # schema:offers[@id]
+        #print(os.path.basename(json_ld[0]['schema:offers']['@id']))
+        self.assertEqual(
+            os.path.basename(json_ld[0]['schema:offers']['@id']),
+            'events-listing.csv#offer-1'
+            )
+        # schema:offers[schema:url]   # NOTE: DIFFERENT FROM EXAMPLE SOLUTION
+        #print(json_ld[0]['schema:offers']['schema:url'])
+        self.assertEqual(
+            json_ld[0]['schema:offers']['schema:url'],
+            'https://www.etix.com/ticket/1771656'
+            )
+        # schema:offers[@type]
+        #print(json_ld[0]['schema:offers']['@type'])
+        self.assertEqual(
+            json_ld[0]['schema:offers']['@type'],
+            'schema:Offer'
+            )
+        
+        #--check second item--
+        # keys of object
+        #print(list(json_ld[1].keys()))
+        self.assertEqual(
+            list(json_ld[1].keys()),
+            ['@id', 
+             'schema:name', 
+             'schema:startDate', 
+             '@type', 
+             'schema:location', 
+             'schema:offers']
+            )
+        # @id
+        #print(os.path.basename(json_ld[1]['@id']))
+        self.assertEqual(
+            os.path.basename(json_ld[1]['@id']),
+            'events-listing.csv#event-2'
+            )
+        # @type
+        #print(json_ld[1]['@type'])
+        self.assertEqual(
+            json_ld[1]['@type'],
+            'schema:MusicEvent'
+            )
+        # schema:name
+        #print(json_ld[1]['schema:name'])
+        self.assertEqual(
+            json_ld[1]['schema:name'],
+            'B.B. King'
+            )
+        # schema:startDate
+        #print(json_ld[1]['schema:startDate'])
+        self.assertEqual(
+            json_ld[1]['schema:startDate'],
+            '2014-04-13T20:00:00'
+            )
+        
+        # schema:location[@id]
+        #print(os.path.basename(json_ld[1]['schema:location']['@id']))
+        self.assertEqual(
+            os.path.basename(json_ld[1]['schema:location']['@id']),
+            'events-listing.csv#place-2'
+            )
+        # schema:location[schema:name]
+        #print(json_ld[1]['schema:location']['schema:name'])
+        self.assertEqual(
+            json_ld[1]['schema:location']['schema:name'],
+            'Lynn Auditorium'
+            )
+        # schema:location[schema:address]
+        #print(json_ld[1]['schema:location']['schema:address'])
+        self.assertEqual(
+            json_ld[1]['schema:location']['schema:address'],
+            'Lynn, MA, 01901'
+            )
+        # schema:location[@type]
+        #print(json_ld[1]['schema:location']['@type'])
+        self.assertEqual(
+            json_ld[1]['schema:location']['@type'],
+            'schema:Place'
+            )
+        # schema:offers[@id]
+        #print(os.path.basename(json_ld[1]['schema:offers']['@id']))
+        self.assertEqual(
+            os.path.basename(json_ld[1]['schema:offers']['@id']),
+            'events-listing.csv#offer-2'
+            )
+        # schema:offers[schema:url]   # NOTE: DIFFERENT FROM EXAMPLE SOLUTION
+        #print(json_ld[1]['schema:offers']['schema:url'])
+        self.assertEqual(
+            json_ld[1]['schema:offers']['schema:url'],
+            'http://frontgatetickets.com/venue.php?id=11766'
+            )
+        # schema:offers[@type]
+        #print(json_ld[1]['schema:offers']['@type'])
+        self.assertEqual(
+            json_ld[1]['schema:offers']['@type'],
+            'schema:Offer'
+            )
+        
+        
+    def test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables(self):
+        ""
+        logging.info('TEST: test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
+        
+        fp=r'generating_json_from_tabular_data_example_files/csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(fp)
+        
+        annotated_table_dicts=annotated_table_group_dict['tables']
+        annotated_columns_list=[annotated_column_dict 
+                                for annotated_table_dict in annotated_table_dicts
+                                for annotated_column_dict in annotated_table_dict['columns']]
+        annotated_rows_list=[annotated_row_dict 
+                             for annotated_table_dict in annotated_table_dicts
+                             for annotated_row_dict in annotated_table_dict['rows']]
+        annotated_cells_list=[cell 
+                              for row in annotated_rows_list 
+                              for cell in row['cells']]
+        
+        #---check annotated table group
+        # number of tables
+        self.assertEqual(
+            len(annotated_table_group_dict['tables']),
+            4
+            )
+        
+        #---check annotated tables---
+        # url
+        #print([os.path.basename(x['url']) for x in annotated_table_dicts])
+        self.assertEqual(
+            [os.path.basename(x['url']) for x in annotated_table_dicts],
+            ['organizations.csv', 
+             'professions.csv', 
+             'senior-roles.csv', 
+             'junior-roles.csv']
+            )
+        # number of columns
+        #print([len(x['columns']) for x in annotated_table_dicts])
+        self.assertEqual(
+            [len(x['columns']) for x in annotated_table_dicts],
+            [3, 1, 8, 8]  # NOTE DIFFERENT FROM EXAMPLE SOLUTION
+            )
+        # number of rows
+        #print([len(x['rows']) for x in annotated_table_dicts])
+        self.assertEqual(
+            [len(x['rows']) for x in annotated_table_dicts],
+            [2, 4, 2, 2]
+            )
+        # suppress Output
+        #print([x['suppressOutput'] for x in annotated_table_dicts])
+        self.assertEqual(
+            [x['suppressOutput'] for x in annotated_table_dicts],
+            [True, True, False, False]
+            )
+        # foreign keys
+        #print([len(x['foreignKeys']) for x in annotated_table_dicts])
+        
 
 #%% TESTS - General Functions
 
