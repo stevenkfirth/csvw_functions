@@ -1,5 +1,22 @@
-# -*- coding: utf-8 -*-
+# csvw_functions
+#
+# A Python implementation of the set of W3C Standards on CSV on the Web (CSVW).
+#
+# This Python package implements the following standards:
+# - Model for Tabular Data and Metadata on the Web
+# - Metadata Vocabulary for Tabular Data
+# - Generating JSON from Tabular Data on the Web
+# - Generating RDF from Tabular Data on the Web
+#
+# These standards are all available via the CSV on the Web: A Primer
+# document here: https://www.w3.org/TR/tabular-data-primer/
+#
+# In this Python package the algorithms and processes of the CSVW standards
+# are implemented as a series of Python functions.
+#
 
+
+#%% ---Package imports---
 
 import json
 import pkg_resources
@@ -12,234 +29,15 @@ import datetime
 import langcodes
 import uritemplate
 import warnings
-
 import logging
 
 
-#%% read metadata schemas
+#%% ---TOP LEVEL FUNCTIONS---
+#
+# These functions are the main functions for users.
+# They can be used to extract metatdata, validate data files and metadata 
+# files, and convert CSVW data into other formats.
 
-schemas={}
-
-metadata_schema_files=[
-    'column_description.schema.json', 
-    'common_properties.schema.json', 
-    'datatype_description.schema.json', 
-    'dialect_description.schema.json', 
-    'foreign_key_definition.schema.json', 
-    'foreign_key_reference.schema.json', 
-    'inherited_properties.schema.json', 
-    'number_format.schema.json', 
-    'schema_description.schema.json', 
-    'table_description.schema.json', 
-    'table_group_description.schema.json', 
-    'top_level_properties.schema.json', 
-    'transformation_definition.schema.json'
-    ]
-
-for schema_file in metadata_schema_files:
-    resource_package = __name__
-    resource_path = '/'.join(('metadata_schema_files', schema_file))  
-    data = pkg_resources.resource_string(resource_package, resource_path)
-    json_dict=json.loads(data)
-    schemas[schema_file]=json_dict
-    
-    
-#%% identify metadata schema properties
-    
-top_level_properties=schemas['top_level_properties.schema.json']['properties']
-inherited_properties=schemas['inherited_properties.schema.json']['properties']
-
-all_optional_and_required_properties={}
-for schema_name,schema in schemas.items():
-    if not schema_name in ['top_level_properties.schema.json',
-                           'inherited_properties.schema.json',
-                           'common_properties.schema.json']:
-        all_optional_and_required_properties.update(schema['properties'])
-
-all_properties={
-    **top_level_properties,
-    **inherited_properties,
-    **all_optional_and_required_properties
-    }
-    
-#%% read annotated schemas
-
-annotated_schema_files=[
-    'annotated_cell.schema.json', 
-    'annotated_column.schema.json', 
-    'annotated_datatype.schema.json', 
-    'annotated_row.schema.json', 
-    'annotated_table.schema.json', 
-    'annotated_table_group.schema.json', 
-    ]
-
-for schema_file in annotated_schema_files:
-    resource_package = __name__
-    resource_path = '/'.join(('model_schema_files', schema_file))  
-    data = pkg_resources.resource_string(resource_package, resource_path)
-    json_dict=json.loads(data)
-    schemas[schema_file]=json_dict
-    
-
-
-#%% schema prefixes
-
-prefixes=\
-    {
-    "as": "https://www.w3.org/ns/activitystreams#",
-    "cc": "http://creativecommons.org/ns#",
-    "csvw": "http://www.w3.org/ns/csvw#",
-    "ctag": "http://commontag.org/ns#",
-    "dc": "http://purl.org/dc/terms/",
-    "dc11": "http://purl.org/dc/elements/1.1/",
-    "dcat": "http://www.w3.org/ns/dcat#",
-    "dcterms": "http://purl.org/dc/terms/",
-    "dqv": "http://www.w3.org/ns/dqv#",
-    "duv": "https://www.w3.org/ns/duv#",
-    "foaf": "http://xmlns.com/foaf/0.1/",
-    "gr": "http://purl.org/goodrelations/v1#",
-    "grddl": "http://www.w3.org/2003/g/data-view#",
-    "ical": "http://www.w3.org/2002/12/cal/icaltzd#",
-    "jsonld": "http://www.w3.org/ns/json-ld#",
-    "ldp": "http://www.w3.org/ns/ldp#",
-    "ma": "http://www.w3.org/ns/ma-ont#",
-    "oa": "http://www.w3.org/ns/oa#",
-    "odrl": "http://www.w3.org/ns/odrl/2/",
-    "og": "http://ogp.me/ns#",
-    "org": "http://www.w3.org/ns/org#",
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "prov": "http://www.w3.org/ns/prov#",
-    "qb": "http://purl.org/linked-data/cube#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "rdfa": "http://www.w3.org/ns/rdfa#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "rev": "http://purl.org/stuff/rev#",
-    "rif": "http://www.w3.org/2007/rif#",
-    "rr": "http://www.w3.org/ns/r2rml#",
-    "schema": "http://schema.org/",
-    "sd": "http://www.w3.org/ns/sparql-service-description#",
-    "sioc": "http://rdfs.org/sioc/ns#",
-    "skos": "http://www.w3.org/2004/02/skos/core#",
-    "skosxl": "http://www.w3.org/2008/05/skos-xl#",
-    "sosa": "http://www.w3.org/ns/sosa/",
-    "ssn": "http://www.w3.org/ns/ssn/",
-    "time": "http://www.w3.org/2006/time#",
-    "v": "http://rdf.data-vocabulary.org/#",
-    "vcard": "http://www.w3.org/2006/vcard/ns#",
-    "void": "http://rdfs.org/ns/void#",
-    "wdr": "http://www.w3.org/2007/05/powder#",
-    "wdrs": "http://www.w3.org/2007/05/powder-s#",
-    "xhv": "http://www.w3.org/1999/xhtml/vocab#",
-    "xml": "http://www.w3.org/XML/1998/namespace",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "describedby": "http://www.w3.org/2007/05/powder-s#describedby",
-    "license": "http://www.w3.org/1999/xhtml/vocab#license",
-    "role": "http://www.w3.org/1999/xhtml/vocab#role"
-  }
-
-
-#%% datatypes
-
-# Metadata Section 5.11.1
-datatypes={
-    'anyAtomicType':'http://www.w3.org/2001/XMLSchema#anyAtomicType',
-    'anyURI':'http://www.w3.org/2001/XMLSchema#anyURI',
-    'base64Binary':'http://www.w3.org/2001/XMLSchema#base64Binary',
-    'boolean':'http://www.w3.org/2001/XMLSchema#boolean',
-    'date':'http://www.w3.org/2001/XMLSchema#date',
-    'dateTime':'http://www.w3.org/2001/XMLSchema#dateTime',
-    'dateTimeStamp':'http://www.w3.org/2001/XMLSchema#dateTimeStamp',
-    'decimal':'http://www.w3.org/2001/XMLSchema#decimal',
-    'integer':'http://www.w3.org/2001/XMLSchema#integer',
-    'long':'http://www.w3.org/2001/XMLSchema#long',
-    'int':'http://www.w3.org/2001/XMLSchema#int',
-    'short':'http://www.w3.org/2001/XMLSchema#short',
-    'byte':'http://www.w3.org/2001/XMLSchema#byte',
-    'nonNegativeInteger':'http://www.w3.org/2001/XMLSchema#nonNegativeInteger',
-    'postiveInteger':'http://www.w3.org/2001/XMLSchema#positiveInteger',
-    'unsignedLong':'http://www.w3.org/2001/XMLSchema#unsignedLong',
-    'unsignedInt':'http://www.w3.org/2001/XMLSchema#unsignedInt',
-    'unsignedShort':'http://www.w3.org/2001/XMLSchema#UnsignedShort',
-    'unsignedByte':'http://www.w3.org/2001/XMLSchema#unsignedByte',
-    'nonPositiveInteger':'http://www.w3.org/2001/XMLSchema#nonPositiveInteger',
-    'negativeInteger':'http://www.w3.org/2001/XMLSchema#negativeInteger',
-    'double':'http://www.w3.org/2001/XMLSchema#double',
-    'duration':'http://www.w3.org/2001/XMLSchema#duration',
-    'dayTimeDuration':'http://www.w3.org/2001/XMLSchema#dayTimeDuration',
-    'yearMonthDuration':'http://www.w3.org/2001/XMLSchema#yearMonthDuration',
-    'float':'http://www.w3.org/2001/XMLSchema#float',
-    'gDay':'http://www.w3.org/2001/XMLSchema#gDay',
-    'gMonth':'http://www.w3.org/2001/XMLSchema#gMonth',
-    'gYear':'http://www.w3.org/2001/XMLSchema#gYear',
-    'gYearMonth':'http://www.w3.org/2001/XMLSchema#gYearMonth',
-    'hexBinary':'http://www.w3.org/2001/XMLSchema#hexBinary',
-    'QName':'http://www.w3.org/2001/XMLSchema#QName',
-    'string':'http://www.w3.org/2001/XMLSchema#string',
-    'normalizedString':'http://www.w3.org/2001/XMLSchema#normalisedString',
-    'token':'http://www.w3.org/2001/XMLSchema#token',
-    'language':'http://www.w3.org/2001/XMLSchema#language',
-    'Name':'http://www.w3.org/2001/XMLSchema#Name',
-    'NMTOKEN':'http://www.w3.org/2001/XMLSchema#NMTOKEN',
-    'xml':'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral',  #  indicates the value is an XML fragment
-    'html':'http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML',  #  indicates the value is an HTML fragment
-    'json':'http://www.w3.org/ns/csvw#JSON',  # indicates the value is serialized JSON
-    'time':'http://www.w3.org/2001/XMLSchema#time'
-    }
-
-datatypes['number']=datatypes['double']
-datatypes['binary']=datatypes['base64Binary']
-datatypes['datetime']=datatypes['dateTime']
-datatypes['any']=datatypes['anyAtomicType']
-
-
-# lists of datatype collections
-
-datatypes_tokens=[
-    'token',
-    'language',
-    'Name',
-    'NMTOKEN'
-    ]
-
-datatypes_normalizedStrings=['normalizedString']+datatypes_tokens
-
-datatypes_strings=['string']+datatypes_normalizedStrings+['xml','html','json'] 
-
-datatypes_longs=['long','int','short','byte']
-datatypes_nonNegativeIntegers=['nonNegativeInteger',
-                               'positiveInteger',
-                               'unsignedLong',
-                               'unsingedInt',
-                               'unsingedShort',
-                               'unsingedByte'
-                               ]
-datatypes_nonPositiveIntegers=['nonPositiveInteger',
-                              'negativeInteger']
-datatypes_integers=(['integer']
-                    +datatypes_longs
-                    +datatypes_nonNegativeIntegers
-                    +datatypes_nonPositiveIntegers)
-datatypes_decimals=(['decimal']
-                    +datatypes_integers)
-datatypes_numbers=['double','number']+datatypes_decimals
-
-datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
-
-
-
-
-#%% custom exceptions and warnings
-
-class ValidationError(Exception):
-    ""
-    
-    
-class ValidationWarning(Warning):
-    ""
-
-
-
-#%% FUNCTIONS - Top Level Functions
 
 def get_embedded_metadata_from_csv(
         csv_file_path_or_url,
@@ -591,11 +389,240 @@ def convert_annotated_table_group_to_rdf(
     """
     
 
-    
-    
-#%% FUNCTIONS - Model for Tabular Data and Metadata
 
-#%% Section 5 - Locating Metadata
+
+#%% ---Module Level Variables---
+
+# Metadata Schemas
+
+schemas={}
+
+metadata_schema_files=[
+    'column_description.schema.json', 
+    'common_properties.schema.json', 
+    'datatype_description.schema.json', 
+    'dialect_description.schema.json', 
+    'foreign_key_definition.schema.json', 
+    'foreign_key_reference.schema.json', 
+    'inherited_properties.schema.json', 
+    'number_format.schema.json', 
+    'schema_description.schema.json', 
+    'table_description.schema.json', 
+    'table_group_description.schema.json', 
+    'top_level_properties.schema.json', 
+    'transformation_definition.schema.json'
+    ]
+
+for schema_file in metadata_schema_files:
+    resource_package = __name__
+    resource_path = '/'.join(('metadata_schema_files', schema_file))  
+    data = pkg_resources.resource_string(resource_package, resource_path)
+    json_dict=json.loads(data)
+    schemas[schema_file]=json_dict
+    
+    
+# Metadata Schema Properties
+    
+top_level_properties=schemas['top_level_properties.schema.json']['properties']
+inherited_properties=schemas['inherited_properties.schema.json']['properties']
+
+all_optional_and_required_properties={}
+for schema_name,schema in schemas.items():
+    if not schema_name in ['top_level_properties.schema.json',
+                           'inherited_properties.schema.json',
+                           'common_properties.schema.json']:
+        all_optional_and_required_properties.update(schema['properties'])
+
+all_properties={
+    **top_level_properties,
+    **inherited_properties,
+    **all_optional_and_required_properties
+    }
+    
+
+# Annotated Schemas
+
+annotated_schema_files=[
+    'annotated_cell.schema.json', 
+    'annotated_column.schema.json', 
+    'annotated_datatype.schema.json', 
+    'annotated_row.schema.json', 
+    'annotated_table.schema.json', 
+    'annotated_table_group.schema.json', 
+    ]
+
+for schema_file in annotated_schema_files:
+    resource_package = __name__
+    resource_path = '/'.join(('model_schema_files', schema_file))  
+    data = pkg_resources.resource_string(resource_package, resource_path)
+    json_dict=json.loads(data)
+    schemas[schema_file]=json_dict
+    
+
+
+# Schema Prefixes
+
+prefixes=\
+    {
+    "as": "https://www.w3.org/ns/activitystreams#",
+    "cc": "http://creativecommons.org/ns#",
+    "csvw": "http://www.w3.org/ns/csvw#",
+    "ctag": "http://commontag.org/ns#",
+    "dc": "http://purl.org/dc/terms/",
+    "dc11": "http://purl.org/dc/elements/1.1/",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "dqv": "http://www.w3.org/ns/dqv#",
+    "duv": "https://www.w3.org/ns/duv#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "gr": "http://purl.org/goodrelations/v1#",
+    "grddl": "http://www.w3.org/2003/g/data-view#",
+    "ical": "http://www.w3.org/2002/12/cal/icaltzd#",
+    "jsonld": "http://www.w3.org/ns/json-ld#",
+    "ldp": "http://www.w3.org/ns/ldp#",
+    "ma": "http://www.w3.org/ns/ma-ont#",
+    "oa": "http://www.w3.org/ns/oa#",
+    "odrl": "http://www.w3.org/ns/odrl/2/",
+    "og": "http://ogp.me/ns#",
+    "org": "http://www.w3.org/ns/org#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "qb": "http://purl.org/linked-data/cube#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfa": "http://www.w3.org/ns/rdfa#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rev": "http://purl.org/stuff/rev#",
+    "rif": "http://www.w3.org/2007/rif#",
+    "rr": "http://www.w3.org/ns/r2rml#",
+    "schema": "http://schema.org/",
+    "sd": "http://www.w3.org/ns/sparql-service-description#",
+    "sioc": "http://rdfs.org/sioc/ns#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "skosxl": "http://www.w3.org/2008/05/skos-xl#",
+    "sosa": "http://www.w3.org/ns/sosa/",
+    "ssn": "http://www.w3.org/ns/ssn/",
+    "time": "http://www.w3.org/2006/time#",
+    "v": "http://rdf.data-vocabulary.org/#",
+    "vcard": "http://www.w3.org/2006/vcard/ns#",
+    "void": "http://rdfs.org/ns/void#",
+    "wdr": "http://www.w3.org/2007/05/powder#",
+    "wdrs": "http://www.w3.org/2007/05/powder-s#",
+    "xhv": "http://www.w3.org/1999/xhtml/vocab#",
+    "xml": "http://www.w3.org/XML/1998/namespace",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "describedby": "http://www.w3.org/2007/05/powder-s#describedby",
+    "license": "http://www.w3.org/1999/xhtml/vocab#license",
+    "role": "http://www.w3.org/1999/xhtml/vocab#role"
+  }
+
+
+# Datatypes
+
+# Metadata Section 5.11.1
+datatypes={
+    'anyAtomicType':'http://www.w3.org/2001/XMLSchema#anyAtomicType',
+    'anyURI':'http://www.w3.org/2001/XMLSchema#anyURI',
+    'base64Binary':'http://www.w3.org/2001/XMLSchema#base64Binary',
+    'boolean':'http://www.w3.org/2001/XMLSchema#boolean',
+    'date':'http://www.w3.org/2001/XMLSchema#date',
+    'dateTime':'http://www.w3.org/2001/XMLSchema#dateTime',
+    'dateTimeStamp':'http://www.w3.org/2001/XMLSchema#dateTimeStamp',
+    'decimal':'http://www.w3.org/2001/XMLSchema#decimal',
+    'integer':'http://www.w3.org/2001/XMLSchema#integer',
+    'long':'http://www.w3.org/2001/XMLSchema#long',
+    'int':'http://www.w3.org/2001/XMLSchema#int',
+    'short':'http://www.w3.org/2001/XMLSchema#short',
+    'byte':'http://www.w3.org/2001/XMLSchema#byte',
+    'nonNegativeInteger':'http://www.w3.org/2001/XMLSchema#nonNegativeInteger',
+    'postiveInteger':'http://www.w3.org/2001/XMLSchema#positiveInteger',
+    'unsignedLong':'http://www.w3.org/2001/XMLSchema#unsignedLong',
+    'unsignedInt':'http://www.w3.org/2001/XMLSchema#unsignedInt',
+    'unsignedShort':'http://www.w3.org/2001/XMLSchema#UnsignedShort',
+    'unsignedByte':'http://www.w3.org/2001/XMLSchema#unsignedByte',
+    'nonPositiveInteger':'http://www.w3.org/2001/XMLSchema#nonPositiveInteger',
+    'negativeInteger':'http://www.w3.org/2001/XMLSchema#negativeInteger',
+    'double':'http://www.w3.org/2001/XMLSchema#double',
+    'duration':'http://www.w3.org/2001/XMLSchema#duration',
+    'dayTimeDuration':'http://www.w3.org/2001/XMLSchema#dayTimeDuration',
+    'yearMonthDuration':'http://www.w3.org/2001/XMLSchema#yearMonthDuration',
+    'float':'http://www.w3.org/2001/XMLSchema#float',
+    'gDay':'http://www.w3.org/2001/XMLSchema#gDay',
+    'gMonth':'http://www.w3.org/2001/XMLSchema#gMonth',
+    'gYear':'http://www.w3.org/2001/XMLSchema#gYear',
+    'gYearMonth':'http://www.w3.org/2001/XMLSchema#gYearMonth',
+    'hexBinary':'http://www.w3.org/2001/XMLSchema#hexBinary',
+    'QName':'http://www.w3.org/2001/XMLSchema#QName',
+    'string':'http://www.w3.org/2001/XMLSchema#string',
+    'normalizedString':'http://www.w3.org/2001/XMLSchema#normalisedString',
+    'token':'http://www.w3.org/2001/XMLSchema#token',
+    'language':'http://www.w3.org/2001/XMLSchema#language',
+    'Name':'http://www.w3.org/2001/XMLSchema#Name',
+    'NMTOKEN':'http://www.w3.org/2001/XMLSchema#NMTOKEN',
+    'xml':'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral',  #  indicates the value is an XML fragment
+    'html':'http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML',  #  indicates the value is an HTML fragment
+    'json':'http://www.w3.org/ns/csvw#JSON',  # indicates the value is serialized JSON
+    'time':'http://www.w3.org/2001/XMLSchema#time'
+    }
+
+datatypes['number']=datatypes['double']
+datatypes['binary']=datatypes['base64Binary']
+datatypes['datetime']=datatypes['dateTime']
+datatypes['any']=datatypes['anyAtomicType']
+
+
+# lists of datatype collections
+
+datatypes_tokens=[
+    'token',
+    'language',
+    'Name',
+    'NMTOKEN'
+    ]
+
+datatypes_normalizedStrings=['normalizedString']+datatypes_tokens
+
+datatypes_strings=['string']+datatypes_normalizedStrings+['xml','html','json'] 
+
+datatypes_longs=['long','int','short','byte']
+datatypes_nonNegativeIntegers=['nonNegativeInteger',
+                               'positiveInteger',
+                               'unsignedLong',
+                               'unsingedInt',
+                               'unsingedShort',
+                               'unsingedByte'
+                               ]
+datatypes_nonPositiveIntegers=['nonPositiveInteger',
+                              'negativeInteger']
+datatypes_integers=(['integer']
+                    +datatypes_longs
+                    +datatypes_nonNegativeIntegers
+                    +datatypes_nonPositiveIntegers)
+datatypes_decimals=(['decimal']
+                    +datatypes_integers)
+datatypes_numbers=['double','number']+datatypes_decimals
+
+datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
+
+
+
+
+# Custom Exceptions and Warnings
+
+class ValidationError(Exception):
+    ""
+    
+    
+class ValidationWarning(Warning):
+    ""
+
+
+
+
+    
+    
+#%% ---Model for Tabular Data and Metadata---
+
+#%% 5 - Locating Metadata
 
 # def get_embedded_metadata_from_csv_file(
 #         csv_file_path_or_url
@@ -632,7 +659,7 @@ def convert_annotated_table_group_to_rdf(
 #     return table_description_object
     
 
-#%% Section 6.1 - Creating Annotated Tables
+#%% 6.1 - Creating Annotated Tables
 
 
 def create_annotated_tables_from_csv_file_path_or_url(
@@ -1199,7 +1226,7 @@ def create_annotated_tables_from_metadata_root_object(
     return annotated_table_group_dict
      
 
-#%% Section 6.4 - Parsing Cells
+#%% 6.4 - Parsing Cells
 
 def parse_cell(
         string_value,
@@ -1515,7 +1542,7 @@ def parse_cell_part_2(
     return json_value, language, type_, errors
 
 
-#%% Section 6.4.2 Formats for numeric type
+#%% 6.4.2 Formats for numeric type
 
 def parse_number(
         string_value,
@@ -1932,18 +1959,6 @@ def parse_number_pattern(
     print(positive_pattern.index('+'))
     print(positive_pattern.index('-'))
     
-    
-    
-    
-    
-        
-        
-        
-    
-
-    
-
-
 
 
 #%% 6.4.3 Formats for booleans
@@ -2034,7 +2049,7 @@ def parse_boolean(
 
 
 
-#%% Section 6.4.4. Formats for dates and times
+#%% 6.4.4. Formats for dates and times
 
 date_formats=[
     'yyyy-MM-dd',
@@ -2488,10 +2503,7 @@ def parse_other_types(
 
     
 
-
-
-
-#%% Section 8 - Parsing Tabular Data
+#%% 8 - Parsing Tabular Data
 
 def parse_tabular_data_from_text(
         tabular_data_text,
@@ -3243,13 +3255,11 @@ def get_column_titles_of_csv_file_text_line_generator(
     return first_row
      
     
-    
 
 
+#%% ---Metadata Vocabulary for Tabular Data---
 
-#%% FUNCTIONS - Metadata Vocabulary for Tabular Data
-
-#%% Section 4- Annotating Tables
+#%% 4- Annotating Tables
 
 def check_metadata_document(
         metadata_obj_dict
@@ -3656,7 +3666,7 @@ def annotate_cell(
     
 
 
-#%% Section 5.1.3 - URI Template Properties
+#%% 5.1.3 - URI Template Properties
 
 def get_URI_from_URI_template(
         uri_template_string,
@@ -3767,7 +3777,7 @@ def get_URI_from_URI_template(
             return urllib.parse.urljoin(x,uri)  # NEED CHECKING
     
     
-#%% Section 5.1.4 - Column Reference Properties
+#%% 5.1.4 - Column Reference Properties
 
 def get_columns_from_column_reference(
         column_reference,
@@ -3813,7 +3823,7 @@ def get_columns_from_column_reference(
     
     
 
-#%% Section 5.4.3 - Table Description Compatibility
+#%% 5.4.3 - Table Description Compatibility
 
 def compare_table_descriptions(
         TM,  # table_dict
@@ -3836,7 +3846,7 @@ def compare_table_descriptions(
     
         
     
-#%% Section 5.5 - Schemas
+#%% 5.5 - Schemas
 
 def get_referenced_table_and_columns_from_foreign_key_reference(
         foreign_key_reference,
@@ -4084,7 +4094,7 @@ def compare_column_descriptions(
 
     
     
-#%% Section 6 - (Metadata) Normalization
+#%% 6 - (Metadata) Normalization
 
 def normalize_metadata_from_file_path_or_url(
         metadata_file_path_or_url
@@ -4466,7 +4476,7 @@ def normalize_common_property(
     return normalized_value
     
 
-#%% Section A.1. URL Compaction
+#%% A.1. URL Compaction
 
 def compact_absolute_url(
         absolute_url
@@ -4515,9 +4525,9 @@ def compact_absolute_url(
 
 
 
-#%% FUNCTIONS - Generating JSON from Tabular Data on the Web
+#%% ---Generating JSON from Tabular Data on the Web---
 
-#%% Section 4.2 Generating JSON
+#%% 4.2 Generating JSON
 
 def get_minimal_json_from_annotated_table_group(
         annotated_table_group_dict
@@ -4577,7 +4587,8 @@ def get_minimal_json_from_annotated_table_group(
                 
     return output
         
-#%% Section 4.3 Generating Objects
+
+#%% 4.3 Generating Objects
 
 def generate_objects(
         annotated_row_dict
@@ -4792,7 +4803,7 @@ def generate_objects(
     return sequence_of_objects 
   
 
-#%% Section 4.4 Generating Nested Objects
+#%% 4.4 Generating Nested Objects
 
 def generate_nested_objects(
         annotated_row_dict,
@@ -5039,7 +5050,7 @@ def generate_nested_objects(
     
     
                         
-#%% Section 4.5 Interpreting datatypes
+#%% 4.5 Interpreting datatypes
    
 # This is already done in the annotated table dictionary
 # Cell values are stored as JSON objects there.
@@ -5089,7 +5100,7 @@ def interpret_datatype(
     
     
     
-#%% FUNCTIONS - General
+#%% ---General Functions---
 
 
 def get_base_path_and_url_of_metadata_object(
