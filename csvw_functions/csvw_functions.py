@@ -35,9 +35,10 @@ import logging
 #%% ---TOP LEVEL FUNCTIONS---
 #
 # These functions are the main functions for users.
-# They can be used to extract metatdata, validate data files and metadata 
-# files, and convert CSVW data into other formats.
-
+# They can be used to: 
+# - extract metadata from a CSV file
+# - validate CSV data files and CSVW metadata files
+# - convert CSVW data into other formats
 
 def get_embedded_metadata_from_csv(
         csv_file_path_or_url,
@@ -392,36 +393,50 @@ def convert_annotated_table_group_to_rdf(
 
 
 #%% ---Module Level Variables---
+#
+# This section sets up a number of variables at the module level
+# which are used by the functions in the package.
 
 # Metadata Schemas
+#  Imports the json schema files which describe the structure of a
+#  CSVW metadata.json file.
 
-schemas={}
+def import_metadata_schemas():
+    """
+    """
 
-metadata_schema_files=[
-    'column_description.schema.json', 
-    'common_properties.schema.json', 
-    'datatype_description.schema.json', 
-    'dialect_description.schema.json', 
-    'foreign_key_definition.schema.json', 
-    'foreign_key_reference.schema.json', 
-    'inherited_properties.schema.json', 
-    'number_format.schema.json', 
-    'schema_description.schema.json', 
-    'table_description.schema.json', 
-    'table_group_description.schema.json', 
-    'top_level_properties.schema.json', 
-    'transformation_definition.schema.json'
-    ]
-
-for schema_file in metadata_schema_files:
-    resource_package = __name__
-    resource_path = '/'.join(('metadata_schema_files', schema_file))  
-    data = pkg_resources.resource_string(resource_package, resource_path)
-    json_dict=json.loads(data)
-    schemas[schema_file]=json_dict
+    schemas={}
     
+    metadata_schema_files=[
+        'column_description.schema.json', 
+        'common_properties.schema.json', 
+        'datatype_description.schema.json', 
+        'dialect_description.schema.json', 
+        'foreign_key_definition.schema.json', 
+        'foreign_key_reference.schema.json', 
+        'inherited_properties.schema.json', 
+        'number_format.schema.json', 
+        'schema_description.schema.json', 
+        'table_description.schema.json', 
+        'table_group_description.schema.json', 
+        'top_level_properties.schema.json', 
+        'transformation_definition.schema.json'
+        ]
     
+    for schema_file in metadata_schema_files:
+        resource_package = __name__
+        resource_path = '/'.join(('metadata_schema_files', schema_file))  
+        data = pkg_resources.resource_string(resource_package, resource_path)
+        json_dict=json.loads(data)
+        schemas[schema_file]=json_dict
+        
+    return schemas
+
+schemas=import_metadata_schemas()
+    
+     
 # Metadata Schema Properties
+#
     
 top_level_properties=schemas['top_level_properties.schema.json']['properties']
 inherited_properties=schemas['inherited_properties.schema.json']['properties']
