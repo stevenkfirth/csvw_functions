@@ -3297,6 +3297,50 @@ class TestSection6(unittest.TestCase):
              'org:postIn': 'http://example.org/organization/hefce.ac.uk'
              }
             )
+      
+        
+        
+#%% TEST - Generating RDF from Tabular Data on the Web
+
+class TestSection7(unittest.TestCase):
+    ""
+    
+    def test_section_7_1_simple_example(self):
+        ""
+        
+        logging.info('TEST: test_section_7_1_simple_example')
+        
+        fp=r'generating_rdf_from_tabular_data_example_files/countries.csv'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(fp)
+        
+        rdf_ntriples=csvw_functions.get_rdf_from_annotated_table_group(
+                annotated_table_group_dict=annotated_table_group_dict,
+                mode='minimal'
+                )
+        
+        
+        rdf_ntriples=rdf_ntriples.replace(
+            r'C:\Users\cvskf\OneDrive - Loughborough University\_Git\stevenkfirth\csvw_functions\tests\generating_rdf_from_tabular_data_example_files\countries.csv',
+            'http://example.org/countries.csv'
+            )
+        
+        print(rdf_ntriples)
+        
+        
+        
+        from rdflib import Graph, Literal, URIRef
+
+        g = Graph().parse(data=rdf_ntriples, format='ntriples')
+        
+        print(g.serialize(format="ttl"))
+        
+        for x in g:
+            
+            print(x)
+            
+        print(list(g.subjects(object=Literal('AD',datatype=URIRef('http://www.w3.org/2001/XMLSchema#string')))))
+        
         
 
 #%% TESTS - General Functions
