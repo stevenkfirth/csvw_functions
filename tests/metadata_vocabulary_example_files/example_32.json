@@ -1,0 +1,34 @@
+{
+  "@id": "http://example.org/schema/junior-roles.json",
+  "@context": "http://www.w3.org/ns/csvw",
+  "columns": [{
+    "name": "reportsTo",
+    "titles": "Reporting Senior Post"
+    },
+    {
+      "titles": "Grade"
+    }, 
+    {
+      "titles": "Payscale Minimum (£)"
+    }, 
+    {
+      "titles": "Payscale Maximum (£)"
+    }, 
+    {
+      "titles": "Generic Job Title"
+    }, 
+    {
+      "titles": "Number of Posts in FTE"
+    }, 
+    {
+      "titles": "Profession"
+    }
+  ],
+  "foreignKeys": [{
+    "columnReference": "reportsTo",
+    "reference": {
+      "schemaReference": "http://example.org/schema/senior-roles.json",
+      "columnReference": "ref"
+    }
+  }]
+}

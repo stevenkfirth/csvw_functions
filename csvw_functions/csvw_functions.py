@@ -3464,12 +3464,58 @@ def annotate_table_group(
                             base_url
                             )
                     
-                annotated_table_dict['foreignKeys'].append(
-                    (fkd_columns,foriegn_key_reference_columns)
-                    )
+                    annotated_table_dict['foreignKeys'].append(
+                        [fkd_columns,foriegn_key_reference_columns]
+                        )
     
-    
-    
+                # referenced rows
+                
+                for j in range(len(annotated_table_dict['rows'])):
+                    
+                    for foreign_key_definition in annotated_table_dict['foreignKeys']:
+                        
+                        # get foreign key values in this row of this table
+                        
+                        foreign_key_definition_columns=foreign_key_definition[0]
+                        
+                        foreign_key_definition_values=\
+                            [x['cells'][j]['value'] 
+                             for x in foreign_key_definition_columns]
+                            
+                        # get first row that matches in the reference table
+                        
+                        foreign_key_reference_columns=foreign_key_definition[1]
+                        foreign_key_reference_table=foreign_key_reference_columns[0]['table']
+                        
+                        first_row=None
+                        
+                        for k in range(len(foreign_key_reference_columns[0]['cells'])):
+                            
+                            foreign_key_reference_values=\
+                                [x['cells'][k]['value'] 
+                                 for x in foreign_key_reference_columns]
+                                
+                            if foreign_key_reference_values==foreign_key_definition_values:
+                                
+                                first_row=foreign_key_reference_table['rows'][k]
+                                
+                                break
+                                
+                        if validate:   
+                            
+                            if first_row is None:
+                                
+                                raise Exception
+                            
+                            
+                        # append pair to referencedRow property for this row
+                        
+                        annotated_table_dict['rows'][j]['referencedRows'].append(
+                            [foreign_key_definition,
+                             first_row]
+                            )
+                    
+
 
     return annotated_table_group_dict
 
@@ -3718,18 +3764,36 @@ def get_URI_from_URI_template(
         # a list of canonical representations of the values of the cell, 
         #  if it has a sequence value.
     
-    for cell in annotated_cell_dict['row']['cells']:
-        name=cell['column']['name']
-        if not name is None:
-            value=cell['value']
-            if value is None:
-                pass
-            elif isinstance(value,list):
-                value=[x['@value'] for x in value]
-            else:
-                value=value['@value'],
-            variables[name]=value
+    #print(uritemplate.variables(uri_template_string))
+    
+    for variable in uritemplate.variables(uri_template_string):  # loops through variables being asked for in the URI template
+        
+        if not variable.startswith('_'):
             
+            for cell in annotated_cell_dict['row']['cells']:
+                
+                name=cell['column']['name']
+                
+                if name==variable:
+                    
+                    value=cell['value']
+                    
+                    if value is None:
+                        
+                        return None  # if a variable has value of None, then the returned URI is None
+                    
+                    elif isinstance(value,list):
+                        
+                        value=[x['@value'] for x in value]
+                        
+                    else:
+                        
+                        value=[value['@value']]
+                        
+                    variables[name]=value
+                    
+                    break
+                        
     # _column
     # _column is set to the column number of the column from the annotated 
     # table that is currently being processed.

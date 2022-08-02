@@ -2,67 +2,116 @@
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [
         {
-            "url": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\countries.csv",
+            "url": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\HEFCE_organogram_senior_data_31032011.csv",
             "tableSchema": {
+                "@id": "http://example.org/schema/senior-roles.json",
                 "columns": [
                     {
-                        "name": "countryCode",
-                        "datatype": {
-                            "base": "string"
-                        },
-                        "propertyUrl": "http://www.geonames.org/ontology{#_name}"
-                    },
-                    {
-                        "name": "latitude",
-                        "datatype": {
-                            "base": "number"
-                        }
-                    },
-                    {
-                        "name": "longitude",
-                        "datatype": {
-                            "base": "number"
+                        "name": "ref",
+                        "titles": {
+                            "und": [
+                                "Post Unique Reference"
+                            ]
                         }
                     },
                     {
                         "name": "name",
-                        "datatype": {
-                            "base": "string"
+                        "titles": {
+                            "und": [
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "grade",
+                        "titles": {
+                            "und": [
+                                "Grade"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "job",
+                        "titles": {
+                            "und": [
+                                "Job Title"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "reportsTo",
+                        "titles": {
+                            "und": [
+                                "Reports to Senior Post"
+                            ]
                         }
                     }
                 ],
-                "aboutUrl": "http://example.org/countries.csv{#countryCode}",
-                "propertyUrl": "http://schema.org/{_name}",
-                "primaryKey": "countryCode"
+                "primaryKey": "ref"
             }
         },
         {
-            "url": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\country_slice.csv",
+            "url": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\HEFCE_organogram_junior_data_31032011.csv",
             "tableSchema": {
+                "@id": "http://example.org/schema/junior-roles.json",
                 "columns": [
                     {
-                        "name": "countryRef",
-                        "valueUrl": "http://example.org/countries.csv{#countryRef}"
-                    },
-                    {
-                        "name": "year",
-                        "datatype": {
-                            "base": "gYear"
+                        "name": "reportsTo",
+                        "titles": {
+                            "und": [
+                                "Reporting Senior Post"
+                            ]
                         }
                     },
                     {
-                        "name": "population",
-                        "datatype": {
-                            "base": "integer"
+                        "titles": {
+                            "und": [
+                                "Grade"
+                            ]
+                        }
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "Payscale Minimum (\u00c2\u00a3)"
+                            ]
+                        }
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "Payscale Maximum (\u00c2\u00a3)"
+                            ]
+                        }
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "Generic Job Title"
+                            ]
+                        }
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "Number of Posts in FTE"
+                            ]
+                        }
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "Profession"
+                            ]
                         }
                     }
                 ],
                 "foreignKeys": [
                     {
-                        "columnReference": "countryRef",
+                        "columnReference": "reportsTo",
                         "reference": {
-                            "resource": "C:\\Users\\cvskf\\OneDrive - Loughborough University\\_Git\\stevenkfirth\\csvw_functions\\tests\\metadata_vocabulary_example_files\\countries.csv",
-                            "columnReference": "countryCode"
+                            "schemaReference": "http://example.org/schema/senior-roles.json",
+                            "columnReference": "ref"
                         }
                     }
                 ]

@@ -1625,6 +1625,8 @@ class TestXSection5_5_2(unittest.TestCase):
     
     def test_section_5_5_2_example_27(self):
         ""
+        # 5.5.2.1 Foreign Key Reference Between Tables
+        
         logging.info('TEST: test_section_5_5_2_example_27')
         
         json_fp=r'metadata_vocabulary_example_files/example_27.json'
@@ -1636,13 +1638,21 @@ class TestXSection5_5_2(unittest.TestCase):
         
         #---check first table---
         # url
-        print(os.path.basename(annotated_table_dicts[0]['url']))
+        #print(os.path.basename(annotated_table_dicts[0]['url']))
         self.assertEqual(
             os.path.basename(annotated_table_dicts[0]['url']),
             'countries.csv'
             )
-        # primary key of first row
-        print(annotated_table_dicts[0]['rows'][0]['primaryKey'][0]['stringValue'])
+        
+        #---check first row of first table---
+        # number of primary keys
+        #print(len(annotated_table_dicts[0]['rows'][0]['primaryKey']))
+        self.assertEqual(
+            len(annotated_table_dicts[0]['rows'][0]['primaryKey']),
+            1
+            )
+        # string value of cell of first primary key
+        #print(annotated_table_dicts[0]['rows'][0]['primaryKey'][0]['stringValue'])
         self.assertEqual(
             annotated_table_dicts[0]['rows'][0]['primaryKey'][0]['stringValue'],
             'AD'
@@ -1650,13 +1660,96 @@ class TestXSection5_5_2(unittest.TestCase):
         
         #---check second table---
         # url
-        print(os.path.basename(annotated_table_dicts[1]['url']))
+        #print(os.path.basename(annotated_table_dicts[1]['url']))
         self.assertEqual(
             os.path.basename(annotated_table_dicts[1]['url']),
             'country_slice.csv'
             )
+        # number of items in first foreign key
+        #print(len(annotated_table_dicts[1]['foreignKeys'][0]))
+        self.assertEqual(
+            len(annotated_table_dicts[1]['foreignKeys'][0]),
+            2
+            )
+        # table urls of first item in first foreign key
+        #print([os.path.basename(x['table']['url']) for x in annotated_table_dicts[1]['foreignKeys'][0][0]])
+        self.assertEqual(
+            [os.path.basename(x['table']['url']) for x in annotated_table_dicts[1]['foreignKeys'][0][0]],
+            ['country_slice.csv']
+            )
+        # column names of first item in first foreign key
+        #print([os.path.basename(x['name']) for x in annotated_table_dicts[1]['foreignKeys'][0][0]])
+        self.assertEqual(
+            [os.path.basename(x['name']) for x in annotated_table_dicts[1]['foreignKeys'][0][0]],
+            ['countryRef']
+            )
+        # table urls of second item in first foreign key
+        #print([os.path.basename(x['table']['url']) for x in annotated_table_dicts[1]['foreignKeys'][0][1]])
+        self.assertEqual(
+            [os.path.basename(x['table']['url']) for x in annotated_table_dicts[1]['foreignKeys'][0][1]],
+            ['countries.csv']
+            )
+        # column names of second item in first foreign key
+        #print([os.path.basename(x['name']) for x in annotated_table_dicts[1]['foreignKeys'][0][1]])
+        self.assertEqual(
+            [os.path.basename(x['name']) for x in annotated_table_dicts[1]['foreignKeys'][0][1]],
+            ['countryCode']
+            )
+        # foreignKeys annotation
+        self.assertEqual(
+            annotated_table_dicts[1]['foreignKeys'],
+            [
+                [
+                    [annotated_table_dicts[1]['columns'][0]],
+                    [annotated_table_dicts[0]['columns'][0]]
+                ]
+            ]
+            )
         
-        # CONTINUE HERE
+        
+        #---check first row of second table---
+        # number of referencedRow annotations
+        #print(len(annotated_table_dicts[1]['rows'][0]['referencedRows']))
+        self.assertEqual(
+            len(annotated_table_dicts[1]['rows'][0]['referencedRows']),
+            1
+            )
+        # referencedRow annotation
+        self.assertEqual(
+            annotated_table_dicts[1]['rows'][0]['referencedRows'],
+            [
+                [
+                    annotated_table_dicts[1]['foreignKeys'][0],
+                    annotated_table_dicts[0]['rows'][2]
+                 ]
+            ]
+            )
+        
+        
+        
+    def test_section_5_5_2_example_30(self):
+        ""
+        # 5.5.2.2. Foreign Key Reference Between Schemas
+        
+        logging.info('TEST: test_section_5_5_2_2_example_30')
+        
+        json_fp=r'metadata_vocabulary_example_files/example_30.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                metadata_file_path_or_url=json_fp
+                )
+        annotated_table_dicts=annotated_table_group_dict['tables']
+        
+        # check referencedRows in second table are referrring to the correct
+        # row numbers from the first table.
+        self.assertEqual(
+            [x['referencedRows'][0][1]['number'] for x in annotated_table_dicts[1]['rows']],
+            [3, 3, 1, 1]
+            )
+        
+        
+        
+        
         
 
 #%% 6. Normalization
@@ -2679,6 +2772,9 @@ class TestSection6(unittest.TestCase):
             csvw_functions.get_annotated_table_group_from_metadata(fp)
         
         annotated_table_dicts=annotated_table_group_dict['tables']
+        annotated_foreign_keys=[annotated_foreign_key
+                                for annotated_table_dict in annotated_table_dicts
+                                for annotated_foreign_key in annotated_table_dict['foreignKeys']]
         annotated_columns_list=[annotated_column_dict 
                                 for annotated_table_dict in annotated_table_dicts
                                 for annotated_column_dict in annotated_table_dict['columns']]
@@ -2726,6 +2822,481 @@ class TestSection6(unittest.TestCase):
             )
         # foreign keys
         #print([len(x['foreignKeys']) for x in annotated_table_dicts])
+        self.assertEqual(
+            [len(x['foreignKeys']) for x in annotated_table_dicts],
+            [1, 0, 3, 3]
+            )
+        
+        #---check foreign keys---
+        # column numbers in table
+        #print([y['number'] for x in annotated_foreign_keys for y in x[0]])
+        self.assertEqual(
+            [y['number'] for x in annotated_foreign_keys for y in x[0]],
+            [3, 5, 6, 7, 1, 7, 8]
+            )
+        # column numbers in referenced table
+        #print([y['number'] for x in annotated_foreign_keys for y in x[1]])
+        self.assertEqual(
+            [y['number'] for x in annotated_foreign_keys for y in x[1]],
+            [1, 1, 1, 1, 1, 1, 1]
+            )
+        # table index of referenced table
+        #print([annotated_table_dicts.index(y['table']) for x in annotated_foreign_keys for y in x[1]])
+        self.assertEqual(
+            [annotated_table_dicts.index(y['table']) for x in annotated_foreign_keys for y in x[1]],
+            [0, 2, 1, 0, 2, 1, 0]
+            )
+        
+        #---check annotated columns---
+        # number
+        self.assertEqual(
+            [column['number'] for column in annotated_columns_list],
+            [1, 2, 3, 1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8]  # second and third value differ from example
+            )
+        # source number
+        self.assertEqual(
+            [column['sourceNumber'] for column in annotated_columns_list],
+            [1, 2, 3, 1, 1, 2, 3, 4, 5, 6, 7, None, 1, 2, 3, 4, 5, 6, 7, 8]  # second and third value differ from example; virtual column differs from example (None rather than 8)
+            )
+        # number of cells
+        self.assertEqual(
+            [len(column['cells']) for column in annotated_columns_list],
+            [2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+            )
+        # name
+        #print([column['name'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['name'] for column in annotated_columns_list],
+            ['ref', 
+             'name', 
+             'department', 
+             'name', 
+             'ref', 
+             'name', 
+             'grade', 
+             'job', 
+             'reportsTo', 
+             'profession', 
+             'organizationRef', 
+             'post_holder', 
+             'reportsToSenior', 
+             'grade', 
+             'min_pay', 
+             'max_pay', 
+             'job', 
+             'number', 
+             'profession', 
+             'organizationRef']
+            )
+        # title
+        #print([column['titles'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['titles'] for column in annotated_columns_list],
+            [[{'@value': 'Organization Unique Reference', '@language': 'und'}], 
+             [{'@value': 'Organization Name', '@language': 'und'}], 
+             [{'@value': 'Department Reference', '@language': 'und'}], 
+             [{'@value': 'Profession', '@language': 'und'}], 
+             [{'@value': 'Post Unique Reference', '@language': 'und'}], 
+             [{'@value': 'Name', '@language': 'und'}], 
+             [{'@value': 'Grade', '@language': 'und'}], 
+             [{'@value': 'Job Title', '@language': 'und'}], 
+             [{'@value': 'Reports to Senior Post', '@language': 'und'}], 
+             [{'@value': 'Profession', '@language': 'und'}], 
+             [{'@value': 'Organization Reference', '@language': 'und'}], 
+             [], 
+             [{'@value': 'Reporting Senior Post', '@language': 'und'}], 
+             [{'@value': 'Grade', '@language': 'und'}], 
+             [{'@value': 'Payscale Minimum (Â£)', '@language': 'und'}], 
+             [{'@value': 'Payscale Maximum (Â£)', '@language': 'und'}], 
+             [{'@value': 'Generic Job Title', '@language': 'und'}], 
+             [{'@value': 'Number of Posts (FTE)', '@language': 'und'}], 
+             [{'@value': 'Profession', '@language': 'und'}], 
+             [{'@value': 'Organization Reference', '@language': 'und'}]
+             ]
+            )
+        # required
+        #print([column['required'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['required'] for column in annotated_columns_list],
+            [True, 
+             False, 
+             False, 
+             True, 
+             True, 
+             False, 
+             False, 
+             False, 
+             False, 
+             False, 
+             True, 
+             False, 
+             True, 
+             False, 
+             False, 
+             False, 
+             False, 
+             False, 
+             False, 
+             True]
+            )
+        # virtual
+        #print([column['virtual'] for column in annotated_columns_list])
+        self.assertEqual(
+            [column['virtual'] for column in annotated_columns_list],
+            [False, False, False, False, False, False, False, False, False, 
+             False, False, True, False, False, False, False, False, 
+             False, False, False]
+            )
+        
+        #---check annotated rows---
+        # number
+        self.assertEqual(
+            [row['number'] for row in annotated_rows_list],
+            [1, 2, 1, 2, 3, 4, 1, 2, 1, 2]
+            )
+        # source number
+        self.assertEqual(
+            [row['sourceNumber'] for row in annotated_rows_list],
+            [2, 3, 2, 3, 4, 5, 2, 3, 2, 3]
+            )
+        # number of cells
+        self.assertEqual(
+            [len(row['cells']) for row in annotated_rows_list],
+            [3, 3, 1, 1, 1, 1, 8, 8, 8, 8]
+            )
+        
+        #---check annotated cells---
+        # column number
+        #print([cell['column']['number'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['column']['number'] for cell in annotated_cells_list],
+            [1, 2, 3,
+             1, 2, 3, 
+             1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8,
+             1, 2, 3, 4, 5, 6, 7, 8, 
+             1, 2, 3, 4, 5, 6, 7, 8, 
+             1, 2, 3, 4, 5, 6, 7, 8]
+            )
+        # row number
+        #print([cell['row']['number'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['row']['number'] for cell in annotated_cells_list],
+            [1, 1, 1, 
+             2, 2, 2, 
+             1, 2, 3, 4, 
+             1, 1, 1, 1, 1, 1, 1, 1, 
+             2, 2, 2, 2, 2, 2, 2, 2, 
+             1, 1, 1, 1, 1, 1, 1, 1, 
+             2, 2, 2, 2, 2, 2, 2, 2]
+            )
+        # string value
+        #print([cell['stringValue'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['stringValue'] for cell in annotated_cells_list],
+            ['hefce.ac.uk', 
+             'Higher Education Funding Council for England', 
+             'bis.gov.uk', 
+             'bis.gov.uk', 
+             'Department for Business, Innovation and Skills', 
+             'xx', 
+             'Finance', 
+             'Information Technology', 
+             'Operational Delivery', 
+             'Policy', 
+             '90115', 
+             'Steve Egan', 
+             'SCS1A', 
+             'Deputy Chief Executive', 
+             '90334', 
+             'Finance', 
+             'hefce.ac.uk', 
+             '', 
+             '90334', 
+             'Sir Alan Langlands', 
+             'SCS4', 
+             'Chief Executive', 
+             'xx', 
+             'Policy', 
+             'hefce.ac.uk', 
+             '', 
+             '90115', 
+             '4', 
+             '17426', 
+             '20002', 
+             'Administrator', 
+             '8.67', 
+             'Operational Delivery', 
+             'hefce.ac.uk', 
+             '90115', 
+             '5', 
+             '19546', 
+             '22478', 
+             'Administrator', 
+             '0.5', 
+             'Operational Delivery', 
+             'hefce.ac.uk']
+            )
+        # value
+        #print([cell['value'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['value'] for cell in annotated_cells_list],
+            [{'@value': 'hefce.ac.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Higher Education Funding Council for England', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'bis.gov.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'bis.gov.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Department for Business, Innovation and Skills', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             None, 
+             {'@value': 'Finance', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Information Technology', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Operational Delivery', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Policy', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '90115', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Steve Egan', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'SCS1A', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Deputy Chief Executive', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '90334', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Finance', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'hefce.ac.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             None, 
+             {'@value': '90334', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Sir Alan Langlands', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'SCS4', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'Chief Executive', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             None, 
+             {'@value': 'Policy', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'hefce.ac.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             None, 
+             {'@value': '90115', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '4', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 17426, '@type': 'http://www.w3.org/2001/XMLSchema#integer'}, 
+             {'@value': 20002, '@type': 'http://www.w3.org/2001/XMLSchema#integer'}, 
+             {'@value': 'Administrator', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 8.67, '@type': 'http://www.w3.org/2001/XMLSchema#double'}, 
+             {'@value': 'Operational Delivery', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'hefce.ac.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '90115', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': '5', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'},
+             {'@value': 19546, '@type': 'http://www.w3.org/2001/XMLSchema#integer'}, 
+             {'@value': 22478, '@type': 'http://www.w3.org/2001/XMLSchema#integer'}, 
+             {'@value': 'Administrator', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 0.5, '@type': 'http://www.w3.org/2001/XMLSchema#double'}, 
+             {'@value': 'Operational Delivery', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}, 
+             {'@value': 'hefce.ac.uk', '@type': 'http://www.w3.org/2001/XMLSchema#string', '@language': 'und'}
+             ]
+            )
+        # about url
+        #print([cell['aboutURL'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['aboutURL'] for cell in annotated_cells_list],
+            ['http://example.org/organization/hefce.ac.uk', 
+             'http://example.org/organization/hefce.ac.uk', 
+             'http://example.org/organization/hefce.ac.uk', 
+             'http://example.org/organization/bis.gov.uk', 
+             'http://example.org/organization/bis.gov.uk', 
+             'http://example.org/organization/bis.gov.uk', 
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/person/1', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/organization/hefce.ac.uk/person/2', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None
+             ]
+            )
+        # property url
+        #print([cell['propertyURL'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['propertyURL'] for cell in annotated_cells_list],
+            ['http://purl.org/dc/terms/identifier', 
+             'http://xmlns.com/foaf/0.1/name', 
+             'http://www.w3.org/ns/org#subOrganizationOf', 
+             'http://purl.org/dc/terms/identifier', 
+             'http://xmlns.com/foaf/0.1/name', 
+             'http://www.w3.org/ns/org#subOrganizationOf', 
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://purl.org/dc/terms/identifier', 
+             'http://xmlns.com/foaf/0.1/name', 
+             'http://example.org/gov.uk/def/grade', 
+             'http://example.org/gov.uk/def/job', 
+             'http://www.w3.org/ns/org#reportsTo', 
+             'http://example.org/gov.uk/def/profession', 
+             'http://www.w3.org/ns/org#postIn', 
+             'http://www.w3.org/ns/org#heldBy', 
+             'http://purl.org/dc/terms/identifier', 
+             'http://xmlns.com/foaf/0.1/name', 
+             'http://example.org/gov.uk/def/grade', 
+             'http://example.org/gov.uk/def/job', 
+             'http://www.w3.org/ns/org#reportsTo', 
+             'http://example.org/gov.uk/def/profession', 
+             'http://www.w3.org/ns/org#postIn', 
+             'http://www.w3.org/ns/org#heldBy', 
+             'http://www.w3.org/ns/org#reportsTo', 
+             'http://example.org/gov.uk/def/grade', 
+             'http://example.org/gov.uk/def/min_pay', 
+             'http://example.org/gov.uk/def/max_pay', 
+             'http://example.org/gov.uk/def/job', 
+             'http://example.org/gov.uk/def/number_of_posts', 
+             'http://example.org/gov.uk/def/profession', 
+             'http://www.w3.org/ns/org#postIn', 
+             'http://www.w3.org/ns/org#reportsTo', 
+             'http://example.org/gov.uk/def/grade', 
+             'http://example.org/gov.uk/def/min_pay', 
+             'http://example.org/gov.uk/def/max_pay', 
+             'http://example.org/gov.uk/def/job', 
+             'http://example.org/gov.uk/def/number_of_posts', 
+             'http://example.org/gov.uk/def/profession', 
+             'http://www.w3.org/ns/org#postIn'
+             ]
+            )
+        # value url
+        #print([cell['valueURL'] for cell in annotated_cells_list])
+        self.assertEqual(
+            [cell['valueURL'] for cell in annotated_cells_list],
+            [None, 
+             None, 
+             'http://example.org/organization/bis.gov.uk', 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://example.org/organization/hefce.ac.uk/post/90334', 
+             None, 
+             'http://example.org/organization/hefce.ac.uk', 
+             'http://example.org/organization/hefce.ac.uk/person/1', 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://example.org/organization/hefce.ac.uk', 
+             'http://example.org/organization/hefce.ac.uk/person/2', 
+             'http://example.org/organization/hefce.ac.uk/post/90115', 
+             None, 
+             None,
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://example.org/organization/hefce.ac.uk',
+             'http://example.org/organization/hefce.ac.uk/post/90115',
+             None,
+             None,
+             None, 
+             None, 
+             None, 
+             None, 
+             'http://example.org/organization/hefce.ac.uk'
+             ]
+            )
+        
+        # minimal mode
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal'
+                    )
+        #print(json_ld)
+        
+        #print(json_ld[0])
+        self.assertEqual(
+            json_ld[0],
+            {'@id': 'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'dc:identifier': '90115', 
+             'http://example.org/gov.uk/def/grade': 'SCS1A', 
+             'http://example.org/gov.uk/def/job': 'Deputy Chief Executive', 
+             'org:reportsTo': 'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'http://example.org/gov.uk/def/profession': 'Finance', 
+             'org:postIn': 'http://example.org/organization/hefce.ac.uk', 
+             'org:heldBy': {
+                 '@id': 'http://example.org/organization/hefce.ac.uk/person/1', 
+                 'foaf:name': 'Steve Egan'
+                 }
+             }
+            )
+        
+        #print(json_ld[1])
+        self.assertEqual(
+            json_ld[1],
+            {'@id': 'http://example.org/organization/hefce.ac.uk/post/90334', 
+             'dc:identifier': '90334', 
+             'http://example.org/gov.uk/def/grade': 'SCS4', 
+             'http://example.org/gov.uk/def/job': 'Chief Executive', 
+             'http://example.org/gov.uk/def/profession': 'Policy', 
+             'org:postIn': 'http://example.org/organization/hefce.ac.uk', 
+             'org:heldBy': {
+                 '@id': 'http://example.org/organization/hefce.ac.uk/person/2', 
+                 'foaf:name': 'Sir Alan Langlands'
+                 }
+             }
+            )
+        
+        #print(json_ld[2])
+        self.assertEqual(
+            json_ld[2],
+            {'org:reportsTo': 'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/gov.uk/def/grade': '4', 
+             'http://example.org/gov.uk/def/min_pay': 17426, 
+             'http://example.org/gov.uk/def/max_pay': 20002, 
+             'http://example.org/gov.uk/def/job': 'Administrator', 
+             'http://example.org/gov.uk/def/number_of_posts': 8.67, 
+             'http://example.org/gov.uk/def/profession': 'Operational Delivery', 
+             'org:postIn': 'http://example.org/organization/hefce.ac.uk'
+             }
+            )
+        
+        #print(json_ld[3])
+        self.assertEqual(
+            json_ld[3],
+            {'org:reportsTo': 'http://example.org/organization/hefce.ac.uk/post/90115', 
+             'http://example.org/gov.uk/def/grade': '5', 
+             'http://example.org/gov.uk/def/min_pay': 19546, 
+             'http://example.org/gov.uk/def/max_pay': 22478, 
+             'http://example.org/gov.uk/def/job': 'Administrator', 
+             'http://example.org/gov.uk/def/number_of_posts': 0.5, 
+             'http://example.org/gov.uk/def/profession': 'Operational Delivery', 
+             'org:postIn': 'http://example.org/organization/hefce.ac.uk'
+             }
+            )
         
 
 #%% TESTS - General Functions
