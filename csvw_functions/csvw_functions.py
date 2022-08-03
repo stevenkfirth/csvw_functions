@@ -5562,7 +5562,7 @@ def generate_rdf_from_annotated_table_group(
                                 
                                 Vliteral=\
                                     get_rdf_lexical_form_from_cell_value(
-                                        value,
+                                        v,
                                         datatype
                                         )
                             
@@ -5673,10 +5673,9 @@ def get_rdf_lexical_form_from_cell_value(
     
     lexical_form=value['@value']
     
-    language=value['@language']
-    
-    
     if rdf_datatype_iri=='http://www.w3.org/2001/XMLSchema#string':
+        
+        language=value['@language']
         
         if not language is None and not language=='und':
             
