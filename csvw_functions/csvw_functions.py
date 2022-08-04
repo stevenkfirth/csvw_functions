@@ -2182,6 +2182,7 @@ def parse_date(
         x=x.replace(timezone_format,'%z')
     
     # parse date
+    #print(string_value)
     dt=datetime.datetime.strptime(string_value, x)  
     dt_isoformat=dt.isoformat()
     
@@ -2477,6 +2478,7 @@ def parse_datetime(
     date_format, time_format = datetime_format.split(separator)
         
     # separate date_string_value and time_string_value
+    #print(string_value)
     date_string_value, time_string_value = string_value.split(separator)
     
     # get date json value
@@ -2510,11 +2512,12 @@ def parse_datetimestamp(
         ):
     """
     """
-    
-    
-    
-
-    raise Exception
+    return parse_datetime(
+            string_value,
+            datatype_base,
+            datatype_format,
+            errors
+            )
 
     
 #%% 6.4.6 Formats for other types
@@ -2973,7 +2976,7 @@ def parse_tabular_data_from_text(
             )
     
 
-    logging.critical(len(table_dict['columns']))
+    #logging.critical(len(table_dict['columns']))
 
     logging.info('    RETURN:') 
 
@@ -3153,8 +3156,6 @@ def get_list_of_cell_values(
     i=0
     while True:
     
-        #print(list_of_cell_values)    
-    
         current_character=characters[i]
         try:
             next_character=characters[i+1]
@@ -3187,10 +3188,13 @@ def get_list_of_cell_values(
             if quoted_flag==False:
                 quoted_flag=True
                 if not current_cell_value=='':
-                    logging.critical(f'characters: {characters}')
-                    logging.critical(f'i: {i}')
-                    logging.critical(f'current_cell_value: {current_cell_value}')
-                    raise Exception
+                    #logging.critical(f'characters: {characters}')
+                    #print(f'characters: {characters}')
+                    #logging.critical(f'i: {i}')
+                    #print(f'i: {i}')
+                    #logging.critical(f'current_cell_value: {current_cell_value}')
+                    #print(f'current_cell_value: "{current_cell_value}"')
+                    raise Exception('quote character encountered not at start of cell')
                 i+=1
         
             # 3.3.2 Otherwise, set quoted to false, and move on to process the 
@@ -3200,10 +3204,10 @@ def get_list_of_cell_values(
                 quoted_flag=False
                 if not next_character is None:
                     if not next_character==delimiter:
-                        logging.critical(f'characters: {characters}')
-                        logging.critical(f'i: {i}')
-                        logging.critical(f'current_cell_value: {current_cell_value}')
-                        logging.critical(f'next_character: {next_character}')
+                        #logging.critical(f'characters: {characters}')
+                        #logging.critical(f'i: {i}')
+                        #logging.critical(f'current_cell_value: {current_cell_value}')
+                        #logging.critical(f'next_character: {next_character}')
                         raise Exception
                 i+=1
         
@@ -3845,6 +3849,8 @@ def get_URI_from_URI_template(
     # is currently being processed.
     uri=uritemplate.expand(uri_template_string,
                            variables)
+    uri=uri.replace('%2F','/')  # reverses changes to forward slashes in the expand process
+    
     
     # 2 expanding any prefixes as if the value were the name of a common 
     # property, as described in section 5.8 Common Properties.
@@ -5673,7 +5679,7 @@ def get_rdf_lexical_form_from_cell_value(
     
     lexical_form=value['@value']
     
-    if rdf_datatype_iri=='http://www.w3.org/2001/XMLSchema#string':
+    if rdf_datatype_iri=='<http://www.w3.org/2001/XMLSchema#string>':
         
         language=value['@language']
         
