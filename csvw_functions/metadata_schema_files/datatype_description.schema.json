@@ -9,6 +9,7 @@
             "description": "An atomic property that contains a single string: the name of one of the built-in datatypes, as listed above (and which are defined as terms in the default context).",
             "default": "string",
             "type":"string",
+            "enum": ["anyAtomicType", "anyURI", "base64Binary", "boolean", "date", "dateTime", "dateTimeStamp", "decimal", "integer", "long", "int", "short", "byte", "nonNegativeInteger", "postiveInteger", "unsignedLong", "unsignedInt", "unsignedShort", "unsignedByte", "nonPositiveInteger", "negativeInteger", "double", "duration", "dayTimeDuration", "yearMonthDuration", "float", "gDay", "gMonth", "gYear", "gYearMonth", "hexBinary", "QName", "string", "normalizedString", "token", "language", "Name", "NMTOKEN", "xml", "html", "json", "time", "number", "binary", "datetime", "any"],
             "$comment": "atomic property"
         },
         "format":{

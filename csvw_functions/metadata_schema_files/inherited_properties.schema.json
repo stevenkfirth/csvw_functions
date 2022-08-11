@@ -8,13 +8,17 @@
     "properties": {
         "aboutUrl":{
             "description": "A URI template property that may be used to indicate what a cell contains information about.",
+            "default": "",
             "type":"string",
             "$comment": "URL template property"
         },
         "datatype":{
             "description": "An atomic property that contains either a single string that is the main datatype of the values of the cell or a datatype description object.",
             "oneOf": [
-                {"type": "string"},
+                {
+                    "type": "string",
+                    "enum": ["anyAtomicType", "anyURI", "base64Binary", "boolean", "date", "dateTime", "dateTimeStamp", "decimal", "integer", "long", "int", "short", "byte", "nonNegativeInteger", "postiveInteger", "unsignedLong", "unsignedInt", "unsignedShort", "unsignedByte", "nonPositiveInteger", "negativeInteger", "double", "duration", "dayTimeDuration", "yearMonthDuration", "float", "gDay", "gMonth", "gYear", "gYearMonth", "hexBinary", "QName", "string", "normalizedString", "token", "language", "Name", "NMTOKEN", "xml", "html", "json", "time", "number", "binary", "datetime", "any"]
+                },
                 {"$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/datatype_description.schema.json"}
             ],
             "$comment": "atomic property"
@@ -49,6 +53,7 @@
         },
         "propertyUrl":{
             "description": "A URI template property that may be used to create a URI for a property if the table is mapped to another format.",
+            "default": "",
             "type":"string",
             "$comment": "URL template property"
         },
@@ -70,11 +75,13 @@
         "textDirection":{
             "description": "An atomic property that must have a single string value that is one of \"ltr\", \"rtl\", \"auto\" or \"inherit\" (the default). Indicates whether the text within cells should be displayed as left-to-right text (ltr), as right-to-left text (rtl), according to the content of the cell (auto) or in the direction inherited from the table direction annotation of the table.",
             "default": "inherit",
+            "type": "string",
             "enum": ["ltr", "rtl", "auto", "inherit"],
             "$comment": "atomic property"
         },
         "valueUrl":{
             "description": "A URI template property that is used to map the values of cells into URLs.",
+            "default": "",
             "type":"string",
             "$comment": "URL template property"
         }

@@ -690,10 +690,480 @@ datatypes_numbers=['double','number']+datatypes_decimals
 
 datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
 
+# Encodings
+
+encodings=[
+  {
+    "encodings": [
+      {
+        "labels": [
+          "unicode-1-1-utf-8",
+          "unicode11utf8",
+          "unicode20utf8",
+          "utf-8",
+          "utf8",
+          "x-unicode20utf8"
+        ],
+        "name": "UTF-8"
+      }
+    ],
+    "heading": "The Encoding"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "866",
+          "cp866",
+          "csibm866",
+          "ibm866"
+        ],
+        "name": "IBM866"
+      },
+      {
+        "labels": [
+          "csisolatin2",
+          "iso-8859-2",
+          "iso-ir-101",
+          "iso8859-2",
+          "iso88592",
+          "iso_8859-2",
+          "iso_8859-2:1987",
+          "l2",
+          "latin2"
+        ],
+        "name": "ISO-8859-2"
+      },
+      {
+        "labels": [
+          "csisolatin3",
+          "iso-8859-3",
+          "iso-ir-109",
+          "iso8859-3",
+          "iso88593",
+          "iso_8859-3",
+          "iso_8859-3:1988",
+          "l3",
+          "latin3"
+        ],
+        "name": "ISO-8859-3"
+      },
+      {
+        "labels": [
+          "csisolatin4",
+          "iso-8859-4",
+          "iso-ir-110",
+          "iso8859-4",
+          "iso88594",
+          "iso_8859-4",
+          "iso_8859-4:1988",
+          "l4",
+          "latin4"
+        ],
+        "name": "ISO-8859-4"
+      },
+      {
+        "labels": [
+          "csisolatincyrillic",
+          "cyrillic",
+          "iso-8859-5",
+          "iso-ir-144",
+          "iso8859-5",
+          "iso88595",
+          "iso_8859-5",
+          "iso_8859-5:1988"
+        ],
+        "name": "ISO-8859-5"
+      },
+      {
+        "labels": [
+          "arabic",
+          "asmo-708",
+          "csiso88596e",
+          "csiso88596i",
+          "csisolatinarabic",
+          "ecma-114",
+          "iso-8859-6",
+          "iso-8859-6-e",
+          "iso-8859-6-i",
+          "iso-ir-127",
+          "iso8859-6",
+          "iso88596",
+          "iso_8859-6",
+          "iso_8859-6:1987"
+        ],
+        "name": "ISO-8859-6"
+      },
+      {
+        "labels": [
+          "csisolatingreek",
+          "ecma-118",
+          "elot_928",
+          "greek",
+          "greek8",
+          "iso-8859-7",
+          "iso-ir-126",
+          "iso8859-7",
+          "iso88597",
+          "iso_8859-7",
+          "iso_8859-7:1987",
+          "sun_eu_greek"
+        ],
+        "name": "ISO-8859-7"
+      },
+      {
+        "labels": [
+          "csiso88598e",
+          "csisolatinhebrew",
+          "hebrew",
+          "iso-8859-8",
+          "iso-8859-8-e",
+          "iso-ir-138",
+          "iso8859-8",
+          "iso88598",
+          "iso_8859-8",
+          "iso_8859-8:1988",
+          "visual"
+        ],
+        "name": "ISO-8859-8"
+      },
+      {
+        "labels": [
+          "csiso88598i",
+          "iso-8859-8-i",
+          "logical"
+        ],
+        "name": "ISO-8859-8-I"
+      },
+      {
+        "labels": [
+          "csisolatin6",
+          "iso-8859-10",
+          "iso-ir-157",
+          "iso8859-10",
+          "iso885910",
+          "l6",
+          "latin6"
+        ],
+        "name": "ISO-8859-10"
+      },
+      {
+        "labels": [
+          "iso-8859-13",
+          "iso8859-13",
+          "iso885913"
+        ],
+        "name": "ISO-8859-13"
+      },
+      {
+        "labels": [
+          "iso-8859-14",
+          "iso8859-14",
+          "iso885914"
+        ],
+        "name": "ISO-8859-14"
+      },
+      {
+        "labels": [
+          "csisolatin9",
+          "iso-8859-15",
+          "iso8859-15",
+          "iso885915",
+          "iso_8859-15",
+          "l9"
+        ],
+        "name": "ISO-8859-15"
+      },
+      {
+        "labels": [
+          "iso-8859-16"
+        ],
+        "name": "ISO-8859-16"
+      },
+      {
+        "labels": [
+          "cskoi8r",
+          "koi",
+          "koi8",
+          "koi8-r",
+          "koi8_r"
+        ],
+        "name": "KOI8-R"
+      },
+      {
+        "labels": [
+          "koi8-ru",
+          "koi8-u"
+        ],
+        "name": "KOI8-U"
+      },
+      {
+        "labels": [
+          "csmacintosh",
+          "mac",
+          "macintosh",
+          "x-mac-roman"
+        ],
+        "name": "macintosh"
+      },
+      {
+        "labels": [
+          "dos-874",
+          "iso-8859-11",
+          "iso8859-11",
+          "iso885911",
+          "tis-620",
+          "windows-874"
+        ],
+        "name": "windows-874"
+      },
+      {
+        "labels": [
+          "cp1250",
+          "windows-1250",
+          "x-cp1250"
+        ],
+        "name": "windows-1250"
+      },
+      {
+        "labels": [
+          "cp1251",
+          "windows-1251",
+          "x-cp1251"
+        ],
+        "name": "windows-1251"
+      },
+      {
+        "labels": [
+          "ansi_x3.4-1968",
+          "ascii",
+          "cp1252",
+          "cp819",
+          "csisolatin1",
+          "ibm819",
+          "iso-8859-1",
+          "iso-ir-100",
+          "iso8859-1",
+          "iso88591",
+          "iso_8859-1",
+          "iso_8859-1:1987",
+          "l1",
+          "latin1",
+          "us-ascii",
+          "windows-1252",
+          "x-cp1252"
+        ],
+        "name": "windows-1252"
+      },
+      {
+        "labels": [
+          "cp1253",
+          "windows-1253",
+          "x-cp1253"
+        ],
+        "name": "windows-1253"
+      },
+      {
+        "labels": [
+          "cp1254",
+          "csisolatin5",
+          "iso-8859-9",
+          "iso-ir-148",
+          "iso8859-9",
+          "iso88599",
+          "iso_8859-9",
+          "iso_8859-9:1989",
+          "l5",
+          "latin5",
+          "windows-1254",
+          "x-cp1254"
+        ],
+        "name": "windows-1254"
+      },
+      {
+        "labels": [
+          "cp1255",
+          "windows-1255",
+          "x-cp1255"
+        ],
+        "name": "windows-1255"
+      },
+      {
+        "labels": [
+          "cp1256",
+          "windows-1256",
+          "x-cp1256"
+        ],
+        "name": "windows-1256"
+      },
+      {
+        "labels": [
+          "cp1257",
+          "windows-1257",
+          "x-cp1257"
+        ],
+        "name": "windows-1257"
+      },
+      {
+        "labels": [
+          "cp1258",
+          "windows-1258",
+          "x-cp1258"
+        ],
+        "name": "windows-1258"
+      },
+      {
+        "labels": [
+          "x-mac-cyrillic",
+          "x-mac-ukrainian"
+        ],
+        "name": "x-mac-cyrillic"
+      }
+    ],
+    "heading": "Legacy single-byte encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "chinese",
+          "csgb2312",
+          "csiso58gb231280",
+          "gb2312",
+          "gb_2312",
+          "gb_2312-80",
+          "gbk",
+          "iso-ir-58",
+          "x-gbk"
+        ],
+        "name": "GBK"
+      },
+      {
+        "labels": [
+          "gb18030"
+        ],
+        "name": "gb18030"
+      }
+    ],
+    "heading": "Legacy multi-byte Chinese (simplified) encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "big5",
+          "big5-hkscs",
+          "cn-big5",
+          "csbig5",
+          "x-x-big5"
+        ],
+        "name": "Big5"
+      }
+    ],
+    "heading": "Legacy multi-byte Chinese (traditional) encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "cseucpkdfmtjapanese",
+          "euc-jp",
+          "x-euc-jp"
+        ],
+        "name": "EUC-JP"
+      },
+      {
+        "labels": [
+          "csiso2022jp",
+          "iso-2022-jp"
+        ],
+        "name": "ISO-2022-JP"
+      },
+      {
+        "labels": [
+          "csshiftjis",
+          "ms932",
+          "ms_kanji",
+          "shift-jis",
+          "shift_jis",
+          "sjis",
+          "windows-31j",
+          "x-sjis"
+        ],
+        "name": "Shift_JIS"
+      }
+    ],
+    "heading": "Legacy multi-byte Japanese encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "cseuckr",
+          "csksc56011987",
+          "euc-kr",
+          "iso-ir-149",
+          "korean",
+          "ks_c_5601-1987",
+          "ks_c_5601-1989",
+          "ksc5601",
+          "ksc_5601",
+          "windows-949"
+        ],
+        "name": "EUC-KR"
+      }
+    ],
+    "heading": "Legacy multi-byte Korean encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "csiso2022kr",
+          "hz-gb-2312",
+          "iso-2022-cn",
+          "iso-2022-cn-ext",
+          "iso-2022-kr",
+          "replacement"
+        ],
+        "name": "replacement"
+      },
+      {
+        "labels": [
+          "unicodefffe",
+          "utf-16be"
+        ],
+        "name": "UTF-16BE"
+      },
+      {
+        "labels": [
+          "csunicode",
+          "iso-10646-ucs-2",
+          "ucs-2",
+          "unicode",
+          "unicodefeff",
+          "utf-16",
+          "utf-16le"
+        ],
+        "name": "UTF-16LE"
+      },
+      {
+        "labels": [
+          "x-user-defined"
+        ],
+        "name": "x-user-defined"
+      }
+    ],
+    "heading": "Legacy miscellaneous encodings"
+  }
+]
+
+encoding_labels=[z for x in encodings for y in x['encodings'] for z in y['labels']]
 
 
 
-# Custom Exceptions and Warnings
+
+#%% ---Custom Exceptions and Warnings---
 
 class ValidationError(Exception):
     ""
@@ -1376,6 +1846,21 @@ def create_annotated_tables_from_metadata_root_object(
     #   if necessary.
     
     
+    # ... first check the @language tag and if not valid then apply the default
+    context=metadata_root_obj_dict.get('@context')
+    
+    if isinstance(context,list):
+        
+        language_tag=context[1].get('@language')
+        
+        if not language_tag is None:
+            
+            language_tag=\
+                apply_default_language_tag(
+                    language_tag
+                    )
+
+            metadata_root_obj_dict['@context'][1]['@language']=language_tag
     
     # get and normalize metadata file
     normalized_metadata_obj_dict=\
@@ -1419,7 +1904,43 @@ def create_annotated_tables_from_metadata_root_object(
         raise Exception
     #print('metadata_table_group_obj_dict',metadata_table_group_obj_dict)
     
-                 
+    
+    # From Metadata Vocabulary for Tabular Data Section 4
+    
+    # All compliant applications must generate errors and stop processing if 
+    # a metadata document:
+    # - does not use valid JSON syntax defined by [RFC7159].
+    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+    # - does not specify a property that it is required to specify.
+    # check_metadata_document(
+    #         metadata_table_group_obj_dict,
+    #         'table_group_description.schema.json'
+    #         )
+    
+    # Compliant applications must ignore properties (aside from common 
+    # properties) which are not defined in this specification and must 
+    # generate a warning when they are encoutered.
+    
+    check_metadata_document(
+            metadata_table_group_obj_dict,
+            'table_group_description.schema.json'
+            )
+    
+    # If a property has a value that is not permitted by this specification, 
+    # then if a default value is provided for that property, compliant 
+    # applications must generate a warning and use that default value. 
+    # If no default value is provided for that property, compliant 
+    # applications must generate a warning and behave as if the property 
+    # had not been specified. Additionally, including:
+    # - properties (aside from common properties) which are not defined in 
+    #   this specification, and
+    # - properties having invalid values for a given property.
+    
+    apply_default_values_table_group(
+        metadata_table_group_obj_dict
+        )
+    
+    
     # 3 For each table (TM) in UM in order, create one or more annotated tables:
     
     for table_index,metadata_table_obj_dict in \
@@ -3867,6 +4388,31 @@ def check_metadata_document(
             raise Exception('a required property is missing')
 
 
+def apply_default_language_tag(
+        language_tag,
+        ):
+    """
+    """
+    
+    if langcodes.tag_is_valid(language_tag):
+        
+        return language_tag
+    
+    else:
+        
+        property_name='lang'
+        property_value=language_tag
+        default=schemas['inherited_properties.schema.json']['properties']['lang']['default']
+        
+        message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+        message+=f' Value replaced with default value "{default}"'
+        
+        warnings.warn(
+            message,
+            PropertyNotValidWarning
+            )
+        
+        return default
 
 
 def apply_default_values_table_group(
@@ -3891,34 +4437,45 @@ def apply_default_values_table_group(
         
         for error in errors:
             
-            if 'is not valid under any of the given schemas' in error.message:
+            #print(error)
+            
+            if error.validator=='required':
+                
+                pass
+            
+            else:  # assumes all other errors are property errors...
                 
                 property_name=error.path[0]
                 #print('property_name',property_name)
                 
                 property_value=error.instance
+                property_value_type=type(property_value).__name__
             
                 default=error.schema.get('default')
                 #print('default',default)
                 
-                message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
                 
                 if not default is None:
                     
                     metadata_obj_dict[property_name]=default
                     
-                    message+=f' Value replaced with default value "{default}"'
+                    message+=f' Value replaced with default value "{default}".'
             
                 else:
                     
-                    metadata_obj_dict[property_name]=None
+                    metadata_obj_dict.pop(property_name)
                     
-                    message+=' Value replaced with None'
+                    message+=' Name-value pair is removed. '
+                    
+                    #print(metadata_obj_dict)
                     
                 warnings.warn(
                     message,
                     PropertyNotValidWarning
                     )
+            
+            
             
         return metadata_obj_dict
 
@@ -3930,17 +4487,19 @@ def apply_default_values_table_group(
         """
         """
         # format
-        format_dict=datatype_dict.get('format')
+        if isinstance(datatype_dict.get('format'),dict):
         
-        if not format_dict is None:
+            format_dict=datatype_dict.get('format')
             
-            format_dict=\
-                apply_default_values(
-                    format_dict,
-                    'number_format.schema.json'
-                    )
+            if not format_dict is None:
                 
-            datatype_dict['format']=format_dict
+                format_dict=\
+                    apply_default_values(
+                        format_dict,
+                        'number_format.schema.json'
+                        )
+                    
+                datatype_dict['format']=format_dict
         
         datatype_dict=\
             apply_default_values(
@@ -3951,31 +4510,34 @@ def apply_default_values_table_group(
         return datatype_dict
 
 
-    def apply_default_language_tag(
-            language_tag,
+    
+        
+        
+    def apply_default_encoding(
+            encoding,
             ):
         """
         """
         
-        if langcodes.tag_is_valid(language_tag):
+        for x in encoding_labels:
             
-            return language_tag
+            if encoding.upper()==x.upper():
+                
+                return encoding
+            
+        property_name='encoding'
+        property_value=encoding
+        default=schemas['dialect_description.schema.json']['properties']['encoding']['default']
         
-        else:
-            
-            property_name='lang'
-            property_value=language_tag
-            default=schemas['inherited_properties.schema.json']['properties']['lang']['default']
-            
-            message=f'Property "{property_name}" with value "{property_value}" is not valid.'
-            message+=f' Value replaced with default value "{default}"'
-            
-            warnings.warn(
-                message,
-                PropertyNotValidWarning
-                )
-            
-            return default
+        message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+        message+=f' Value replaced with default value "{default}"'
+        
+        warnings.warn(
+            message,
+            PropertyNotValidWarning
+            )
+        
+        return default
         
     
     # If a property has a value that is not permitted by this specification, 
@@ -4093,6 +4655,19 @@ def apply_default_values_table_group(
         
         if not dialect_dict is None:
             
+            # encoding
+            encoding=dialect_dict.get('encoding')
+            
+            if not encoding is None:
+                
+                encoding=\
+                    apply_default_encoding(
+                        encoding
+                        )
+                    
+                dialect_dict['encoding']=encoding
+            
+            #
             dialect_dict=\
                 apply_default_values(
                     dialect_dict,
@@ -4101,6 +4676,8 @@ def apply_default_values_table_group(
             
             table_dict['dialect']=dialect_dict
             
+        
+
         # transformations
         for i, transformation_dict in enumerate(table_dict.get('transformations',[])):
         
@@ -4152,6 +4729,19 @@ def apply_default_values_table_group(
     
     if not dialect_dict is None:
         
+        # encoding
+        encoding=dialect_dict.get('encoding')
+        
+        if not encoding is None:
+            
+            encoding=\
+                apply_default_encoding(
+                    encoding
+                    )
+                
+            dialect_dict['encoding']=encoding
+        
+        #
         dialect_dict=\
             apply_default_values(
                 dialect_dict,
@@ -4159,6 +4749,8 @@ def apply_default_values_table_group(
                 )
         
         table_group_dict['dialect']=dialect_dict
+        
+        
         
     # transformations
     for i, transformation_dict in enumerate(table_group_dict.get('transformations',[])):
@@ -4245,36 +4837,7 @@ def annotate_table_group(
     
     #print(metadata_table_group_obj_dict)
     
-    # All compliant applications must generate errors and stop processing if 
-    # a metadata document:
-    # - does not use valid JSON syntax defined by [RFC7159].
-    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
-    # - does not specify a property that it is required to specify.
-    check_metadata_document(
-            metadata_table_group_obj_dict,
-            'table_group_description.schema.json'
-            )
-    
-    # Compliant applications must ignore properties (aside from common 
-    # properties) which are not defined in this specification and must 
-    # generate a warning when they are encoutered.
-    
-    # NEEDS COMPLETING
-    
-    # If a property has a value that is not permitted by this specification, 
-    # then if a default value is provided for that property, compliant 
-    # applications must generate a warning and use that default value. 
-    # If no default value is provided for that property, compliant 
-    # applications must generate a warning and behave as if the property 
-    # had not been specified. Additionally, including:
-    # - properties (aside from common properties) which are not defined in 
-    #   this specification, and
-    # - properties having invalid values for a given property.
-    
-    apply_default_values_table_group(
-        metadata_table_group_obj_dict
-        )
-    
+        
     # Metadata documents contain descriptions of groups of tables, tables, 
     # columns, rows, and cells, which are used to create annotations on an 
     # annotated tabular data model. A description object is a JSON object 
