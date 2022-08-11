@@ -14,7 +14,7 @@
         "foreignKeys": {
             "description": "An array property of foreign key definitions that define how the values from specified columns within this table link to rows within this table or other tables.",
             "type": "array",
-            "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/foreign_key_definition.schema.json",
+            "items": {"$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/foreign_key_definition.schema.json"},
             "$comment": "array property"
         },
         "primaryKey": {

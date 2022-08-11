@@ -61,7 +61,10 @@
         "separator":{
             "description": "An atomic property that must have a single string value that is the string used to separate items in the string value of the cell.",
             "default": null,
-            "type":"string",
+            "oneOf":[
+                {"type": "string"},
+                {"type": "null"}
+            ],
             "$comment": "atomic property"
         },
         "textDirection":{

@@ -31,6 +31,7 @@ import uritemplate
 import warnings
 import logging
 from uuid import uuid4
+import jsonschema
 
 
 #%% ---TOP LEVEL FUNCTIONS---
@@ -499,6 +500,11 @@ def import_metadata_schemas():
     return schemas
 
 schemas=import_metadata_schemas()
+
+# Schema store for validation
+
+url='https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/'
+schema_store={url+k:v for k,v in schemas.items()}
     
      
 # Metadata Schema Properties
@@ -693,7 +699,7 @@ class ValidationError(Exception):
     ""
     
     
-class ValidationWarning(Warning):
+class PropertyNotValidWarning(Warning):
     ""
 
 
@@ -3143,10 +3149,11 @@ def parse_tabular_data_from_text(
         "@context": "http://www.w3.org/ns/csvw",
         "rdfs:comment": [],
         "tableSchema": {
-        "columns": [],
+            "columns": []
+            },
         "@type": 'Table'
       }
-    }
+    
 
     # 3 If the URL of the tabular data file being parsed is known, set the 
     # url property on M to that URL.
@@ -3831,24 +3838,145 @@ def get_column_titles_of_csv_file_text_line_generator(
 #%% 4- Annotating Tables
 
 def check_metadata_document(
-        metadata_obj_dict
+        metadata_obj_dict,
+        schema_name
         ):
     """
     """
     # All compliant applications must generate errors and stop processing if 
     # a metadata document:
     # - does not use valid JSON syntax defined by [RFC7159].
+    
+    # TO DO???
+    
     # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+    
+    # TO DO
+    
     # - does not specify a property that it is required to specify.
     
-    # NEEDS COMPLETING
+    errors=validate_metadata_obj_dict(
+            metadata_obj_dict,
+            schema_name
+            )
+    
+    for error in errors:
+        
+        if error.validator=='required':
+            
+            raise Exception('a required property is missing')
 
 
-def apply_metadata_default_values(
-        metadata_obj_dict
+
+
+def apply_default_values_table_group(
+        table_group_dict
         ):
     """
     """
+    
+    def apply_default_values(
+            metadata_obj_dict,
+            schema_name
+            ):
+        """
+        """
+
+        errors=validate_metadata_obj_dict(
+            metadata_obj_dict,
+            schema_name
+            )
+
+        #print(list(errors))  # this will use up the generator
+        
+        for error in errors:
+            
+            if 'is not valid under any of the given schemas' in error.message:
+                
+                property_name=error.path[0]
+                #print('property_name',property_name)
+                
+                property_value=error.instance
+            
+                default=error.schema.get('default')
+                #print('default',default)
+                
+                message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+                
+                if not default is None:
+                    
+                    metadata_obj_dict[property_name]=default
+                    
+                    message+=f' Value replaced with default value "{default}"'
+            
+                else:
+                    
+                    metadata_obj_dict[property_name]=None
+                    
+                    message+=' Value replaced with None'
+                    
+                warnings.warn(
+                    message,
+                    PropertyNotValidWarning
+                    )
+            
+        return metadata_obj_dict
+
+    
+
+    def apply_default_values_datatype(
+            datatype_dict
+            ):
+        """
+        """
+        # format
+        format_dict=datatype_dict.get('format')
+        
+        if not format_dict is None:
+            
+            format_dict=\
+                apply_default_values(
+                    format_dict,
+                    'number_format.schema.json'
+                    )
+                
+            datatype_dict['format']=format_dict
+        
+        datatype_dict=\
+            apply_default_values(
+                datatype_dict,
+                'datatype_description.schema.json'
+                )
+        
+        return datatype_dict
+
+
+    def apply_default_language_tag(
+            language_tag,
+            ):
+        """
+        """
+        
+        if langcodes.tag_is_valid(language_tag):
+            
+            return language_tag
+        
+        else:
+            
+            property_name='lang'
+            property_value=language_tag
+            default=schemas['inherited_properties.schema.json']['properties']['lang']['default']
+            
+            message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+            message+=f' Value replaced with default value "{default}"'
+            
+            warnings.warn(
+                message,
+                PropertyNotValidWarning
+                )
+            
+            return default
+        
     
     # If a property has a value that is not permitted by this specification, 
     # then if a default value is provided for that property, compliant 
@@ -3860,7 +3988,247 @@ def apply_metadata_default_values(
     #   this specification, and
     # - properties having invalid values for a given property.
 
-    # NEEDS COMPLETING
+
+    # tables
+    for i, table_dict in enumerate(table_group_dict.get('tables',[])):
+
+        # table schema          
+        table_schema_dict=table_dict.get('tableSchema')
+        
+        if not table_schema_dict is None:
+        
+            # foreign keys
+            for j, foreign_key_dict in enumerate(table_schema_dict.get('foreignKeys',[])):
+                
+                # foreign key reference
+                foreign_key_reference_dict=foreign_key_dict.get('reference')
+                
+                if foreign_key_reference_dict is None:
+                
+                    foreign_key_reference_dict=apply_default_values(
+                        foreign_key_reference_dict,
+                        'foreign_key_reference.schema.json'
+                        )
+                    
+                    foreign_key_dict['reference']=foreign_key_reference_dict
+                
+                # foreign key
+                foreign_key_dict=apply_default_values(
+                    foreign_key_dict,
+                    'foreign_key_definition.schema.json'
+                    )
+                
+                table_schema_dict['foreignKeys'][j]=foreign_key_dict
+                
+            # columns
+            for j, column_dict in enumerate(table_schema_dict.get('columns',[])):
+                
+                # datatype
+                datatype_dict=column_dict.get('datatype')
+                
+                if not datatype_dict is None:
+                    
+                    datatype_dict=\
+                        apply_default_values_datatype(
+                            datatype_dict
+                            )
+                        
+                    column_dict['datatype']=datatype_dict
+                    
+                # lang
+                language_tag=column_dict.get('lang')
+                
+                if not language_tag is None:
+                    
+                    language_tag=\
+                        apply_default_language_tag(
+                            language_tag
+                            )
+                        
+                    column_dict['lang']=language_tag
+                
+                # column_dict
+                column_dict=apply_default_values(
+                    column_dict,
+                    'column_description.schema.json'
+                    )
+            
+                table_schema_dict['columns'][j]=column_dict
+                
+            # datatype
+            datatype_dict=table_schema_dict.get('datatype')
+            
+            if not datatype_dict is None:
+                
+                datatype_dict=\
+                    apply_default_values_datatype(
+                        datatype_dict
+                        )
+                    
+                table_schema_dict['datatype']=datatype_dict
+                
+            # lang
+            language_tag=table_schema_dict.get('lang')
+            
+            if not language_tag is None:
+                
+                language_tag=\
+                    apply_default_language_tag(
+                        language_tag
+                        )
+                    
+                table_schema_dict['lang']=language_tag
+            
+            # table schema
+            table_schema_dict=\
+                apply_default_values(
+                    table_schema_dict,
+                    'schema_description.schema.json'
+                    )
+            
+            table_dict['tableSchema']=table_schema_dict
+            
+        # dialect 
+        dialect_dict=table_dict.get('dialect')
+        
+        if not dialect_dict is None:
+            
+            dialect_dict=\
+                apply_default_values(
+                    dialect_dict,
+                    'dialect_description.schema.json'
+                    )
+            
+            table_dict['dialect']=dialect_dict
+            
+        # transformations
+        for i, transformation_dict in enumerate(table_dict.get('transformations',[])):
+        
+            transformation_dict=\
+                apply_default_values(
+                    transformation_dict,
+                    'transformation_description.schema.json'
+                    )
+                
+            table_dict['transformations'][i]=transformation_dict
+        
+        # datatype
+        datatype_dict=table_dict.get('datatype')
+        
+        if not datatype_dict is None:
+            
+            datatype_dict=\
+                apply_default_values_datatype(
+                    datatype_dict
+                    )
+                
+            table_dict['datatype']=datatype_dict
+
+        # lang
+        language_tag=table_dict.get('lang')
+        
+        if not language_tag is None:
+            
+            language_tag=\
+                apply_default_language_tag(
+                    language_tag
+                    )
+                
+            table_dict['lang']=language_tag
+
+        
+        # table
+        table_dict=\
+            apply_default_values(
+                table_dict,
+                'table_description.schema.json'
+                )
+
+        table_group_dict['tables'][i]=table_dict
+
+
+    # dialect 
+    dialect_dict=table_group_dict.get('dialect')
+    
+    if not dialect_dict is None:
+        
+        dialect_dict=\
+            apply_default_values(
+                dialect_dict,
+                'dialect_description.schema.json'
+                )
+        
+        table_group_dict['dialect']=dialect_dict
+        
+    # transformations
+    for i, transformation_dict in enumerate(table_group_dict.get('transformations',[])):
+    
+        transformation_dict=\
+            apply_default_values(
+                transformation_dict,
+                'transformation_description.schema.json'
+                )
+            
+        table_group_dict['transformations'][i]=transformation_dict
+        
+    # datatype
+    datatype_dict=table_group_dict.get('datatype')
+    
+    if not datatype_dict is None:
+        
+        datatype_dict=\
+            apply_default_values_datatype(
+                datatype_dict
+                )
+            
+        table_group_dict['datatype']=datatype_dict
+
+    # lang
+    language_tag=table_group_dict.get('lang')
+    
+    if not language_tag is None:
+        
+        language_tag=\
+            apply_default_language_tag(
+                language_tag
+                )
+            
+        table_group_dict['lang']=language_tag
+
+    # table_group
+    table_group_dict=\
+        apply_default_values(
+            table_group_dict,
+            'table_group_description.schema.json'
+            )
+
+    return table_group_dict
+    
+
+def validate_metadata_obj_dict(
+        metadata_obj_dict,
+        schema_name
+        ):
+    """
+    """
+
+    schema=schemas[schema_name]
+    
+    resolver = jsonschema.RefResolver.from_schema(
+        schema=schema,
+        store=schema_store
+        )
+    
+    validator = jsonschema.Draft7Validator(
+        schema, 
+        resolver=resolver, 
+        format_checker=None
+        )
+    
+    errors=validator.iter_errors(metadata_obj_dict)
+
+    return errors
+
 
 
 def annotate_table_group(
@@ -3883,7 +4251,8 @@ def annotate_table_group(
     # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
     # - does not specify a property that it is required to specify.
     check_metadata_document(
-            metadata_table_group_obj_dict
+            metadata_table_group_obj_dict,
+            'table_group_description.schema.json'
             )
     
     # Compliant applications must ignore properties (aside from common 
@@ -3901,7 +4270,8 @@ def annotate_table_group(
     # - properties (aside from common properties) which are not defined in 
     #   this specification, and
     # - properties having invalid values for a given property.
-    apply_metadata_default_values(
+    
+    apply_default_values_table_group(
         metadata_table_group_obj_dict
         )
     
@@ -4181,7 +4551,7 @@ def annotate_table(
             
             annotated_table_dict['id']=v
         
-        elif k in ['@context','dialect']:
+        elif k in ['@context','dialect','@type']:
             
             pass
         

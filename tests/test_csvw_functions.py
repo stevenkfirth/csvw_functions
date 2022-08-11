@@ -113,7 +113,8 @@ class TestTopLevelFunctions(unittest.TestCase):
                       '@type': 'Column'}, 
                      {'titles': {'und': ['Inventory Date']}, 
                       '@type': 'Column'}], 
-                 '@type': 'Table'}, 
+                 },
+             '@type': 'Table', 
              'url': 'example_14.csv'}
             )
         
@@ -130,8 +131,9 @@ class TestTopLevelFunctions(unittest.TestCase):
              'tableSchema': {
                  'columns': [
                      {'titles': {'und': ['#\tpublisher\tCity of Palo Alto']}, 
-                      '@type': 'Column'}], 
-                 '@type': 'Table'}, 
+                      '@type': 'Column'}]
+                 }, 
+             '@type': 'Table', 
              'url': 'example_21.csv'}
             )
     
@@ -161,9 +163,9 @@ class TestTopLevelFunctions(unittest.TestCase):
                      {'titles': {'und': ['Species']}, '@type': 'Column'}, 
                      {'titles': {'und': ['Trim Cycle']}, '@type': 'Column'}, 
                      {'titles': {'und': ['Inventory Date']}, '@type': 'Column'}
-                     ], 
-                 '@type': 'Table'
+                     ]
                  }, 
+             '@type': 'Table', 
              'url': 'example_21.csv'}
             )
  
@@ -180,6 +182,98 @@ class TestTopLevelFunctions(unittest.TestCase):
     
 #%% TESTS - Model for Tabular Data and Metadata
 
+#%% 4- Annotating Tables
+
+class TestSection4(unittest.TestCase):
+    ""
+    
+    def test_validate_metadata_obj_dict(self):
+        ""
+        
+        metadata_obj_dict={}
+        schema_name='table_group_description.schema.json'
+        errors=\
+            csvw_functions.validate_metadata_obj_dict(
+                metadata_obj_dict,
+                schema_name
+                )
+        
+        # for error in errors:
+            
+        #     #print(error)
+        #     print(error.message)
+        #     print(error.validator)
+        #     print(error.validator_value)
+        #     print(error.schema)
+        #     print(error.relative_schema_path)
+        #     print(error.absolute_schema_path)
+        #     print(error.schema_path)
+        #     print(error.relative_path)
+        #     print(error.absolute_path)
+        #     #print(error.json_path)
+        #     print(error.path)
+        #     print(error.instance)
+        #     print(error.context)
+        #     print(error.cause)
+        #     print(error.parent)
+        #     #print(dir(error))
+
+        
+        metadata_obj_dict={'tables':[{'url':''}]}
+        schema_name='table_group_description.schema.json'
+        csvw_functions.validate_metadata_obj_dict(
+                metadata_obj_dict,
+                schema_name
+                )
+        
+        print('---')
+        
+        metadata_obj_dict={'null':False}
+        schema_name='table_group_description.schema.json'
+        errors=\
+            csvw_functions.validate_metadata_obj_dict(
+                metadata_obj_dict,
+                schema_name
+                )
+        # for error in errors:
+            
+        #     #print(error)
+        #     print(error.message)
+        #     print(error.validator)
+        #     print(error.validator_value)
+        #     print(error.schema)
+        #     print(error.relative_schema_path)
+        #     print(error.absolute_schema_path)
+        #     print(error.schema_path)
+        #     print(error.relative_path)
+        #     print(error.absolute_path)
+        #     #print(error.json_path)
+        #     print(error.path)
+        #     print(error.instance)
+        #     print(error.context)
+        #     print(error.cause)
+        #     print(error.parent)
+        #     #print(dir(error))
+        
+        
+    def test_apply_metadata_default_values_table_group(self):
+        ""
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            table_group_dict={'null':False}
+            table_group_dict=\
+                csvw_functions.apply_default_values_table_group(
+                    table_group_dict
+                    )
+                
+            #print(w.warnings[0].message)
+                
+        self.assertEqual(
+            table_group_dict,
+            {'null': ''}
+            )
+        
 
 #%% Section 6.4 - Parsing Cells
 
@@ -1481,9 +1575,9 @@ class TestSection8(unittest.TestCase):
                      {'titles': {'und': ['Subsector', '#subsector']}, '@type': 'Column'}, 
                      {'titles': {'und': ['Department', '#adm1']}, '@type': 'Column'}, 
                      {'titles': {'und': ['Municipality', '#adm2']}, '@type': 'Column'}
-                     ],
-                 '@type': 'Table'
+                     ]
                  },
+             '@type': 'Table',
              'url': 'example_24.csv'}
             )        
     
@@ -4919,6 +5013,89 @@ class TestCSVWTestSuite(unittest.TestCase):
             json_ld_result
             )
 
+
+    def test_json_test040(self):
+        ""
+        
+        name='test040'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test041(self):
+        ""
+        
+        name='test041'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
 
     
         
