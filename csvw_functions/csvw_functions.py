@@ -362,7 +362,8 @@ def get_annotated_table_group_from_metadata(
 
 def get_json_ld_from_annotated_table_group(
         annotated_table_group_dict,
-        mode='standard'
+        mode='standard',
+        _replace_url_string=None  # used to replace urls for testing purposes
         ):
     """
     
@@ -372,19 +373,43 @@ def get_json_ld_from_annotated_table_group(
     
     if mode=='minimal':
         
-        return get_minimal_json_from_annotated_table_group(
+        json_ld=get_minimal_json_from_annotated_table_group(
                 annotated_table_group_dict
                 )
     
+    elif mode=='standard':
+        
+        json_ld=get_standard_json_from_annotated_table_group(
+                annotated_table_group_dict
+                )
+        
+        if not _replace_url_string is None:
+            
+            json_string=json.dumps(json_ld)
+            
+            for x in json_ld['tables']:
+            
+                url=x['url']
+                
+                json_string=json_string.replace(url.replace('\\','\\\\'),  # not 100% sure why this is needed - will this work for urls rather than file paths?
+                                                _replace_url_string)
+                
+            json_ld=json.loads(json_string)
+                
     else:
         
-        raise NotImplementedError
+        raise Exception
     
+    return json_ld
+
+
+
 
 
 def get_rdf_from_annotated_table_group(
         annotated_table_group_dict,
-        mode='standard'
+        mode='standard',
+        convert_any_uri_to_iri=None
         ):
     """
     """
@@ -393,14 +418,16 @@ def get_rdf_from_annotated_table_group(
         
         return generate_rdf_from_annotated_table_group(
                     annotated_table_group_dict,
-                    standard_mode=False
+                    standard_mode=False,
+                    convert_any_uri_to_iri=convert_any_uri_to_iri
                     )
     
     elif mode=='standard':
         
         return generate_rdf_from_annotated_table_group(
                     annotated_table_group_dict,
-                    standard_mode=True
+                    standard_mode=True,
+                    convert_any_uri_to_iri=convert_any_uri_to_iri
                     )
     
     else:
@@ -657,40 +684,235 @@ class ValidationWarning(Warning):
 
 #%% 5 - Locating Metadata
 
-# def get_embedded_metadata_from_csv_file(
-#         csv_file_path_or_url
-#         ):
-#     """
-#     """
-#     csv_file_path, csv_file_url=\
-#         get_path_and_url_from_file_location(
-#             csv_file_path_or_url
-#             )
+#%% 5.3 - Default Locations and Site-wide Location Configuration
+
+def get_metadata_from_default_or_site_wide_location(
+        csv_file_path_or_url,
+        csv_file_absolute_path, 
+        csv_file_url
+        ):
+    """
+    """
+    # If the user has not supplied a metadata file as overriding metadata, 
+    # described in section 5.1 Overriding Metadata, and no applicable 
+    # metadata file has been discovered through a Link header, described 
+    # in section 5.2 Link Header, processors must attempt to locate a 
+    # metadata documents through site-wide configuration.
+
+    # In this case, processors must retrieve the file from the well-known 
+    # URI /.well-known/csvm. (Well-known URIs are defined by [RFC5785].) 
+    # If no such file is located (i.e. the response results in a client 
+    # error 4xx status code or a server error 5xx status code), processors 
+    # must proceed as if this file were found with the following content 
+    # which defines default locations:
+    #  {+url}-metadata.json
+    #  csv-metadata.json
     
-#     csv_text_line_generator=get_text_line_generator_from_path_or_url(
-#         csv_file_path, 
-#         csv_file_url
-#         )  
     
-#     column_titles=get_column_titles_of_csv_file_text_line_generator(
-#         csv_text_line_generator
-#         )
-#     column_description_objects=[{'titles':[column_title]}
-#                                 for column_title in column_titles]
+    #print('csv_file_path_or_url',csv_file_path_or_url)
     
-#     schema_description_object={
-#         'columns': column_description_objects
-#         }
+    well_known_url=urllib.parse.urljoin(csv_file_path_or_url,'/.well-known/csvm')
     
-#     table_description_object={
-#         '@context': "http://www.w3.org/ns/csvw",
-#         '@type': 'Table', 
-#         'url': csv_file_path or csv_file_url,
-#         'tableSchema': schema_description_object
-#         }
+    #print('well_known_url',well_known_url)
     
-#     return table_description_object
+    try:
+        
+        text=requests.get(well_known_url, stream=True).text
+        
+    except requests.exceptions.MissingSchema:
+        
+        text='{+url}-metadata.json\ncsv-metadata.json'
     
+    locations=[x.strip() for x in text.split('\n')]
+    
+    # The response to retrieving /.well-known/csvm may be cached, subject 
+    # to cache control directives. 
+    # This includes caching an unsuccessful response such as a 404 Not Found.
+    
+    # TO DO???
+    
+    # This file must contain a URI template, as defined by [URI-TEMPLATE], 
+    # on each line. 
+    # Starting with the first such URI template, processors must:
+        
+    for location in locations:
+        
+        #print('location',location)
+        
+        # 1. Expand the URI template, with the variable url being set to 
+        #    the URL of the requested tabular data file (with any fragment 
+        #    component of that URL removed).
+        
+        if not csv_file_absolute_path is None:
+            
+            url=urllib.parse.urldefrag(csv_file_absolute_path)[0]
+            
+        elif not csv_file_url is None:
+        
+            url=urllib.parse.urldefrag(csv_file_url)[0]
+        
+        else:
+            
+            raise Exception
+        
+        #print('url',url)
+        variables={'url':url}
+        expanded_url=uritemplate.expand(location,
+                                        variables)
+        expanded_url=expanded_url.replace('%5C','/')  # reverses changes to forward slashes in the expand process
+        expanded_url=expanded_url.replace('%20',' ')  # reverses changes to forward slashes in the expand process
+        #print('expanded_url', expanded_url)
+        
+        # 2. Resolve the resulting URL against the URL of the requested 
+        #    tabular data file.
+        
+        if not csv_file_absolute_path is None:
+            
+            if os.path.isabs(expanded_url):
+            
+                resolved_url=expanded_url 
+                
+            else:
+                
+                resolved_url=\
+                    os.path.join(
+                        os.path.dirname(csv_file_absolute_path),
+                        expanded_url
+                        )
+                
+            
+            
+        elif not csv_file_url is None:
+        
+            resolved_url=get_resolved_path_or_url_from_link_string(
+                    expanded_url,
+                    csv_file_absolute_path, 
+                    csv_file_url
+                    )
+            
+        else:
+            
+            raise Exception
+            
+        #print('resolved_url', resolved_url)
+        
+        # 3. Attempt to retrieve a metadata document at that URL.
+        if not csv_file_absolute_path is None:
+            
+            try:
+                metadata_file_text=\
+                    get_text_from_file_path(
+                        resolved_url
+                        )
+            except FileNotFoundError:
+                
+                continue
+                
+            
+        elif not csv_file_url is None:
+        
+            try:    
+        
+                metadata_file_text, headers=\
+                    get_text_and_headers_from_file_url(
+                        resolved_url
+                        )
+                
+            except requests.ConnectionError:
+                
+                continue
+            
+                
+        else:
+            
+            raise Exception
+        
+        # 4. If no metadata document is found at that location, or if the 
+        #    metadata file found at the location does not explicitly 
+        #    include a reference to the relevant tabular data file, 
+        #    perform these same steps on the next URI template, otherwise 
+        #    use that metadata document.
+    
+        metadata_root_obj_dict=json.loads(metadata_file_text)
+        
+        if not csv_file_absolute_path is None:
+            
+            metadata_file_path=resolved_url
+            metadata_file_url=None
+            
+        elif not csv_file_url is None:
+            
+            metadata_file_path=None
+            metadata_file_url=resolved_url
+            
+        else:
+            
+            raise Exception
+        
+        # get base path & url
+        base_path, base_url=\
+            get_base_path_and_url_of_metadata_object(
+                metadata_root_obj_dict,
+                metadata_file_path,
+                metadata_file_url
+                )
+        
+        #print('base_path',base_path)
+        
+        
+        metadata_type=\
+            get_type_of_metadata_object(
+                metadata_root_obj_dict
+                )
+        if metadata_type=='TableGroup':
+            metadata_table_obj_dict=metadata_root_obj_dict['tables'][0]
+            
+        elif metadata_type=='Table':
+            metadata_table_obj_dict=metadata_root_obj_dict
+            
+        else:
+            raise Exception
+            
+        tabular_data_file_path_or_url=metadata_table_obj_dict['url']  
+        
+        #print('tabular_data_file_path_or_url',tabular_data_file_path_or_url)
+        
+        #print('csv_file_absolute_path',csv_file_absolute_path)
+            
+        x=get_resolved_path_or_url_from_link_string(
+                tabular_data_file_path_or_url,
+                base_path,
+                base_url
+                )
+        
+        #print('x',x)
+        
+        if not csv_file_absolute_path is None:
+            
+            x=os.path.abspath(x)
+            
+            if os.path.abspath(x)==csv_file_absolute_path:
+                
+                metadata_table_obj_dict['url']  =x
+                
+                #print(metadata_table_group_obj_dict['tables'][0]['@context'])
+                
+                return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+            
+        elif not csv_file_url is None:
+            
+            if x==csv_file_url:
+                
+                return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+            
+        else:
+            
+            raise Exception
+        
+    
+    return None, None, None
+        
+
 
 #%% 6.1 - Creating Annotated Tables
 
@@ -786,7 +1008,25 @@ def create_annotated_tables_from_csv_file_path_or_url(
     # 2.3 metadata retrieved through a site-wide location configuration 
     #     (see section 5.3 Default Locations and Site-wide Location Configuration).
 
-    # TO DO
+    metadata_root_obj_dict,metadata_file_path,metadata_file_url=\
+            get_metadata_from_default_or_site_wide_location(
+                csv_file_path_or_url,
+                csv_file_absolute_path, 
+                csv_file_url
+                )
+    #print('metadata_root_obj_dict',metadata_root_obj_dict)
+    
+    if not metadata_root_obj_dict is None:
+
+        
+        return create_annotated_tables_from_metadata_root_object(
+            metadata_root_obj_dict,
+            metadata_file_path,
+            metadata_file_url,
+            validate=validate,
+            from_csv=True,
+            return_embedded_metadata=return_embedded_metadata,
+            )
     
     # 2.4 embedded metadata as defined in section 5.4 Embedded Metadata with 
     #     a single tables entry where the url property is set from that of the 
@@ -880,6 +1120,8 @@ def create_annotated_tables_from_metadata_root_object(
     
     
     annotated_table_group_dict={
+        'id':None,
+        'notes':[],
         'tables':[]
         }
     
@@ -938,9 +1180,8 @@ def create_annotated_tables_from_metadata_root_object(
         
     else:
         raise Exception
-        
-    with open('metadata_table_group_obj_dict.json','w') as f: 
-        json.dump(metadata_table_group_obj_dict,f,indent=4)
+    #print('metadata_table_group_obj_dict',metadata_table_group_obj_dict)
+    
                  
     # 3 For each table (TM) in UM in order, create one or more annotated tables:
     
@@ -1241,6 +1482,27 @@ def create_annotated_tables_from_metadata_root_object(
                 # into an absolute URL as described in URI Template Properties 
                 # of [tabular-metadata]. The value URL annotation is null if the cell value is null and the column virtual annotation is false.
                 if not annotated_cell_dict['valueURL'] is None:
+                    
+                    # ATTEMPT TO ALLOW LISTS IN valueURL - now removed
+                    # if isinstance(annotated_cell_dict['value'],list):
+                        
+                    #     result=[]
+                        
+                    #     for value in annotated_cell_dict['value']:
+                            
+                    #         result.append(get_URI_from_URI_template(
+                    #                         annotated_cell_dict['valueURL'],
+                    #                         annotated_cell_dict,
+                    #                         tabular_data_file_path, 
+                    #                         tabular_data_file_url,
+                    #                         value=value
+                    #                         )  
+                    #                     )
+                            
+                    #     annotated_cell_dict['valueURL']=result
+                        
+                    # else:
+                    
                     annotated_cell_dict['valueURL']=\
                         get_URI_from_URI_template(
                             annotated_cell_dict['valueURL'],
@@ -1248,7 +1510,9 @@ def create_annotated_tables_from_metadata_root_object(
                             tabular_data_file_path, 
                             tabular_data_file_url
                             )  
-     
+         
+                    #print(annotated_cell_dict['value'])
+                    #print(annotated_cell_dict['valueURL'])
              
      
  
@@ -2845,12 +3109,13 @@ def parse_tabular_data_from_text(
             # cells set to an empty list
             else:
                 row_dict=dict(
-                    table=table_dict, #table_name, 
+                    table=table_dict, 
                     number=row_number,
                     sourceNumber=source_row_number,
                     primaryKey=[],
                     referencedRows=[],
-                    cells=[]
+                    cells=[],
+                    titles=[]
                     )
                 
             # 10.4.3 Append R to the rows of table T.
@@ -3443,6 +3708,11 @@ def annotate_table_group(
                 
                 notes.append(v)
         
+        
+        elif k in ['@type','@context']:
+            
+            pass
+        
         else:
             
             annotated_table_group_dict[k]=v
@@ -3642,6 +3912,10 @@ def annotate_table(
             
             annotated_table_dict['id']=v
         
+        elif k=='@context':
+            
+            pass
+        
         else:
             
             annotated_table_dict[k]=v
@@ -3755,7 +4029,8 @@ def get_URI_from_URI_template(
         uri_template_string,
         annotated_cell_dict,
         table_path,
-        table_url
+        table_url,
+        #value=None
         ):
     """
     """
@@ -3797,6 +4072,9 @@ def get_URI_from_URI_template(
                 name=cell['column']['name']
                 
                 if name==variable:
+                    
+                    # set value if not passed into the function
+                    #if value is None:
                     
                     value=cell['value']
                     
@@ -4689,6 +4967,254 @@ def get_minimal_json_from_annotated_table_group(
                 output.extend(sequence_of_root_objects)
                 
     return output
+
+
+def get_standard_json_from_annotated_table_group(
+        annotated_table_group_dict
+        ):
+    """
+    """
+    logging.info('    FUNCTION: get_standard_json_from_annotated_table_group')
+    
+    # The steps in the algorithm defined here apply to standard mode.
+
+    # 1 Insert an empty object G into the JSON output which is associated 
+    #   with the group of tables.
+    
+    G={}
+    
+    # 2 If the group of tables has an identifier IG; insert the following 
+    #   name-value pair into object G:
+    #   name @id
+    #   value IG
+    
+    id_=annotated_table_group_dict['id']
+    
+    if not id_ is None:
+        
+        G['@id']=id_
+    
+    # 3 Insert any notes and non-core annotations specified for the group 
+    #   of tables into object G according to the rules provided in 5. 
+    #   JSON-LD to JSON.
+    
+    notes=annotated_table_group_dict['notes']
+    
+    if len(notes)>0:
+        
+        x=[]
+        G['notes']=x
+    
+        for note in notes:
+            
+            x.append(get_json_from_json_ld(note))
+            
+    core_properties=get_core_properties('annotated_table_group.schema.json')
+    #print(core_properties)
+    
+    for k,v in annotated_table_group_dict.items():
+        
+        if not k in core_properties:
+            
+            if k=='@context':
+                raise Exception
+            
+            G[k]=get_json_from_json_ld(v)
+    
+    # 4 Insert the following name-value pair into object G:
+    #   name tables
+    #   value AT
+    #   where AT is an array into which the objects describing the 
+    #   annotated tables will be subsequently inserted.
+    
+    AT=[]
+    G['tables']=AT
+    
+    # 5 Each table is processed sequentially in the order they are 
+    #   referenced in the group of tables.
+    
+    # For each table where the suppress output annotation is false:
+    for annotated_table_dict in annotated_table_group_dict['tables']:
+        
+        if annotated_table_dict['suppressOutput']==False:
+            
+            # 5.1 Insert an empty object T into the array AT to represent the 
+            #     table.
+            
+            T={}
+            AT.append(T)
+                    
+            # 5.2 If the table has an identifier IT; insert the following 
+            #     name-value pair into object T:
+            #     name @id
+            #     value IT
+            
+            id_=annotated_table_dict['id']
+            
+            if not id_ is None:
+                
+                T['@id']=id_
+            
+            # 5.3 Specify the source tabular data file URL for the current 
+            #     table based on the url annotation; insert the following 
+            #     name-value pair into object T:
+            #     name url
+            #     value URL
+            
+            T['url']=annotated_table_dict['url']
+            
+            # 5.4 Insert any notes and non-core annotations specified for the 
+            #     table into object T according to the rules provided in 5. 
+            #     JSON-LD to JSON.
+            
+            #     NOTE
+            #     All other core annotations for the table are ignored during 
+            #     the conversion; including information about table schemas 
+            #     and their columns, foreign keys, table direction, 
+            #     transformations, etc.
+
+            notes=annotated_table_dict['notes']
+            
+            if len(notes)>0:
+                
+                x=[]
+                T['notes']=x
+            
+                for note in notes:
+                    
+                    x.append(get_json_from_json_ld(note))
+                    
+            core_properties=get_core_properties('annotated_table.schema.json')
+            
+            for k,v in annotated_table_dict.items():
+                
+                if not k in core_properties:
+                    
+                    T[k]=get_json_from_json_ld(v)
+            
+            # 5.5 Insert the following name-value pair into object T:
+            #     name row
+            #     value AR
+            #     where AR is an array into which the objects describing the 
+            #     rows will be subsequently inserted.
+            
+            AR=[]
+            T['row']=AR
+            
+            # 5.6 Each row within the table is processed sequentially in order. 
+            #     For each row in the current table:
+                
+            for annotated_row_dict in annotated_table_dict['rows']:
+                
+                # 5.6.1 Insert an empty object R into the array AR to 
+                #       represent the row.
+                
+                R={}
+                AR.append(R)
+                
+                # 5.6.2 Specify the row number n for the row; insert the 
+                #       following name-value pair into object R:
+                #       name rownum
+                #       value n
+                
+                R['rownum']=annotated_row_dict['number']
+                
+                # 5.6.3 Specify the row source number nsource for the row 
+                #       within the source tabular data file URL using a 
+                #       fragment-identifier as specified in [RFC7111]; 
+                #       if row source number is not null, insert the 
+                #       following name-value pair into object R:
+                #       name url
+                #       value URL#row=nsource
+                
+                source_number=annotated_row_dict['sourceNumber']
+                
+                if not source_number is None:
+                    
+                    url=T['url']
+                    
+                    R['url']=f'{url}#row={source_number}'
+                    
+                    
+                # 5.6.4 Specify any titles for the row; if row titles is 
+                #       not null, insert the following name-value pair into 
+                #       object R:
+                #       name titles
+                #       value t
+                #       where t is the single value or array of values 
+                #       provided by the row titles annotation.
+            
+                titles=annotated_row_dict['titles']
+                
+                if not titles is None and len(titles)>0:
+                    
+                    R['titles']=titles
+
+                # NOTE
+                # JSON has no native support for expressing language 
+                # information; therefore any such information associated with 
+                # the row titles is ignored.
+                
+                # TO DO???
+                
+                # 5.6.5 Insert any non-core annotations specified for the 
+                #       row into object R according to the rules provided in 
+                #       5. JSON-LD to JSON.
+                
+                core_properties=get_core_properties('annotated_row.schema.json')
+                
+                for k,v in annotated_row_dict.items():
+                    
+                    if not k in core_properties:
+                        
+                        R[k]=get_json_from_json_ld(v)
+                
+                # 5.6.6 Insert the following name-value pair into object R:
+                #       name describes
+                #       value A
+                #       where A is an array. The objects containing the 
+                #       name-value pairs associated with the cell values will 
+                #       be subsequently inserted into this array.
+                
+                A=[]
+                R['describes']=A
+                
+                # 5.6.7 Generate a sequence of objects, S1 to Sn, each of which 
+                #       corresponds to a subject described by the current row, 
+                #       as described in 4.3 Generating Objects.
+                #       NOTE
+                #       The subject(s) described by each row are determined 
+                #       according to the about URL annotation for each cell in 
+                #       the current row. Where about URL is undefined, 
+                #       a default subject for the row is used.
+                
+                sequence_of_objects=generate_objects(
+                    annotated_row_dict
+                    )
+                
+                # 5.6.8 As described in 4.4 Generating Nested Objects, 
+                #       process the sequence of objects, S1 to Sn, to produce 
+                #       a new sequence of root objects, SR1 to SRm, that may 
+                #       include nested objects.
+                #       NOTE
+                #       A row may describe multiple interrelated subjects; 
+                #       where the value URL annotation on one cell matches 
+                #       the about URL annotation on another cell in the same 
+                #       row.
+                
+                sequence_of_root_objects=\
+                    generate_nested_objects(
+                        annotated_row_dict,
+                        sequence_of_objects 
+                        )
+                
+                # 5.6.9 Insert each root object, SR1 to SRm, into array A.
+                
+                A.extend(sequence_of_root_objects)
+
+
+
+    return G
         
 
 #%% 4.3 Generating Objects
@@ -5196,6 +5722,75 @@ def interpret_datatype(
         return value['@value']
     
     
+#%% 5 JSON-LD to JSON
+
+# This section defines a mechanism for transforming the [json-ld] dialect 
+# used for non-core annotations and notes originating from the processing of 
+# metadata (as defined in [tabular-metadata]) into JSON.
+    
+def get_json_from_json_ld(
+        value
+        ):
+    """
+    """
+    
+    if isinstance(value,dict):
+        
+        # 1 Name-value pairs from notes and non-core annotations annotations 
+        #   are generally copied verbatim from the metadata description 
+        #   subject to the exceptions below:
+    
+        #   Name-value pairs whose value is an object using the [json-ld] 
+        #   keyword @value, for example:
+        #    name N
+        #    value { "@value": "V" }
+        
+        #   are transformed to
+        #    name N
+        #    value V
+        
+        #   Name-value pairs occurring within the value object that use 
+        #   [json-ld] keywords @language and @type are ignored.
+    
+        if '@value' in value:
+            
+            return value['@value']
+        
+        # 2 Name-value pairs whose value is an object using the [json-ld] 
+        #   keyword @id to coerce a string-value to be interpreted as an 
+        #   IRI, for example:
+        #    name N
+        #    value { "@id": "Vurl" }
+        
+        #   are transformed to:
+        #    name N
+        #    value Vurl
+        
+        elif '@id' in value:
+            
+            return value['@id']
+        
+        # In addition to compacting values of property URLs, URLs which were 
+        # the value of objects using the [json-ld] keyword @type are 
+        # compacted according to the rules as defined in URL Compaction 
+        # in [tabular-metadata].
+        
+        # TO DO
+        
+        else: 
+            
+            return {k:get_json_from_json_ld(v) for k,v in value.items()}
+
+
+    elif isinstance(value,list):
+        
+        return [get_json_from_json_ld(x) for x in value]
+    
+    else:
+        
+        return value
+
+    
     
 #%%---Generating RDF from Tabular Data on the Web---
 
@@ -5203,11 +5798,15 @@ def interpret_datatype(
     
 def generate_rdf_from_annotated_table_group(
         annotated_table_group_dict,
-        standard_mode=True
+        standard_mode=True,
+        convert_any_uri_to_iri=None
         ):
     """
     """
     logging.info('    FUNCTION: get_rdf_from_annotated_table_group')
+    
+    if convert_any_uri_to_iri is None:
+        convert_any_uri_to_iri=[]
     
     output=[]
     
@@ -5518,7 +6117,8 @@ def generate_rdf_from_annotated_table_group(
                                 Vliteral=\
                                     get_rdf_lexical_form_from_cell_value(
                                         v,
-                                        datatype
+                                        datatype,
+                                        convert_any_uri_to_iri
                                         )
                             
                                 output.append(
@@ -5569,7 +6169,8 @@ def generate_rdf_from_annotated_table_group(
                                 Vliteral=\
                                     get_rdf_lexical_form_from_cell_value(
                                         v,
-                                        datatype
+                                        datatype,
+                                        convert_any_uri_to_iri
                                         )
                             
                                 output.append(
@@ -5594,7 +6195,8 @@ def generate_rdf_from_annotated_table_group(
                             Vliteral=\
                                 get_rdf_lexical_form_from_cell_value(
                                     value,
-                                    datatype
+                                    datatype,
+                                    convert_any_uri_to_iri
                                     )
                                 
                             output.append(
@@ -5633,7 +6235,8 @@ def generate_rdf_from_annotated_table_group(
     
 def get_rdf_lexical_form_from_cell_value(
         value,
-        datatype
+        datatype,
+        convert_any_uri_to_iri
         ):
     """
     """
@@ -5691,6 +6294,16 @@ def get_rdf_lexical_form_from_cell_value(
             
             rdf_literal=f'"{lexical_form}"^^{rdf_datatype_iri}'
         
+    elif rdf_datatype_iri=='<http://www.w3.org/2001/XMLSchema#anyURI>':
+        
+        for x in convert_any_uri_to_iri:
+            
+            if lexical_form.startswith(x):
+                
+                return f'<{lexical_form}>'
+                
+        rdf_literal=f'"{lexical_form}"^^{rdf_datatype_iri}'
+            
     else:
         
         rdf_literal=f'"{lexical_form}"^^{rdf_datatype_iri}'
@@ -5783,6 +6396,14 @@ def get_common_properties_of_metadata_object(
         )
     
     return [x for x in d if not x in all_properties]
+
+
+def get_core_properties(
+        schema_name
+        ):
+    """
+    """
+    return list(schemas[schema_name]['properties'])
 
 
 def get_default_language_of_metadata_object(
