@@ -33,6 +33,54 @@ with open(os.path.join('model_for_tabular_data_and_metadata_example_files','exam
      model_for_tabular_data_and_metadata_example_14=f.read()
 
 
+
+def compare_json(self,json1,json2):
+    ""
+    if isinstance(json1,dict):
+        
+        self.assertIsInstance(
+            json2,
+            dict
+            )
+        
+        self.assertEqual(
+            set(list(json1)),
+            set(list(json2))
+            )
+        
+        for k in json1:
+            
+            compare_json(
+                self,
+                json1[k],
+                json2[k]
+                )
+        
+    elif isinstance(json1,list):
+        
+        self.assertIsInstance(
+            json2,
+            list
+            )
+        
+        self.assertEqual(
+            len(json1),
+            len(json2)
+            )
+        
+        for i in range(len(json1)):
+            
+            compare_json(
+                self,
+                json1[i],
+                json2[i]
+                )
+        
+    else:
+        
+        self.assertEqual(json1,json2)
+
+
     
     
 #%% TESTS - Top Level Functions
@@ -4216,6 +4264,223 @@ class TestCSVWTestSuite(unittest.TestCase):
             json_ld_result=json.load(f)
         #print(json_ld_result)
            
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test013(self):
+        ""
+        
+        name='test013'
+        fp_action='_github_w3c_csvw_tests/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                overriding_metadata_file_path_or_url='_github_w3c_csvw_tests/test013-user-metadata.json',
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test014(self):
+        ""
+        
+        name='test014'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                _link_header='<linked-metadata.json>; rel="describedby"; type="application/csvm+json"'
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{name}/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test015(self):
+        ""
+        
+        name='test015'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                overriding_metadata_file_path_or_url=f'_github_w3c_csvw_tests/{name}/user-metadata.json',
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{name}/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test016(self):
+        ""
+        
+        name='test016'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                _link_header='<linked-metadata.json>; rel="describedby"; type="application/csvm+json"'
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{name}/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test017(self):
+        ""
+        
+        name='test017'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                _link_header='<linked-metadata.json>; rel="describedby"; type="application/csvm+json"'
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{name}/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+    
+    def test_json_test018(self):
+        ""
+        
+        name='test018'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                overriding_metadata_file_path_or_url=f'_github_w3c_csvw_tests/{name}/user-metadata.json'
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{name}/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+    
+    
+    def test_json_test023(self):
+        ""
+        
+        name='test023'
+        fp_action='_github_w3c_csvw_tests/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                overriding_metadata_file_path_or_url=f'_github_w3c_csvw_tests/{name}-user-metadata.json'
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/tree-ops.csv'
+                    )    
+        #print(json_ld)
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
         self.maxDiff=None
         self.assertEqual(
             json_ld,
@@ -4223,8 +4488,444 @@ class TestCSVWTestSuite(unittest.TestCase):
             )
         
         
+    def test_json_test027(self):
+        ""
+        
+        name='test027'
+        fp_action='_github_w3c_csvw_tests/tree-ops.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action,
+                overriding_metadata_file_path_or_url=f'_github_w3c_csvw_tests/{name}-user-metadata.json'
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/tree-ops.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test028(self):
+        ""
+        
+        name='test028'
+        fp_action='_github_w3c_csvw_tests/countries.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/countries.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+    
+    
+    def test_json_test029(self):
+        ""
+        
+        name='test029'
+        fp_action='_github_w3c_csvw_tests/countries.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/countries.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+    
+    
+    def test_json_test030(self):
+        ""
+        
+        name='test030'
+        fp_action='_github_w3c_csvw_tests/countries.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+    
+    
+    def test_json_test031(self):
+        ""
+        
+        name='test031'
+        fp_action='_github_w3c_csvw_tests/countries.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+    
+    
+    def test_json_test032(self):
+        ""
+        
+        name='test032'
+        fp_action=f'_github_w3c_csvw_tests/{name}/csv-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/%s/{table_name}.csv' % name
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test033(self):
+        ""
+        
+        name='test033'
+        fp_action=f'_github_w3c_csvw_tests/{name}/csv-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/%s/{table_name}.csv' % name
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test034(self):
+        ""
+        
+        name='test034'
+        fp_action=f'_github_w3c_csvw_tests/{name}/csv-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/%s/{table_name}.csv' % name
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test035(self):
+        ""
+        
+        name='test035'
+        fp_action=f'_github_w3c_csvw_tests/{name}/csv-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/%s/{table_name}.csv' % name
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+    
+    def test_json_test036(self):
+        ""
+        
+        name='test036'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops-ext.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/%s/{table_name}.csv' % name
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+
+
+    def test_json_test037(self):
+        ""
+        
+        name='test037'
+        fp_action=f'_github_w3c_csvw_tests/{name}/tree-ops-ext.csv'
+        fp_result=f'_github_w3c_csvw_tests/{name}/result.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_csv(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='minimal',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/%s/{table_name}.csv' % name
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+
+
+    def test_json_test038(self):
+        ""
+        
+        name='test038'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+        
+        
+    def test_json_test039(self):
+        ""
+        
+        name='test039'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(
+                fp_action
+                )
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )
+
+
+    
+        
+        
 
         
 if __name__=='__main__':
     
     unittest.main()
+    #unittest.main(TestCSVWTestSuite())

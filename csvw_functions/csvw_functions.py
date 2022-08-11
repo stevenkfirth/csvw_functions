@@ -226,6 +226,7 @@ def get_annotated_table_group_from_csv(
         skip_blank_rows=None,
         skip_columns=None,
         skip_rows=None,
+        _link_header=None  # for testing link headers
         ):
     """Returns an annotated table group derived from a CSV file.
     
@@ -329,7 +330,8 @@ def get_annotated_table_group_from_csv(
             overriding_metadata_file_path_or_url=overriding_metadata_file_path_or_url,
             validate=False,
             return_embedded_metadata=False,
-            dialect_flags=dialect_flags
+            dialect_flags=dialect_flags,
+            _link_header=_link_header
             )
 
     return annotated_table_group_dict
@@ -363,7 +365,7 @@ def get_annotated_table_group_from_metadata(
 def get_json_ld_from_annotated_table_group(
         annotated_table_group_dict,
         mode='standard',
-        _replace_url_string=None  # used to replace urls for testing purposes
+        _replace_url_string=None  # used to replace urls for testing purposes, can use a variable {table_name}
         ):
     """
     
@@ -383,22 +385,41 @@ def get_json_ld_from_annotated_table_group(
                 annotated_table_group_dict
                 )
         
-        if not _replace_url_string is None:
-            
-            json_string=json.dumps(json_ld)
-            
-            for x in json_ld['tables']:
-            
-                url=x['url']
-                
-                json_string=json_string.replace(url.replace('\\','\\\\'),  # not 100% sure why this is needed - will this work for urls rather than file paths?
-                                                _replace_url_string)
-                
-            json_ld=json.loads(json_string)
-                
     else:
         
         raise Exception
+    
+    
+    # replace url string
+    if not _replace_url_string is None:
+        
+        json_string=json.dumps(json_ld)
+        
+        if mode=='minimal':
+            
+            json_ld_standard=get_standard_json_from_annotated_table_group(
+                    annotated_table_group_dict
+                    )
+            
+        else:
+            
+            json_ld_standard=json_ld
+        
+        
+        for x in json_ld_standard['tables']:
+        
+            url=x['url']
+            table_name=os.path.basename(url).split('.')[0]
+            #print('table_name',table_name)
+            
+            _replace_url_string_expanded=_replace_url_string.replace('{table_name}',table_name)
+            #print('_replace_url_string_expanded',_replace_url_string_expanded)
+            
+            json_string=json_string.replace(url.replace('\\','\\\\'),  # not 100% sure why this is needed - will this work for urls rather than file paths?
+                                            _replace_url_string_expanded)
+            
+        json_ld=json.loads(json_string)
+    
     
     return json_ld
 
@@ -684,15 +705,219 @@ class ValidationWarning(Warning):
 
 #%% 5 - Locating Metadata
 
+
+#%% 5.2 - Link Header
+
+def get_metadata_from_link_header(
+        csv_file_absolute_path,
+        csv_file_url,
+        _link_header
+        ):
+    """
+    """
+    
+    if not csv_file_absolute_path is None:
+        
+        csv_file_absolute_dir=os.path.dirname(csv_file_absolute_path)
+        
+    elif not csv_file_url is None:
+        
+        csv_file_absolute_dir=None
+        
+    else:
+        
+        raise Exception
+    
+    # If the user has not supplied a metadata file as overriding metadata, 
+    # described in section 5.1 Overriding Metadata, then when retrieving a 
+    # tabular data file via HTTP, processors must retrieve the metadata file 
+    # referenced by any Link header with:
+    #  rel="describedby", and
+    #  type="application/csvm+json", type="application/ld+json" or type="application/json".
+    
+    # so long as this referenced metadata file describes the retrieved 
+    # tabular data file (ie, contains a table description whose url 
+    # matches the request URL).
+    
+    # If there is more than one valid metadata file linked to through 
+    # multiple Link headers, then implementations must use the metadata 
+    # file referenced by the last Link header.
+    
+    # If the metadata file found at this location does not explicitly 
+    #  include a reference to the requested tabular data file then it must 
+    #  be ignored. 
+    #  URLs must be normalized as described in section 6.3 URL Normalization.
+    
+    if not _link_header is None:
+        
+        response_links=_link_header
+    
+    elif not csv_file_url is None:
+    
+        response = requests.get(csv_file_url, stream=True)
+        response_links=response.links
+        
+    else:  # no links present
+        
+        return None, None, None
+    
+    
+    
+    
+    link_list=requests.utils.parse_header_links(response_links)
+    
+    urls=[]
+    
+    for link_dict in link_list:
+        
+        if link_dict.get('rel')=='describedby':
+            
+            if link_dict.get('type') in ['application/csvm+json',
+                                         'application/ld+json',
+                                         'application/json']:
+                
+                urls.append(link_dict['url'])
+        
+        
+        
+    for url in urls[::-1]:
+        
+        resolved_url=get_resolved_path_or_url_from_link_string(
+                url,
+                base_path=csv_file_absolute_dir,
+                base_url=csv_file_url
+                )
+        #print('resolved_url', resolved_url)
+        
+        if not csv_file_absolute_path is None:
+            
+            metadata_file_path=resolved_url
+            metadata_file_url=None
+            
+        elif not csv_file_url is None:
+            
+            metadata_file_path=None
+            metadata_file_url=resolved_url
+            
+            
+        if not metadata_file_path is None:
+            
+            try:
+                metadata_file_text=\
+                    get_text_from_file_path(
+                        metadata_file_path
+                        )
+            except FileNotFoundError:
+                
+                metadata_file_text=None
+                
+            
+        elif not metadata_file_url is None:
+        
+            try:    
+        
+                metadata_file_text, headers=\
+                    get_text_and_headers_from_file_url(
+                        metadata_file_url
+                        )
+                
+            except requests.ConnectionError:
+                
+                metadata_file_text=None
+
+        
+    
+        if metadata_file_text is None:
+            
+            continue
+        
+        else:
+    
+            metadata_root_obj_dict=json.loads(metadata_file_text)
+            
+            # get base path & url
+            base_path, base_url=\
+                get_base_path_and_url_of_metadata_object(
+                    metadata_root_obj_dict,
+                    metadata_file_path,
+                    metadata_file_url
+                    )
+            #print('base_path',base_path)
+            
+            metadata_type=\
+                get_type_of_metadata_object(
+                    metadata_root_obj_dict
+                    )
+            if metadata_type=='TableGroup':
+                metadata_table_obj_dict=metadata_root_obj_dict['tables'][0]
+                
+            elif metadata_type=='Table':
+                metadata_table_obj_dict=metadata_root_obj_dict
+                
+            else:
+                raise Exception
+                
+            table_url=metadata_table_obj_dict['url']  
+            #print('tabular_data_file_path_or_url',tabular_data_file_path_or_url)
+            
+            #print('csv_file_absolute_path',csv_file_absolute_path)
+                
+            table_url_resolved=\
+                get_resolved_path_or_url_from_link_string(
+                    table_url,
+                    base_path,
+                    base_url
+                    )
+            #print('table_url_resolved',table_url_resolved)
+            
+            if not csv_file_absolute_path is None:
+                
+                if table_url_resolved==csv_file_absolute_path:
+                    
+                    return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+                
+            elif not csv_file_url is None:
+                
+                if table_url_resolved==csv_file_url:
+                    
+                    return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+                
+            else:
+                
+                raise Exception
+        
+    
+    return None, None, None
+        
+    
+    
+
+
 #%% 5.3 - Default Locations and Site-wide Location Configuration
 
 def get_metadata_from_default_or_site_wide_location(
-        csv_file_path_or_url,
         csv_file_absolute_path, 
         csv_file_url
         ):
     """
     """
+    
+    if not csv_file_absolute_path is None:
+        
+        csv_file_absolute_dir=os.path.dirname(csv_file_absolute_path)
+        csv_file_url_defrag=None
+        
+    elif not csv_file_url is None:
+        
+        csv_file_absolute_dir=None
+        csv_file_url_defrag=urllib.parse.urldefrag(csv_file_url)[0]
+        
+    else:
+        
+        raise Exception
+        
+    
+    
     # If the user has not supplied a metadata file as overriding metadata, 
     # described in section 5.1 Overriding Metadata, and no applicable 
     # metadata file has been discovered through a Link header, described 
@@ -708,22 +933,39 @@ def get_metadata_from_default_or_site_wide_location(
     #  {+url}-metadata.json
     #  csv-metadata.json
     
-    
-    #print('csv_file_path_or_url',csv_file_path_or_url)
-    
-    well_known_url=urllib.parse.urljoin(csv_file_path_or_url,'/.well-known/csvm')
-    
-    #print('well_known_url',well_known_url)
-    
-    try:
+    if not csv_file_absolute_path is None:
         
-        text=requests.get(well_known_url, stream=True).text
+        well_known_path=os.path.join(
+            csv_file_absolute_dir,
+            '.well-known',
+            'csvm'
+            )
         
-    except requests.exceptions.MissingSchema:
+        try:
+            
+            with open(well_known_path) as f:
+                well_known_text=f.read()
+                
+        except FileNotFoundError:
+            
+            well_known_text=None
         
-        text='{+url}-metadata.json\ncsv-metadata.json'
+    elif not csv_file_url is None:
+        
+        well_known_url=urllib.parse.urljoin(csv_file_url,'/.well-known/csvm')
+        
+        try:
+            
+            well_known_text=requests.get(well_known_url, stream=True).text 
     
-    locations=[x.strip() for x in text.split('\n')]
+        except requests.ConnectionError:
+            
+            well_known_text=None
+    
+    if well_known_text is None:
+        
+        well_known_text='{+url}-metadata.json\ncsv-metadata.json'
+    
     
     # The response to retrieving /.well-known/csvm may be cached, subject 
     # to cache control directives. 
@@ -733,9 +975,12 @@ def get_metadata_from_default_or_site_wide_location(
     
     # This file must contain a URI template, as defined by [URI-TEMPLATE], 
     # on each line. 
+    
+    locations=[x.strip() for x in well_known_text.split('\n')]
+    
     # Starting with the first such URI template, processors must:
         
-    for location in locations:
+    for uri_template in locations:
         
         #print('location',location)
         
@@ -745,95 +990,32 @@ def get_metadata_from_default_or_site_wide_location(
         
         if not csv_file_absolute_path is None:
             
-            url=urllib.parse.urldefrag(csv_file_absolute_path)[0]
+            variables={'url':csv_file_absolute_path}
             
         elif not csv_file_url is None:
         
-            url=urllib.parse.urldefrag(csv_file_url)[0]
+            variables={'url':csv_file_url_defrag}
         
         else:
             
             raise Exception
+        #print(variables)
         
-        #print('url',url)
-        variables={'url':url}
-        expanded_url=uritemplate.expand(location,
-                                        variables)
-        expanded_url=expanded_url.replace('%5C','/')  # reverses changes to forward slashes in the expand process
-        expanded_url=expanded_url.replace('%20',' ')  # reverses changes to forward slashes in the expand process
+        expanded_url_quoted=uritemplate.expand(uri_template,
+                                               variables)
+        #print('expanded_url_quoted',expanded_url_quoted)
+        expanded_url=urllib.parse.unquote(expanded_url_quoted)   # needed for file paths as they get quoted in the expand process
         #print('expanded_url', expanded_url)
         
         # 2. Resolve the resulting URL against the URL of the requested 
         #    tabular data file.
         
-        if not csv_file_absolute_path is None:
-            
-            if os.path.isabs(expanded_url):
-            
-                resolved_url=expanded_url 
-                
-            else:
-                
-                resolved_url=\
-                    os.path.join(
-                        os.path.dirname(csv_file_absolute_path),
-                        expanded_url
-                        )
-                
-            
-            
-        elif not csv_file_url is None:
-        
-            resolved_url=get_resolved_path_or_url_from_link_string(
-                    expanded_url,
-                    csv_file_absolute_path, 
-                    csv_file_url
-                    )
-            
-        else:
-            
-            raise Exception
-            
+        resolved_url=get_resolved_path_or_url_from_link_string(
+                expanded_url,
+                base_path=csv_file_absolute_dir,
+                base_url=csv_file_url
+                )
         #print('resolved_url', resolved_url)
-        
-        # 3. Attempt to retrieve a metadata document at that URL.
-        if not csv_file_absolute_path is None:
-            
-            try:
-                metadata_file_text=\
-                    get_text_from_file_path(
-                        resolved_url
-                        )
-            except FileNotFoundError:
-                
-                continue
-                
-            
-        elif not csv_file_url is None:
-        
-            try:    
-        
-                metadata_file_text, headers=\
-                    get_text_and_headers_from_file_url(
-                        resolved_url
-                        )
-                
-            except requests.ConnectionError:
-                
-                continue
-            
-                
-        else:
-            
-            raise Exception
-        
-        # 4. If no metadata document is found at that location, or if the 
-        #    metadata file found at the location does not explicitly 
-        #    include a reference to the relevant tabular data file, 
-        #    perform these same steps on the next URI template, otherwise 
-        #    use that metadata document.
-    
-        metadata_root_obj_dict=json.loads(metadata_file_text)
         
         if not csv_file_absolute_path is None:
             
@@ -849,65 +1031,97 @@ def get_metadata_from_default_or_site_wide_location(
             
             raise Exception
         
-        # get base path & url
-        base_path, base_url=\
-            get_base_path_and_url_of_metadata_object(
-                metadata_root_obj_dict,
-                metadata_file_path,
-                metadata_file_url
-                )
-        
-        #print('base_path',base_path)
-        
-        
-        metadata_type=\
-            get_type_of_metadata_object(
-                metadata_root_obj_dict
-                )
-        if metadata_type=='TableGroup':
-            metadata_table_obj_dict=metadata_root_obj_dict['tables'][0]
+        # 3. Attempt to retrieve a metadata document at that URL.
+        if not metadata_file_path is None:
             
-        elif metadata_type=='Table':
-            metadata_table_obj_dict=metadata_root_obj_dict
+            try:
+                metadata_file_text=\
+                    get_text_from_file_path(
+                        metadata_file_path
+                        )
+            except FileNotFoundError:
+                
+                metadata_file_text=None
+                
             
+        elif not metadata_file_url is None:
+        
+            try:    
+        
+                metadata_file_text, headers=\
+                    get_text_and_headers_from_file_url(
+                        metadata_file_url
+                        )
+                
+            except requests.ConnectionError:
+                
+                metadata_file_text=None
+
+        
+        # 4. If no metadata document is found at that location, or if the 
+        #    metadata file found at the location does not explicitly 
+        #    include a reference to the relevant tabular data file, 
+        #    perform these same steps on the next URI template, otherwise 
+        #    use that metadata document.
+    
+        if metadata_file_text is None:
+            
+            continue
+        
         else:
-            raise Exception
+    
+            metadata_root_obj_dict=json.loads(metadata_file_text)
             
-        tabular_data_file_path_or_url=metadata_table_obj_dict['url']  
-        
-        #print('tabular_data_file_path_or_url',tabular_data_file_path_or_url)
-        
-        #print('csv_file_absolute_path',csv_file_absolute_path)
+            # get base path & url
+            base_path, base_url=\
+                get_base_path_and_url_of_metadata_object(
+                    metadata_root_obj_dict,
+                    metadata_file_path,
+                    metadata_file_url
+                    )
+            #print('base_path',base_path)
             
-        x=get_resolved_path_or_url_from_link_string(
-                tabular_data_file_path_or_url,
-                base_path,
-                base_url
-                )
-        
-        #print('x',x)
-        
-        if not csv_file_absolute_path is None:
-            
-            x=os.path.abspath(x)
-            
-            if os.path.abspath(x)==csv_file_absolute_path:
+            metadata_type=\
+                get_type_of_metadata_object(
+                    metadata_root_obj_dict
+                    )
+            if metadata_type=='TableGroup':
+                metadata_table_obj_dict=metadata_root_obj_dict['tables'][0]
                 
-                metadata_table_obj_dict['url']  =x
+            elif metadata_type=='Table':
+                metadata_table_obj_dict=metadata_root_obj_dict
                 
-                #print(metadata_table_group_obj_dict['tables'][0]['@context'])
+            else:
+                raise Exception
                 
-                return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+            table_url=metadata_table_obj_dict['url']  
+            #print('tabular_data_file_path_or_url',tabular_data_file_path_or_url)
             
-        elif not csv_file_url is None:
-            
-            if x==csv_file_url:
+            #print('csv_file_absolute_path',csv_file_absolute_path)
                 
-                return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+            table_url_resolved=\
+                get_resolved_path_or_url_from_link_string(
+                    table_url,
+                    base_path,
+                    base_url
+                    )
+            #print('table_url_resolved',table_url_resolved)
             
-        else:
-            
-            raise Exception
+            if not csv_file_absolute_path is None:
+                
+                if table_url_resolved==csv_file_absolute_path:
+                    
+                    return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+                
+            elif not csv_file_url is None:
+                
+                if table_url_resolved==csv_file_url:
+                    
+                    return metadata_root_obj_dict,metadata_file_path,metadata_file_url
+                
+            else:
+                
+                raise Exception
         
     
     return None, None, None
@@ -922,7 +1136,8 @@ def create_annotated_tables_from_csv_file_path_or_url(
         overriding_metadata_file_path_or_url=None,
         validate=False,
         return_embedded_metadata=False,
-        dialect_flags=None
+        dialect_flags=None,
+        _link_header=None  #  for testing link headers
         ):
     """
     
@@ -948,6 +1163,7 @@ def create_annotated_tables_from_csv_file_path_or_url(
             get_path_and_url_from_file_location(
                 overriding_metadata_file_path_or_url
                 )
+        #print(metadata_file_path, metadata_file_url)
             
         if not metadata_file_path is None:
             
@@ -999,18 +1215,31 @@ def create_annotated_tables_from_csv_file_path_or_url(
     # 2.2 metadata referenced from a Link Header that may be returned when 
     #     retrieving the tabular data file (see section 5.2 Link Header).
         
-    # TO DO
     
-    if not csv_file_url is None:
         
-        pass
+    metadata_root_obj_dict,metadata_file_path,metadata_file_url=\
+        get_metadata_from_link_header(
+            csv_file_absolute_path,
+            csv_file_url,
+            _link_header
+            )
     
+    if not metadata_root_obj_dict is None:
+
+        return create_annotated_tables_from_metadata_root_object(
+            metadata_root_obj_dict,
+            metadata_file_path,
+            metadata_file_url,
+            validate=validate,
+            from_csv=True,
+            return_embedded_metadata=return_embedded_metadata,
+            )
+        
     # 2.3 metadata retrieved through a site-wide location configuration 
     #     (see section 5.3 Default Locations and Site-wide Location Configuration).
 
     metadata_root_obj_dict,metadata_file_path,metadata_file_url=\
             get_metadata_from_default_or_site_wide_location(
-                csv_file_path_or_url,
                 csv_file_absolute_path, 
                 csv_file_url
                 )
@@ -1018,7 +1247,6 @@ def create_annotated_tables_from_csv_file_path_or_url(
     
     if not metadata_root_obj_dict is None:
 
-        
         return create_annotated_tables_from_metadata_root_object(
             metadata_root_obj_dict,
             metadata_file_path,
@@ -1069,6 +1297,9 @@ def create_annotated_tables_from_metadata_file_path_or_url(
         metadata_file_text=\
             get_text_from_file_path(
                 metadata_file_path)
+            
+        #print('metadata_file_path',metadata_file_path)
+        #print('metadata_file_text',metadata_file_text)
         
         metadata_root_obj_dict=json.loads(metadata_file_text)
         
@@ -1202,7 +1433,14 @@ def create_annotated_tables_from_metadata_root_object(
         dialect_description_obj_dict=\
             metadata_table_obj_dict.get('dialect',None)
             
+            
+            
         # gets the first dialect description in the group of tables
+        
+        if dialect_description_obj_dict is None:
+            dialect_description_obj_dict=\
+                metadata_table_group_obj_dict.get('dialect',None)
+        
         if dialect_description_obj_dict is None:
             for metadata_table_obj_dict2 in \
                 metadata_table_group_obj_dict['tables']:
@@ -1210,7 +1448,8 @@ def create_annotated_tables_from_metadata_root_object(
                         dialect_description_obj_dict=\
                             metadata_table_obj_dict2['dialect']
                         break
-
+                    
+    
         # gets the default dialect description
         if dialect_description_obj_dict is None:
             
@@ -1304,6 +1543,17 @@ def create_annotated_tables_from_metadata_root_object(
             metadata_table_group_obj_dict['tables'][table_index]=metadata_table_obj_dict
             #print(metadata_table_group_obj_dict)
             
+        # if metadata_table_obj_dict does not contain a tableSchema object,
+        # then set default column names
+        # - used to pass test023
+        if not 'tableSchema' in metadata_table_obj_dict:
+            columns=[{'name': f'_col.{i+1}'} 
+                     for i in range(len(embedded_metadata_dict['tableSchema']['columns']))]
+            
+            metadata_table_obj_dict['tableSchema']=\
+                {'columns':columns}
+        #print('metadata_table_obj_dict',metadata_table_obj_dict)  
+        
         # include virtual columns from metadata
         #  as this isn't included when parsing the tabular data from text.
         for i, metadata_column_obj_dict in \
@@ -1424,7 +1674,8 @@ def create_annotated_tables_from_metadata_root_object(
                         lang=annotated_column_dict['lang'],
                         null=annotated_column_dict['null'],
                         required=annotated_column_dict['required'],
-                        separator=annotated_column_dict['separator']
+                        separator=annotated_column_dict['separator'],
+                        trim=dialect_description_obj_dict.get('trim',True)
                         )
                     
                 annotated_cell_dict['value']=value
@@ -1533,6 +1784,7 @@ def parse_cell(
         null,
         required,
         separator,
+        trim=True,
         p=False
         ):
     """
@@ -1646,6 +1898,13 @@ def parse_cell(
                         required,
                         separator,
                         p=p
+                        )
+                
+                # needed for test036
+                if isinstance(json_value,str):
+                    json_value=get_trimmed_cell_value(
+                        json_value,
+                        trim
                         )
                 
                 cell_value={'@value':json_value,
@@ -2827,7 +3086,8 @@ def parse_tabular_data_from_text(
     comment_prefix=dialect_description_obj_dict.get('commentPrefix',None)
     delimiter=dialect_description_obj_dict.get('delimiter',',')
     escape_character=dialect_description_obj_dict.get('escapeCharacter','"')
-    header_row_count=dialect_description_obj_dict.get('headerRowCount',1)
+    header=dialect_description_obj_dict.get('headerRowCount',True)
+    header_row_count=dialect_description_obj_dict.get('headerRowCount',1 if header else 0)
     line_terminators=dialect_description_obj_dict.get('lineTerminators',['\r\n', '\n'])
     quote_character=dialect_description_obj_dict.get('quoteCharacter','"')
     skip_blank_rows=dialect_description_obj_dict.get('skipBlankRows',False)
@@ -2839,6 +3099,9 @@ def parse_tabular_data_from_text(
         # - if the trim property has a default of True, then this always overrides
         #   the skipInitialSpace property...
                 
+    #print('dialect_description_obj_dict',dialect_description_obj_dict)
+    #print('header_row_count',header_row_count)
+        
         
     # The algorithm for using these flags to parse a document containing 
     # tabular data to create a basic annotated tabular data model and to 
@@ -3493,6 +3756,7 @@ def get_list_of_cell_values(
                     current_cell_value,
                     trim
                     )
+                #print('trimmed_cell_value',trimmed_cell_value)
                 list_of_cell_values.append(trimmed_cell_value)
                 current_cell_value=''
                 i+=1
@@ -3527,6 +3791,9 @@ def get_trimmed_cell_value(
         ):
     """
     """
+    
+    
+    
     # To conditionally trim a cell value to provide a trimmed cell value, 
     # perform the following steps:
         
@@ -3709,7 +3976,7 @@ def annotate_table_group(
                 notes.append(v)
         
         
-        elif k in ['@type','@context']:
+        elif k in ['@type','@context','dialect']:
             
             pass
         
@@ -3825,6 +4092,8 @@ def annotate_table(
     logging.info('    FUNCTION: annotate_table')
     logging.debug(f'    ARGUMENT:table_group_inherited_properties: {table_group_inherited_properties}')
     
+    #print('table_group_inherited_properties',table_group_inherited_properties)
+    
     # add inherited properties that were passed
     for k,v in table_group_inherited_properties.items():
         if k=='aboutUrl': k='aboutURL'
@@ -3912,7 +4181,7 @@ def annotate_table(
             
             annotated_table_dict['id']=v
         
-        elif k=='@context':
+        elif k in ['@context','dialect']:
             
             pass
         
@@ -5016,10 +5285,11 @@ def get_standard_json_from_annotated_table_group(
         
         if not k in core_properties:
             
-            if k=='@context':
-                raise Exception
+            #print(k)
             
-            G[k]=get_json_from_json_ld(v)
+            if not k in list(top_level_properties)+list(inherited_properties):
+            
+                G[k]=get_json_from_json_ld(v)
     
     # 4 Insert the following name-value pair into object G:
     #   name tables
@@ -5090,7 +5360,11 @@ def get_standard_json_from_annotated_table_group(
                 
                 if not k in core_properties:
                     
-                    T[k]=get_json_from_json_ld(v)
+                    if not k in list(top_level_properties)+list(inherited_properties):
+                    
+                        #print(k)
+                    
+                        T[k]=get_json_from_json_ld(v)
             
             # 5.5 Insert the following name-value pair into object T:
             #     name row
