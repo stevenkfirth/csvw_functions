@@ -274,24 +274,7 @@ class TestSection4(unittest.TestCase):
         #print(list(errors))
         
         
-        
-    def test_apply_metadata_default_values_table_group(self):
-        ""
-        
-        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
-        
-            table_group_dict={'null':False}
-            table_group_dict=\
-                csvw_functions.apply_default_values_table_group(
-                    table_group_dict
-                    )
-                
-            #print(w.warnings[0].message)
-                
-        self.assertEqual(
-            table_group_dict,
-            {'null': ''}
-            )
+     
         
 
 #%% Section 6.4 - Parsing Cells
@@ -1782,7 +1765,7 @@ class TestSection5_3_1(unittest.TestCase):
         
 #%% Section 5.5.2. (Foreign Keys) Examples
 
-class TestXSection5_5_2(unittest.TestCase):
+class TestSection5_5_2(unittest.TestCase):
     ""
     
     def test_section_5_5_2_example_27(self):
@@ -4501,6 +4484,14 @@ class TestCSVWTestSuite(unittest.TestCase):
             json_ld_result=json.load(f)
         #print(json_ld_result)
            
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+        
         self.assertEqual(
             json_ld,
             json_ld_result
@@ -6153,16 +6144,714 @@ class TestCSVWTestSuite(unittest.TestCase):
         self.assertEqual(
             json_ld,
             json_ld_result
+            )     
+        
+        
+    def test_json_test074(self):
+        ""
+        
+        name='test074'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)
+                
+           
+    def test_json_test075(self):
+        ""
+        
+        name='test075'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )     
+           
+            
+    def test_json_test076(self):
+        ""
+        
+        name='test076'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )     
+            
+        
+    def test_json_test077(self):
+        ""
+        
+        name='test077'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)   
+        
+        
+    def test_json_test078(self):
+        ""
+        
+        name='test078'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)   
+           
+        
+    def test_json_test079(self):
+        ""
+        
+        name='test079'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)   
+        
+        
+    def test_json_test080(self):
+        ""
+        
+        name='test080'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)   
+        
+        
+    def test_json_test081(self):
+        ""
+        
+        name='test081'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)   
+        
+        
+    def test_json_test082(self):
+        ""
+        
+        name='test082'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)   
+        
+        
+    def test_json_test083(self):
+        ""
+        
+        name='test083'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+    
+    def test_json_test084(self):
+        ""
+        
+        name='test084'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+    
+        
+    def test_json_test085(self):
+        ""
+        
+        name='test085'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+        
+    def test_json_test086(self):
+        ""
+        
+        name='test086'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+    
+    
+    def test_json_test087(self):
+        ""
+        
+        name='test087'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+        
+    def test_json_test088(self):
+        ""
+        
+        name='test088'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+        
+    def test_json_test089(self):
+        ""
+        
+        name='test089'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+        
+    def test_json_test090(self):
+        ""
+        
+        name='test090'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+        
+    def test_json_test093(self):
+        ""
+        
+        name='test093'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
             )      
+        
+        
+    def test_json_test095(self):
+        ""
+        
+        name='test095'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )      
+        
+        
+    def test_json_test097(self):
+        ""
+        
+        name='test097'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )      
+        
+        
+    def test_json_test098(self):
+        ""
+        
+        name='test098'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
+        
+        
+    def test_json_test099(self):
+        ""
+        
+        name='test099'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )      
+        
+        
+    def test_json_test100(self):
+        ""
+        
+        name='test100'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )      
+        
+        
+    def test_json_test101(self):
+        ""
+        
+        name='test101'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )      
+        
+        
+    def test_json_test102(self):
+        ""
+        
+        name='test102'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        fp_result=f'_github_w3c_csvw_tests/{name}.json'
+        
+        with self.assertWarns(csvw_functions.PropertyNotValidWarning) as w:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+            self.assertEqual(
+                len(w.warnings),
+                1
+                )
+                
+            #print(w.warnings[0].message)
+        
+        json_ld=\
+            csvw_functions.get_json_ld_from_annotated_table_group(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                    )    
+        json_ld['tables'][0]['@id']='http://www.w3.org/2013/csvw/tests/test102-metadata.json'  # replaced local file path with solution file path
+        #print(json_ld, '\n', '---')
+        
+        with open(fp_result) as f:
+            json_ld_result=json.load(f)
+        #print(json_ld_result)
+           
+        self.maxDiff=None
+        if not json_ld==json_ld_result:
+            compare_json(
+                self,
+                json_ld,
+                json_ld_result
+                )
+
+        self.assertEqual(
+            json_ld,
+            json_ld_result
+            )   
+        
+        
+    def test_json_test103(self):
+        ""
+        
+        name='test103'
+        fp_action=f'_github_w3c_csvw_tests/{name}-metadata.json'
+        
+        with self.assertRaises(csvw_functions.MetadataValidationError) as e:
+        
+            annotated_table_group_dict=\
+                csvw_functions.get_annotated_table_group_from_metadata(
+                    fp_action
+                    )
+                
+        #print(e.exception)  
 
         
 if __name__=='__main__':
     
     unittest.main()
     
+    #unittest.main(TestSection5_5_2,'test_section_5_5_2_example_30')
+    
     #unittest.main(TestCSVWTestSuite())
     
-    #unittest.main(TestCSVWTestSuite,'test_json_test059')
+    #unittest.main(TestCSVWTestSuite,'test_json_test103')
     
     
     

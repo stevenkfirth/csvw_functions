@@ -4,5 +4,8 @@
     "type": "object",
     "title": "Schema for csvw common properties",
     "description": "The names of common properties are prefixed names, in the syntax prefix:name.",
-    "$comment": "This schema is not to be used by itself. Rather it is used by other schemas as a subschema in an \"AllOf\" statement to include these properties as additional properties"
+    "$comment": "This schema is not to be used by itself. Rather it is used by other schemas as a subschema in an \"AllOf\" statement to include these properties as additional properties",
+    "patternProperties": {
+        ".*:.*": {}
+      }
 }

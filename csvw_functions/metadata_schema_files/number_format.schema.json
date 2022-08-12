@@ -22,5 +22,6 @@
             "type": "string",
             "$comment": "atomic property"
         }
-    }
+    },
+    "additionalProperties": false
 }

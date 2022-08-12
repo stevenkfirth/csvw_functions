@@ -20,5 +20,9 @@
             "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/foreign_key_reference.schema.json",
             "$comment": "object property"
         }
-    }
+    },
+    "patternProperties":{
+        "resourece|schemaReference|columnReference": {}
+    },
+    "additionalProperties": false
 }

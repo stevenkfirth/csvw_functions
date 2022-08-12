@@ -60,6 +60,8 @@
             "description": "If included, @id is a link property that identifies the table, as defined in [tabular-data-model], described by this table description. It must not start with _:.",
             "type": "string",
             "format": "uri-reference",
+            "default": "",
+            "pattern": "^(?!_:).*",
             "$comment": "link property"
         },
         "@type": {
@@ -85,5 +87,11 @@
     ],
     "required": [
         "url"
-    ]
+    ],
+    "patternProperties":{
+        "aboutUrl|datatype|default|lang|null|ordered|propertyUrl|required|separator|textDirection|valueUrl": {},
+        ".*:.*": {},
+        "@context":{}
+    },
+    "additionalProperties": false
 }

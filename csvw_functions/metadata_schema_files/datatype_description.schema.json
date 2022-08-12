@@ -87,6 +87,7 @@
             "description": "If included, @id is a link property that identifies the datatype described by this datatype description. It must not start with _: and it must not be the URL of a built-in datatype.",
             "type": "string",
             "format": "uri-reference",
+            "pattern": "^(?!_:).*",
             "$comment": "link property"
         },
         "@type":{
@@ -101,5 +102,9 @@
             "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/top_level_properties.schema.json",
             "$comment": ""
         } 
-    ]
+    ],
+    "patternProperties":{
+        "@context":{}
+    },
+    "additionalProperties": false
 }

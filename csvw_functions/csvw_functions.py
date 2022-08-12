@@ -512,6 +512,7 @@ schema_store={url+k:v for k,v in schemas.items()}
     
 top_level_properties=schemas['top_level_properties.schema.json']['properties']
 inherited_properties=schemas['inherited_properties.schema.json']['properties']
+#print(list(inherited_properties))
 
 all_optional_and_required_properties={}
 for schema_name,schema in schemas.items():
@@ -1165,7 +1166,7 @@ encoding_labels=[z for x in encodings for y in x['encodings'] for z in y['labels
 
 #%% ---Custom Exceptions and Warnings---
 
-class ValidationError(Exception):
+class MetadataValidationError(Exception):
     ""
     
     
@@ -1260,7 +1261,7 @@ def get_metadata_from_link_header(
         
         resolved_url=get_resolved_path_or_url_from_link_string(
                 url,
-                base_path=csv_file_absolute_dir,
+                base_path=csv_file_absolute_path,
                 base_url=csv_file_url
                 )
         #print('resolved_url', resolved_url)
@@ -1488,7 +1489,7 @@ def get_metadata_from_default_or_site_wide_location(
         
         resolved_url=get_resolved_path_or_url_from_link_string(
                 expanded_url,
-                base_path=csv_file_absolute_dir,
+                base_path=csv_file_absolute_path,
                 base_url=csv_file_url
                 )
         #print('resolved_url', resolved_url)
@@ -1870,6 +1871,8 @@ def create_annotated_tables_from_metadata_root_object(
             metadata_file_url
             )
         
+    #print(normalized_metadata_obj_dict)
+        
     # get base path & url
     base_path, base_url=\
         get_base_path_and_url_of_metadata_object(
@@ -1921,11 +1924,6 @@ def create_annotated_tables_from_metadata_root_object(
     # properties) which are not defined in this specification and must 
     # generate a warning when they are encoutered.
     
-    check_metadata_document(
-            metadata_table_group_obj_dict,
-            'table_group_description.schema.json'
-            )
-    
     # If a property has a value that is not permitted by this specification, 
     # then if a default value is provided for that property, compliant 
     # applications must generate a warning and use that default value. 
@@ -1936,8 +1934,8 @@ def create_annotated_tables_from_metadata_root_object(
     #   this specification, and
     # - properties having invalid values for a given property.
     
-    apply_default_values_table_group(
-        metadata_table_group_obj_dict
+    check_table_group_dict(
+        metadata_table_group_obj_dict,
         )
     
     
@@ -2072,8 +2070,9 @@ def create_annotated_tables_from_metadata_root_object(
             
         # if metadata_table_obj_dict does not contain a tableSchema object,
         # then set default column names
-        # - used to pass test023
-        if not 'tableSchema' in metadata_table_obj_dict:
+        # - used to pass test023, test100
+        if not 'tableSchema' in metadata_table_obj_dict \
+            or len(metadata_table_obj_dict['tableSchema'].get('columns',[]))==0:
             columns=[{'name': f'_col.{i+1}'} 
                      for i in range(len(embedded_metadata_dict['tableSchema']['columns']))]
             
@@ -4358,34 +4357,68 @@ def get_column_titles_of_csv_file_text_line_generator(
 
 #%% 4- Annotating Tables
 
-def check_metadata_document(
-        metadata_obj_dict,
-        schema_name
-        ):
-    """
-    """
-    # All compliant applications must generate errors and stop processing if 
-    # a metadata document:
-    # - does not use valid JSON syntax defined by [RFC7159].
+# def check_metadata_document(
+#         metadata_obj_dict,
+#         schema_name
+#         ):
+#     """
+#     """
+#     # All compliant applications must generate errors and stop processing if 
+#     # a metadata document:
+#     # - does not use valid JSON syntax defined by [RFC7159].
     
-    # TO DO???
+#     # TO DO???
     
-    # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+#     # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
     
-    # TO DO
+#     # TO DO
     
-    # - does not specify a property that it is required to specify.
+#     # - does not specify a property that it is required to specify.
     
-    errors=validate_metadata_obj_dict(
-            metadata_obj_dict,
-            schema_name
-            )
+#     # errors=validate_metadata_obj_dict(
+#     #         metadata_obj_dict,
+#     #         schema_name
+#     #         )
     
-    for error in errors:
+#     # for error in errors:
         
-        if error.validator=='required':
+#     #     print(error.path)
+        
+#     #     if error.validator=='required':
             
-            raise Exception('a required property is missing')
+#     #         message='A required property is missing.'
+            
+#     #         raise MetadataValidationError(message)
+            
+        
+#     #     # '@id' must not start with _:. 
+            
+#     #     elif error.path[-1]=='@id':
+            
+#     #         message='Property "@id" must not start with "_:". '
+#     #         message+=f'Current value is "{error.instance}".'
+            
+#     #         raise MetadataValidationError(message)
+            
+            
+#     # 5.3 Table Groups
+#     # 5.3.1 Required Properties 
+#     #       tables      
+#     #       Compliant application must raise an error if this array does 
+#     #       not contain one or more table descriptions.
+            
+#     tables=metadata_obj_dict.get('tables')
+    
+#     if isinstance(tables,list):
+        
+#         if len(tables)==0:
+            
+#             message='"tables" property does not contain one or more table descriptions.'
+            
+#             raise MetadataValidationError(message)
+
+
+    
 
 
 def apply_default_language_tag(
@@ -4393,6 +4426,7 @@ def apply_default_language_tag(
         ):
     """
     """
+    
     
     if langcodes.tag_is_valid(language_tag):
         
@@ -4415,56 +4449,120 @@ def apply_default_language_tag(
         return default
 
 
-def apply_default_values_table_group(
-        table_group_dict
+
+def check_table_group_dict(
+        table_group_dict,
         ):
-    """
-    """
     
-    def apply_default_values(
-            metadata_obj_dict,
-            schema_name
-            ):
-        """
-        """
+    #print(table_group_dict)
+    
+    errors=validate_metadata_obj_dict(
+        table_group_dict, 
+        'table_group_description.schema.json')
 
-        errors=validate_metadata_obj_dict(
-            metadata_obj_dict,
-            schema_name
-            )
+    cache=[]
+    flag_revalidate=False
 
-        #print(list(errors))  # this will use up the generator
+    for i,error in enumerate(errors):
         
-        for error in errors:
+        
+        # looks in the 'sub' errors and gets the error with the longest absolut path
+        if len(error.context)>0:
             
-            #print(error)
+            all_errors=list(error.context)
             
-            if error.validator=='required':
+            all_errors=sorted(all_errors, key=lambda e: len(e.absolute_path))
+            
+            error=all_errors[-1]
+        
+    
+        if error.path in cache:
+            
+            continue
+        
+        cache.append(error.path)
+        
+        print(f'---ERROR {i}---')
+        print('message',error.message)
+        print('instance',error.instance)
+        print('validator',error.validator)
+        print('validator_value',error.validator_value)
+        print('absolute_path',error.absolute_path)
+        print('context',error.context)
+        print('absolute_schema_path',error.absolute_schema_path)
+        print('schema',error.schema)
+        
+        error_obj=table_group_dict
+        array_index=None
+        
+        for i,item in enumerate(error.absolute_path):
+            
+            if i==len(error.absolute_path)-1 :
+            
+                if isinstance(item,int):
                 
-                pass
-            
-            else:  # assumes all other errors are property errors...
+                    array_index=item
                 
-                property_name=error.path[0]
-                #print('property_name',property_name)
+            else:
                 
-                property_value=error.instance
-                property_value_type=type(property_value).__name__
+                error_obj=error_obj[item]
+                
+        print('error_obj',error_obj)
+        print('array_index',array_index)
+        
+        property_value=error.instance
+        property_value_type=type(property_value).__name__
+        
+        
+        if isinstance(error_obj,dict):
             
-                default=error.schema.get('default')
-                #print('default',default)
+            try:
+                property_name=error.absolute_path[-1]
+            except IndexError:
+                property_name=None
+            print('property_name',property_name)
+            
+            default_value=error.schema.get('default')
+            print('default_value',default_value)
+            
+            if error.validator=='type' and error.validator_value=='array':
+                
+                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
+                message+=' Array expected.'
+            
+                if not default_value is None:
+                    
+                    error_obj[property_name]=default_value
+                    
+                    message+=f' Value replaced with default value "{default_value}".'
+            
+                else:
+                
+                    error_obj[property_name]=[]
+                    
+                    message+=' Value replaced with an empty array.'
+                    
+                    flag_revalidate=True
+            
+                warnings.warn(
+                    message,
+                    PropertyNotValidWarning
+                    )
+                
+            
+            elif error.validator in ['oneOf','enum','type','minimum']:
                 
                 message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
                 
-                if not default is None:
+                if not default_value is None:
                     
-                    metadata_obj_dict[property_name]=default
+                    error_obj[property_name]=default_value
                     
-                    message+=f' Value replaced with default value "{default}".'
+                    message+=f' Value replaced with default value "{default_value}".'
             
                 else:
                     
-                    metadata_obj_dict.pop(property_name)
+                    error_obj.pop(property_name)
                     
                     message+=' Name-value pair is removed. '
                     
@@ -4474,327 +4572,691 @@ def apply_default_values_table_group(
                     message,
                     PropertyNotValidWarning
                     )
-            
-            
-            
-        return metadata_obj_dict
-
-    
-
-    def apply_default_values_datatype(
-            datatype_dict
-            ):
-        """
-        """
-        # format
-        if isinstance(datatype_dict.get('format'),dict):
-        
-            format_dict=datatype_dict.get('format')
-            
-            if not format_dict is None:
                 
-                format_dict=\
-                    apply_default_values(
-                        format_dict,
-                        'number_format.schema.json'
-                        )
-                    
-                datatype_dict['format']=format_dict
-        
-        datatype_dict=\
-            apply_default_values(
-                datatype_dict,
-                'datatype_description.schema.json'
-                )
-        
-        return datatype_dict
-
-
-    
-        
-        
-    def apply_default_encoding(
-            encoding,
-            ):
-        """
-        """
-        
-        for x in encoding_labels:
-            
-            if encoding.upper()==x.upper():
+            elif error.validator=='pattern' and property_name=='@id':
                 
-                return encoding
+                message='Property "@id" must not start with "_:". '
+                message+=f'Current value is "{error.instance}".'
+                
+                raise MetadataValidationError(message)
+                
+            elif error.validator=='const' and property_name=='@type':
+                
+                const=error.schema['const']
+                
+                message=f'Property "@type" must equal "{const}". '
+                message+=f'Current value is "{error.instance}".'
+                
+                raise MetadataValidationError(message)
+                
+            elif error.validator=='required':
+                
+                required_property_names=list(error.schema['required'])
+                print('required_property_names',required_property_names)
+                
+                message='Missing required property. '
+                message+=f'One of the following properties is missing {required_property_names}.'
+                
+                raise MetadataValidationError(message)
+                
+            elif error.validator=='minItems' and property_name=='tables':
+                
+                message='Property "tables" should contain one or more table descriptions.'
+                            
+                raise MetadataValidationError(message)
             
-        property_name='encoding'
-        property_value=encoding
-        default=schemas['dialect_description.schema.json']['properties']['encoding']['default']
+                
+            else:
+                
+                raise Exception
+            
+            
         
-        message=f'Property "{property_name}" with value "{property_value}" is not valid.'
-        message+=f' Value replaced with default value "{default}"'
+        elif isinstance(error_obj,list):
+            
+            property_name=error.absolute_path[-2]
+            print('property_name',property_name)
+                        
+            if error.validator=='type':
+                
+                message=f'Item {array_index} '
+                message+=f'of property "{property_name}" '
+                message+=f'with value "{property_value}" ({property_value_type}) is not valid. '
+                message+='Item is removed.'
+                
+                error_obj.pop(array_index)
+                
+                warnings.warn(
+                    message,
+                    PropertyNotValidWarning
+                    )
         
-        warnings.warn(
-            message,
-            PropertyNotValidWarning
+            elif error.validator=='additionalProperties':
+                
+                property_name=error.message.split('does not match any of the regexes')[0][1:-2]
+
+                error_obj[array_index].pop(property_name)
+                
+                message=f'Property "{property_name}" is not valid.' 
+                message+=' Name-value pair is removed. '
+                
+                warnings.warn(
+                    message,
+                    PropertyNotValidWarning
+                    )
+                
+            elif error.validator=='required':
+                
+                required_property_names=list(error.schema['required'])
+                print('required_property_names',required_property_names)
+                
+                message='Missing required property. '
+                message+=f'One of the following properties is missing {required_property_names}.'
+                
+                raise MetadataValidationError(message)
+            
+        
+        
+            else:
+                
+                raise Exception
+    
+    
+    if flag_revalidate==True:
+        
+        check_table_group_dict(
+            table_group_dict
             )
-        
-        return default
-        
     
-    # If a property has a value that is not permitted by this specification, 
-    # then if a default value is provided for that property, compliant 
-    # applications must generate a warning and use that default value. 
-    # If no default value is provided for that property, compliant 
-    # applications must generate a warning and behave as if the property 
-    # had not been specified. Additionally, including:
-    # - properties (aside from common properties) which are not defined in 
-    #   this specification, and
-    # - properties having invalid values for a given property.
-
-
-    # tables
-    for i, table_dict in enumerate(table_group_dict.get('tables',[])):
-
-        # table schema          
-        table_schema_dict=table_dict.get('tableSchema')
+    
+    
+    def check_lang(
+            obj_dict
+            ):
+        ""
+        lang=obj_dict.get('lang')
         
-        if not table_schema_dict is None:
+        if not lang is None:
+            
+            obj_dict['lang']=apply_default_language_tag(lang)
+
+
+    def check_encoding(
+            obj_dict
+            ):
+        ""
         
-            # foreign keys
-            for j, foreign_key_dict in enumerate(table_schema_dict.get('foreignKeys',[])):
-                
-                # foreign key reference
-                foreign_key_reference_dict=foreign_key_dict.get('reference')
-                
-                if foreign_key_reference_dict is None:
-                
-                    foreign_key_reference_dict=apply_default_values(
-                        foreign_key_reference_dict,
-                        'foreign_key_reference.schema.json'
-                        )
-                    
-                    foreign_key_dict['reference']=foreign_key_reference_dict
-                
-                # foreign key
-                foreign_key_dict=apply_default_values(
-                    foreign_key_dict,
-                    'foreign_key_definition.schema.json'
-                    )
-                
-                table_schema_dict['foreignKeys'][j]=foreign_key_dict
-                
-            # columns
-            for j, column_dict in enumerate(table_schema_dict.get('columns',[])):
-                
-                # datatype
-                datatype_dict=column_dict.get('datatype')
-                
-                if not datatype_dict is None:
-                    
-                    datatype_dict=\
-                        apply_default_values_datatype(
-                            datatype_dict
-                            )
-                        
-                    column_dict['datatype']=datatype_dict
-                    
-                # lang
-                language_tag=column_dict.get('lang')
-                
-                if not language_tag is None:
-                    
-                    language_tag=\
-                        apply_default_language_tag(
-                            language_tag
-                            )
-                        
-                    column_dict['lang']=language_tag
-                
-                # column_dict
-                column_dict=apply_default_values(
-                    column_dict,
-                    'column_description.schema.json'
-                    )
+        encoding=obj_dict.get('encoding')
             
-                table_schema_dict['columns'][j]=column_dict
+        if not encoding is None:
+        
+            for x in encoding_labels:
                 
-            # datatype
-            datatype_dict=table_schema_dict.get('datatype')
-            
-            if not datatype_dict is None:
-                
-                datatype_dict=\
-                    apply_default_values_datatype(
-                        datatype_dict
-                        )
+                if encoding.upper()==x.upper():
                     
-                table_schema_dict['datatype']=datatype_dict
+                    return 
                 
-            # lang
-            language_tag=table_schema_dict.get('lang')
+            property_name='encoding'
+            property_value=encoding
+            default_value=schemas['dialect_description.schema.json']['properties']['encoding']['default']
             
-            if not language_tag is None:
-                
-                language_tag=\
-                    apply_default_language_tag(
-                        language_tag
-                        )
-                    
-                table_schema_dict['lang']=language_tag
+            message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+            message+=f' Value replaced with default value "{default_value}"'
             
-            # table schema
-            table_schema_dict=\
-                apply_default_values(
-                    table_schema_dict,
-                    'schema_description.schema.json'
-                    )
+            obj_dict['encoding']=default_value
             
-            table_dict['tableSchema']=table_schema_dict
+            warnings.warn(
+                message,
+                PropertyNotValidWarning
+                )
             
-        # dialect 
+            
+    # custom checks
+    
+    #
+    check_lang(table_group_dict)
+    
+    for table_dict in table_group_dict.get('tables',[]):
+        
+        #
+        check_lang(table_dict)
+        
+        #
         dialect_dict=table_dict.get('dialect')
         
         if not dialect_dict is None:
             
-            # encoding
-            encoding=dialect_dict.get('encoding')
-            
-            if not encoding is None:
-                
-                encoding=\
-                    apply_default_encoding(
-                        encoding
-                        )
-                    
-                dialect_dict['encoding']=encoding
+            check_encoding(dialect_dict)
+        
+        #
+        schema_dict=table_dict.get('tableSchema')
+        
+        if not schema_dict is None:
             
             #
-            dialect_dict=\
-                apply_default_values(
-                    dialect_dict,
-                    'dialect_description.schema.json'
-                    )
+            check_lang(schema_dict)
             
-            table_dict['dialect']=dialect_dict
-            
-        
-
-        # transformations
-        for i, transformation_dict in enumerate(table_dict.get('transformations',[])):
-        
-            transformation_dict=\
-                apply_default_values(
-                    transformation_dict,
-                    'transformation_description.schema.json'
-                    )
+            #
+            for column_dict in schema_dict.get('columns',[]):
                 
-            table_dict['transformations'][i]=transformation_dict
+                check_lang(column_dict)
         
-        # datatype
-        datatype_dict=table_dict.get('datatype')
-        
-        if not datatype_dict is None:
-            
-            datatype_dict=\
-                apply_default_values_datatype(
-                    datatype_dict
-                    )
-                
-            table_dict['datatype']=datatype_dict
-
-        # lang
-        language_tag=table_dict.get('lang')
-        
-        if not language_tag is None:
-            
-            language_tag=\
-                apply_default_language_tag(
-                    language_tag
-                    )
-                
-            table_dict['lang']=language_tag
-
-        
-        # table
-        table_dict=\
-            apply_default_values(
-                table_dict,
-                'table_description.schema.json'
-                )
-
-        table_group_dict['tables'][i]=table_dict
-
-
-    # dialect 
+    #
     dialect_dict=table_group_dict.get('dialect')
     
     if not dialect_dict is None:
         
-        # encoding
-        encoding=dialect_dict.get('encoding')
-        
-        if not encoding is None:
-            
-            encoding=\
-                apply_default_encoding(
-                    encoding
-                    )
-                
-            dialect_dict['encoding']=encoding
-        
-        #
-        dialect_dict=\
-            apply_default_values(
-                dialect_dict,
-                'dialect_description.schema.json'
-                )
-        
-        table_group_dict['dialect']=dialect_dict
-        
-        
-        
-    # transformations
-    for i, transformation_dict in enumerate(table_group_dict.get('transformations',[])):
+        check_encoding(dialect_dict)
     
-        transformation_dict=\
-            apply_default_values(
-                transformation_dict,
-                'transformation_description.schema.json'
-                )
-            
-        table_group_dict['transformations'][i]=transformation_dict
-        
-    # datatype
-    datatype_dict=table_group_dict.get('datatype')
+
     
-    if not datatype_dict is None:
-        
-        datatype_dict=\
-            apply_default_values_datatype(
-                datatype_dict
-                )
-            
-        table_group_dict['datatype']=datatype_dict
-
-    # lang
-    language_tag=table_group_dict.get('lang')
-    
-    if not language_tag is None:
-        
-        language_tag=\
-            apply_default_language_tag(
-                language_tag
-                )
-            
-        table_group_dict['lang']=language_tag
-
-    # table_group
-    table_group_dict=\
-        apply_default_values(
-            table_group_dict,
-            'table_group_description.schema.json'
-            )
-
     return table_group_dict
+
+
+
+# def apply_default_values_table_group(
+#         table_group_dict
+#         ):
+#     """
+#     """
+    
+#     return check_table_group_dict(
+#             table_group_dict
+#             )
+    
+    
+    
+#     #print('table_group_dict',table_group_dict)
+    
+#     # NOTE: also includes some validation checks...
+    
+    
+    
+#     def apply_default_values(
+#             metadata_obj_dict,
+#             schema_name
+#             ):
+#         """
+#         """
+        
+#         errors=validate_metadata_obj_dict(
+#             metadata_obj_dict,
+#             schema_name
+#             )
+
+#         #print(list(errors))  # this will use up the generator
+        
+#         cache=[]
+        
+#         for error in errors:
+            
+#             # if error already dealt with...
+#             if error.path in cache:
+                
+#                 continue
+            
+#             #print(error.message)
+#             #print(error.validator)
+#             #print(error.path)
+#             # print(error.absolute_path)
+#             #print(error.instance)
+#             # print(error.validator_value)
+#             #print(error.absolute_schema_path)
+#             #print(error.schema)
+#             # print(metadata_obj_dict)
+            
+#             # - does not specify a property that it is required to specify.
+#             if error.validator=='required':
+                
+#                 cache.append(error.path)
+                
+#                 #print(error)
+                
+#                 property_names=list(error.schema['required'])
+                
+#                 message='Missing required property. '
+#                 message+=f'One of the following properties is missing {property_names}.'
+                
+#                 raise MetadataValidationError(message)
+                
+                
+#             # '@id' must not start with _:. 
+#             elif error.validator=='pattern' and error.path[-1]=='@id':
+                
+#                 cache.append(error.path)
+                
+#                 message='Property "@id" must not start with "_:". '
+#                 message+=f'Current value is "{error.instance}".'
+                
+#                 raise MetadataValidationError(message)
+                
+            
+#             elif error.validator=='const' and error.path[-1]=='@type':
+                
+#                 cache.append(error.path)
+                
+#                 const=error.schema['const']
+                
+#                 message=f'Property "@type" must equal "{const}". '
+#                 message+=f'Current value is "{error.instance}".'
+                
+#                 raise MetadataValidationError(message)
+                
+                
+#             elif error.validator=='additionalProperties':
+                
+#                 cache.append(error.path)
+                
+#                 property_name=error.message.split('does not match any of the regexes')[0][1:-2]
+
+#                 metadata_obj_dict.pop(property_name)
+                
+#                 message=f'Property "{property_name}" is not valid.' 
+#                 message+=' Name-value pair is removed. '
+                
+#                 warnings.warn(
+#                     message,
+#                     PropertyNotValidWarning
+#                     )
+                
+                
+#             else:  # assumes all other errors are property errors...
+                
+#                 #print(error)
+                
+#                 cache.append(error.path)
+            
+#                 # error is on a single value propoerty
+#                 if len(error.path)==0:
+            
+#                     property_name=error.path[0]
+#                     #print('property_name',property_name)
+                    
+#                     property_value=error.instance
+#                     property_value_type=type(property_value).__name__
+                
+#                     default=error.schema.get('default')
+#                     #print('default',default)
+                    
+#                     message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
+                    
+#                     if not default is None:
+                        
+#                         metadata_obj_dict[property_name]=default
+                        
+#                         message+=f' Value replaced with default value "{default}".'
+                
+#                     else:
+                        
+#                         metadata_obj_dict.pop(property_name)
+                        
+#                         message+=' Name-value pair is removed. '
+                        
+#                         #print(metadata_obj_dict)
+                        
+#                     warnings.warn(
+#                         message,
+#                         PropertyNotValidWarning
+#                         )
+                    
+#                 # error is on an array property
+#                 else:
+                    
+#                     property_name=error.path[0]
+#                     array_index=error.path[1]
+                    
+#                     property_value=error.instance
+#                     property_value_type=type(property_value).__name__
+                   
+#                     message=f'Item {array_index} '
+#                     message+=f'of property "{property_name}" '
+#                     message+=f'with value "{property_value}" ({property_value_type}) is not valid.'
+                    
+#                     metadata_obj_dict[property_name].pop(array_index)
+                    
+#                     warnings.warn(
+#                         message,
+#                         PropertyNotValidWarning
+#                         )
+            
+            
+#         return metadata_obj_dict
+
+    
+
+#     def apply_default_values_datatype(
+#             datatype_dict
+#             ):
+#         """
+#         """
+#         # format
+#         if isinstance(datatype_dict.get('format'),dict):
+        
+#             format_dict=datatype_dict.get('format')
+            
+#             if not format_dict is None:
+                
+#                 format_dict=\
+#                     apply_default_values(
+#                         format_dict,
+#                         'number_format.schema.json'
+#                         )
+                    
+#                 datatype_dict['format']=format_dict
+        
+#         datatype_dict=\
+#             apply_default_values(
+#                 datatype_dict,
+#                 'datatype_description.schema.json'
+#                 )
+        
+#         return datatype_dict
+
+
+    
+        
+        
+#     def apply_default_encoding(
+#             encoding,
+#             ):
+#         """
+#         """
+        
+#         for x in encoding_labels:
+            
+#             if encoding.upper()==x.upper():
+                
+#                 return encoding
+            
+#         property_name='encoding'
+#         property_value=encoding
+#         default=schemas['dialect_description.schema.json']['properties']['encoding']['default']
+        
+#         message=f'Property "{property_name}" with value "{property_value}" is not valid.'
+#         message+=f' Value replaced with default value "{default}"'
+        
+#         warnings.warn(
+#             message,
+#             PropertyNotValidWarning
+#             )
+        
+#         return default
+
+#     # All compliant applications must create annotated tables based on the 
+#     # algorithm defined here. 
+#     # All compliant applications must generate errors and stop 
+#     # processing if a metadata document:
+#     # - does not use valid JSON syntax defined by [RFC7159].
+#     # - uses any JSON outside of the restrictions defined in section A. JSON-LD Dialect.
+#     # - does not specify a property that it is required to specify.
+
+#     # Compliant applications must ignore properties (aside from common 
+#     # properties) which are not defined in this specification and must 
+#     # generate a warning when they are encoutered.
+        
+#     # If a property has a value that is not permitted by this specification, 
+#     # then if a default value is provided for that property, compliant 
+#     # applications must generate a warning and use that default value. 
+#     # If no default value is provided for that property, compliant 
+#     # applications must generate a warning and behave as if the property 
+#     # had not been specified. Additionally, including:
+#     # - properties (aside from common properties) which are not defined in 
+#     #   this specification, and
+#     # - properties having invalid values for a given property.
+
+    
+
+
+#     # tables
+#     for i, table_dict in enumerate(table_group_dict.get('tables',[])):
+
+#         # table schema          
+#         table_schema_dict=table_dict.get('tableSchema')
+        
+#         if not table_schema_dict is None:
+        
+#             # foreign keys
+#             for j, foreign_key_dict in enumerate(table_schema_dict.get('foreignKeys',[])):
+                
+#                 # foreign key reference
+#                 foreign_key_reference_dict=foreign_key_dict.get('reference')
+                
+#                 if foreign_key_reference_dict is None:
+                
+#                     foreign_key_reference_dict=apply_default_values(
+#                         foreign_key_reference_dict,
+#                         'foreign_key_reference.schema.json'
+#                         )
+                    
+#                     foreign_key_dict['reference']=foreign_key_reference_dict
+                
+#                 # foreign key
+#                 foreign_key_dict=apply_default_values(
+#                     foreign_key_dict,
+#                     'foreign_key_definition.schema.json'
+#                     )
+                
+#                 table_schema_dict['foreignKeys'][j]=foreign_key_dict
+                
+#             # columns
+#             for j, column_dict in enumerate(table_schema_dict.get('columns',[])):
+                
+#                 # datatype
+#                 datatype_dict=column_dict.get('datatype')
+                
+#                 if not datatype_dict is None:
+                    
+#                     datatype_dict=\
+#                         apply_default_values_datatype(
+#                             datatype_dict
+#                             )
+                        
+#                     column_dict['datatype']=datatype_dict
+                    
+#                 # lang
+#                 language_tag=column_dict.get('lang')
+                
+#                 if not language_tag is None:
+                    
+#                     language_tag=\
+#                         apply_default_language_tag(
+#                             language_tag
+#                             )
+                        
+#                     column_dict['lang']=language_tag
+                
+#                 # column_dict
+#                 column_dict=apply_default_values(
+#                     column_dict,
+#                     'column_description.schema.json'
+#                     )
+            
+#                 table_schema_dict['columns'][j]=column_dict
+                
+#             # datatype
+#             datatype_dict=table_schema_dict.get('datatype')
+            
+#             if not datatype_dict is None:
+                
+#                 datatype_dict=\
+#                     apply_default_values_datatype(
+#                         datatype_dict
+#                         )
+                    
+#                 table_schema_dict['datatype']=datatype_dict
+                
+#             # lang
+#             language_tag=table_schema_dict.get('lang')
+            
+#             if not language_tag is None:
+                
+#                 language_tag=\
+#                     apply_default_language_tag(
+#                         language_tag
+#                         )
+                    
+#                 table_schema_dict['lang']=language_tag
+            
+#             # table schema
+#             table_schema_dict=\
+#                 apply_default_values(
+#                     table_schema_dict,
+#                     'schema_description.schema.json'
+#                     )
+            
+#             table_dict['tableSchema']=table_schema_dict
+            
+#         # dialect 
+#         dialect_dict=table_dict.get('dialect')
+        
+#         if not dialect_dict is None:
+            
+#             # encoding
+#             encoding=dialect_dict.get('encoding')
+            
+#             if not encoding is None:
+                
+#                 encoding=\
+#                     apply_default_encoding(
+#                         encoding
+#                         )
+                    
+#                 dialect_dict['encoding']=encoding
+            
+#             #
+#             dialect_dict=\
+#                 apply_default_values(
+#                     dialect_dict,
+#                     'dialect_description.schema.json'
+#                     )
+            
+#             table_dict['dialect']=dialect_dict
+            
+    
+#         # transformations
+#         for j, transformation_dict in enumerate(table_dict.get('transformations',[])):
+        
+#             if isinstance(transformation_dict,dict):       
+        
+#                 transformation_dict=\
+#                     apply_default_values(
+#                         transformation_dict,
+#                         'transformation_definition.schema.json'
+#                         )
+                    
+#                 table_dict['transformations'][j]=transformation_dict
+        
+#         # datatype
+#         datatype_dict=table_dict.get('datatype')
+        
+#         if not datatype_dict is None:
+            
+#             datatype_dict=\
+#                 apply_default_values_datatype(
+#                     datatype_dict
+#                     )
+                
+#             table_dict['datatype']=datatype_dict
+
+#         # lang
+#         language_tag=table_dict.get('lang')
+        
+#         if not language_tag is None:
+            
+#             language_tag=\
+#                 apply_default_language_tag(
+#                     language_tag
+#                     )
+                
+#             table_dict['lang']=language_tag
+
+        
+#         # table
+        
+#         table_dict=\
+#             apply_default_values(
+#                 table_dict,
+#                 'table_description.schema.json'
+#                 )
+            
+#         table_group_dict['tables'][i]=table_dict
+
+
+#     # dialect 
+#     dialect_dict=table_group_dict.get('dialect')
+    
+#     if not dialect_dict is None:
+        
+#         # encoding
+#         encoding=dialect_dict.get('encoding')
+        
+#         if not encoding is None:
+            
+#             encoding=\
+#                 apply_default_encoding(
+#                     encoding
+#                     )
+                
+#             dialect_dict['encoding']=encoding
+        
+#         #
+#         dialect_dict=\
+#             apply_default_values(
+#                 dialect_dict,
+#                 'dialect_description.schema.json'
+#                 )
+        
+#         table_group_dict['dialect']=dialect_dict
+        
+        
+        
+#     # transformations
+#     for i, transformation_dict in enumerate(table_group_dict.get('transformations',[])):
+    
+#         if isinstance(transformation_dict,dict):    
+    
+#             transformation_dict=\
+#                 apply_default_values(
+#                     transformation_dict,
+#                     'transformation_definition.schema.json'
+#                     )
+                
+#             table_group_dict['transformations'][i]=transformation_dict
+        
+#     # datatype
+#     datatype_dict=table_group_dict.get('datatype')
+    
+#     if not datatype_dict is None:
+        
+#         datatype_dict=\
+#             apply_default_values_datatype(
+#                 datatype_dict
+#                 )
+            
+#         table_group_dict['datatype']=datatype_dict
+
+#     # lang
+#     language_tag=table_group_dict.get('lang')
+    
+#     if not language_tag is None:
+        
+#         language_tag=\
+#             apply_default_language_tag(
+#                 language_tag
+#                 )
+            
+#         table_group_dict['lang']=language_tag
+
+#     #print('table_group_dict',table_group_dict)
+
+#     # table_group
+#     table_group_dict=\
+#         apply_default_values(
+#             table_group_dict,
+#             'table_group_description.schema.json'
+#             )
+
+#     return table_group_dict
     
 
 def validate_metadata_obj_dict(
@@ -5846,34 +6308,82 @@ def normalize_metadata_property(
     #  normalized using this algorithm.
     elif property_type=='array property':
         
-        normalized_value=[]
-        for x in property_value:
-            if isinstance(x,dict):
-                normalized_value.append(
-                    normalize_metadata_object(
-                        x,
-                        base_path,
-                        base_url,
-                        default_language
+        if isinstance(property_value,list):
+        
+            normalized_value=[]
+            
+            for x in property_value:
+                
+                if isinstance(x,dict):
+                    normalized_value.append(
+                        normalize_metadata_object(
+                            x,
+                            base_path,
+                            base_url,
+                            default_language
+                            )
                         )
-                    )
-            else:
-                print('x', x)
-                print('property_name', property_name)
-                print('property_value', property_value)
-                raise Exception # what to do if not an object??
+                    
+                else:
+                    
+                    normalized_value.append(x)
+                
+        else:
+            
+            normalized_value=property_value
+                
+                #print('x', x)
+                #print('property_name', property_name)
+                #print('property_value', property_value)
+                #raise Exception # what to do if not an object??
         
     # 3 If the property is a link property the value is turned into an 
     #  absolute URL using the base URL and normalized as described in 
     #  URL Normalization [tabular-data-model].
     elif property_type=='link property':
         
-        normalized_value=\
-            get_resolved_path_or_url_from_link_string(
-                    property_value,
-                    base_path,
-                    base_url
+        if isinstance(property_value,str):
+        
+            normalized_value=\
+                get_resolved_path_or_url_from_link_string(
+                        property_value,
+                        base_path,
+                        base_url
+                        )
+                
+        else:
+            
+            property_value_type=type(property_value).__name__
+            
+            # error checking and applies default value here, as this needs to be done during normalization rather than after.
+            
+            if property_name=='url':
+                
+                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
+                
+                raise MetadataValidationError(message)
+                
+            else:
+            
+            
+                default_value=''
+                
+                normalized_value=\
+                    get_resolved_path_or_url_from_link_string(
+                            default_value,
+                            base_path,
+                            base_url
+                            )
+                
+                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
+                message+=f' Value replaced with default value "{default_value}".'
+                
+                warnings.warn(
+                    message,
+                    PropertyNotValidWarning
                     )
+        
+        
         
     # 4 If the property is an object property with a string value, 
     #  the string is a URL referencing a JSON document containing a single 
@@ -6211,16 +6721,18 @@ def get_standard_json_from_annotated_table_group(
             
             x.append(get_json_from_json_ld(note))
             
-    core_properties=get_core_properties('annotated_table_group.schema.json')
+    core_properties=\
+        get_core_properties('annotated_table_group.schema.json') + \
+            get_core_properties('table_group_description.schema.json')
     #print(core_properties)
     
     for k,v in annotated_table_group_dict.items():
         
         if not k in core_properties:
             
-            #print(k)
-            
             if not k in list(top_level_properties)+list(inherited_properties):
+                
+                print(k)
             
                 G[k]=get_json_from_json_ld(v)
     
@@ -6287,7 +6799,9 @@ def get_standard_json_from_annotated_table_group(
                     
                     x.append(get_json_from_json_ld(note))
                     
-            core_properties=get_core_properties('annotated_table.schema.json')
+            core_properties=\
+                get_core_properties('annotated_table.schema.json') + \
+                    get_core_properties('table_description.schema.json')
             
             for k,v in annotated_table_dict.items():
                 
@@ -7557,7 +8071,7 @@ def get_base_path_and_url_of_metadata_object(
             base_path=os.path.join(metadata_file_dir,
                                    base_url_property_value)
         else:
-            base_path=metadata_file_dir
+            base_path=metadata_file_path   # CHANGED FROM metadata_file_dir
         
     elif not metadata_file_url is None:
         base_path=None
@@ -7797,7 +8311,10 @@ def get_resolved_path_or_url_from_link_string(
     else: # if relative path or url, resolve against base path or base url
     
         if not base_path is None:
-            return os.path.join(base_path,link_string)
+            if link_string=='':   # NEW
+                return base_path  # NEW
+            else:   # NEW
+                return os.path.join(os.path.dirname(base_path),link_string)  # CHANGED base_path TO os.path.dirname(base_path)
         elif not base_url is None:
             return urllib.parse.urljoin(base_url,link_string)
     
@@ -7944,14 +8461,6 @@ def get_type_of_metadata_object(
     """
     d=json_dict
     
-    # If object already contains the @type property
-    
-    if '@type' in d:
-        
-        return d['@type']
-    
-    # TableGroup
-    
     if 'tables' in d:
         
         return 'TableGroup'
@@ -7959,6 +8468,10 @@ def get_type_of_metadata_object(
     elif 'url' in d:
         
         return 'Table'
+
+    elif '@type' in d:
+        
+        return d['@type']
     
     else:
         

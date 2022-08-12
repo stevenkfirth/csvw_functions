@@ -55,6 +55,7 @@
             "description": "If included, @id is a link property that identifies the group of tables, as defined by [tabular-data-model], described by this table group description. It must not start with _:.",
             "type": "string",
             "format": "uri-reference",
+            "pattern": "^(?!_:).*",
             "$comment": "link property"
         },
         "@type": {
@@ -80,5 +81,11 @@
     ],
     "required": [
         "tables"
-    ]
+    ],
+    "patternProperties":{
+        "aboutUrl|datatype|default|lang|null|ordered|propertyUrl|required|separator|textDirection|valueUrl": {},
+        ".*:.*": {},
+        "@context":{}
+    },
+    "additionalProperties": false
 }

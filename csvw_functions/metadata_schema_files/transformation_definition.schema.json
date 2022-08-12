@@ -55,6 +55,7 @@
             "description": "If included, @id is a link property that identifies the transformation described by this transformation definition. It must not start with _:.",
             "type": "string",
             "format": "uri-reference",
+            "pattern": "^(?!_:).*",
             "$comment": "link property"
         },
         "@type": {
@@ -74,5 +75,9 @@
             "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/top_level_properties.schema.json",
             "$comment": "Includes the top level properties"
         } 
-    ]
+    ],
+    "patternProperties":{
+        "@context":{}
+    },
+    "additionalProperties": false
 }

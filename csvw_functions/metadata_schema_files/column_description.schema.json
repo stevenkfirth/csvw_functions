@@ -41,6 +41,7 @@
             "description": "If included, @id is a link property that identifies the columns, as defined in [tabular-data-model], and potentially appearing across separate tables, described by this column description. It must not start with _:.",
             "type": "string",
             "format": "uri-reference",
+            "pattern": "^(?!_:).*",
             "$comment": "link property"
         },
         "@type": {
@@ -59,5 +60,10 @@
             "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/common_properties.schema.json",
             "$comment": "Includes the common properties"
         } 
-    ]
+    ],
+    "patternProperties":{
+        "aboutUrl|datatype|default|lang|null|ordered|propertyUrl|required|separator|textDirection|valueUrl": {},
+        ".*:.*": {}
+    },
+    "additionalProperties": false
 }

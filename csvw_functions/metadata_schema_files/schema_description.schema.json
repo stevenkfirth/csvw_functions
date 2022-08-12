@@ -43,6 +43,7 @@
             "description": "If included, @id is a link property that identifies the schema described by this schema description. It must not start with _:.",
             "type": "string",
             "format": "uri-reference",
+            "pattern": "^(?!_:).*",
             "$comment": "link property"
         },
         "@type": {
@@ -65,5 +66,11 @@
             "$ref": "https://github.com/stevenkfirth/csvw_metadata_json_schema/blob/main/schema_files/top_level_properties.schema.json",
             "$comment": "Includes the top level properties"
         }  
-    ]
+    ],
+    "patternProperties":{
+        "aboutUrl|datatype|default|lang|null|ordered|propertyUrl|required|separator|textDirection|valueUrl": {},
+        ".*:.*": {},
+        "@context":{}
+    },
+    "additionalProperties": false
 }

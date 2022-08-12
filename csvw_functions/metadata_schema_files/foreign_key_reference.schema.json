@@ -28,5 +28,6 @@
             ],
             "$comment": "column reference property"
         }
-    }
+    },
+    "additionalProperties": false
 }
