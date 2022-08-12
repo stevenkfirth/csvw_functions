@@ -6847,6 +6847,8 @@ if __name__=='__main__':
     
     unittest.main()
     
+    #unittest.main(TestTopLevelFunctions,'test_get_embedded_metadata_from_csv')
+    
     #unittest.main(TestSection5_5_2,'test_section_5_5_2_example_30')
     
     #unittest.main(TestCSVWTestSuite())

@@ -1738,6 +1738,7 @@ def create_annotated_tables_from_csv_file_path_or_url(
     #     tabular data file.
     
     metadata_root_obj_dict={
+        '@context': 'http://www.w3.org/ns/csvw',
         'url': csv_file_absolute_path or csv_file_url,
         '@type': 'Table',
         'tableSchema':{}
@@ -1826,6 +1827,8 @@ def create_annotated_tables_from_metadata_root_object(
     """
     logging.info('    FUNCTION: create_annotated_tables_from_metadata_root_object')
     
+    #print('metadata_root_obj_dict',metadata_root_obj_dict)
+    
     
     annotated_table_group_dict={
         'id':None,
@@ -1847,65 +1850,28 @@ def create_annotated_tables_from_metadata_root_object(
     #   if necessary.
     
     
-    # ... first check the @language tag and if not valid then apply the default
-    context=metadata_root_obj_dict.get('@context')
-    
-    if isinstance(context,list):
-        
-        language_tag=context[1].get('@language')
-        
-        if not language_tag is None:
-            
-            language_tag=\
-                apply_default_language_tag(
-                    language_tag
-                    )
-
-            metadata_root_obj_dict['@context'][1]['@language']=language_tag
-    
-    # get and normalize metadata file
-    normalized_metadata_obj_dict=\
-        normalize_metadata_root_object(
-            metadata_root_obj_dict,
-            metadata_file_path,
-            metadata_file_url
-            )
-        
-    #print(normalized_metadata_obj_dict)
-        
-    # get base path & url
-    base_path, base_url=\
-        get_base_path_and_url_of_metadata_object(
-            metadata_root_obj_dict,
-            metadata_file_path,
-            metadata_file_url
-            )
-        
-    # get default language
-    default_language=\
-        get_default_language_of_metadata_object(
-            metadata_root_obj_dict
-            )
     
     # convert to TableGroup if needed
     metadata_type=\
         get_type_of_metadata_object(
-            normalized_metadata_obj_dict
+            metadata_root_obj_dict
             )
     if metadata_type=='TableGroup':
-        metadata_table_group_obj_dict=normalized_metadata_obj_dict
+        metadata_table_group_obj_dict=metadata_root_obj_dict
         
     elif metadata_type=='Table':
         metadata_table_group_obj_dict={
-            '@context': "http://www.w3.org/ns/csvw",
+            '@context': metadata_root_obj_dict['@context'],
             '@type': 'TableGroup',
-            'tables': [normalized_metadata_obj_dict]
+            'tables': [metadata_root_obj_dict]
             }
         metadata_table_group_obj_dict['tables'][0].pop('@context', None)
         
     else:
         raise Exception
     #print('metadata_table_group_obj_dict',metadata_table_group_obj_dict)
+    
+    
     
     
     # From Metadata Vocabulary for Tabular Data Section 4
@@ -1934,9 +1900,68 @@ def create_annotated_tables_from_metadata_root_object(
     #   this specification, and
     # - properties having invalid values for a given property.
     
+    
+    # first check the @language tag and if not valid then apply the default
+    # needs to happen before any normalization
+    context=metadata_table_group_obj_dict.get('@context')
+    
+    if isinstance(context,list):
+        
+        language_tag=context[1].get('@language')
+        
+        if not language_tag is None:
+            
+            language_tag=\
+                apply_default_language_tag(
+                    language_tag
+                    )
+
+            metadata_table_group_obj_dict['@context'][1]['@language']=language_tag
+    
+    
+    # then normalize to access any linked schemas
+    metadata_table_group_obj_dict=\
+        normalize_metadata_root_object(
+            metadata_table_group_obj_dict,
+            metadata_file_path,
+            metadata_file_url
+            )
+    
+    #print('metadata_table_group_obj_dict',metadata_table_group_obj_dict)
+    
+    # then check metadata, raise any errors and warnings, and replace with default values if needed
     check_table_group_dict(
         metadata_table_group_obj_dict,
         )
+    
+    #print('metadata_table_group_obj_dict',metadata_table_group_obj_dict)
+    
+    # then normalize again for any changes after checking
+    metadata_table_group_obj_dict=\
+        normalize_metadata_root_object(
+            metadata_table_group_obj_dict,
+            metadata_file_path,
+            metadata_file_url
+            )
+        
+    #print(normalized_metadata_obj_dict)
+        
+    # get base path & url
+    base_path, base_url=\
+        get_base_path_and_url_of_metadata_object(
+            metadata_table_group_obj_dict,
+            metadata_file_path,
+            metadata_file_url
+            )
+        
+    # get default language
+    default_language=\
+        get_default_language_of_metadata_object(
+            metadata_table_group_obj_dict
+            )
+    
+    
+    
     
     
     # 3 For each table (TM) in UM in order, create one or more annotated tables:
@@ -4454,7 +4479,7 @@ def check_table_group_dict(
         table_group_dict,
         ):
     
-    #print(table_group_dict)
+    #print('table_group_dict',table_group_dict)
     
     errors=validate_metadata_obj_dict(
         table_group_dict, 
@@ -4465,7 +4490,7 @@ def check_table_group_dict(
 
     for i,error in enumerate(errors):
         
-        
+                
         # looks in the 'sub' errors and gets the error with the longest absolut path
         if len(error.context)>0:
             
@@ -4549,6 +4574,14 @@ def check_table_group_dict(
                     PropertyNotValidWarning
                     )
                 
+            
+            elif error.validator=='type' and property_name=='url':
+                
+                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
+                message+=' String expected.'
+                
+                raise MetadataValidationError(message)
+            
             
             elif error.validator in ['oneOf','enum','type','minimum']:
                 
@@ -4664,6 +4697,8 @@ def check_table_group_dict(
     
     if flag_revalidate==True:
         
+        print('TEST')
+        
         check_table_group_dict(
             table_group_dict
             )
@@ -4712,6 +4747,10 @@ def check_table_group_dict(
             
             
     # custom checks
+    
+    
+    
+    #print('table_group_dict',table_group_dict)
     
     #
     check_lang(table_group_dict)
@@ -6353,37 +6392,8 @@ def normalize_metadata_property(
                 
         else:
             
-            property_value_type=type(property_value).__name__
+            normalized_value=property_value
             
-            # error checking and applies default value here, as this needs to be done during normalization rather than after.
-            
-            if property_name=='url':
-                
-                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
-                
-                raise MetadataValidationError(message)
-                
-            else:
-            
-            
-                default_value=''
-                
-                normalized_value=\
-                    get_resolved_path_or_url_from_link_string(
-                            default_value,
-                            base_path,
-                            base_url
-                            )
-                
-                message=f'Property "{property_name}" with value "{property_value}" ({property_value_type}) is not valid.'
-                message+=f' Value replaced with default value "{default_value}".'
-                
-                warnings.warn(
-                    message,
-                    PropertyNotValidWarning
-                    )
-        
-        
         
     # 4 If the property is an object property with a string value, 
     #  the string is a URL referencing a JSON document containing a single 
