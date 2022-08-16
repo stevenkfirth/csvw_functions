@@ -861,8 +861,11 @@ def create_annotated_table_group(
             
         # if using embedded metadata
         if use_embedded_metadata_flag:
+            
             metadata_table_dict=embedded_metadata_dict
+            
             metadata_table_dict.pop('@context')
+            
             metadata_table_group_dict['tables'][table_index]=metadata_table_dict
             #print(metadata_table_group_obj_dict)
             
@@ -983,11 +986,12 @@ def create_annotated_table_group(
     #     T as described in Section 2 Annotating Tables in [tabular-metadata].
     
     annotated_table_group_dict=\
-        annotate_table_group(
+        annotate_table_group_dict(
             annotated_table_group_dict,
             metadata_table_group_dict,
+            base_url,
             default_language,
-            base_url
+            validate
             )
             
     # Not directly in this section of the standard, but at this stage the 
@@ -2579,8 +2583,7 @@ def parse_tabular_data_from_text(
             if len(metadata_table_dict['tableSchema']['columns'])==0:
                 
                 metadata_table_dict['tableSchema']['columns']=\
-                    [{'titles':[],
-                      '@type':'Column'} 
+                    [{'titles':[]} 
                      for x in range(len(list_of_cell_values_non_skipped))]
                 
             for i, value in enumerate(list_of_cell_values_non_skipped):
@@ -2827,15 +2830,13 @@ def parse_tabular_data_from_text(
     
     # 12 Return the table T and the embedded metadata M.
         
-    normalized_metadata_dict=\
-        normalize_metadata_root_object(
-            metadata_dict,
-            metadata_file_path='.', 
-            metadata_file_url=None
-            )
+    validate_and_normalize_metadata_table_dict(
+        metadata_table_dict,
+        metadata_document_location=None
+        )
     
 
-    return table_dict, normalized_metadata_dict
+    return table_dict, metadata_table_dict
     
     
 
@@ -3294,7 +3295,57 @@ def validate_link_property(
         
         metadata_obj_dict[property_name]=property_value
         
+#%% 5.1.4 - Column Reference Properties
+
+def validate_column_reference_property(
         
+        ):
+    """
+    """
+    
+    # Compliant applications must issue a warning and proceed as if the 
+    # column reference property had not been specified if:
+    # - the supplied value is not a string or array (e.g. if it is an integer).
+    # - the supplied value is an empty array.
+    # - any of the values in the supplied array are not strings.
+    # - any of the supplied strings do not reference one or more columns.
+
+    # TO DO
+    
+    raise NotImplementedError
+
+
+def get_columns_from_column_reference(
+        column_reference,
+        annotated_table_dict,
+        ):
+    """
+    """
+    
+    # Column reference properties hold one or more references to other 
+    # column description objects. 
+    # The referenced description object must have a name property.
+    # Column reference properties can then reference column description 
+    # objects through values that are:
+    # - strings — which must match the name on a column description object within the metadata document.
+    # - arrays — lists of strings as above.
+    
+    if not isinstance(column_reference,list):
+        
+        column_reference=[column_reference]
+        
+    columns=[]
+    
+    for column_reference_name in column_reference:
+    
+        for annotated_column_dict in annotated_table_dict['columns']:
+            
+            if column_reference_name==annotated_column_dict['name']:
+                
+                columns.append(annotated_column_dict)
+
+    return columns
+       
     
     
 #%% 5.1.5 - Object Properties
@@ -3316,9 +3367,14 @@ def validate_object_property(
     # a warning and proceed as if the property had been specified as an 
     # object with no properties.
     
-    if not isinstance(property_value,str) or isinstance(property_value,dict):
+    if isinstance(property_value,str) or isinstance(property_value,dict):
         
-        message=f'Property "{property_name}" with value "{property_value}" is not valid. '
+        pass
+    
+    else:
+        
+        message=f'Property "{property_name}" ' 
+        message+=f'with value "{property_value}" ({type(property_value).__name__}) is not valid. '
         message+='Value changed to {}'
         
         property_value={}
@@ -3366,6 +3422,122 @@ def validate_object_property(
     #   "header": true,
     #   "delimiter": "\t"
     # }
+  
+    
+#%% 5.1.6 Natural Language Properties
+
+def validate_natural_language_property(
+        metadata_obj_dict,
+        property_name,
+        property_value
+        ):
+    """
+    """
+
+    # Natural language properties hold natural language strings. 
+    # Their values may be:
+    
+    # - strings — interpreted as natural language strings in the 
+    #   default language.
+    # - arrays — interpreted as alternative natural language strings 
+    #   in the default language.
+    # - objects whose properties must be language codes as defined by [BCP47] 
+    #   and whose values are either strings or arrays, providing natural 
+    #   language strings in that language.
+    
+    # Natural language properties are used for titles. 
+    # For example, the titles property on a column description provides a 
+    # natural language label for a column. 
+    # If it's a plain string like this:
+    
+    # EXAMPLE 21
+    # "titles": "Project title"
+    
+    # then that string is assumed to be in the default language (or have 
+    # an undefined language, und, if there is no such property). 
+    # Multiple alternative values can be given in an array:
+    
+    # EXAMPLE 22
+    # "titles": [
+    #   "Project title",
+    #   "Project"
+    # ]
+    
+    # It's also possible to provide multiple values in different languages, 
+    # using an object structure. For example:
+    
+    # EXAMPLE 23
+    # "titles": {
+    #   "en": "Project title",
+    #   "fr": "Titre du projet"
+    # }
+    # and within such an object, the values of the properties can themselves be arrays:
+    
+    # EXAMPLE 24
+    # "titles": {
+    #   "en": [ "Project title", "Project" ],
+    #   "fr": "Titre du projet"
+    # }
+    
+    # The annotation value of a natural language property is an object 
+    # whose properties are language codes and where the values of those 
+    # properties are an array of strings (see Language Maps in [JSON-LD]).
+    
+    # NOTE
+    # When extracting a annotation value from a metadata that will have 
+    # already been normalized, a natural language property will already have this form.
+    
+    # If the supplied value of a natural language property is not a string, 
+    # array or object (e.g. if it is an integer), compliant applications 
+    # must issue a warning and proceed as if the property had been specified 
+    # as an empty array. 
+    # If the supplied value is an array, any items in that array that are 
+    # not strings must be ignored. 
+    # If the supplied value is an object, any properties that are not 
+    # valid language codes as defined by [BCP47] must be ignored, as 
+    # must any properties whose value is not a string or an array, and 
+    # any items that are not strings within array values of these properties.
+        
+    if isinstance(property_value,str):
+        
+        pass
+    
+    elif isinstance(property_value,list):
+        
+        property_value=[x for x in property_value if isinstance(x,str)]
+    
+    elif isinstance(property_value,dict):
+        
+        d={}
+        
+        for k,v in property_value.items:
+            
+            if langcodes.is_valid_tag(k):
+                
+                if isinstance(v,str):
+                    
+                    d[k]=v
+                    
+                elif isinstance(v,list):
+                    
+                    d[k]=[x for x in v if isinstance(x,str)]
+                
+        property_value=d
+    
+    else:
+        
+        message='Property "{property_name}" '
+        message+='with value "{property_value}" ({type(property_value).__name__}) '
+        message=+'is of invalid type. '
+        message+='Natural language property values must be either a string, a list or an object. '
+        message+='Property value is replaced with an empty array'
+        
+        warnings.warn(message)
+        
+        property_value=[]
+        
+    metadata_obj_dict[property_name]=property_value
+        
     
     
     
@@ -3592,7 +3764,9 @@ def validate_and_normalize_metadata_table_group_dict(
     
     
     # loop through items
-    for k, v in metadata_table_group_dict.items():
+    for k in list(metadata_table_group_dict):
+        
+        v=metadata_table_group_dict[k]
         
         # @context
         if k=='@context':
@@ -3626,8 +3800,11 @@ def validate_and_normalize_metadata_table_group_dict(
                 
                 validate_and_normalize_metadata_table_dict(
                         metadata_table_dict,
+                        metadata_document_location,
                         base_url,
                         default_language,
+                        has_top_level_property=False,
+                        table_group_table_schema=metadata_table_group_dict.get('tableSchema')
                         )
                 
         # dialect    
@@ -3744,9 +3921,11 @@ def validate_and_normalize_metadata_table_group_dict(
             
             validate_and_normalize_metadata_schema_dict(
                 v,
-                referenced_url,
+                referenced_url or metadata_document_location,
                 base_url,
-                default_language
+                default_language,
+                has_top_level_property=True if referenced_url else False,
+                is_referenced=True if referenced_url else False,
                 )
             
         
@@ -3851,19 +4030,200 @@ def validate_and_normalize_metadata_table_group_dict(
                 )
             
     return base_url, default_language
+
+
+def annotate_table_group_dict(
+        annotated_table_group_dict,
+        metadata_table_group_dict,
+        base_url,
+        default_language,
+        validate
+        ):
+    """
+    """
+    
+    inherited_properties_cache={}
+    
+    for k,v in metadata_table_group_dict.items():
         
+        # notes
+        if k=='notes':
+            
+            if annotated_table_group_dict['notes']:
+            
+                annotated_table_group_dict['notes'].extend(v)
+                
+            else:
+                
+                annotated_table_group_dict['notes']=v
+            
+        # tableDirection
+        elif k=='tableDirection':
+            
+            for annotated_table_dict in annotated_table_group_dict['tables']:
+            
+                annotated_table_dict['tableDirection']=v
+            
+        # transformations
+        elif k=='transformtions':
+            
+            for annotated_table_dict in annotated_table_group_dict['tables']:
+            
+                annotated_table_dict['transformations']=v
+        
+        # @id
+        elif k=='@id':
+            
+            annotated_table_group_dict['id']=v
+            
+        # inherited properties
+        elif k in ['aboutUrl','datatype','default','lang','null','ordered',
+                   'propertyUrl','required','separator','textDirection',
+                   'valueUrl']:
+            
+            inherited_properties_cache[k]=v
+            
+            
+    for i in range(len(annotated_table_group_dict['tables'])):
+        
+        annotate_table_dict(
+            annotated_table_group_dict['tables'][i],
+            metadata_table_group_dict['tables'][i],
+            base_url,
+            default_language,
+            validate,
+            inherited_properties_cache
+            )
+        
+        
+    # do the foreign key annotations
+    # - need to do this after all column name properties are set.
+    
+    for i in range(len(metadata_table_group_dict.get('tables',[]))):
+        
+        metadata_table_dict=metadata_table_group_dict['tables'][i]
+        annotated_table_dict=annotated_table_group_dict['tables'][i]
+        
+        if 'tableSchema' in metadata_table_dict:
+            
+            metadata_schema_dict=metadata_table_dict['tableSchema']
+        
+            if 'foreignKeys' in metadata_schema_dict:
+            
+                foreign_key_definitions=metadata_schema_dict['foreignKeys']
+                
+                for foreign_key_definition in foreign_key_definitions:
+                    
+                    fkd_column_reference=\
+                        foreign_key_definition['columnReference']
+                        
+                    fkd_columns=\
+                        get_columns_from_column_reference(
+                            fkd_column_reference,
+                            annotated_table_dict,
+                            )
+                    
+                    foreign_key_reference=foreign_key_definition['reference']
+                    
+                    foriegn_key_reference_table, foriegn_key_reference_columns=\
+                        get_referenced_table_and_columns_from_foreign_key_reference(
+                            foreign_key_reference,
+                            annotated_table_group_dict,
+                            metadata_table_group_dict,
+                            #base_path,
+                            base_url
+                            )
+                    
+                    annotated_table_dict['foreignKeys'].append(
+                        [fkd_columns,foriegn_key_reference_columns]
+                        )
+    
+                # referenced rows
+                
+                for j in range(len(annotated_table_dict['rows'])):
+                    
+                    for foreign_key_definition in annotated_table_dict['foreignKeys']:
+                        
+                        # get foreign key values in this row of this table
+                        
+                        foreign_key_definition_columns=foreign_key_definition[0]
+                        
+                        foreign_key_definition_values=\
+                            [x['cells'][j]['value'] 
+                             for x in foreign_key_definition_columns]
+                            
+                        # get first row that matches in the reference table
+                        
+                        foreign_key_reference_columns=foreign_key_definition[1]
+                        foreign_key_reference_table=foreign_key_reference_columns[0]['table']
+                        
+                        first_row=None
+                        
+                        for k in range(len(foreign_key_reference_columns[0]['cells'])):
+                            
+                            foreign_key_reference_values=\
+                                [x['cells'][k]['value'] 
+                                 for x in foreign_key_reference_columns]
+                                
+                            if foreign_key_reference_values==foreign_key_definition_values:
+                                
+                                first_row=foreign_key_reference_table['rows'][k]
+                                
+                                break
+                                
+                        if validate:   
+                            
+                            if first_row is None:
+                                
+                                raise Exception
+                            
+                        # append pair to referencedRow property for this row
+                        
+                        annotated_table_dict['rows'][j]['referencedRows'].append(
+                            [foreign_key_definition,
+                             first_row]
+                            )
+                    
+    return annotated_table_group_dict
+
+
+      
         
 #%% 5.4 - Tables
 
 def validate_and_normalize_metadata_table_dict(
         metadata_table_dict,
-        base_url,
-        default_language,
+        metadata_document_location,
+        base_url=None,
+        default_language=None,
+        has_top_level_property=True,
+        table_group_table_schema=None
         ):
     """
     """
     # A table description is a JSON object that describes a table within a CSV file.    
     
+    if '@context' in metadata_table_dict:
+        
+        if has_top_level_property:
+        
+            base_url, default_language=\
+                validate_top_level_properties(
+                    metadata_table_dict,
+                    metadata_document_location
+                    )
+                
+        else:
+            
+            message='Metadata table description should not contain a "@context" property. '
+            
+            raise ValueError(message)
+        
+    # include tableSchema from table group, if not present
+    if not 'tableSchema' in metadata_table_dict:
+        
+        metadata_table_dict['tableSchema']=table_group_table_schema
+        
 
     # required properties
     if not 'url' in metadata_table_dict:
@@ -3876,8 +4236,13 @@ def validate_and_normalize_metadata_table_dict(
     # loop through items
     for k, v in metadata_table_dict.items():
         
+        # @context
+        if k=='@context':
+            
+            pass
+        
         # url
-        if k=='url':
+        elif k=='url':
         
             # This link property gives the single URL of the CSV file 
             # that the table is held in, relative to the location of the 
@@ -4041,9 +4406,11 @@ def validate_and_normalize_metadata_table_dict(
             
             validate_and_normalize_metadata_schema_dict(
                 v,
-                referenced_url,
+                referenced_url or metadata_document_location,
                 base_url,
-                default_language
+                default_language,
+                has_top_level_property=True if referenced_url else False,
+                is_referenced=True if referenced_url else False,
                 )
         
         
@@ -4127,6 +4494,9 @@ def validate_and_normalize_metadata_table_dict(
                    'propertyUrl','required','separator','textDirection',
                    'valueUrl']:
             
+            # The description may contain inherited properties to describe 
+            # cells within the table.
+            
             validate_and_normalize_inherited_property(
                 metadata_table_dict,
                 k,
@@ -4139,6 +4509,9 @@ def validate_and_normalize_metadata_table_dict(
         # common properties
         else:
             
+            # The description may contain any common properties to provide 
+            # extra metadata about the table as a whole.
+            
             validate_and_normalize_common_property(
                 metadata_table_dict,
                 k,
@@ -4148,12 +4521,86 @@ def validate_and_normalize_metadata_table_dict(
                 )
 
 
+def annotate_table_dict(
+        annotated_table_dict,
+        metadata_table_dict,
+        base_url,
+        default_language,
+        validate,
+        inherited_properties_cache
+        ):
+    """
+    """
+    
+    for k,v in metadata_table_dict.items():
+        
+        # url
+        if k=='url':
+        
+            annotated_table_dict['url']=v
+        
+        # notes
+        elif k=='notes':
+            
+            if annotated_table_dict['notes']:
+                
+                annotated_table_dict['notes'].extend(v)
+                
+            else:
+                
+                annotated_table_dict['notes']=v
+            
+        # suppressOutput
+        elif k=='suppressOutput':
+            
+            annotated_table_dict['suppressOutput']=v
+        
+        # tableDirection
+        elif k=='tableDirection':
+            
+            annotated_table_dict['tableDirection']=v
+            
+        # tableSchema
+        elif k=='tableSchema':
+    
+            if '@id' in v:
+                
+                annotated_table_dict['schema']=v['@id']
+            
+        # transformations
+        elif k=='transformtions':
+            
+            annotated_table_dict['transformations']=v
+        
+        # @id
+        elif k=='@id':
+            
+            annotated_table_dict['id']=v
+            
+        # inherited properties
+        elif k in ['aboutUrl','datatype','default','lang','null','ordered',
+                   'propertyUrl','required','separator','textDirection',
+                   'valueUrl']:
+            
+            inherited_properties_cache[k]=v
+            
+        
+    annotate_schema_dict(
+        annotated_table_dict,
+        metadata_table_dict['tableSchema'],
+        base_url,
+        default_language,
+        validate,
+        inherited_properties_cache
+        )
+
+
 #%% 5.4.3 - Table Description Compatibility
 
 def compare_table_descriptions(
         TM,  # table_dict
         EM,  # embedded dict
-        validate=False
+        validate
         ):
     """
     """
@@ -4162,11 +4609,25 @@ def compare_table_descriptions(
     # in section 5.5.1 Schema Compatibility.
     
     if not TM['url']==EM['url']:
-        raise Exception  # NEEDS FUTHER WORK
+        
+        message='Supplied and embedded metadata table descriptions are '
+        message+='not compatibles as their URLs are different. '
+        message+=f'Supplied URL is "{TM["url"]}". '
+        message+=f'Embedded URL is "{EM["url"]}". '
+        
+        if validate:
+            
+            raise ValueError(message)
+            
+        else:
+        
+            warnings.warn(message)
+        
         
     compare_schema_descriptions(
         TM['tableSchema'],
-        EM['tableSchema']
+        EM['tableSchema'],
+        validate
         )
         
 
@@ -4176,9 +4637,11 @@ def compare_table_descriptions(
 
 def validate_and_normalize_metadata_schema_dict(
         metadata_schema_dict,
-        referenced_url,
-        base_url,
-        default_language
+        metadata_document_location,
+        base_url=None,
+        default_language=None,
+        has_top_level_property=True,
+        is_referenced=False
         ):
     """
     """
@@ -4191,38 +4654,102 @@ def validate_and_normalize_metadata_schema_dict(
     # about a schema, which describes the structure of a table. 
     # All the properties of a schema description are optional.
 
-    if not referenced_url is None:
+    if '@context' in metadata_schema_dict:
         
-        # top-level properties
-        base_url, default_language=\
-            validate_top_level_properties(
-                metadata_schema_dict,
-                metadata_document_location=referenced_url
-                )
+        if has_top_level_property:
+        
+            base_url, default_language=\
+                validate_top_level_properties(
+                    metadata_schema_dict,
+                    metadata_document_location
+                    )
+                
+        else:
             
-    for k,v in metadata_schema_dict.items():
+            message='Metadata table description should not contain a "@context" property. '
+            
+            raise ValueError(message)
+
+    
+            
+    for k in list(metadata_schema_dict):
+        
+        v=metadata_schema_dict[k]
         
         if k=='@context':
             
             pass
         
         # columns
-        elif k=='@id':
+        elif k=='columns':
             
-            raise NotImplementedError
+            # An array property of column descriptions as described in 
+            # section 5.6 Columns. 
+            # These are matched to columns in tables that use the schema 
+            # by position: the first column description in the array applies 
+            # to the first column in the table, the second to the second and so on.
+
+            # The name properties of the column descriptions must be unique 
+            # within a given table description.
+            
+            validate_array_property(
+                metadata_schema_dict,
+                k,
+                v,
+                expected_types=[dict]
+                )
+            
+            
+            name_cache=[]
+            previous_is_virtual=False
+            
+            for column_number, metadata_column_dict in enumerate(v):
+            
+                validate_and_normalize_metadata_column_dict(
+                        metadata_column_dict,
+                        metadata_document_location,
+                        base_url,
+                        default_language,
+                        column_number
+                        )
+       
+                name=metadata_column_dict['name']
+                
+                if name in name_cache:
+                    
+                    message=f'Property "name" with value "{name}" '
+                    message+='is not unique in the column descriptions.'
+                    
+                    raise ValueError(message)
+                    
+                else:
+                    
+                    name_cache.append(name)
+                    
+                # check if virual columns come after non-virtual columns
+                is_virtual=metadata_column_dict.get('virtual',False)
+                    
+                if not is_virtual and previous_is_virtual:
+                    
+                    message='A non-virtual column cannot come after a virtual column.'
+                    
+                    raise ValueError(message)
+                    
+                previous_is_virtual=is_virtual
+                
             
         # foreignKeys
-        elif k=='@id':
+        elif k=='foreignKeys':
             
             raise NotImplementedError
             
         # primaryKey
-        elif k=='@id':
+        elif k=='primaryKey':
             
             raise NotImplementedError
             
         # rowTitles
-        elif k=='@id':
+        elif k=='rowTitles':
             
             raise NotImplementedError
             
@@ -4279,6 +4806,9 @@ def validate_and_normalize_metadata_schema_dict(
                    'propertyUrl','required','separator','textDirection',
                    'valueUrl']:
             
+            # The description may contain inherited properties to describe 
+            # cells within tables that use this schema.
+            
             validate_and_normalize_inherited_property(
                 metadata_schema_dict,
                 k,
@@ -4291,6 +4821,9 @@ def validate_and_normalize_metadata_schema_dict(
         # common properties
         else:
             
+            # The description may contain any common properties to provide 
+            # extra metadata about the schema as a whole.
+            
             validate_and_normalize_common_property(
                 metadata_schema_dict,
                 k,
@@ -4300,143 +4833,657 @@ def validate_and_normalize_metadata_schema_dict(
                 )
         
     
-    
-    
-    if not referenced_url is None:
+    if is_referenced:
         
         metadata_schema_dict.remove('@context')
         
         if not '@id' in metadata_schema_dict:
             
-            metadata_schema_dict['@id']=referenced_url
+            metadata_schema_dict['@id']=metadata_document_location
    
+    
+def annotate_schema_dict(
+        annotated_table_dict,
+        metadata_schema_dict,
+        base_url,
+        default_language,
+        validate,
+        inherited_properties_cache
+        ):
+    """
+    """
+    
+    for k,v in metadata_schema_dict.items():
+        
+        
+            
+        # row titles
+        if k=='rowTitles':
+            
+            raise NotImplementedError
+            
+        # inherited properties
+        elif k in ['aboutUrl','datatype','default','lang','null','ordered',
+                   'propertyUrl','required','separator','textDirection',
+                   'valueUrl']:
+    
+            inherited_properties_cache[k]=v
+            
+            
+    for i in range(len(annotated_table_dict['columns'])):
+        
+        annotate_column_dict(
+            annotated_table_dict['columns'][i],
+            metadata_schema_dict['columns'][i],
+            base_url,
+            default_language,
+            validate,
+            inherited_properties_cache
+            )
+        
+
+    
+   
+    
+def get_referenced_table_and_columns_from_foreign_key_reference(
+        foreign_key_reference,
+        annotated_table_group_dict,
+        metadata_table_group_obj_dict,
+        base_path,
+        base_url        
+        ):
+    """
+    """
+    # resource
+    # A link property holding a URL that is the identifier for a specific 
+    # table that is being referenced. 
+    # If this property is present then schemaReference must not be present. 
+    # The table group must contain a table whose url annotation is identical 
+    # to the expanded value of this property. 
+    # That table is the referenced table.
+    resource=foreign_key_reference.get('resource',None)
+    
+    
+    if not resource is None:
+        
+        resource_expanded_url=get_resolved_path_or_url_from_link_string(
+                resource,
+                base_path,
+                base_url
+                )
+    
+        referenced_annotated_table_dicts=\
+            [annotated_table_dict
+             for annotated_table_dict in annotated_table_group_dict['tables']
+             if annotated_table_dict['url']==resource_expanded_url
+             ]
+        
+        if not len(referenced_annotated_table_dicts)==1:
+            
+            raise Exception
+    
+        else:
+            
+            referenced_annotated_table_dict=referenced_annotated_table_dicts[0]
+    
+    # schemaReference
+    # A link property holding a URL that is the identifier for a schema 
+    # that is being referenced. 
+    # If this property is present then resource must not be present. 
+    # The table group must contain a table with a tableSchema having 
+    # a @id that is identical to the expanded value of this property, 
+    # and there must not be more than one such table. 
+    # That table is the referenced table.
+    schema_reference=foreign_key_reference.get('schemaReference',None)
+    
+    if not resource is None and not schema_reference is None:
+        
+        raise Exception
+    
+    if not schema_reference is None:
+        
+        schema_reference_expanded_url=\
+            get_resolved_path_or_url_from_link_string(
+                schema_reference,
+                base_path,
+                base_url
+                )
+    
+        referenced_metadata_table_dicts_indexes=\
+            [i
+             for i, metadata_table_dict in enumerate(metadata_table_group_obj_dict['tables'])
+             if metadata_table_dict['tableSchema'].get('@id',None)==schema_reference_expanded_url
+             ]
+            
+        if not len(referenced_metadata_table_dicts_indexes)==1:
+            
+            raise Exception
+    
+        else:
+            
+            referenced_annotated_table_dict=\
+                annotated_table_group_dict['tables'][referenced_metadata_table_dicts_indexes[0]]
+    
+    # columnReference
+    # A column reference property that holds either a single reference 
+    # (by name) to a column description object within the tableSchema 
+    # of the referenced table, or an array of such references.
+    
+    column_reference=foreign_key_reference['columnReference']
+    
+    referenced_annotated_column_dicts=\
+        get_columns_from_column_reference(
+            column_reference,
+            referenced_annotated_table_dict,
+            )
+    
+    
+    
+    # The value of this property becomes the foreign keys annotation on the 
+    # table using this schema by creating a list of foreign keys comprising 
+    # a list of columns in the table and a list of columns in the 
+    # referenced table. 
+    # The value of this property is also used to create the value of the 
+    # referenced rows annotation on each of the rows in the table that 
+    # uses this schema, which is a pair of the relevant foreign key and the 
+    # referenced row in the referenced table.
+
+    # As defined in [tabular-data-model], validators must check that, 
+    # for each row, the combination of cells in the referencing columns 
+    # references a unique row within the referenced table through a 
+    # combination of cells in the referenced columns. 
+    # For examples, see section 5.5.2.1 Foreign Key Reference Between 
+    # Tables and section 5.5.2.2 Foreign Key Reference Between Schemas.
+    
+    # TO DO
+    
+    return referenced_annotated_table_dict, referenced_annotated_column_dicts
+    
+    
+    
+    
 #%% 5.5.1 Schema Compatibility
 
 def compare_schema_descriptions(
         TM_schema,
         EM_schema,
-        validate=False
+        validate
         ):
-    """Section 5.5.1.
     """
-    #print(TM_schema)
-    #print(EM_schema)
-    
+    """
     # Two schemas are compatible if they have the same number of non-virtual 
     # column descriptions, and the non-virtual column descriptions at the 
     # same index within each are compatible with each other. 
+    
     TM_non_virtual_columns=[x for x in TM_schema.get('columns',[]) 
                             if x.get('virtual',False)==False]
     EM_non_virtual_columns=[x for x in TM_schema.get('columns',[]) 
                             if x.get('virtual',False)==False]
     
     if not len(TM_non_virtual_columns)==len(EM_non_virtual_columns):
-        raise Exception  # TO DO
         
+        message='Supplied and embedded metadata schema descriptions are '
+        message+='not compatible as they have a different number of virtual columns. '
+        message+=f'Supplied number of virtual columns is "{len(TM_non_virtual_columns)}". '
+        message+=f'Embedded number of virtual columns is "{len(EM_non_virtual_columns)}". '
+        
+        if validate:
+            
+            raise ValueError(message)
+            
+        else:
+        
+            warnings.warn(message)
+        
+    # Column descriptions are compatible under the following conditions:
+    # - If either column description has neither name nor titles properties.
+    # - If there is a case-sensitive match between the name properties of the columns.
+    # - If there is a non-empty case-sensitive intersection between the 
+    #   titles values, where matches must have a matching language; und 
+    #   matches any language, and languages match if they are equal when 
+    #   truncated, as defined in [BCP47], to the length of the shortest language tag.
+    # - If not validating, and one schema has a name property but not a 
+    # titles property, and the other has a titles property but not a name property.
+    
+    
     for i in range(len(TM_non_virtual_columns)):
         
         TM_column=TM_non_virtual_columns[i]
         EM_column=EM_non_virtual_columns[i]
-    
-        compare_column_descriptions(
-            TM_column,
-            EM_column,
-            validate=validate
-            )
         
+        #
+        if not 'name' in TM_column and not 'titles' in TM_column:
+            continue
         
-def compare_column_descriptions(
-        TM_column,
-        EM_column,
-        validate
-        ):
-    """
-    """
-    # Column descriptions are compatible under the following conditions:
-
-    # If either column description has neither name nor titles properties.
-    
-    if not 'name' in TM_column and not 'titles' in TM_column:
-        return
-    
-    if not 'name' in EM_column and not 'titles' in EM_column:
-        return
-    
-    
-    # If there is a case-sensitive match between the name properties of the columns.
-    if 'name' in TM_column and 'name' in EM_column:
-        if TM_column['name']==EM_column['name']:
-            return
-    
-    # If there is a non-empty case-sensitive intersection between the 
-    # titles values, where matches must have a matching language; und 
-    # matches any language, and languages match if they are equal when 
-    # truncated, as defined in [BCP47], to the length of the shortest language tag.
-    
-    
-    intersection=False
-    
-    for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+        if not 'name' in EM_column and not 'titles' in EM_column:
+            continue
         
-        for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
+        #
+        if 'name' in TM_column and 'name' in EM_column:
+            if TM_column['name']==EM_column['name']:
+                continue
+        
+        #
+        intersection=False
+        
+        for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
             
-            if TM_lang_tag=='und' or EM_lang_tag=='und' \
-                or langcodes.standardize_tag(TM_lang_tag)== \
-                    langcodes.standardize_tag(EM_lang_tag):
-                        
-                for title in TM_titles:
-                    if title in EM_titles:
-                        intersection=True
-                        break
-          
+            for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
+                
+                if TM_lang_tag=='und' or EM_lang_tag=='und' \
+                    or langcodes.standardize_tag(TM_lang_tag)== \
+                        langcodes.standardize_tag(EM_lang_tag):
+                            
+                    for title in TM_titles:
+                        if title in EM_titles:
+                            intersection=True
+                            break
+              
+                if intersection:
+                    break
+              
             if intersection:
                 break
-          
+              
         if intersection:
-            break
-          
-    if intersection:
-        return
-          
-         
-    
-    # intersection=False
-    # for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+            continue
         
-    #     if TM_lang_tag=='und':
+        #
+        if not validate:
+            if ('name' in TM_column 
+                and not 'titles' in TM_column
+                and not 'name' in EM_column 
+                and 'titles' in EM_column
+                ):
+                continue
             
-    #         for EM_titles in EM_column.get('titles',{}).values():
+            if (not 'name' in TM_column 
+                and 'titles' in TM_column
+                and 'name' in EM_column 
+                and not 'titles' in EM_column
+                ):
+                continue
             
-    #             for title in TM_titles:
-    #                 if title in EM_titles:
-    #                     intersection=True
-    #                     break
             
-    #     else:
-    #         raise NotImplementedError # TO DO
+        message='Supplied and embedded metadata columns descriptions are '
+        message+='not compatible. '
+        message+=f'Supplied column is "{TM_column}". '
+        message+=f'Embedded column is "{EM_column}". '
+        
+        if validate:
+            
+            raise ValueError(message)
+            
+        else:
+        
+            warnings.warn(message)
+        
+        
+    # NOTE
+    # A column description within embedded metadata where the header 
+    # dialect property is false will have neither name nor titles properties.
             
     
-    
-    # If not validating, and one schema has a name property but not a 
-    # titles property, and the other has a titles property but not a name property.
 
-    if ('name' in TM_column 
-        and not 'titles' in TM_column
-        and not 'name' in EM_column 
-        and 'titles' in EM_column
-        ):
-        if validate==False:
-            return
     
-    if (not 'name' in TM_column 
-        and 'titles' in TM_column
-        and 'name' in EM_column 
-        and not 'titles' in EM_column
-        ):
-        if validate==False:
-            return
+#%% 5.6 - Columns
 
-    raise Exception  # i.e. NOT COMPATIBLE - NEED TO FIX IF VALIDATING OR NOT
+def validate_and_normalize_metadata_column_dict(
+        metadata_column_dict,
+        metadata_document_location,
+        base_url,
+        default_language,
+        column_number
+        ):
+    """
+    """
+    # A column description is a JSON object that describes a single column. 
+    # The description provides additional human-readable documentation for 
+    # a column, as well as additional information that may be used to 
+    # validate the cells within the column, create a user interface for 
+    # data entry, or inform conversion into other formats. 
+    # All properties are optional.
+    
+    for k in list(metadata_column_dict):
+        
+        v=metadata_column_dict[k]
+        
+        # name
+        if k=='name':
+            
+            # An atomic property that gives a single canonical name for 
+            # the column. 
+            # The value of this property becomes the name annotation 
+            # for the described column. 
+            # This must be a string and this property has no default value, 
+            # which means it must be ignored if the supplied value is not a string.
+
+            validate_atomic_property(
+                metadata_column_dict,
+                k,
+                v,
+                expected_types=[str]
+                )
+            
+            normalize_atomic_property(
+                metadata_column_dict,
+                k,
+                v
+                )
+
+            # For ease of reference within URI template properties, 
+            # column names are restricted as defined in Variables in 
+            # [URI-TEMPLATE] with the additional provision that names 
+            # beginning with "_" are reserved by this specification and 
+            # must not be used within metadata documents.
+        
+            # --NOTE--
+            # Currently not validating on URI-TEMPLATE restrictions...
+            # ?? TO DO ??
+            
+            if v.startswith('name'):
+                
+                message=f'Property "name" with value "{v}" is not valid. '
+                message+='Value must not start with "_".'
+                
+                raise ValueError(message)
+        
+        # suppressOutput
+        elif k=='suppressOutput':
+        
+            # A boolean atomic property. 
+            # If true, suppresses any output that would be generated when 
+            # converting cells in this column. 
+            # The value of this property becomes the value of the suppress 
+            # output annotation for the described column. 
+            # The default is false.
+            
+            validate_atomic_property(
+                metadata_column_dict,
+                k,
+                v,
+                expected_types=[bool],
+                default_value=False,
+                )
+            
+            normalize_atomic_property(
+                metadata_column_dict,
+                k,
+                v
+                )
+            
+        # titles
+        elif k=='titles':
+        
+            # A natural language property that provides possible alternative 
+            # names for the column. 
+            # The string values of this property, along with their 
+            # associated language tags, become the titles annotation 
+            # for the described column.
+
+            # If there is no name property defined on this column, 
+            # the first titles value having the same language tag as 
+            # default language, or und or if no default language is 
+            # specified, becomes the name annotation for the described column. 
+            # This annotation must be percent-encoded as necessary to 
+            # conform to the syntactic requirements defined in [RFC3986].    
+        
+            validate_natural_language_property(
+                metadata_column_dict,
+                k,
+                v,
+                )
+            
+            normalize_natural_language_property(
+                metadata_column_dict,
+                k,
+                v,
+                default_language
+                )
+            
+            if not 'name' in metadata_column_dict:
+                
+                x=metadata_column_dict['titles'][default_language][0]
+                
+                name=urllib.parse.quote(x.encode('utf8'))
+                
+                metadata_column_dict['name']=name
+        
+        
+        # virtual
+        elif k=='virtual':
+        
+            # A boolean atomic property taking a single value which 
+            # indicates whether the column is a virtual column not present 
+            # in the original source. 
+            # The default value is false. 
+            # The normalized value of this property becomes the virtual 
+            # annotation for the described column. 
+            # If present, a virtual column must appear after all other 
+            # non-virtual column definitions.
+
+            # NOTE
+            # Virtual columns are useful for inserting cells with 
+            # default values into an annotated table to control the 
+            # results of conversions.
+            
+            validate_atomic_property(
+                metadata_column_dict,
+                k,
+                v,
+                expected_types=[bool],
+                default_value=False,
+                )
+            
+            normalize_atomic_property(
+                metadata_column_dict,
+                k,
+                v
+                )
+                    
+        # @id
+        elif k=='@id':
+        
+            # If included, @id is a link property that identifies the 
+            # columns, as defined in [tabular-data-model], and potentially 
+            # appearing across separate tables, described by this column 
+            # description. 
+            # It must not start with _:.
+        
+            validate_link_property(
+                metadata_column_dict,
+                k,
+                v,
+                )
+            
+            normalize_link_property(
+                metadata_column_dict,
+                k,
+                v,
+                base_url
+                )
+                
+            if v.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise ValueError(message)
+        
+        # type
+        elif k=='@type':
+        
+            # If included, @type is an atomic property that must be set 
+            # to "Column". 
+            # Publishers may include this to provide additional information 
+            # to JSON-LD based toolchains.
+            
+            validate_atomic_property(
+                metadata_column_dict,
+                k,
+                v,
+                required_values=['Column']
+                )
+            
+            normalize_atomic_property(
+                metadata_column_dict,
+                k,
+                v
+                )
+            
+        
+        # inherited properties
+        elif k in ['aboutUrl','datatype','default','lang','null','ordered',
+                   'propertyUrl','required','separator','textDirection',
+                   'valueUrl']:
+            
+            # The description may contain inherited properties to describe 
+            # cells within the column.
+            
+            validate_and_normalize_inherited_property(
+                metadata_column_dict,
+                k,
+                v,
+                base_url,
+                default_language
+                )
+            
+            
+        # common properties
+        else:
+            
+            # The description may contain any common properties to provide 
+            # extra metadata about the column as a whole, such as a full 
+            # description.
+            
+            validate_and_normalize_common_property(
+                metadata_column_dict,
+                k,
+                v,
+                base_url,
+                default_language
+                )    
+    
+    
+    
+    
+    
+def annotate_column_dict(
+        annotated_column_dict,
+        metadata_column_dict,
+        base_url,
+        default_language,
+        validate,
+        inherited_properties_cache
+        ):
+    """
+    """
+    
+    for k,v in metadata_column_dict.items():
+        
+        # name
+        if k=='name':
+            
+            annotated_column_dict['name']=v
+            
+        # suppressOutput
+        elif k=='suppressOutput':
+            
+            annotated_column_dict['suppressOutput']=v
+        
+        # virtual
+        elif k=='virtual':
+            
+            annotated_column_dict['virtual']=v
+            
+        # inherited properties
+        elif k in ['aboutUrl','datatype','default','lang','null','ordered',
+                   'propertyUrl','required','separator','textDirection',
+                   'valueUrl']:
+    
+            inherited_properties_cache[k]=v
+            
+            
+    # inherited properties
+    
+    # datatype
+    if 'datatype' in inherited_properties_cache:
+        
+        annotated_column_dict['datatype']=inherited_properties_cache['datatype']
+    
+    # default
+    if 'default' in inherited_properties_cache:
+        
+        annotated_column_dict['default']=inherited_properties_cache['default']
+    
+    # lang
+    if 'lang' in inherited_properties_cache:
+        
+        annotated_column_dict['lang']=inherited_properties_cache['lang']
+    
+    # null
+    if 'null' in inherited_properties_cache:
+        
+        annotated_column_dict['null']=inherited_properties_cache['null']
+    
+    # ordered
+    if 'ordered' in inherited_properties_cache:
+        
+        ordered=inherited_properties_cache['ordered']
+        
+        annotated_column_dict['ordered']=ordered
+        
+        for annotated_cell_dict in annotated_column_dict['cells']:
+            
+            annotated_cell_dict['ordered']=ordered
+    
+    # required
+    if 'required' in inherited_properties_cache:
+        
+        annotated_column_dict['required']=inherited_properties_cache['required']
+    
+    # separator
+    if 'separator' in inherited_properties_cache:
+        
+        annotated_column_dict['separator']=inherited_properties_cache['separator']
+    
+    # text direction
+    if 'textDirection' in inherited_properties_cache:
+        
+        ordered=inherited_properties_cache['textDirection']
+        
+        annotated_column_dict['textDirection']=ordered
+        
+        for annotated_cell_dict in annotated_column_dict['cells']:
+            
+            annotated_cell_dict['textDirection']=ordered
+    
+    # aboutURL
+    if 'aboutUrl' in inherited_properties_cache:
+        
+        annotated_column_dict['aboutURL']=inherited_properties_cache['aboutUrl']
+    
+    # propertyURL
+    if 'propertyUrl' in inherited_properties_cache:
+        
+        annotated_column_dict['propertyURL']=inherited_properties_cache['propertyUrl']
+    
+    # valueURL
+    if 'valueUrl' in inherited_properties_cache:
+        
+        annotated_column_dict['valueURL']=inherited_properties_cache['valueUrl']
+    
+    # If the column description has neither name nor titles properties, 
+    # the string "_col.[N]" where [N] is the column number, becomes the name 
+    # annotation for the described column.
+    if not 'name' in metadata_column_dict \
+        and not 'titles' in metadata_column_dict:
+            
+            column_number=metadata_column_dict['number']
+        
+            annotated_column_dict['name']=f'_col.{column_number}'
+    
+    
+    
 
     
             
@@ -4452,6 +5499,18 @@ def validate_and_normalize_inherited_property(
     """
     """
     raise NotImplementedError
+    
+    
+def annotate_inherited_property(
+        annotated_obj_dict,
+        property_name,
+        property_value,
+        base_url,
+        default_language,
+        validate
+        ):
+    """
+    """
 
 
 #%% 5.8 - Common Properties            
@@ -5072,6 +6131,34 @@ def normalize_object_property(
         
     return url
         
+def normalize_natural_language_property(
+        metadata_obj_dict,
+        property_name,
+        property_value,
+        default_language
+        ):
+    """
+    """
+    # 6 If the property is a natural language property and the value is 
+    #  not already an object, it is turned into an object whose properties 
+    #  are language codes and where the values of those properties are arrays. 
+    #  The suitable language code for the values is determined through the 
+    #  default language; if it can't be determined the language code und 
+    #  must be used.
+    if not isinstance(property_value,dict):
+        
+        if isinstance(property_value,str):
+            
+            property_value={default_language:[property_value]}
+            
+        else:  # i.e. property value is an array
+        
+            property_value={default_language:property_value}
+           
+    metadata_obj_dict[property_name]=property_value
+            
+    
+
         
 def normalize_atomic_property(
         metadata_obj_dict,
