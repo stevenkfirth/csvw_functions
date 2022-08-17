@@ -23,12 +23,14 @@ def compare_json(self,json1,json2):
         
         self.assertIsInstance(
             json2,
-            dict
+            dict,
+            msg='not of type <dict>'
             )
         
         self.assertEqual(
             set(list(json1)),
-            set(list(json2))
+            set(list(json2)),
+            msg='dict keys are not the same'
             )
         
         for k in json1:
@@ -43,12 +45,14 @@ def compare_json(self,json1,json2):
         
         self.assertIsInstance(
             json2,
-            list
+            list,
+            msg='not of type <list>'
             )
         
         self.assertEqual(
             len(json1),
-            len(json2)
+            len(json2),
+            msg='lists are not of the same length'
             )
         
         for i in range(len(json1)):
@@ -90,7 +94,7 @@ class TestCSVWTestCases(unittest.TestCase):
         # loop through json tests
         for entry in manifest['entries']:
             
-            print(entry)
+            print('-manifest-entry',entry)
             
             action_fp=os.path.join(test_dir,entry['action'])
             
@@ -100,19 +104,48 @@ class TestCSVWTestCases(unittest.TestCase):
                 csvw_functions2.create_annotated_table_group(
                         action_fp
                         )
+                
+            print(annotated_table_group_dict['tables'][0]['columns'][0]['aboutURL'])
+            print(annotated_table_group_dict['tables'][0]['columns'][0]['cells'][0]['aboutURL'])
+                
+            #
+            if entry['option'].get('miminal') is True:
+                mode='minimal'
+            else:
+                mode='standard'
+            
+            #
+            json_ld=\
+                csvw_functions2.create_json_ld(
+                        annotated_table_group_dict,
+                        mode=mode,
+                        _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{entry["action"]}'
+                        )    
                         
+            print('-json_ld',json_ld)
                   
+            with open(result_fp) as f:
+                json_ld_result=json.load(f)
+            print('-json_ld_result',json_ld_result)
             
+            self.maxDiff=None
+            if not json_ld==json_ld_result:
+                compare_json(
+                    self,
+                    json_ld,
+                    json_ld_result
+                    )
             
-            
-            
-            
-            
+            self.assertEqual(
+                json_ld,
+                json_ld_result
+                )
             
             print('---------------------------')
-            break
+            #break
         
-        
+            
+                
         
         
         
