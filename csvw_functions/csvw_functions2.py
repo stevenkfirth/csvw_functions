@@ -40,7 +40,7 @@ import datetime
 # This section sets up a number of variables at the module level
 # which are used by the functions in the package.
 
-# Schema Prefixes
+#%% Schema Prefixes
 
 prefixes=\
     {
@@ -96,7 +96,8 @@ prefixes=\
   }
 
 
-# Datatypes - Metadata Section 5.11.1
+#%% Datatypes - Metadata Section 5.11.1
+
 datatypes={
     'anyAtomicType':'http://www.w3.org/2001/XMLSchema#anyAtomicType',
     'anyURI':'http://www.w3.org/2001/XMLSchema#anyURI',
@@ -182,15 +183,564 @@ datatypes_numbers=['double','number']+datatypes_decimals
 datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
 
 
+#%% Encodings
+
+encodings=[
+  {
+    "encodings": [
+      {
+        "labels": [
+          "unicode-1-1-utf-8",
+          "unicode11utf8",
+          "unicode20utf8",
+          "utf-8",
+          "utf8",
+          "x-unicode20utf8"
+        ],
+        "name": "UTF-8"
+      }
+    ],
+    "heading": "The Encoding"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "866",
+          "cp866",
+          "csibm866",
+          "ibm866"
+        ],
+        "name": "IBM866"
+      },
+      {
+        "labels": [
+          "csisolatin2",
+          "iso-8859-2",
+          "iso-ir-101",
+          "iso8859-2",
+          "iso88592",
+          "iso_8859-2",
+          "iso_8859-2:1987",
+          "l2",
+          "latin2"
+        ],
+        "name": "ISO-8859-2"
+      },
+      {
+        "labels": [
+          "csisolatin3",
+          "iso-8859-3",
+          "iso-ir-109",
+          "iso8859-3",
+          "iso88593",
+          "iso_8859-3",
+          "iso_8859-3:1988",
+          "l3",
+          "latin3"
+        ],
+        "name": "ISO-8859-3"
+      },
+      {
+        "labels": [
+          "csisolatin4",
+          "iso-8859-4",
+          "iso-ir-110",
+          "iso8859-4",
+          "iso88594",
+          "iso_8859-4",
+          "iso_8859-4:1988",
+          "l4",
+          "latin4"
+        ],
+        "name": "ISO-8859-4"
+      },
+      {
+        "labels": [
+          "csisolatincyrillic",
+          "cyrillic",
+          "iso-8859-5",
+          "iso-ir-144",
+          "iso8859-5",
+          "iso88595",
+          "iso_8859-5",
+          "iso_8859-5:1988"
+        ],
+        "name": "ISO-8859-5"
+      },
+      {
+        "labels": [
+          "arabic",
+          "asmo-708",
+          "csiso88596e",
+          "csiso88596i",
+          "csisolatinarabic",
+          "ecma-114",
+          "iso-8859-6",
+          "iso-8859-6-e",
+          "iso-8859-6-i",
+          "iso-ir-127",
+          "iso8859-6",
+          "iso88596",
+          "iso_8859-6",
+          "iso_8859-6:1987"
+        ],
+        "name": "ISO-8859-6"
+      },
+      {
+        "labels": [
+          "csisolatingreek",
+          "ecma-118",
+          "elot_928",
+          "greek",
+          "greek8",
+          "iso-8859-7",
+          "iso-ir-126",
+          "iso8859-7",
+          "iso88597",
+          "iso_8859-7",
+          "iso_8859-7:1987",
+          "sun_eu_greek"
+        ],
+        "name": "ISO-8859-7"
+      },
+      {
+        "labels": [
+          "csiso88598e",
+          "csisolatinhebrew",
+          "hebrew",
+          "iso-8859-8",
+          "iso-8859-8-e",
+          "iso-ir-138",
+          "iso8859-8",
+          "iso88598",
+          "iso_8859-8",
+          "iso_8859-8:1988",
+          "visual"
+        ],
+        "name": "ISO-8859-8"
+      },
+      {
+        "labels": [
+          "csiso88598i",
+          "iso-8859-8-i",
+          "logical"
+        ],
+        "name": "ISO-8859-8-I"
+      },
+      {
+        "labels": [
+          "csisolatin6",
+          "iso-8859-10",
+          "iso-ir-157",
+          "iso8859-10",
+          "iso885910",
+          "l6",
+          "latin6"
+        ],
+        "name": "ISO-8859-10"
+      },
+      {
+        "labels": [
+          "iso-8859-13",
+          "iso8859-13",
+          "iso885913"
+        ],
+        "name": "ISO-8859-13"
+      },
+      {
+        "labels": [
+          "iso-8859-14",
+          "iso8859-14",
+          "iso885914"
+        ],
+        "name": "ISO-8859-14"
+      },
+      {
+        "labels": [
+          "csisolatin9",
+          "iso-8859-15",
+          "iso8859-15",
+          "iso885915",
+          "iso_8859-15",
+          "l9"
+        ],
+        "name": "ISO-8859-15"
+      },
+      {
+        "labels": [
+          "iso-8859-16"
+        ],
+        "name": "ISO-8859-16"
+      },
+      {
+        "labels": [
+          "cskoi8r",
+          "koi",
+          "koi8",
+          "koi8-r",
+          "koi8_r"
+        ],
+        "name": "KOI8-R"
+      },
+      {
+        "labels": [
+          "koi8-ru",
+          "koi8-u"
+        ],
+        "name": "KOI8-U"
+      },
+      {
+        "labels": [
+          "csmacintosh",
+          "mac",
+          "macintosh",
+          "x-mac-roman"
+        ],
+        "name": "macintosh"
+      },
+      {
+        "labels": [
+          "dos-874",
+          "iso-8859-11",
+          "iso8859-11",
+          "iso885911",
+          "tis-620",
+          "windows-874"
+        ],
+        "name": "windows-874"
+      },
+      {
+        "labels": [
+          "cp1250",
+          "windows-1250",
+          "x-cp1250"
+        ],
+        "name": "windows-1250"
+      },
+      {
+        "labels": [
+          "cp1251",
+          "windows-1251",
+          "x-cp1251"
+        ],
+        "name": "windows-1251"
+      },
+      {
+        "labels": [
+          "ansi_x3.4-1968",
+          "ascii",
+          "cp1252",
+          "cp819",
+          "csisolatin1",
+          "ibm819",
+          "iso-8859-1",
+          "iso-ir-100",
+          "iso8859-1",
+          "iso88591",
+          "iso_8859-1",
+          "iso_8859-1:1987",
+          "l1",
+          "latin1",
+          "us-ascii",
+          "windows-1252",
+          "x-cp1252"
+        ],
+        "name": "windows-1252"
+      },
+      {
+        "labels": [
+          "cp1253",
+          "windows-1253",
+          "x-cp1253"
+        ],
+        "name": "windows-1253"
+      },
+      {
+        "labels": [
+          "cp1254",
+          "csisolatin5",
+          "iso-8859-9",
+          "iso-ir-148",
+          "iso8859-9",
+          "iso88599",
+          "iso_8859-9",
+          "iso_8859-9:1989",
+          "l5",
+          "latin5",
+          "windows-1254",
+          "x-cp1254"
+        ],
+        "name": "windows-1254"
+      },
+      {
+        "labels": [
+          "cp1255",
+          "windows-1255",
+          "x-cp1255"
+        ],
+        "name": "windows-1255"
+      },
+      {
+        "labels": [
+          "cp1256",
+          "windows-1256",
+          "x-cp1256"
+        ],
+        "name": "windows-1256"
+      },
+      {
+        "labels": [
+          "cp1257",
+          "windows-1257",
+          "x-cp1257"
+        ],
+        "name": "windows-1257"
+      },
+      {
+        "labels": [
+          "cp1258",
+          "windows-1258",
+          "x-cp1258"
+        ],
+        "name": "windows-1258"
+      },
+      {
+        "labels": [
+          "x-mac-cyrillic",
+          "x-mac-ukrainian"
+        ],
+        "name": "x-mac-cyrillic"
+      }
+    ],
+    "heading": "Legacy single-byte encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "chinese",
+          "csgb2312",
+          "csiso58gb231280",
+          "gb2312",
+          "gb_2312",
+          "gb_2312-80",
+          "gbk",
+          "iso-ir-58",
+          "x-gbk"
+        ],
+        "name": "GBK"
+      },
+      {
+        "labels": [
+          "gb18030"
+        ],
+        "name": "gb18030"
+      }
+    ],
+    "heading": "Legacy multi-byte Chinese (simplified) encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "big5",
+          "big5-hkscs",
+          "cn-big5",
+          "csbig5",
+          "x-x-big5"
+        ],
+        "name": "Big5"
+      }
+    ],
+    "heading": "Legacy multi-byte Chinese (traditional) encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "cseucpkdfmtjapanese",
+          "euc-jp",
+          "x-euc-jp"
+        ],
+        "name": "EUC-JP"
+      },
+      {
+        "labels": [
+          "csiso2022jp",
+          "iso-2022-jp"
+        ],
+        "name": "ISO-2022-JP"
+      },
+      {
+        "labels": [
+          "csshiftjis",
+          "ms932",
+          "ms_kanji",
+          "shift-jis",
+          "shift_jis",
+          "sjis",
+          "windows-31j",
+          "x-sjis"
+        ],
+        "name": "Shift_JIS"
+      }
+    ],
+    "heading": "Legacy multi-byte Japanese encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "cseuckr",
+          "csksc56011987",
+          "euc-kr",
+          "iso-ir-149",
+          "korean",
+          "ks_c_5601-1987",
+          "ks_c_5601-1989",
+          "ksc5601",
+          "ksc_5601",
+          "windows-949"
+        ],
+        "name": "EUC-KR"
+      }
+    ],
+    "heading": "Legacy multi-byte Korean encodings"
+  },
+  {
+    "encodings": [
+      {
+        "labels": [
+          "csiso2022kr",
+          "hz-gb-2312",
+          "iso-2022-cn",
+          "iso-2022-cn-ext",
+          "iso-2022-kr",
+          "replacement"
+        ],
+        "name": "replacement"
+      },
+      {
+        "labels": [
+          "unicodefffe",
+          "utf-16be"
+        ],
+        "name": "UTF-16BE"
+      },
+      {
+        "labels": [
+          "csunicode",
+          "iso-10646-ucs-2",
+          "ucs-2",
+          "unicode",
+          "unicodefeff",
+          "utf-16",
+          "utf-16le"
+        ],
+        "name": "UTF-16LE"
+      },
+      {
+        "labels": [
+          "x-user-defined"
+        ],
+        "name": "x-user-defined"
+      }
+    ],
+    "heading": "Legacy miscellaneous encodings"
+  }
+]
+
+encoding_labels=[z for x in encodings for y in x['encodings'] for z in y['labels']]
+
+
+
+
 
 #%% ---Model for Tabular Data and Metadata---
+
+#%% Section 4 - Tabular Data Models
+
+#%% 4.6 Datatypes
+
+#%% 4.6.1 Length Constraints
+
+def check_length_constraints(
+        json_value,
+        value_type,
+        datatype,
+        errors
+        ):
+    """
+    """
+    # The length, minimum length and maximum length annotations indicate 
+    # the exact, minimum and maximum lengths for cell values.
+    
+    # The length of a value is determined as defined in [xmlschema11-2], 
+    # namely as follows:
+    # - if the value is null, its length is zero.
+    # - if the value is a string or one of its subtypes, its length is the
+    #   number of characters (ie [UNICODE] code points) in the value.
+    # - if the value is of a binary type, its length is the number of bytes 
+    #   in the binary value.
+    
+    # If the value is a list, the constraint applies to each element of the list.
+    
+    if 'length' in datatype:
+    
+        raise NotImplementedError
+        
+    if 'minimumLength' in datatype:
+        
+        raise NotImplementedError
+        
+    if 'maximumLength' in datatype:
+        
+        raise NotImplementedError
+    
+    
+#%% 4.6.2 Value Constraints
+
+def check_value_constraints(
+        json_value,
+        value_type,
+        datatype,
+        errors
+        ):
+    """
+    """
+    # The minimum, maximum, minimum exclusive, and maximum exclusive 
+    # annotations indicate limits on cell values. 
+    # These apply to numeric, date/time, and duration types.
+    
+    # Validation of cell values against these datatypes is as defined 
+    # in [xmlschema11-2]. 
+    
+    # If the value is a list, the constraint applies to each element of the list.
+    
+    if 'minimum' in datatype:
+    
+        raise NotImplementedError
+    
+    if 'maximum' in datatype:
+        
+        raise NotImplementedError
+        
+    if 'minimumExclusive' in datatype:
+        
+        raise NotImplementedError
+    
+    if 'maximumExclusive' in datatype:
+        
+        raise NotImplementedError
 
 #%% Section 5 - Locating Metadata
 
 def locate_metadata(
-        tabular_data_file_url,
+        tabular_data_file_url,  # absolute url
         tabular_data_file_headers,
-        overriding_metadata_file_path_or_url
+        overriding_metadata_file_path_or_url,
+        _link_header
         ):
     """
     """
@@ -242,12 +792,20 @@ def locate_metadata(
     # 1
     if not overriding_metadata_file_path_or_url is None:
         
-        get_overriding_metadata()
+        metadata_document_dict, metadata_document_location=\
+            get_overriding_metadata(
+                overriding_metadata_file_path_or_url
+                )
     
     # 2
-    elif not tabular_data_file_headers is None:
+    elif not tabular_data_file_headers is None or not _link_header is None:
         
-        get_metadata_from_link_header()
+        metadata_document_dict, metadata_document_location=\
+            get_metadata_from_link_header(
+                tabular_data_file_headers or _link_header,
+                tabular_data_file_url
+                )
+            
         
     # 3
     else:
@@ -263,6 +821,8 @@ def locate_metadata(
         metadata_document_dict=None
         metadata_document_location=None
             
+    #print('-metadata_document_dict', metadata_document_dict)
+    
     return metadata_document_dict, metadata_document_location
 
     
@@ -272,24 +832,260 @@ def locate_metadata(
 #%% 5.1 Overriding Metadata
 
 def get_overriding_metadata(
-        
+        overriding_metadata_file_path_or_url
         ):
     """
     """
+    # Processors should provide users with the facility to provide their 
+    # own metadata for tabular data files that they process. 
     
-    raise NotImplementedError
+    # This might be provided:
+    # - through processor options, such as command-line options for a command-line implementation or checkboxes in a GUI.
+    # - by enabling the user to select an existing metadata file, which may be local or remote.
+    # - by enabling the user to specify a series of metadata files, which are merged by the processor and handled as if they were a single file.
+    
+    # For example, a processor might be invoked with:
+    
+    # EXAMPLE 2: Command-line CSV processing with column types
+    # $ csvlint data.csv --datatypes:string,float,string,string
+    # to enable the testing of the types of values in the columns of a 
+    # CSV file, or with:
+    
+    # EXAMPLE 3: Command-line CSV processing with a schema
+    # $ csvlint data.csv --schema:schema.json
+    # to supply a schema that describes the contents of the file, against which it can be validated.
+    
+    # Metadata supplied in this way is called overriding, or user-supplied, 
+    # metadata. 
+    # Implementations should define how any options they define are 
+    # mapped into the vocabulary defined in [tabular-metadata]. 
+    # If the user selects existing metadata files, implementations must 
+    # not use metadata located through the Link header (as described in 
+    # section 5.2 Link Header) or site-wide location configuration (as 
+    # described in section 5.3 Default Locations and Site-wide Location 
+    # Configuration).
+    
+    # NOTE
+    # Users should ensure that any metadata from those locations that 
+    # they wish to use is explicitly incorporated into the overriding 
+    # metadata that they use to process tabular data. 
+    # Processors may provide facilities to make this easier by 
+    # automatically merging metadata files from different locations, 
+    # but this specification does not define how such merging is carried out.
+        
+    try:
+        
+        with open(overriding_metadata_file_path_or_url) as f:
+            
+            metadata_document_dict=json.load(f)
+            metadata_document_location=os.path.abspath(overriding_metadata_file_path_or_url)
+            
+    except FileNotFoundError:
+        
+        try:
+        
+            response=requests.get(overriding_metadata_file_path_or_url)
+            text=response.text
+            metadata_document_dict=json.loads(text)
+            metadata_document_location=overriding_metadata_file_path_or_url
+        
+        except (requests.exceptions.MissingSchema, 
+                requests.exceptions.ConnectionError):
+            
+            message='"overriding_metadata_file_path_or_url" '
+            message+=f'with value "{overriding_metadata_file_path_or_url}" '
+            message+='does not refer to a local or remote file.'    
+        
+            raise ValueError(message)
+    
+    return metadata_document_dict,metadata_document_location
 
 
 #%% 5.2 Link Header
 
 def get_metadata_from_link_header(
-        
+        link_header,
+        tabular_data_file_url  # absolute_url
         ):
     """
     """
+    # If the user has not supplied a metadata file as overriding metadata, 
+    # described in section 5.1 Overriding Metadata, then when retrieving a 
+    # tabular data file via HTTP, processors must retrieve the metadata file 
+    # referenced by any Link header with:
+    # - rel="describedby", and
+    # - type="application/csvm+json", type="application/ld+json" or type="application/json".
     
-    raise NotImplementedError
+    # so long as this referenced metadata file describes the retrieved 
+    # tabular data file (ie, contains a table description whose url 
+    # matches the request URL).
     
+    # If there is more than one valid metadata file linked to through 
+    # multiple Link headers, then implementations must use the metadata 
+    # file referenced by the last Link header.
+    
+    # If the metadata file found at this location does not explicitly 
+    #  include a reference to the requested tabular data file then it must 
+    #  be ignored. 
+    #  URLs must be normalized as described in section 6.3 URL Normalization.
+    
+    # NOTE
+    # The Link header of the metadata file may include references to the 
+    # CSV files it describes, using the describes relationship. 
+    # For example, in the countries' metadata example, the server might 
+    # return the following headers:
+    
+    # Link: <http://example.org/countries.csv>; rel="describes"; type="text/csv"
+    # Link: <http://example.org/country_slice.csv>; rel="describes"; type="text/csv"
+    
+    # However, locating the metadata should not depend on this mechanism.
+        
+    link_list=requests.utils.parse_header_links(link_header)
+    
+    urls=[]
+    
+    for link_dict in link_list:
+        
+        if link_dict.get('rel')=='describedby':
+            
+            if link_dict.get('type') in ['application/csvm+json',
+                                         'application/ld+json',
+                                         'application/json']:
+                
+                urls.append(link_dict['url'])
+        
+    #...look for the last valid link header
+    for url in urls[::-1]:
+        
+        #...resolve url
+        if os.path.isfile(tabular_data_file_url):
+            
+            if os.path.isabs(url):
+                
+                metadata_document_location=url
+                
+            else:
+                
+                metadata_document_location=\
+                    os.path.join(
+                        os.path.dirname(tabular_data_file_url),
+                        url
+                        )
+        
+        else:
+            
+            if bool(urllib.parse.urlparse(url).netloc): 
+                
+                metadata_document_location=url
+                
+            else:
+                
+                metadata_document_location=\
+                    urllib.parse.urljoin(
+                        tabular_data_file_url,
+                        url
+                        )  
+        
+        #...load metadata document
+        
+        metadata_document_dict=None
+        
+        if os.path.isfile(metadata_document_location):
+            
+            with open(metadata_document_location) as f:
+                
+                metadata_document_dict=json.load(f)
+                
+        else:
+            
+            try:
+            
+                response=requests.get(metadata_document_location)
+                text=response.text
+                metadata_document_dict=json.loads(text)
+            
+            except (requests.exceptions.MissingSchema, 
+                    requests.exceptions.ConnectionError):
+                
+                pass
+        
+        #print('-metadata_document_dict',metadata_document_dict)
+        
+        
+        #...if no file found at resolved_url
+        if metadata_document_dict is None:
+            
+            continue
+        
+        
+        else:
+    
+            if 'tables' in metadata_document_dict:  # it's a TableGroup object
+                
+                metadata_table_group_dict=metadata_document_dict
+                
+            elif 'url' in metadata_document_dict:  # it's a Table object
+            
+                #...convert to TableGroup object
+                metadata_table_group_dict={
+                    '@context': metadata_document_dict['@context'],
+                    'tables': [metadata_document_dict]
+                    }
+                metadata_table_group_dict['tables'][0].pop('@context', None)
+                
+            #...normalize metadata
+            base_url, default_language=\
+                validate_and_normalize_metadata_table_group_dict(
+                    metadata_table_group_dict,
+                    metadata_document_location
+                    )     
+                
+            #print('-base_url',base_url)
+                
+            table_url=metadata_table_group_dict['tables'][0]['url']  
+            
+            #print('-table_url',table_url)
+            
+            #...resolve table_url
+            
+            if os.path.isfile(metadata_document_location):
+                
+                if os.path.isabs(table_url):
+                    
+                    table_url_abs=table_url
+                    
+                else:
+                    
+                    table_url_abs=\
+                        os.path.join(
+                            os.path.dirname(tabular_data_file_url),
+                            table_url
+                            )
+                            
+            
+            else:
+                
+                if bool(urllib.parse.urlparse(table_url).netloc): 
+                    
+                    table_url_abs=table_url
+                    
+                else:
+                    
+                    table_url_abs=\
+                        urllib.parse.urljoin(
+                            tabular_data_file_url,
+                            table_url
+                            )  
+                
+            #print('-table_url_absolute',table_url_abs)
+            #print('-tabular_data_file_url',tabular_data_file_url)
+            
+            if table_url_abs==normalize_url(tabular_data_file_url):
+                
+                return metadata_table_group_dict, metadata_document_location
+                
+            
+    return None, None
 
 
 #%% 5.3 Default Locations and Site-wide Location Configuration
@@ -569,7 +1365,8 @@ def create_annotated_table_group(
         input_file_path_or_url,
         overriding_metadata_file_path_or_url=None,
         validate=False,
-        parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition
+        parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
+        _link_header=None  # for testing link headers
         ):
     """
     
@@ -662,7 +1459,8 @@ def create_annotated_table_group(
             locate_metadata(
                 tabular_data_file_url,
                 tabular_data_file_headers,
-                overriding_metadata_file_path_or_url
+                overriding_metadata_file_path_or_url,
+                _link_header
                 )
         
         if metadata_document_dict is None:  # i.e. using embedded metadata
@@ -697,7 +1495,7 @@ def create_annotated_table_group(
             with open(input_file_path_or_url) as f:
                 
                 metadata_document_dict=json.load(f)
-                metadata_document_location=os.path.abs(input_file_path_or_url)
+                metadata_document_location=os.path.abspath(input_file_path_or_url)
                 
         except FileNotFoundError:
             
@@ -716,6 +1514,7 @@ def create_annotated_table_group(
         
         tabular_data_file_text=None
         
+        use_embedded_metadata_flag=False
         
     # 2. Normalize UM using the process defined in Normalization 
     # in [tabular-metadata], coercing UM into a table group 
@@ -754,6 +1553,34 @@ def create_annotated_table_group(
     #...loop through tables in metadata
     for table_index,metadata_table_dict in \
         enumerate(metadata_table_group_dict['tables']):
+            
+        #...set up table url and headers
+        if not input_is_tabular_data_file:
+            
+            url=metadata_table_dict['url']
+            
+            if os.path.isfile(url):
+                
+                tabular_data_file_headers=None
+                tabular_data_file_url=os.path.abspath(
+                    url
+                    )
+                
+            else:
+                
+                try:
+                
+                    tabular_data_file_headers=requests.get(url)
+                    tabular_data_file_url=url
+                
+                except (requests.exceptions.MissingSchema, 
+                        requests.exceptions.ConnectionError):
+                    
+                    message=f'Property "url" with value "{url}" ' 
+                    message+='does not refer to a local or remote file.'    
+                
+                    raise ValueError(message)
+    
             
         # 3.1 Extract the dialect description (DD) from UM for the table 
         #     associated with the tabular data file. If there is no such 
@@ -807,34 +1634,7 @@ def create_annotated_table_group(
         #       value of absent, set header to false in DD.
         #     - If the Content-Type header includes the charset parameter, set 
         #       encoding to this value in DD.
-            if not input_is_tabular_data_file:
-                
-                url=metadata_table_dict['url']
-                
-                #...retrieve headers for tabular data file
-                if os.path.isfile(url):
-                    
-                    tabular_data_file_headers=None
-                    tabular_data_file_url=os.path.abspath(
-                        url
-                        )
-                    
-                else:
-                    
-                    try:
-                    
-                        tabular_data_file_headers=requests.get(url)
-                        tabular_data_file_url=url
-                    
-                    except (requests.exceptions.MissingSchema, 
-                            requests.exceptions.ConnectionError):
-                        
-                        message=f'Property "url" with value "{url}" ' 
-                        message+='does not refer to a local or remote file.'    
-                    
-                        raise ValueError(message)
-        
-        
+            
             if not tabular_data_file_headers is None:
         
                 content_type=tabular_data_file_headers.get('Content-Type',None)
@@ -1079,7 +1879,6 @@ def parse_cells_in_annotated_column_dict(
     # numbers
     if datatype['base'] in datatypes_numbers:
         
-        raise NotImplementedError
         datatype_parse_function=\
             get_parse_number_function(
                 datatype
@@ -1430,77 +2229,456 @@ def parse_cell_steps_6_to_9(
     
     return json_value, language,value_type, errors
     
-    
-#%% 4.6.1 Length Constraints
 
-def check_length_constraints(
-        json_value,
-        value_type,
-        datatype,
-        errors
-        ):
-    """
-    """
-    # The length, minimum length and maximum length annotations indicate 
-    # the exact, minimum and maximum lengths for cell values.
-    
-    # The length of a value is determined as defined in [xmlschema11-2], 
-    # namely as follows:
-    # - if the value is null, its length is zero.
-    # - if the value is a string or one of its subtypes, its length is the
-    #   number of characters (ie [UNICODE] code points) in the value.
-    # - if the value is of a binary type, its length is the number of bytes 
-    #   in the binary value.
-    
-    # If the value is a list, the constraint applies to each element of the list.
-    
-    if 'length' in datatype:
-    
-        raise NotImplementedError
-        
-    if 'minimumLength' in datatype:
-        
-        raise NotImplementedError
-        
-    if 'maximumLength' in datatype:
-        
-        raise NotImplementedError
-    
-    
-#%% 4.6.2 Value Constraints
+#%% 6.4.2 Formats for numeric type
 
-def check_value_constraints(
-        json_value,
-        value_type,
-        datatype,
-        errors
+
+def get_parse_number_function(
+        datatype
         ):
+    
+    def parse_number(
+            string_value,
+            errors
+            ):
+        """
+        """
+        
+        value_type=datatype['base']
+        
+        datatype_format=datatype.get('format')
+        
+        # the datatype format annotation indicates the expected format for that 
+        # number. Its value must be either a single string or an object with one 
+        # or more of the properties
+        
+        # decimalChar
+        # A string whose value is used to represent a decimal point within the number. 
+        # The default value is ".". If the supplied value is not a string, 
+        # implementations must issue a warning and proceed as if the property 
+        # had not been specified.
+        
+        decimal_char='.'
+        
+        if isinstance(datatype_format,dict) and 'decimalChar' in datatype_format:
+            
+            decimal_char=datatype_format['decimalChar']
+                
+            if not isinstance(decimal_char,str):
+             
+                 # ISSUE WARNING
+                 decimal_char='.'
+            
+        # groupChar
+        # A string whose value is used to group digits within the number. 
+        # The default value is null. If the supplied value is not a string, 
+        # implementations must issue a warning and proceed as if the property had 
+        # not been specified.
+        
+        group_char=None
+        
+        if isinstance(datatype_format,dict) and 'groupChar' in datatype_format:
+            
+            group_char=datatype_format['groupChar']
+                
+            if not isinstance(group_char,str):
+             
+                 # ISSUE WARNING
+                 group_char=None
+        
+        
+        # pattern
+        # A number format pattern as defined in [UAX35]. 
+        # Implementations must recognise number format patterns containing the 
+        # symbols 0, #, the specified decimalChar (or "." if unspecified), the 
+        # specified groupChar (or "," if unspecified), E, +, % and ‰. 
+        # Implementations may additionally recognise number format patterns 
+        # containing other special pattern characters defined in [UAX35]. 
+        # If the supplied value is not a string, or if it contains an invalid 
+        # number format pattern or uses special pattern characters that the 
+        # implementation does not recognise, implementations must issue a warning 
+        # and proceed as if the property had not been specified.
+        
+        pattern=None
+        
+        if isinstance(datatype_format,dict) and 'pattern' in datatype_format:
+            
+            pattern=datatype_format['pattern']
+            
+            if not isinstance(pattern,str):
+                
+                # ISSUE WARNING
+                pattern=None
+                
+        # If the datatype format annotation is a single string, this is 
+        # interpreted in the same way as if it were an object with a pattern 
+        # property whose value is that string.
+        elif isinstance(datatype_format,str):
+                      
+            pattern=datatype_format
+            
+            if not isinstance(pattern,str):
+                
+                # ISSUE WARNING
+                pattern=None
+        
+        
+        #  If the groupChar is specified, but no pattern is supplied, when parsing 
+        # the string value of a cell against this format specification, 
+        # implementations must recognise and parse numbers that consist of:
+    
+        # 1. an optional + or - sign,
+        # 2. followed by a decimal digit (0-9),
+        # 3. followed by any number of decimal digits (0-9) and the string 
+        #    specified as the groupChar,
+        # 4. followed by an optional decimalChar followed by one or more decimal 
+        #    digits (0-9),
+        # 5. followed by an optional exponent, consisting of an E followed by an 
+        #    optional + or - sign followed by one or more decimal digits (0-9), or
+        # 6. followed by an optional percent (%) or per-mille (‰) sign.
+        
+        # or that are one of the special values:
+        
+        # 1. NaN,
+        # 2. INF, or
+        # 3. -INF.
+        
+        
+    
+        
+        
+        # Implementations may also recognise numeric values that are in any of the 
+        # standard-decimal, standard-percent or standard-scientific formats listed 
+        # in the Unicode Common Locale Data Repository.
+        
+        # TO DO
+        
+        
+        # Implementations must add a validation error to the errors annotation 
+        # for the cell, and set the cell value to a string rather than a number 
+        # if the string being parsed:
+    
+        # - is not in the format specified in the pattern, if one is defined
+        
+        if not pattern is None:
+            
+            raise NotImplementedError
+        
+        # - otherwise, if the string
+        #     - does not meet the numeric format defined above,
+        #     - contains two consecutive groupChar strings,
+        
+        # TO DO
+        
+        # - contains the decimalChar, if the datatype base is integer or one of 
+        #   its sub-types,
+        
+        if datatype['base'] in datatypes_integers:
+            
+            if decimal_char in string_value:
+                
+                json_value=string_value
+                
+                value_type='string'
+                
+                errors.append(f'Value "{string_value}" not valid as it contains the decimalChar character "{decimal_char}"')
+                
+                return json_value, value_type, errors  
+                
+        # - contains an exponent, if the datatype base is decimal or one of its 
+        #   sub-types, or
+        
+        # DONE BELOW
+        
+        # - is one of the special values NaN, INF, or -INF, if the datatype base 
+        #   is decimal or one of its sub-types.
+        
+        if datatype['base']=='decimal':
+            
+            if string_value in ['Nan','INF','-INF']:
+                
+                json_value=string_value
+                
+                value_type='string'
+                
+                errors.append(f'Value "{string_value}" not valid as it ...')  # TO DO
+                
+                return json_value, value_type, errors  
+        
+        
+        # Implementations must use the sign, exponent, percent, and per-mille signs 
+        # when parsing the string value of a cell to provide the value of the cell. 
+        # For example, the string value "-25%" must be interpreted as -0.25 and 
+        # the string value "1E6" as 1000000.
+        
+        
+        
+        
+        # deals with percent and permille
+        modifier=1
+        if string_value.endswith('%'):
+            
+            string_value=string_value[:-1]
+            
+            modifier=0.01
+            
+        elif string_value.endswith('‰'):
+            
+            string_value=string_value[:-1]
+            
+            modifier=0.001
+        
+        
+        # replace decimal_char and group_char characters
+        if not decimal_char=='.':
+            
+            string_value=string_value.replace(decimal_char,'.')
+            
+        if not group_char is None: 
+            
+            string_value=string_value.replace(group_char,'')
+        
+        # convert string to number    
+        if datatype['base'] in datatypes_integers:
+        
+            try:
+                
+                json_value=int(string_value)  # will fail if an exponential number
+                
+                json_value=json_value*modifier
+                
+            except ValueError:
+                
+                json_value=string_value
+                
+                value_type='string'
+                
+                errors.append(f'Value "{string_value}" is not a valid integer')
+        
+        elif datatype['base']=='decimal':
+            
+            try:
+                
+                json_value=float(string_value)  # will not fail if an exponential number
+                
+                json_value=json_value*modifier
+                
+            except ValueError:
+                
+                json_value=string_value
+                
+                value_type='string'
+                
+                errors.append(f'Value "{string_value}" is not a valid decimal')
+        
+            try:
+                for x in string_value.split['.']:
+                    
+                    int(x)  # will fail if an expoential number
+                 
+            except ValueError:
+                
+                json_value=string_value
+                
+                value_type='string'
+                
+                errors.append(f'Value "{string_value}" is not a valid decimal')
+        
+        
+        else:
+            
+            try:
+                
+                json_value=float(string_value)  # assuming that this will work for all valid cases of ULDM number formats...
+                
+                json_value=json_value*modifier
+                
+            except ValueError:
+                
+                json_value=string_value
+                
+                errors.append(f'Value "{string_value}" is not a valid number')
+                
+        
+        return json_value, value_type, errors
+
+    return parse_number
+
+
+def parse_number_pattern(
+        pattern,
+        p=False
+        ):
+    """Breaks down a number pattern into constituent components.
+    
+    :param pattern: A number patter as specified in the Unicode Locale
+        Data Markup Language.
+    
     """
-    """
-    # The minimum, maximum, minimum exclusive, and maximum exclusive 
-    # annotations indicate limits on cell values. 
-    # These apply to numeric, date/time, and duration types.
+    if p: print('pattern',pattern)
     
-    # Validation of cell values against these datatypes is as defined 
-    # in [xmlschema11-2]. 
-    
-    # If the value is a list, the constraint applies to each element of the list.
-    
-    if 'minimum' in datatype:
-    
-        raise NotImplementedError
-    
-    if 'maximum' in datatype:
+    x=pattern.split(';')
+    positive_pattern=x[0].strip()
+    if len(x)==2:
+        negative_pattern=x[1].strip()
+    else:
+        negative_pattern=None
+    if p: print('positive_pattern',positive_pattern)
+    if p: print('negative_pattern',negative_pattern)
         
-        raise NotImplementedError
-        
-    if 'minimumExclusive' in datatype:
-        
-        raise NotImplementedError
+    # mantissa and exponent in scientific notation
+    x=positive_pattern.split('E')
+    positive_pattern_mantissa_part=x[0]
+    if len(x)==2:
+        positive_pattern_exponent_part=x[1]
+    else:
+        positive_pattern_exponent_part=None
+    if p: print('positive_pattern_mantissa_part',
+                positive_pattern_mantissa_part)
+    if p: print('positive_pattern_exponent_part',
+                positive_pattern_exponent_part)
     
-    if 'maximumExclusive' in datatype:
+    # integral and fractional parts
+    x=positive_pattern_mantissa_part.split('.')
+    positive_pattern_integral_part=x[0]
+    if len(x)==2:
+        positive_pattern_fractional_part=x[1]
+    else:
+        postive_pattern_fractional_part=None
+    if p: print('positive_pattern_integral_part',
+                positive_pattern_integral_part)
+    if p: print('positive_pattern_fractional_part',
+                positive_pattern_fractional_part)
+
+    reverse_positive_pattern_integral_part=positive_pattern_integral_part[::-1]
+    if p: print('reverse_positive_pattern_integral_part',
+                reverse_positive_pattern_integral_part)    
+    
+    # integral grouping size
+    positive_pattern_integral_part_primary_grouping_size=None
+    positive_pattern_integral_part_secondary_grouping_size=None
+    positions_of_group_char=[i for i, x 
+                             in enumerate(reverse_positive_pattern_integral_part) 
+                             if x==',']
+    if p: print('positions_of_group_char',positions_of_group_char)
+    if len(positions_of_group_char)>0:
+        positive_pattern_integral_part_primary_grouping_size=positions_of_group_char[0]
+    if len(positions_of_group_char)>1:
+        positive_pattern_integral_part_secondary_grouping_size=\
+            positions_of_group_char[1]-positions_of_group_char[0]
+    if p: print('positive_pattern_integral_part_primary_grouping_size',
+                positive_pattern_integral_part_primary_grouping_size)
+    if p: print('positive_pattern_integral_part_secondary_grouping_size',
+                positive_pattern_integral_part_secondary_grouping_size)
         
-        raise NotImplementedError
+    
+    reverse_positive_pattern_integral_part_no_group_char=\
+        reverse_positive_pattern_integral_part.replace(',','')
+    if p: print('reverse_positive_pattern_integral_part_no_group_char',
+          reverse_positive_pattern_integral_part_no_group_char)
+    
+    # positive_pattern_zero_padding_count
+    i=0
+    positive_pattern_integral_part_zero_padding_count=0
+    while True:
+        if i==len(reverse_positive_pattern_integral_part_no_group_char):
+            break
+        if reverse_positive_pattern_integral_part_no_group_char[i]=='0':
+            positive_pattern_integral_part_zero_padding_count+=1
+            i+=1
+        else:
+            break
+    if p: print('positive_pattern_integral_part_zero_padding_count',
+          positive_pattern_integral_part_zero_padding_count)
+           
+    # skip past hash symbols
+    while True:
+        if i==len(reverse_positive_pattern_integral_part_no_group_char):
+            break
+        if reverse_positive_pattern_integral_part_no_group_char[i]=='#':
+            i+=1
+        else:
+            break
+    
+    # prefix
+    reverse_positive_pattern_integral_part_prefix=''
+    while True:
+        if i==len(reverse_positive_pattern_integral_part_no_group_char):
+            break
+        x=reverse_positive_pattern_integral_part_no_group_char[i]
+        if x in ['+','-','%','‰']:
+            reverse_positive_pattern_integral_part_prefix+=x
+            i+=1
+        else:
+            raise Exception
+    positive_pattern_integral_part_prefix=reverse_positive_pattern_integral_part_prefix[::-1]
+    if p: print('positive_pattern_integral_part_prefix',
+                positive_pattern_integral_part_prefix)
+    
+    # positive_pattern_fractional_part_zero_padding_count
+    i=0
+    positive_pattern_fractional_part_zero_padding_count=0
+    while True:
+        if i==len(positive_pattern_fractional_part):
+            break
+        if positive_pattern_fractional_part[i]=='0':
+            positive_pattern_fractional_part_zero_padding_count+=1
+            i+=1
+        else:
+            break
+    if p: print('positive_pattern_fractional_part_zero_padding_count',
+                positive_pattern_fractional_part_zero_padding_count)
+           
+    # positive_pattern_fractional_part_hash_padding_count
+    positive_pattern_fractional_part_hash_padding_count=0
+    while True:
+        if i==len(positive_pattern_fractional_part):
+            break
+        if positive_pattern_fractional_part[i]=='#':
+            positive_pattern_fractional_part_hash_padding_count+=1
+            i+=1
+        else:
+            break
+    if p: print('positive_pattern_fractional_part_hash_padding_count',
+                positive_pattern_fractional_part_hash_padding_count)
+    
+    # suffix
+    positive_pattern_fractional_part_suffix=''
+    while True:
+        if i==len(positive_pattern_fractional_part):
+            break
+        x=positive_pattern_fractional_part[i]
+        if x in ['+','-','%','‰']:
+            positive_pattern_fractional_part_suffix+=x
+            i+=1
+        else:
+            raise Exception
+    if p: print('positive_pattern_fractional_part_suffix',
+                positive_pattern_fractional_part_suffix)
+    
+    return dict(
+        positive_pattern_integral_part_primary_grouping_size=\
+            positive_pattern_integral_part_primary_grouping_size,
+        positive_pattern_integral_part_secondary_grouping_size=\
+            positive_pattern_integral_part_secondary_grouping_size,
+        positive_pattern_integral_part_zero_padding_count=\
+            positive_pattern_integral_part_zero_padding_count,
+        positive_pattern_integral_part_prefix=\
+            positive_pattern_integral_part_prefix,
+        positive_pattern_fractional_part_zero_padding_count=\
+            positive_pattern_fractional_part_zero_padding_count,
+        positive_pattern_fractional_part_hash_padding_count=\
+            positive_pattern_fractional_part_hash_padding_count,
+        positive_pattern_fractional_part_suffix=\
+            positive_pattern_fractional_part_suffix,
+        
+        
+        )
+        
+        
+
+    
+
     
  
 #%% 6.4.4. Formats for dates and times
@@ -3066,9 +4244,9 @@ def get_URI_from_URI_template(
     # 2 expanding any prefixes as if the value were the name of a common 
     # property, as described in section 5.8 Common Properties.
     if ':' in uri:
-        x=name.split(':')
+        x=uri.split(':')
     else:
-        x=name.split('%3A')  # this is the percent encoded version
+        x=uri.split('%3A')  # this is the percent encoded version
         
     if len(x)==2:
         
@@ -3077,33 +4255,53 @@ def get_URI_from_URI_template(
             uri=prefixes[x[0]]+x[1]
     
     
+    #print('-uri',uri)
+    #print('-table_url',table_url)
+    
     # 3 resolving the resulting URL against the base URL of the table url if not null.
     
     if not table_url is None:
     
-        #...if absolute path
         if os.path.isabs(uri):
             
-            return uri
-        
-        #...if absolute url
+            url=uri
+                
         elif bool(urllib.parse.urlparse(uri).netloc): 
             
-            return uri
-        
-        #...if relative path
-        elif os.path.isfile(uri): 
-                
-            return os.path.join(os.path.dir_name(table_url,uri))
-               
-        #...if relative url                 
-        else:
+            url=uri
             
-            return urllib.parse.urljoin(table_url,uri)  
+        elif os.path.isfile(table_url):
+        
+            if uri.startswith('#'):
+                
+                url=\
+                    table_url+uri
+                
+            else:
+                
+                url=\
+                    os.path.join(
+                        os.path.dirname(table_url),
+                        uri
+                        )
+                
+        else:
+                
+            url=\
+                urllib.parse.urljoin(
+                    table_url,
+                    uri
+                    )  
     
     else:
         
-        return uri
+        url=uri
+        
+    #print('-url',url)
+        
+    return url
+    
+    
   
     
 #%% 5.1.4 Column Reference Properties
@@ -3392,9 +4590,9 @@ def validate_natural_language_property(
         
         d={}
         
-        for k,v in property_value.items:
+        for k,v in property_value.items():
             
-            if langcodes.is_valid_tag(k):
+            if langcodes.tag_is_valid(k):
                 
                 if isinstance(v,str):
                     
@@ -3706,9 +4904,11 @@ def validate_and_normalize_metadata_table_group_dict(
             
             validate_and_normalize_metadata_dialect_dict(
                     v,
-                    referenced_url,
+                    referenced_url or metadata_document_location,
                     base_url,
-                    default_language
+                    default_language,
+                    has_top_level_property=True if referenced_url else False,
+                    is_referenced=True if referenced_url else False,
                     )
              
             
@@ -3917,6 +5117,21 @@ def validate_and_normalize_metadata_table_group_dict(
     
     # TO DO
             
+    #...from 5.5
+    # resource
+    # The table group must contain a table whose url annotation is identical to the expanded value of this property. 
+    
+    # TO DO
+    
+    #...from 5.5
+    # schemaReference
+    # The table group must contain a table with a tableSchema having a @id that is identical to the expanded value of this property, and there must not be more than one such table. 
+    
+    # TO DO
+    
+    
+    
+    
             
     return base_url, default_language
 
@@ -3931,7 +5146,7 @@ def annotate_table_group_dict(
     """
     """
     
-    inherited_properties_cache={}
+    table_group_inherited_properties_cache={}
     
     for k,v in metadata_table_group_dict.items():
         
@@ -3970,7 +5185,7 @@ def annotate_table_group_dict(
                    'propertyUrl','required','separator','textDirection',
                    'valueUrl']:
             
-            inherited_properties_cache[k]=v
+            table_group_inherited_properties_cache[k]=v
             
         # common properties
         elif not k in ['@context','tables','dialect','tableSchema','@type']:
@@ -3987,7 +5202,7 @@ def annotate_table_group_dict(
             base_url,
             default_language,
             validate,
-            inherited_properties_cache
+            table_group_inherited_properties_cache
             )
         
         
@@ -4025,7 +5240,6 @@ def annotate_table_group_dict(
                             foreign_key_reference,
                             annotated_table_group_dict,
                             metadata_table_group_dict,
-                            #base_path,
                             base_url
                             )
                     
@@ -4096,6 +5310,8 @@ def validate_and_normalize_metadata_table_dict(
         ):
     """
     """
+    #print('-metadata_table_dict',metadata_table_dict)
+    
     # A table description is a JSON object that describes a table within a CSV file.    
     
     if '@context' in metadata_table_dict:
@@ -4117,7 +5333,9 @@ def validate_and_normalize_metadata_table_dict(
     # include tableSchema from table group, if not present
     if not 'tableSchema' in metadata_table_dict:
         
-        metadata_table_dict['tableSchema']=table_group_table_schema
+        if not table_group_table_schema is None:
+        
+            metadata_table_dict['tableSchema']=table_group_table_schema
         
 
     # loop through items
@@ -4423,10 +5641,12 @@ def annotate_table_dict(
         base_url,
         default_language,
         validate,
-        inherited_properties_cache
+        table_group_inherited_properties_cache
         ):
     """
     """
+    table_inherited_properties_cache=dict(**table_group_inherited_properties_cache)
+    
     
     for k,v in metadata_table_dict.items():
         
@@ -4478,7 +5698,7 @@ def annotate_table_dict(
                    'propertyUrl','required','separator','textDirection',
                    'valueUrl']:
             
-            inherited_properties_cache[k]=v
+            table_inherited_properties_cache[k]=v
             
         # common properties
         elif not k in ['dialect','@type']:
@@ -4486,14 +5706,24 @@ def annotate_table_dict(
             annotated_table_dict[k]=v
             
     #    
-    annotate_schema_dict(
-        annotated_table_dict,
-        metadata_table_dict['tableSchema'],
-        base_url,
-        default_language,
-        validate,
-        inherited_properties_cache
-        )
+    if 'tableSchema' in metadata_table_dict:
+    
+        annotate_schema_dict(
+            annotated_table_dict,
+            metadata_table_dict['tableSchema'],
+            base_url,
+            default_language,
+            validate,
+            table_inherited_properties_cache
+            )
+        
+    else:
+        
+        for annotated_column_dict in annotated_table_dict['columns']:
+        
+            column_number=annotated_column_dict['number']
+        
+            annotated_column_dict['name']=f'_col.{column_number}'
 
 
 #%% 5.4.3 Table Description Compatibility
@@ -4524,12 +5754,13 @@ def compare_table_descriptions(
         
             warnings.warn(message)
         
+    if 'tableSchema' in TM and 'tableSchema' in EM:
         
-    compare_schema_descriptions(
-        TM['tableSchema'],
-        EM['tableSchema'],
-        validate
-        )
+        compare_schema_descriptions(
+            TM['tableSchema'],
+            EM['tableSchema'],
+            validate
+            )
         
 
         
@@ -4613,19 +5844,21 @@ def validate_and_normalize_metadata_schema_dict(
                         default_language,
                         column_number
                         )
-       
-                name=metadata_column_dict['name']
                 
-                if name in name_cache:
-                    
-                    message=f'Property "name" with value "{name}" '
-                    message+='is not unique in the column descriptions.'
-                    
-                    raise ValueError(message)
-                    
-                else:
-                    
-                    name_cache.append(name)
+                if 'name' in metadata_column_dict:
+       
+                    name=metadata_column_dict['name']
+                
+                    if name in name_cache:
+                        
+                        message=f'Property "name" with value "{name}" '
+                        message+='is not unique in the column descriptions.'
+                        
+                        raise ValueError(message)
+                        
+                    else:
+                        
+                        name_cache.append(name)
                     
                 # check if virual columns come after non-virtual columns
                 is_virtual=metadata_column_dict.get('virtual',False)
@@ -4642,7 +5875,113 @@ def validate_and_normalize_metadata_schema_dict(
         # foreignKeys
         elif k=='foreignKeys':
             
-            raise NotImplementedError
+            # An array property of foreign key definitions that define how 
+            # the values from specified columns within this table link to 
+            # rows within this table or other tables. 
+            
+            # A foreign key definition is a JSON object that must contain 
+            # only the following properties:
+
+            # columnReference
+            # A column reference property that holds either a single reference to a column description object within this schema, or an array of references. These form the referencing columns for the foreign key definition.
+            
+            # reference
+            # An object property that identifies a referenced table and a set of referenced columns within that table. Its properties are:
+            
+            # resource
+            # A link property holding a URL that is the identifier for a specific table that is being referenced. If this property is present then schemaReference must not be present. The table group must contain a table whose url annotation is identical to the expanded value of this property. That table is the referenced table.
+            
+            # schemaReference
+            # A link property holding a URL that is the identifier for a schema that is being referenced. If this property is present then resource must not be present. The table group must contain a table with a tableSchema having a @id that is identical to the expanded value of this property, and there must not be more than one such table. That table is the referenced table.
+            
+            # columnReference
+            # A column reference property that holds either a single reference (by name) to a column description object within the tableSchema of the referenced table, or an array of such references.
+            
+            # The value of this property becomes the foreign keys annotation on the table using this schema by creating a list of foreign keys comprising a list of columns in the table and a list of columns in the referenced table. The value of this property is also used to create the value of the referenced rows annotation on each of the rows in the table that uses this schema, which is a pair of the relevant foreign key and the referenced row in the referenced table.
+            
+            # As defined in [tabular-data-model], validators must check that, for each row, the combination of cells in the referencing columns references a unique row within the referenced table through a combination of cells in the referenced columns. For examples, see section 5.5.2.1 Foreign Key Reference Between Tables and section 5.5.2.2 Foreign Key Reference Between Schemas.
+            
+            # NOTE
+            # It is not required for the table or schema referenced from a foreignKeys property to have a similarly defined primaryKey, though frequently it will.
+            
+            validate_array_property(
+                metadata_schema_dict,
+                k,
+                v,
+                expected_types=[dict]
+                )
+            
+            for foreign_key_definition in v:
+                
+                #...check keys in foreign_key_definition
+                if not set(list(foreign_key_definition))==\
+                    set(list(['columnReference','reference'])):
+                    
+                    raise ValueError
+                
+                #...validate column reference property
+                validate_column_reference_property(
+                        foreign_key_definition,
+                        'columnReference',
+                        foreign_key_definition['columnReference']
+                        )
+            
+                #...validate_reference_property
+                validate_object_property(
+                        foreign_key_definition,
+                        'reference',
+                        foreign_key_definition['reference']
+                        )
+                
+                reference=foreign_key_definition['reference']
+                
+                #...check keys in reference
+                if not set(list(reference))==\
+                    set(list(['resource','columnReference'])) and \
+                    not set(list(reference))==\
+                        set(list(['schemaReference','columnReference'])):
+                    
+                    raise ValueError
+                
+                # resource (in reference)
+                if 'resource' in reference:
+                    
+                    validate_link_property(
+                            reference,
+                            'resource',
+                            reference['resource']
+                            )
+                    
+                    normalize_link_property(
+                            reference,
+                            'resource',
+                            reference['resource'],
+                            base_url
+                            )
+                
+                # schemaReference (in reference)
+                if 'schemaReference' in reference:
+                    
+                    validate_link_property(
+                            reference,
+                            'schemaReference',
+                            reference['schemaReference']
+                            )
+                    
+                    normalize_link_property(
+                            reference,
+                            'schemaReference',
+                            reference['schemaReference'],
+                            base_url
+                            )
+                
+                # columnReference (in reference)
+                validate_column_reference_property(
+                        reference,
+                        'columnReference',
+                        reference['columnReference']
+                        )
+            
             
         # primaryKey
         elif k=='primaryKey':
@@ -4769,15 +6108,14 @@ def annotate_schema_dict(
         base_url,
         default_language,
         validate,
-        inherited_properties_cache
+        table_inherited_properties_cache
         ):
     """
     """
+    schema_inherited_properties_cache=dict(**table_inherited_properties_cache)
     
     for k,v in metadata_schema_dict.items():
         
-        
-            
         # row titles
         if k=='rowTitles':
             
@@ -4788,7 +6126,7 @@ def annotate_schema_dict(
                    'propertyUrl','required','separator','textDirection',
                    'valueUrl']:
     
-            inherited_properties_cache[k]=v
+            schema_inherited_properties_cache[k]=v
             
             
     for i in range(len(annotated_table_dict['columns'])):
@@ -4799,7 +6137,7 @@ def annotate_schema_dict(
             base_url,
             default_language,
             validate,
-            inherited_properties_cache
+            schema_inherited_properties_cache
             )
         
 
@@ -4810,7 +6148,6 @@ def get_referenced_table_and_columns_from_foreign_key_reference(
         foreign_key_reference,
         annotated_table_group_dict,
         metadata_table_group_obj_dict,
-        base_path,
         base_url        
         ):
     """
@@ -4824,19 +6161,14 @@ def get_referenced_table_and_columns_from_foreign_key_reference(
     # That table is the referenced table.
     resource=foreign_key_reference.get('resource',None)
     
+    #print('-resource',resource)
     
     if not resource is None:
-        
-        resource_expanded_url=get_resolved_path_or_url_from_link_string(
-                resource,
-                base_path,
-                base_url
-                )
     
         referenced_annotated_table_dicts=\
             [annotated_table_dict
              for annotated_table_dict in annotated_table_group_dict['tables']
-             if annotated_table_dict['url']==resource_expanded_url
+             if annotated_table_dict['url']==resource
              ]
         
         if not len(referenced_annotated_table_dicts)==1:
@@ -4863,17 +6195,11 @@ def get_referenced_table_and_columns_from_foreign_key_reference(
     
     if not schema_reference is None:
         
-        schema_reference_expanded_url=\
-            get_resolved_path_or_url_from_link_string(
-                schema_reference,
-                base_path,
-                base_url
-                )
-    
         referenced_metadata_table_dicts_indexes=\
             [i
-             for i, metadata_table_dict in enumerate(metadata_table_group_obj_dict['tables'])
-             if metadata_table_dict['tableSchema'].get('@id',None)==schema_reference_expanded_url
+             for i, metadata_table_dict 
+             in enumerate(metadata_table_group_obj_dict['tables'])
+             if metadata_table_dict['tableSchema'].get('@id',None)==schema_reference
              ]
             
         if not len(referenced_metadata_table_dicts_indexes)==1:
@@ -4897,8 +6223,6 @@ def get_referenced_table_and_columns_from_foreign_key_reference(
             column_reference,
             referenced_annotated_table_dict,
             )
-    
-    
     
     # The value of this property becomes the foreign keys annotation on the 
     # table using this schema by creating a list of foreign keys comprising 
@@ -5102,7 +6426,7 @@ def validate_and_normalize_metadata_column_dict(
             # Currently not validating on URI-TEMPLATE restrictions...
             # ?? TO DO ??
             
-            if v.startswith('name'):
+            if v.startswith('_'):
                 
                 message=f'Property "name" with value "{v}" is not valid. '
                 message+='Value must not start with "_".'
@@ -5294,10 +6618,11 @@ def annotate_column_dict(
         base_url,
         default_language,
         validate,
-        inherited_properties_cache
+        schema_inherited_properties_cache
         ):
     """
     """
+    column_inherited_properties_cache=dict(**schema_inherited_properties_cache)
     
     for k,v in metadata_column_dict.items():
         
@@ -5321,7 +6646,7 @@ def annotate_column_dict(
                    'propertyUrl','required','separator','textDirection',
                    'valueUrl']:
     
-            inherited_properties_cache[k]=v
+            column_inherited_properties_cache[k]=v
             
         # common properties
         elif not k in ['titles','@id','@type']:
@@ -5332,29 +6657,29 @@ def annotate_column_dict(
     # inherited properties
     
     # datatype
-    if 'datatype' in inherited_properties_cache:
+    if 'datatype' in column_inherited_properties_cache:
         
-        annotated_column_dict['datatype']=inherited_properties_cache['datatype']
+        annotated_column_dict['datatype']=column_inherited_properties_cache['datatype']
     
     # default
-    if 'default' in inherited_properties_cache:
+    if 'default' in column_inherited_properties_cache:
         
-        annotated_column_dict['default']=inherited_properties_cache['default']
+        annotated_column_dict['default']=column_inherited_properties_cache['default']
     
     # lang
-    if 'lang' in inherited_properties_cache:
+    if 'lang' in column_inherited_properties_cache:
         
-        annotated_column_dict['lang']=inherited_properties_cache['lang']
+        annotated_column_dict['lang']=column_inherited_properties_cache['lang']
     
     # null
-    if 'null' in inherited_properties_cache:
+    if 'null' in column_inherited_properties_cache:
         
-        annotated_column_dict['null']=inherited_properties_cache['null']
+        annotated_column_dict['null']=column_inherited_properties_cache['null']
     
     # ordered
-    if 'ordered' in inherited_properties_cache:
+    if 'ordered' in column_inherited_properties_cache:
         
-        ordered=inherited_properties_cache['ordered']
+        ordered=column_inherited_properties_cache['ordered']
         
         annotated_column_dict['ordered']=ordered
         
@@ -5363,19 +6688,19 @@ def annotate_column_dict(
             annotated_cell_dict['ordered']=ordered
     
     # required
-    if 'required' in inherited_properties_cache:
+    if 'required' in column_inherited_properties_cache:
         
-        annotated_column_dict['required']=inherited_properties_cache['required']
+        annotated_column_dict['required']=column_inherited_properties_cache['required']
     
     # separator
-    if 'separator' in inherited_properties_cache:
+    if 'separator' in column_inherited_properties_cache:
         
-        annotated_column_dict['separator']=inherited_properties_cache['separator']
+        annotated_column_dict['separator']=column_inherited_properties_cache['separator']
     
     # text direction
-    if 'textDirection' in inherited_properties_cache:
+    if 'textDirection' in column_inherited_properties_cache:
         
-        ordered=inherited_properties_cache['textDirection']
+        ordered=column_inherited_properties_cache['textDirection']
         
         annotated_column_dict['textDirection']=ordered
         
@@ -5384,19 +6709,19 @@ def annotate_column_dict(
             annotated_cell_dict['textDirection']=ordered
     
     # aboutURL
-    if 'aboutUrl' in inherited_properties_cache:
+    if 'aboutUrl' in column_inherited_properties_cache:
         
-        annotated_column_dict['aboutURL']=inherited_properties_cache['aboutUrl']
+        annotated_column_dict['aboutURL']=column_inherited_properties_cache['aboutUrl']
     
     # propertyURL
-    if 'propertyUrl' in inherited_properties_cache:
+    if 'propertyUrl' in column_inherited_properties_cache:
         
-        annotated_column_dict['propertyURL']=inherited_properties_cache['propertyUrl']
+        annotated_column_dict['propertyURL']=column_inherited_properties_cache['propertyUrl']
     
     # valueURL
-    if 'valueUrl' in inherited_properties_cache:
+    if 'valueUrl' in column_inherited_properties_cache:
         
-        annotated_column_dict['valueURL']=inherited_properties_cache['valueUrl']
+        annotated_column_dict['valueURL']=column_inherited_properties_cache['valueUrl']
     
     # If the column description has neither name nor titles properties, 
     # the string "_col.[N]" where [N] is the column number, becomes the name 
@@ -5404,7 +6729,7 @@ def annotate_column_dict(
     if not 'name' in metadata_column_dict \
         and not 'titles' in metadata_column_dict:
             
-            column_number=metadata_column_dict['number']
+            column_number=annotated_column_dict['number']
         
             annotated_column_dict['name']=f'_col.{column_number}'
     
@@ -5514,27 +6839,83 @@ def validate_and_normalize_inherited_property(
     # default
     elif property_name=='default':
         
+        # An atomic property holding a single string that is used to 
+        # create a default value for the cell in cases where the original
+        # string value is an empty string. 
+        # See Parsing Cells in [tabular-data-model] for more details. 
+        # If not specified, the default for the default property is the 
+        # empty string, "". 
+        # The value of this property becomes the default annotation for 
+        # the described column.
+        
         raise NotImplementedError
         
     # lang
     elif property_name=='lang':
+        
+        # An atomic property giving a single string language code as 
+        # defined by [BCP47]. 
+        # Indicates the language of the value within the cell. 
+        # See Parsing Cells in [tabular-data-model] for more details. 
+        # The value of this property becomes the lang annotation for 
+        # the described column. 
+        # The default is und.
         
         raise NotImplementedError
         
     # null
     elif property_name=='null':
         
+        # An atomic property giving the string or strings used for null 
+        # values within the data. 
+        # If the string value of the cell is equal to any one of these 
+        # values, the cell value is null. 
+        # See Parsing Cells in [tabular-data-model] for more details. 
+        # If not specified, the default for the null property is the
+        # empty string "". 
+        # The value of this property becomes the null annotation for 
+        # the described column.
+        
         raise NotImplementedError
         
     # ordered
     elif property_name=='ordered':
+        
+        # A boolean atomic property taking a single value which indicates 
+        # whether a list that is the value of the cell is ordered (if true) 
+        # or unordered (if false). 
+        # The default is false. 
+        # This property is irrelevant if the separator is null or undefined, 
+        # but this is not an error. 
+        # The value of this property becomes the ordered annotation for 
+        # the described column, and the ordered annotation for the cells 
+        # within that column.
         
         raise NotImplementedError
         
     # propertyUrl
     elif property_name=='propertyUrl':
         
-        raise NotImplementedError
+        # A URI template property that may be used to create a URI for a 
+        # property if the table is mapped to another format. 
+        # The value of this property becomes the property URL annotation 
+        # for the described column and is used to create the value of the 
+        # property URL annotation for the cells within that column as 
+        # described in section 5.1.3 URI Template Properties.
+
+        # NOTE
+        # propertyUrl is typically defined on a column description. 
+        # If defined on a schema description, table description or table 
+        # group description, care must be taken to ensure that transformed 
+        # cell values maintain an appropriate semantic relationship, 
+        # for example by including the name of the column in the generated 
+        # URL by using _name in the template.
+        
+        validate_uri_template_property(
+            metadata_obj_dict,
+            property_name,
+            property_value
+            )
         
     # required
     elif property_name=='required':
@@ -5563,17 +6944,69 @@ def validate_and_normalize_inherited_property(
     # separator
     elif property_name=='separator':
         
+        # An atomic property that must have a single string value that 
+        # is the string used to separate items in the string value of 
+        # the cell. 
+        # If null (the default) or unspecified, the cell does not 
+        # contain a list. 
+        # Otherwise, application must split the string value of the cell
+        # on the specified separator and parse each of the resulting 
+        # strings separately. 
+        # The cell's value will then be a list. 
+        # See Parsing Cells in [tabular-data-model] for more details. 
+        # The value of this property becomes the separator annotation 
+        # for the described column.
+        
         raise NotImplementedError
         
     # textDirection
     elif property_name=='textDirection':
+        
+        # An atomic property that must have a single string value that 
+        # is one of "ltr", "rtl", "auto" or "inherit" (the default). 
+        # Indicates whether the text within cells should be displayed 
+        # as left-to-right text (ltr), as right-to-left text (rtl), 
+        # according to the content of the cell (auto) or in the direction 
+        # inherited from the table direction annotation of the table. 
+        # The value of this property determines the text direction 
+        # annotation for the column, and the text direction annotation 
+        # for the cells within that column: if the value is inherit then 
+        # the value of the text direction annotation is the value of the 
+        # table direction annotation on the table, otherwise it is the 
+        # value of this property. See Bidirectional Tables in 
+        # [tabular-data-model] for details.
         
         raise NotImplementedError
         
     # valueUrl
     elif property_name=='valueUrl':
         
-        raise NotImplementedError
+        # A URI template property that is used to map the values of cells 
+        # into URLs. 
+        # The value of this property becomes the value URL annotation 
+        # for the described column and is used to create the value of the 
+        # value URL annotation for the cells within that column as 
+        # described in section 5.1.3 URI Template Properties.
+
+        # NOTE
+        # This allows processors to build URLs from cell values, 
+        # for example to reference RDF resources, as defined in [rdf-concepts]. 
+        # For example, if the value URL were "{#reference}", each cell 
+        # value of a column named reference would be used to create a 
+        # URI such as http://example.com/#1234, if 1234 were a cell 
+        # value of that column.
+        
+        # NOTE
+        # valueUrl is typically defined on a column description. 
+        # If defined on a schema description, table description or 
+        # table group description, care must be taken to ensure that 
+        # transformed cell values maintain an appropriate semantic relationship.
+                
+        validate_uri_template_property(
+            metadata_obj_dict,
+            property_name,
+            property_value
+            )
         
     
     
@@ -5748,7 +7181,11 @@ def validate_common_property_value(
             # any other properties aside from either @type or @language, and must 
             # not have both @type and @language as properties. 
             
-            if list(property_value)==['@value','@type']:
+            if list(property_value)==['@value']:
+                
+                pass
+            
+            elif list(property_value)==['@value','@type']:
                 
                 pass
             
@@ -5958,11 +7395,417 @@ def validate_common_property_value(
 
 def validate_and_normalize_metadata_dialect_dict(
         metadata_dialect_dict,
-        has_top_level_properties=True
+        metadata_document_location,
+        base_url=None,
+        default_language=None,
+        has_top_level_property=True,
+        is_referenced=False
         ):
     """
     """
-    raise NotImplementedError
+    
+    # Much of the tabular data that is published on the web is messy, 
+    # and CSV parsers frequently need to be configured in order to 
+    # correctly read in CSV. 
+    # A dialect description provides hints to parsers about how to parse 
+    # the file linked to from the url property in a table description. 
+    # It can have any of the following properties, which relate to the 
+    # flags described in Section 5 Parsing Tabular Data within 
+    # the [tabular-data-model]:
+
+    # NOTE
+    # Dialect descriptions do not provide a mechanism for handling CSV files in which there are multiple tables within a single file (e.g. separated by empty lines).
+    
+    # The default dialect description for CSV files is:
+    
+    # {
+    #   "encoding": "utf-8",
+    #   "lineTerminators": ["\r\n", "\n"],
+    #   "quoteChar": "\"",
+    #   "doubleQuote": true,
+    #   "skipRows": 0,
+    #   "commentPrefix": "#",
+    #   "header": true,
+    #   "headerRowCount": 1,
+    #   "delimiter": ",",
+    #   "skipColumns": 0,
+    #   "skipBlankRows": false,
+    #   "skipInitialSpace": false,
+    #   "trim": false
+    # }        
+
+
+    if '@context' in metadata_dialect_dict:
+        
+        if has_top_level_property:
+        
+            base_url, default_language=\
+                validate_top_level_properties(
+                    metadata_dialect_dict,
+                    metadata_document_location
+                    )
+                
+        else:
+            
+            message='Metadata dilect description should not contain a "@context" property. '
+            
+            raise ValueError(message)
+
+
+
+    for k in list(metadata_dialect_dict):
+        
+        v=metadata_dialect_dict[k]
+
+
+        # commentPrefix
+        if k=='commentPrefix':
+        
+            # An atomic property that sets the comment prefix flag to the 
+            # single provided value, which must be a string. 
+            # The default is "#".
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[str],
+                default_value='#'
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # delimiter
+        elif k=='delimiter':
+        
+            # An atomic property that sets the delimiter flag to the 
+            # single provided value, which must be a string. 
+            # The default is ",".
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[str],
+                default_value=','
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # doubleQuote
+        elif k=='doubleQuote':
+            
+            # A boolean atomic property that, if true, sets the escape 
+            # character flag to ". 
+            # If false, to \. 
+            # The default is true.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[bool],
+                default_value=True
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # encoding
+        elif k=='encoding':
+            
+            # An atomic property that sets the encoding flag to the 
+            # single provided string value, which must be a defined 
+            # in [encoding]. 
+            # The default is "utf-8".
+        
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[str],
+                expected_values=encoding_labels,
+                default_value='utf-8'
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # header
+        elif k=='header':
+            
+            # A boolean atomic property that, if true, sets the header 
+            # row count flag to 1, and if false to 0, unless headerRowCount 
+            # is provided, in which case the value provided for the header 
+            # property is ignored. 
+            # The default is true.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[bool],
+                default_value=True
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # headerRowCount
+        elif k=='headerRowCount':
+            
+            # A numeric atomic property that sets the header row count 
+            # flag to the single provided value, which must be a 
+            # non-negative integer. 
+            # The default is 1.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[int],
+                default_value=1
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # lineTerminators
+        elif k=='lineTerminators':
+            
+            # An atomic property that sets the line terminators flag 
+            # to either an array containing the single provided string 
+            # value, or the provided array. 
+            # The default is ["\r\n", "\n"].
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[str,list],
+                default_value=['\r\n','\n']
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # quoteChar
+        elif k=='quoteChar':
+            
+            # An atomic property that sets the quote character flag 
+            # to the single provided value, which must be a string or null. 
+            # If the value is null, the escape character flag is also 
+            # set to null. 
+            # The default is '"'.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[str,type(None)],
+                default_value='"'
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # skipBlankRows
+        elif k=='skipBlankRows':
+            
+            # A boolean atomic property that sets the skip blank rows 
+            # flag to the single provided boolean value. 
+            # The default is false.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[bool],
+                default_value=False
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # skipColumns
+        elif k=='skipColumns':
+            
+            # A numeric atomic property that sets the skip columns 
+            # flag to the single provided numeric value, which must be 
+            # a non-negative integer. 
+            # The default is 0.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[int],
+                default_value=0
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # skipInitialSpace
+        elif k=='skipInitialSpace':
+            
+            # A boolean atomic property that, if true, sets the trim 
+            # flag to "start" and if false, to false. 
+            # If the trim property is provided, the skipInitialSpace 
+            # property is ignored. 
+            # The default is false.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[bool],
+                default_value=False
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # skipRows
+        elif k=='skipRows':
+            
+            # A numeric atomic property that sets the skip rows flag to 
+            # the single provided numeric value, which must be a 
+            # non-negative integer. 
+            # The default is 0.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[int],
+                default_value=0
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # trim
+        elif k=='trim':
+            
+            # An atomic property that, if the boolean true, sets the 
+            # trim flag to true and if the boolean false to false. 
+            # If the value provided is a string, sets the trim flag to 
+            # the provided value, which must be one of "true", "false", 
+            # "start", or "end". 
+            # The default is true.
+            
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                expected_types=[bool,str],
+                expected_values=[True,False,'true','false','start','end'],
+                default_value=True
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+        
+        # @id
+        elif k=='@id':
+            
+            # If included, @id is a link property that identifies the 
+            # dialect described by this dialect description. 
+            # It must not start with _:.
+        
+            validate_link_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                )
+            
+            normalize_link_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                base_url
+                )
+                
+            if v.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise ValueError(message)
+        
+        # @type
+        elif k=='@type':
+            
+            # If included, @type is an atomic property that must be set 
+            # to "Dialect". 
+            # Publishers may include this to provide additional information 
+            # to JSON-LD based toolchains.
+        
+            validate_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v,
+                required_values=['Dialect']
+                )
+            
+            normalize_atomic_property(
+                metadata_dialect_dict,
+                k,
+                v
+                )
+            
+            
+    if is_referenced:
+        
+        metadata_dialect_dict.remove('@context')
+        
+        if not '@id' in metadata_dialect_dict:
+            
+            metadata_dialect_dict['@id']=metadata_document_location
+    
+    
+    
 
 
 #%% 5.10 Transformation Definitions
@@ -6201,20 +8044,55 @@ def normalize_link_property(
         ):
     """
     """
+    #print('-property_name',property_name)
+    #print('-property_value',property_value)
+    #print('-base_url',base_url)
+    
     
     # 3 If the property is a link property the value is turned into an 
     #  absolute URL using the base URL and normalized as described in 
     #  URL Normalization [tabular-data-model].
 
-    property_value=\
-        urllib.parse.urljoin(
-            base_url,
-            property_value
-            )
+    if not base_url is None:
     
-    property_value=normalize_url(property_value)
+        if os.path.isfile(base_url):
+            
+            if not os.path.isabs(property_value):
+                
+                property_value=\
+                    os.path.join(
+                        os.path.dirname(base_url),
+                        property_value
+                        )
+                
+        elif os.path.isdir(base_url):
+            
+            if not os.path.isabs(property_value):
+                
+                property_value=\
+                    os.path.join(
+                        base_url,
+                        property_value
+                        )
+                    
         
-    metadata_obj_dict[property_name]=property_value
+        elif bool(urllib.parse.urlparse(property_value).netloc): 
+                
+                pass
+                
+        else:
+                
+            property_value=\
+                urllib.parse.urljoin(
+                    base_url,
+                    property_value
+                    )  
+        
+        property_value=normalize_url(property_value)
+        
+        #print('-property_value2',property_value)
+            
+        metadata_obj_dict[property_name]=property_value
 
 
 def normalize_object_property(

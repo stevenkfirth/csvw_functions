@@ -100,26 +100,53 @@ class TestCSVWTestCases(unittest.TestCase):
             
             result_fp=os.path.join(test_dir,entry['result'])
             
+            # overriding metadata option
+            if 'metadata' in entry['option']:
+                overriding_metadata_file_path_or_url=\
+                    os.path.join(test_dir,entry['option']['metadata'])
+            else:
+                overriding_metadata_file_path_or_url=None
+                
+            # Link Header
+            _link_header=entry.get('httpLink')
+                 
+            # validate option
+            validate=False
+            
             annotated_table_group_dict=\
                 csvw_functions2.create_annotated_table_group(
-                        action_fp
+                        action_fp,
+                        overriding_metadata_file_path_or_url,
+                        validate=validate,
+                        _link_header=_link_header
                         )
                 
-            print(annotated_table_group_dict['tables'][0]['columns'][0]['aboutURL'])
-            print(annotated_table_group_dict['tables'][0]['columns'][0]['cells'][0]['aboutURL'])
+            print('---')
+            print(annotated_table_group_dict['tables'][0]['columns'][1]['name'])
+            print(annotated_table_group_dict['tables'][0]['columns'][1]['propertyURL'])
+            print(annotated_table_group_dict['tables'][0]['columns'][1]['cells'][0]['propertyURL'])
+            #return
                 
-            #
-            if entry['option'].get('miminal') is True:
+            # mode option
+            if entry['option'].get('minimal') is True:
                 mode='minimal'
             else:
                 mode='standard'
-            
+                
+                
+            #
+            if action_fp.endswith('.csv'):
+                _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{entry["action"]}'
+            else:
+                _replace_url_string='http://www.w3.org/2013/csvw/tests/{table_name}.csv'
+                
+
             #
             json_ld=\
                 csvw_functions2.create_json_ld(
                         annotated_table_group_dict,
                         mode=mode,
-                        _replace_url_string=f'http://www.w3.org/2013/csvw/tests/{entry["action"]}'
+                        _replace_url_string=_replace_url_string
                         )    
                         
             print('-json_ld',json_ld)
