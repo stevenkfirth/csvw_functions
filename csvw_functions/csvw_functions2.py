@@ -872,32 +872,29 @@ def get_overriding_metadata(
     # Processors may provide facilities to make this easier by 
     # automatically merging metadata files from different locations, 
     # but this specification does not define how such merging is carried out.
-        
-    try:
-        
-        with open(overriding_metadata_file_path_or_url) as f:
-            
-            metadata_document_dict=json.load(f)
-            metadata_document_location=os.path.abspath(overriding_metadata_file_path_or_url)
-            
-    except FileNotFoundError:
-        
-        try:
-        
-            response=requests.get(overriding_metadata_file_path_or_url)
-            text=response.text
-            metadata_document_dict=json.loads(text)
-            metadata_document_location=overriding_metadata_file_path_or_url
-        
-        except (requests.exceptions.MissingSchema, 
-                requests.exceptions.ConnectionError):
-            
-            message='"overriding_metadata_file_path_or_url" '
-            message+=f'with value "{overriding_metadata_file_path_or_url}" '
-            message+='does not refer to a local or remote file.'    
-        
-            raise ValueError(message)
     
+    if os.path.isfile(overriding_metadata_file_path_or_url):
+        
+        x=os.path.abspath(overriding_metadata_file_path_or_url)
+        x=x.replace('\\','/')
+        x=r'file:///'+x
+        
+        metadata_document_location=normalize_url(x)
+            
+    else:
+        
+        metadata_document_location=\
+            normalize_url(
+                overriding_metadata_file_path_or_url
+                )
+        
+    
+    metadata_response=urllib.request.urlopen(metadata_document_location)
+    
+    metadata_text=metadata_response.read().decode()
+    
+    metadata_document_dict=json.loads(metadata_text)
+        
     return metadata_document_dict,metadata_document_location
 
 
@@ -957,133 +954,69 @@ def get_metadata_from_link_header(
     #...look for the last valid link header
     for url in urls[::-1]:
         
-        #...resolve url
-        if os.path.isfile(tabular_data_file_url):
-            
-            if os.path.isabs(url):
-                
-                metadata_document_location=url
-                
-            else:
-                
-                metadata_document_location=\
-                    os.path.join(
-                        os.path.dirname(tabular_data_file_url),
-                        url
-                        )
-        
-        else:
-            
-            if bool(urllib.parse.urlparse(url).netloc): 
-                
-                metadata_document_location=url
-                
-            else:
-                
-                metadata_document_location=\
-                    urllib.parse.urljoin(
-                        tabular_data_file_url,
-                        url
-                        )  
+        metadata_document_location=\
+            urllib.parse.urljoin(
+                tabular_data_file_url,
+                url
+                )  
         
         #...load metadata document
         
-        metadata_document_dict=None
+        try:
         
-        if os.path.isfile(metadata_document_location):
-            
-            with open(metadata_document_location) as f:
-                
-                metadata_document_dict=json.load(f)
-                
-        else:
-            
-            try:
-            
-                response=requests.get(metadata_document_location)
-                text=response.text
-                metadata_document_dict=json.loads(text)
-            
-            except (requests.exceptions.MissingSchema, 
-                    requests.exceptions.ConnectionError):
-                
-                pass
+            metadata_response=urllib.request.urlopen(metadata_document_location)
         
-        #print('-metadata_document_dict',metadata_document_dict)
-        
-        
-        #...if no file found at resolved_url
-        if metadata_document_dict is None:
+        except urllib.error.URLError:
             
             continue
         
+        metadata_text=metadata_response.read().decode()
         
-        else:
-    
-            if 'tables' in metadata_document_dict:  # it's a TableGroup object
-                
-                metadata_table_group_dict=metadata_document_dict
-                
-            elif 'url' in metadata_document_dict:  # it's a Table object
+        metadata_document_dict=json.loads(metadata_text)
+        
+        #print('-metadata_document_dict',metadata_document_dict)
+        
+        #
+        if 'tables' in metadata_document_dict:  # it's a TableGroup object
             
-                #...convert to TableGroup object
-                metadata_table_group_dict={
-                    '@context': metadata_document_dict['@context'],
-                    'tables': [metadata_document_dict]
-                    }
-                metadata_table_group_dict['tables'][0].pop('@context', None)
-                
-            #...normalize metadata
-            base_url, default_language=\
-                validate_and_normalize_metadata_table_group_dict(
-                    metadata_table_group_dict,
-                    metadata_document_location
-                    )     
-                
-            #print('-base_url',base_url)
-                
-            table_url=metadata_table_group_dict['tables'][0]['url']  
+            metadata_table_group_dict=metadata_document_dict
             
-            #print('-table_url',table_url)
+        elif 'url' in metadata_document_dict:  # it's a Table object
+        
+            #...convert to TableGroup object
+            metadata_table_group_dict={
+                '@context': metadata_document_dict['@context'],
+                'tables': [metadata_document_dict]
+                }
+            metadata_table_group_dict['tables'][0].pop('@context', None)
             
-            #...resolve table_url
+        #...normalize metadata
+        base_url, default_language=\
+            validate_and_normalize_metadata_table_group_dict(
+                metadata_table_group_dict,
+                metadata_document_location
+                )     
             
-            if os.path.isfile(metadata_document_location):
-                
-                if os.path.isabs(table_url):
-                    
-                    table_url_abs=table_url
-                    
-                else:
-                    
-                    table_url_abs=\
-                        os.path.join(
-                            os.path.dirname(tabular_data_file_url),
-                            table_url
-                            )
-                            
+        #print('-base_url',base_url)
             
-            else:
-                
-                if bool(urllib.parse.urlparse(table_url).netloc): 
-                    
-                    table_url_abs=table_url
-                    
-                else:
-                    
-                    table_url_abs=\
-                        urllib.parse.urljoin(
-                            tabular_data_file_url,
-                            table_url
-                            )  
-                
-            #print('-table_url_absolute',table_url_abs)
-            #print('-tabular_data_file_url',tabular_data_file_url)
+        table_url=metadata_table_group_dict['tables'][0]['url']  
+        
+        #print('-table_url',table_url)
+        
+        #...resolve table_url
+        table_url=\
+            urllib.parse.urljoin(
+                tabular_data_file_url,
+                table_url
+                )  
             
-            if table_url_abs==normalize_url(tabular_data_file_url):
-                
-                return metadata_table_group_dict, metadata_document_location
-                
+        #print('-table_url',table_url)
+        #print('-tabular_data_file_url',tabular_data_file_url)
+        
+        if table_url==tabular_data_file_url:
+            
+            return metadata_table_group_dict, metadata_document_location
+            
             
     return None, None
 
@@ -1122,42 +1055,33 @@ def get_metadata_from_default_or_site_wide_location(
     # This file must contain a URI template, as defined by [URI-TEMPLATE], 
     # on each line. 
     
-    if tabular_data_file_headers is None:   # i.e. a local file
+    #if tabular_data_file_headers is None:   # i.e. a local file
     
-        absolute_path=os.path.abspath(tabular_data_file_url)
-        
-        absolute_dir=os.path.dirname(absolute_path)
-        
-        well_known_path=os.path.join(
-            absolute_dir,
-            '.well-known',
-            'csvm'
-            )
-        
-        try:
-            
-            with open(well_known_path) as f:
-                well_known_text=f.read()
-                
-        except FileNotFoundError:
-            
-            well_known_text=None
-        
-    else:  # tabular data is a remote file
-        
-        url_defraged=urllib.parse.urldefrag(tabular_data_file_url)[0]
+    well_known_path_url=urllib.parse.urljoin(
+        tabular_data_file_url,
+        '/.well-known/csvm'
+        )
     
-        well_known_url=urllib.parse.urljoin(url_defraged,'/.well-known/csvm')
+    print('-well_known_path_url',well_known_path_url)
+    
+    #
+    try:
+    
+        well_known_path_response=\
+            urllib.request.urlopen(
+                well_known_path_url
+                )
+    
+    except urllib.error.URLError:
         
-        try:
-            
-            well_known_text=requests.get(well_known_url, stream=True).text 
+        well_known_path_response=None
     
-        except requests.ConnectionError:
-            
-            well_known_text=None
-    
-    if well_known_text is None:
+    #
+    if not well_known_path_response is None:
+        
+        well_known_text=well_known_path_response.read().decode()
+        
+    else:
         
         well_known_text='{+url}-metadata.json\ncsv-metadata.json'
     
@@ -1174,14 +1098,8 @@ def get_metadata_from_default_or_site_wide_location(
         #    the URL of the requested tabular data file (with any fragment 
         #    component of that URL removed).
         
-        if tabular_data_file_headers is None:
+        variables={'url':urllib.parse.urldefrag(tabular_data_file_url)[0]}
             
-            variables={'url':absolute_path}
-            
-        else:
-        
-            variables={'url':url_defraged}
-    
         #print(variables)
         
         expanded_url_quoted=uritemplate.expand(uri_template,
@@ -1195,48 +1113,34 @@ def get_metadata_from_default_or_site_wide_location(
         # 2. Resolve the resulting URL against the URL of the requested 
         #    tabular data file.
         
-        if tabular_data_file_headers is None:
-            
-            metadata_url=\
-                os.path.join(
-                    absolute_dir,
-                    expanded_url
-                    )
-        
-        else:
-            
-            metadata_url=\
-                urllib.parse.urljoin(
-                    tabular_data_file_url,
-                    expanded_url
-                    )
-        #print('-metadata_url',metadata_url)
+        metadata_url=\
+            urllib.parse.urljoin(
+                tabular_data_file_url,
+                expanded_url
+                )
+        print('-metadata_url',metadata_url)
         
         
         # 3. Attempt to retrieve a metadata document at that URL.
+        
         try:
+        
+            metadata_response=urllib.request.urlopen(metadata_url)
+        
+        except urllib.error.URLError:
+        
+            metadata_response=None
             
-            with open(metadata_url) as f:
-                
-                metadata_document_dict=json.load(f)
-                metadata_document_headers=None
-                
-        except FileNotFoundError:
+        #
+        if not metadata_response is None:
             
-            try:
+            metadata_text=metadata_response.read().decode()
+            metadata_document_dict=json.loads(metadata_text)
             
-                response=requests.get(metadata_url)
-                text=response.text
-                metadata_document_dict=json.loads(text)
-                metadata_document_headers=response.headers
+        else:
             
-            except (requests.exceptions.MissingSchema, 
-                    requests.ConnectionError,
-                    requests.exceptions.InvalidSchema):
-                
-                metadata_document_dict=None
-                metadata_document_headers=None
-    
+            metadata_document_dict=None
+        
         
         # 4. If no metadata document is found at that location, or if the 
         #    metadata file found at the location does not explicitly 
@@ -1270,35 +1174,38 @@ def get_metadata_from_default_or_site_wide_location(
             
                 raise ValueError
             
-            if metadata_document_headers is None:  # local path
+            #print('-table_url',table_url)
             
-                table_url_resolved=\
-                    os.path.join(
-                        os.path.dirname(base_url),
-                        table_url
+            #...set up the url
+            if os.path.isfile(table_url):
+                
+                table_url=\
+                    normalize_url(
+                        fr'file:///{os.path.abspath(table_url)}'
                         )
-            
-            else:  # remote path
-                
-                table_url_resolved=\
-                    urllib.parse.urljoin(
-                        base_url,
-                        table_url
-                        )
-                
-            #print('table_url_resolved',table_url_resolved)
-            
-            if tabular_data_file_headers is None:
-                
-                if table_url_resolved==absolute_path:
-                    
-                    return metadata_document_dict,metadata_url
                 
             else:
                 
-                if table_url_resolved==tabular_data_file_url:
+                table_url=\
+                    normalize_url(
+                        table_url
+                        )
+                
+            #print('-table_url',table_url)
+                
+            # resolve url
+            
+            table_url_resolved=\
+                urllib.parse.urljoin(
+                    base_url,
+                    table_url
+                    )
+                
+            #print('table_url_resolved',table_url_resolved)
+            
+            if table_url_resolved==tabular_data_file_url:
                     
-                    return metadata_document_dict,metadata_url
+                return metadata_document_dict,metadata_url
     
     # if no matches
     metadata_document_dict=None
@@ -1417,28 +1324,28 @@ def create_annotated_table_group(
         
         # 1. Retrieve the tabular data file.
         
-        #... only the headers needed at this stage
+        #...set up the url
         if os.path.isfile(input_file_path_or_url):
             
+            x=os.path.abspath(input_file_path_or_url)
+            x=x.replace('\\','/')
+            x=r'file:///'+x
+            
+            tabular_data_file_url=normalize_url(x)
+                
             tabular_data_file_headers=None
-            tabular_data_file_url=os.path.abspath(
-                input_file_path_or_url
-                )
             
         else:
             
-            try:
+            tabular_data_file_url=\
+                normalize_url(
+                    input_file_path_or_url
+                    )
+            tabular_data_file_headers=requests.head(tabular_data_file_url).headers
             
-                tabular_data_file_headers=requests.get(input_file_path_or_url)
-                tabular_data_file_url=input_file_path_or_url
+        print('-tabular_data_file_url',tabular_data_file_url)     
             
-            except (requests.exceptions.MissingSchema, 
-                    requests.exceptions.ConnectionError):
-                
-                message='"input_file_path_or_url" does not refer to a local or remote file.'    
-            
-                raise ValueError(message)
-        
+        print('-tabular_data_file_headers',tabular_data_file_headers)
 
         # 2. Retrieve the first metadata file (FM) as described in 
         #    section 5. Locating Metadata:
@@ -1489,29 +1396,31 @@ def create_annotated_table_group(
         # 1. Retrieve the metadata file yielding the metadata UM (which is 
         #    treated as overriding metadata, see section 5.1 Overriding 
         #    Metadata).
-                
-        try:
-            
-            with open(input_file_path_or_url) as f:
-                
-                metadata_document_dict=json.load(f)
-                metadata_document_location=os.path.abspath(input_file_path_or_url)
-                
-        except FileNotFoundError:
-            
-            try:
-            
-                response=requests.get(input_file_path_or_url)
-                text=response.text
-                metadata_document_dict=json.loads(text)
-                metadata_document_location=input_file_path_or_url
-            
-            except (requests.MissingSchema, requests.ConnectionError):
-                
-                message='"input_file_path_or_url" does not refer to a local or remote file.'    
-            
-                raise ValueError(message)
         
+        #...set up the url
+        if os.path.isfile(input_file_path_or_url):
+            
+            x=os.path.abspath(input_file_path_or_url)
+            x=x.replace('\\','/')
+            x=r'file:///'+x
+            
+            metadata_document_location=normalize_url(x)
+            
+        else:
+            
+            metadata_document_location=\
+                normalize_url(
+                    input_file_path_or_url
+                    )
+        
+        #...get metadata document
+        metadata_response=urllib.request.urlopen(metadata_document_location)
+        
+        metadata_text=metadata_response.read().decode()
+        
+        metadata_document_dict=json.loads(metadata_text)
+        
+        #
         tabular_data_file_text=None
         
         use_embedded_metadata_flag=False
@@ -1559,28 +1468,38 @@ def create_annotated_table_group(
             
             url=metadata_table_dict['url']
             
+            #...set up the url
             if os.path.isfile(url):
                 
-                tabular_data_file_headers=None
-                tabular_data_file_url=os.path.abspath(
-                    url
-                    )
+                x=os.path.abspath(url)
+                x=x.replace('\\','/')
+                x=r'file:///'+x
+                
+                tabular_data_file_url=normalize_url(x)
+                    
+                
                 
             else:
                 
-                try:
-                
-                    tabular_data_file_headers=requests.get(url)
-                    tabular_data_file_url=url
-                
-                except (requests.exceptions.MissingSchema, 
-                        requests.exceptions.ConnectionError):
+                tabular_data_file_url=\
+                    urllib.parse.urljoin(
+                        metadata_document_location,
+                        url
+                        )
                     
-                    message=f'Property "url" with value "{url}" ' 
-                    message+='does not refer to a local or remote file.'    
+            if tabular_data_file_url.startswith('file'):
                 
-                    raise ValueError(message)
+                tabular_data_file_headers=None
+            
+            else:
+                    
+                tabular_data_file_headers=requests.head(tabular_data_file_url).headers
+                
+            #print('-tabular_data_file_url',tabular_data_file_url)     
+                
+            #print('-tabular_data_file_headers',tabular_data_file_headers)
     
+            
             
         # 3.1 Extract the dialect description (DD) from UM for the table 
         #     associated with the tabular data file. If there is no such 
@@ -1913,7 +1832,6 @@ def parse_cells_in_annotated_column_dict(
     # datetime
     elif datatype['base'] in ['dateTime', 'datetime']:
         
-        raise NotImplementedError
         datatype_parse_function=\
             get_parse_datetime_function(
                 datatype
@@ -3041,74 +2959,83 @@ def parse_time(
     return json_value, type_, errors
 
 
-    
-def parse_datetime(
-        string_value,
-        datatype_base,
-        datatype_format,
-        errors
+def get_parse_datetime_function(
+        datatype
         ):
-    """
-    """
-    
-    type_=datatype_base
-    
-    # By default, dates and times are assumed to be in the format defined 
-    # in [xmlschema11-2]. However dates and times are commonly represented 
-    # in tabular data in other formats.
 
-    if datatype_format is None:
+    
+    def parse_datetime(
+            string_value,
+            errors
+            ):
+        """
+        """
         
-        datatype_format='yyyy-MM-ddTHH:mm:ss'  
-
-    # If the datatype base is a date or time type, the datatype format 
-    # annotation indicates the expected format for that date or time.
-    
-    # The supported date and time format patterns listed here are 
-    # expressed in terms of the date field symbols defined in [UAX35]. 
-    # These formats must be recognised by implementations and must be 
-    # interpreted as defined in that specification. 
-    # Implementations may additionally recognise other date format patterns. 
-    # Implementations must issue a warning if the date format pattern is 
-    # invalid or not recognised and proceed as if no date format 
-    # pattern had been provided.
-    
-    datetime_format=datatype_format
-    
-    # identify separator
-    if 'T' in datetime_format:
-        separator='T'
-    else:
-        separator=' '
-    
-    # separate date and time formats
-    date_format, time_format = datetime_format.split(separator)
+        value_type=datatype['base']
         
-    # separate date_string_value and time_string_value
-    #print(string_value)
-    date_string_value, time_string_value = string_value.split(separator)
-    
-    # get date json value
-    date_json_value, date_type_, errors=\
-        parse_date(
-            string_value=date_string_value,
-            datatype_base='date',
-            datatype_format=date_format,
-            errors=errors
-            )
+        datatype_format=datatype.get('format')
         
-    # get time json value
-    time_json_value, time_type_, errors=\
-        parse_time(
-            string_value=time_string_value,
-            datatype_base='time',
-            datatype_format=time_format,
-            errors=errors
-            )
+        # By default, dates and times are assumed to be in the format defined 
+        # in [xmlschema11-2]. However dates and times are commonly represented 
+        # in tabular data in other formats.
     
-    json_value=date_json_value+'T'+time_json_value
+        if datatype_format is None:
+            
+            datatype_format='yyyy-MM-ddTHH:mm:ss'  
     
-    return json_value, type_, errors
+        # If the datatype base is a date or time type, the datatype format 
+        # annotation indicates the expected format for that date or time.
+        
+        # The supported date and time format patterns listed here are 
+        # expressed in terms of the date field symbols defined in [UAX35]. 
+        # These formats must be recognised by implementations and must be 
+        # interpreted as defined in that specification. 
+        # Implementations may additionally recognise other date format patterns. 
+        # Implementations must issue a warning if the date format pattern is 
+        # invalid or not recognised and proceed as if no date format 
+        # pattern had been provided.
+        
+        datetime_format=datatype_format
+        
+        # identify separator
+        if 'T' in datetime_format:
+            separator='T'
+        else:
+            separator=' '
+        
+        # separate date and time formats
+        date_format, time_format = datetime_format.split(separator)
+            
+        # separate date_string_value and time_string_value
+        #print(string_value)
+        date_string_value, time_string_value = string_value.split(separator)
+        
+        # get date json value
+        date_json_value, date_type_, errors=\
+            get_parse_date_function(
+                {
+                    'base':'date',
+                    'format':date_format
+                 }
+                )(
+                string_value=date_string_value,
+                errors=errors
+                )
+            
+        # get time json value
+        time_json_value, time_type_, errors=\
+            parse_time(
+                string_value=time_string_value,
+                datatype_base='time',
+                datatype_format=time_format,
+                errors=errors
+                )
+        
+        json_value=date_json_value+'T'+time_json_value
+        
+        return json_value, value_type, errors
+    
+    return parse_datetime
     
 
 def parse_datetimestamp(
@@ -3302,17 +3229,11 @@ def parse_tabular_data_from_text(
     #    the replacement error mode. If the encoding is not a Unicode encoding, 
     #    use a normalizing transcoder to normalize into Unicode Normal Form C 
     #    as defined in [UAX15].
-
-    if os.path.isfile(tabular_data_file_url):
     
-        with open(tabular_data_file_url,encoding=encoding) as f:
-            
-            tabular_data_file_text=f.read()
-            
-    else:
-        
-        response=requests.get(tabular_data_file_url)  
-        tabular_data_file_text=response.cotent.decode(encoding)
+    response=urllib.request.urlopen(tabular_data_file_url)
+    
+    tabular_data_file_text=response.read().decode(encoding)
+    
             
     #...
     character_index=0  # index for processing each character in the file
@@ -4261,37 +4182,12 @@ def get_URI_from_URI_template(
     # 3 resolving the resulting URL against the base URL of the table url if not null.
     
     if not table_url is None:
-    
-        if os.path.isabs(uri):
-            
-            url=uri
                 
-        elif bool(urllib.parse.urlparse(uri).netloc): 
-            
-            url=uri
-            
-        elif os.path.isfile(table_url):
-        
-            if uri.startswith('#'):
-                
-                url=\
-                    table_url+uri
-                
-            else:
-                
-                url=\
-                    os.path.join(
-                        os.path.dirname(table_url),
-                        uri
-                        )
-                
-        else:
-                
-            url=\
-                urllib.parse.urljoin(
-                    table_url,
-                    uri
-                    )  
+        url=\
+            urllib.parse.urljoin(
+                table_url,
+                uri
+                )  
     
     else:
         
@@ -8055,38 +7951,11 @@ def normalize_link_property(
 
     if not base_url is None:
     
-        if os.path.isfile(base_url):
-            
-            if not os.path.isabs(property_value):
-                
-                property_value=\
-                    os.path.join(
-                        os.path.dirname(base_url),
-                        property_value
-                        )
-                
-        elif os.path.isdir(base_url):
-            
-            if not os.path.isabs(property_value):
-                
-                property_value=\
-                    os.path.join(
-                        base_url,
-                        property_value
-                        )
-                    
-        
-        elif bool(urllib.parse.urlparse(property_value).netloc): 
-                
-                pass
-                
-        else:
-                
-            property_value=\
-                urllib.parse.urljoin(
-                    base_url,
-                    property_value
-                    )  
+        property_value=\
+            urllib.parse.urljoin(
+                base_url,
+                property_value
+                )  
         
         property_value=normalize_url(property_value)
         
@@ -8117,29 +7986,19 @@ def normalize_object_property(
     
     if isinstance(property_value,str):
         
-        url=property_value
-            
-        try:
-            
-            with open(url) as f:
-                
-                referenced_metadata_obj_dict=json.load(f)
-                
-        except FileNotFoundError:
-            
-            try:
-            
-                response=requests.get(url)
-                text=response.text
-                referenced_metadata_obj_dict=json.loads(text)
-            
-            except (requests.MissingSchema, requests.ConnectionError):
-                
-                message=f'Property "{property_name}" ' 
-                message+=f'with value "{property_value}" '
-                message+='does not refer to a local or remote file.'    
-                
-        raise ValueError(message)
+        metadata_document_location=\
+            urllib.parse.urljoin(
+                base_url,
+                property_value
+                )  
+        
+        #...load metadata document
+        
+        metadata_response=urllib.request.urlopen(metadata_document_location)
+        
+        metadata_text=metadata_response.read().decode()
+        
+        referenced_metadata_obj_dict=json.loads(metadata_text)
         
         property_value=referenced_metadata_obj_dict
         
@@ -8251,7 +8110,7 @@ def compact_absolute_url(
 def create_json_ld(
         annotated_table_group_dict,
         mode='standard',
-        _replace_url_string=None  # used to replace urls for testing purposes, can use a variable {table_name}
+        _replace_strings=None  # used to replace urls for testing purposes, can use a variable {table_name}
         ):
     """
     
@@ -8274,6 +8133,78 @@ def create_json_ld(
     else:
         
         raise Exception
+    
+    # replace strings
+    
+    def replace_string(
+            json,
+            value,
+            replace_value):
+        """
+        """
+        if isinstance(json,str):
+            
+            return json.replace(value,replace_value)
+        
+        elif isinstance(json,dict):
+            
+            return {k:replace_string(
+                        v,
+                        value,
+                        replace_value
+                        ) for k,v in json.items()}
+        
+        elif isinstance(json,list):
+            
+            return [replace_string(
+                        item,
+                        value,
+                        replace_value
+                        ) for item in json]
+        
+        
+        else:
+            
+            return json
+        
+        
+        
+    for value,replace_value in _replace_strings:
+        
+        json_ld=\
+            replace_string(
+                json_ld,
+                value,
+                replace_value
+                )
+        
+    
+    
+    
+    # json_string=json.dumps(json_ld)
+    
+    # #print(json_string)
+    
+    # json_string=json_string.replace(
+    #     'C:\\\\Users\\\\cvskf\\\\OneDrive - Loughborough University\\\\_Git\\\\stevenkfirth\\\\csvw_functions\\\\tests\\\\_github_w3c_csvw_tests\\\\',
+    #     'http://www.w3.org/2013/csvw/tests/'
+        
+    #     )
+    
+    # json_string=json_string.replace(
+    #     'c:\\\\Users\\\\cvskf\\\\OneDrive - Loughborough University\\\\_Git\\\\stevenkfirth\\\\csvw_functions\\\\tests\\\\_github_w3c_csvw_tests\\\\',
+    #     'http://www.w3.org/2013/csvw/tests/'
+        
+    #     )
+    
+    # json_string=json_string.replace(
+    #     '\\\\',
+    #     '/'
+    #     )
+    
+    # json_ld=json.loads(json_string)
+    
+    return json_ld
     
     
     # replace url string
