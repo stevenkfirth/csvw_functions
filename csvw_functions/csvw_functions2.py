@@ -1291,6 +1291,8 @@ def create_annotated_table_group(
     
     """
     
+    print('---create_annotated_table_group---')
+    
     # After locating metadata, metadata is normalized and coerced into a 
     # single table group description. 
     # When starting with a metadata file, this involves normalizing the 
@@ -1424,6 +1426,27 @@ def create_annotated_table_group(
         tabular_data_file_text=None
         
         use_embedded_metadata_flag=False
+        
+        
+    #...for testing
+    with open('metadata_table_group_dict.json','w') as f:
+        
+        if use_embedded_metadata_flag:
+            
+            json.dump(
+                {},
+                f,
+                indent=4
+                )
+            
+        else:
+            
+            json.dump(
+                metadata_document_dict,
+                f,
+                indent=4
+                )
+        
         
     # 2. Normalize UM using the process defined in Normalization 
     # in [tabular-metadata], coercing UM into a table group 
@@ -1585,7 +1608,6 @@ def create_annotated_table_group(
                 tabular_data_file_url,
                 dialect_description_dict
                 )
-        print('-embedded_metadata_dict',embedded_metadata_dict)
             
         annotated_table_group_dict['tables'].append(annotated_table_dict)
             
@@ -1597,8 +1619,72 @@ def create_annotated_table_group(
             metadata_table_dict.pop('@context')
             
             metadata_table_group_dict['tables'][table_index]=metadata_table_dict
-            #print(metadata_table_group_obj_dict)
+        
+        #print('-metadata_table_group_dict_NORMALIZED',metadata_table_group_dict)
+        
+        #...for testing
+        with open('metadata_table_group_dict_NORMALIZED.json','w') as f:
             
+            json.dump(
+                metadata_table_group_dict,
+                f,
+                indent=4
+                )
+        
+        #...include virtual columns from metadata
+        #...as this isn't included when parsing the tabular data from text.
+        if 'tableSchema' in metadata_table_dict:
+        
+            for i, metadata_column_dict in \
+                enumerate(metadata_table_dict['tableSchema']['columns']):
+                    
+                    if metadata_column_dict.get('virtual')==True:
+                        
+                        annotated_column_dict=dict(
+                            table=annotated_table_dict, 
+                            number=i+1,
+                            sourceNumber=None,
+                            name=None,
+                            titles=[],
+                            virtual=False,
+                            suppressOutput=False,
+                            datatype={'base':'string'}, 
+                            default='',
+                            lang='und',
+                            null='',
+                            ordered=False,
+                            required=False,
+                            separator=None,
+                            textDirection='auto',
+                            aboutURL=None,
+                            propertyURL=None,
+                            valueURL=None,
+                            cells=[]
+                            )
+                        
+                        for annotated_row_dict in annotated_table_dict['rows']:
+                        
+                            annotated_cell_dict=dict(
+                                table=annotated_table_dict, 
+                                column=annotated_column_dict, 
+                                row=annotated_row_dict, 
+                                stringValue='',
+                                value=None,
+                                errors=[],
+                                textDirection='auto',
+                                ordered=False,
+                                aboutURL=None,
+                                propertyURL=None,
+                                valueURL=None
+                                )
+                        
+                            annotated_column_dict['cells'].append(annotated_cell_dict)
+                            annotated_row_dict['cells'].append(annotated_cell_dict)
+                
+                        annotated_table_dict['columns'].append(annotated_column_dict)
+            
+        
+        
         #...REMOVED: setting column names to _col.1 etc.
         #... as now done in annotating schema
             
@@ -1661,7 +1747,8 @@ def create_annotated_table_group(
             parse_cells_in_annotated_column_dict(
                 annotated_column_dict
                 )
-            
+    
+    
 
     #...generate URIs
                 
@@ -1717,9 +1804,44 @@ def create_annotated_table_group(
                     #print(annotated_cell_dict['value'])
                     #print(annotated_cell_dict['valueURL'])
              
+    
+             
+                
+    #... for testing
+    
+    def remove_recursion(
+            value
+            ):
+        ""
+        if isinstance(value,dict):
+            
+            return {k:remove_recursion(v) if not k in 
+                    ['table','column','row',
+                     'referencedRows','primaryKey','foreignKeys'] else '__recursion__'
+                    for k,v in value.items()
+                    }
         
-    #print(metadata_table_group_obj_dict)
+        elif isinstance(value,list):
+            
+            return [remove_recursion(x) for x in value]
+
+        else:
+            
+            return value
+    
+    
         
+    
+    # with open('annotated_table_group_dict.json','w') as f:
+        
+    #     json.dump(
+    #         remove_recursion(annotated_table_group_dict),
+    #         f,
+    #         indent=4
+    #         )
+        
+        
+    #    
     return annotated_table_group_dict
      
         
@@ -1806,7 +1928,6 @@ def parse_cells_in_annotated_column_dict(
     # booleans
     elif datatype['base']=='boolean':
         
-        raise NotImplementedError
         datatype_parse_function=\
             get_parse_boolean_function(
                 datatype
@@ -2107,23 +2228,17 @@ def parse_cell_steps_6_to_9(
     #    from the column lang annotation.
     if datatype['base']=='string' or datatype['base'] is None:
         
-        json_value,value_type,errors=\
-            datatype_parse_function(
-                string_value,
-                errors,
-                )
         language=lang
         
-    
     else:
         
-        json_value,value_type,errors=\
-            datatype_parse_function(
-                string_value,
-                errors,
-                )
         language=None
         
+    json_value,value_type,errors=\
+        datatype_parse_function(
+            string_value,
+            errors,
+            )
     
     # 9. validate the value based on the length constraints described in 
     #    section 4.6.1 Length Constraints, the value constraints described 
@@ -2595,9 +2710,97 @@ def parse_number_pattern(
         
         
 
-    
+#%% 6.4.3 Formats for booleans
 
+def get_parse_boolean_function(
+        datatype
+        ):
+    """
+    """
     
+    def parse_boolean(
+            string_value,
+            errors
+            ):
+        """
+        """
+        value_type=datatype['base']
+        
+        # Boolean values may be represented in many ways aside from the standard 
+        # 1 and 0 or true and false.
+        
+        if string_value in ['1','true']:
+            
+            json_value=True
+            
+            return json_value, value_type, errors
+        
+        elif string_value in ['0','false']:
+            
+            json_value=False
+            
+            return json_value, value_type, errors
+        
+        #If the datatype base for a cell is boolean, the datatype format 
+        # annotation provides the true value followed by the false value, 
+        # separated by |. 
+        # For example if format is Y|N then cells must hold either Y or N with 
+        # Y meaning true and N meaning false. 
+        # If the format does not follow this syntax, implementations must 
+        # issue a warning and proceed as if no format had been provided.
+        
+        if not datatype['format'] is None:
+            
+            x=datatype['format'].split('|')
+            
+            if len(x)==0:
+                
+                warnings.warn('')
+                
+            elif len(x)>2:
+                
+                warnings.warn('')
+                
+            else:
+                
+                true_string=x[0]
+                
+                if len(true_string)==0:
+                    
+                    warnings.warn()
+                    
+                else:
+                    
+                    false_string=x[1]
+                    
+                    if len(false_string)==0:
+                        
+                        warnings.warn()
+                        
+                    else:
+                        
+                        if string_value in true_string:
+                            
+                            json_value=True
+                            
+                            return json_value, value_type, errors
+                        
+                        elif string_value in false_string:
+                            
+                            json_value=False
+                            
+                            return json_value, value_type, errors
+                
+        # if no match
+        json_value=string_value
+        value_type='string'
+        errors.append('no match to boolean')        
+        
+        return json_value, value_type, errors
+        
+          
+    return parse_boolean
+      
  
 #%% 6.4.4. Formats for dates and times
 
@@ -3234,6 +3437,8 @@ def parse_tabular_data_from_text(
     
     tabular_data_file_text=response.read().decode(encoding)
     
+    print('-tabular_data_file_text',tabular_data_file_text)
+    
             
     #...
     character_index=0  # index for processing each character in the file
@@ -3636,8 +3841,14 @@ def get_row_content(
             
         # 2.4 Otherwise, if the string starts with one of the line terminators, 
         # return the row content.
-        elif tabular_data_text[i] in line_terminators:
-            i+=1
+        elif any([tabular_data_text[i:].startswith(x) 
+                  for x in line_terminators]):
+        
+            for x in line_terminators:
+                if tabular_data_text[i:].startswith(x):
+                    break
+            
+            i+=len(x)
             break
             
         # 2.5 Otherwise, append the first character to the row content and move 
@@ -3733,11 +3944,8 @@ def get_list_of_cell_values(
         ):
     """
     """
-    #logging.info('FUNCTION: get_list_of_cell_values')
-    
-    
-    #print('get_list_of_cell_values')
-    #print(characters)
+    #print('-characters',characters.encode())
+    #print('-quote_character',quote_character)
     
     # To parse a row to provide a list of cell values, perform the following steps:
         
@@ -3758,6 +3966,9 @@ def get_list_of_cell_values(
             next_character=characters[i+1]
         except IndexError:
             next_character=None
+    
+        #print('-current_character',current_character)
+        #print('-next_character',next_character)#,type(next_character))
     
         # 3.1 If the string starts with the escape character followed by the 
         # quote character, append the quote character to the current cell 
@@ -3805,7 +4016,7 @@ def get_list_of_cell_values(
                         #logging.critical(f'i: {i}')
                         #logging.critical(f'current_cell_value: {current_cell_value}')
                         #logging.critical(f'next_character: {next_character}')
-                        raise Exception
+                        raise Exception('No delimiter after quote character')
                 i+=1
         
         # 3.4 Otherwise, if the string starts with the delimiter, then:
@@ -5026,9 +5237,8 @@ def validate_and_normalize_metadata_table_group_dict(
     # TO DO
     
     
+    #print('-metadata_table_group_dict',metadata_table_group_dict)
     
-    
-            
     return base_url, default_language
 
 
@@ -5100,6 +5310,8 @@ def annotate_table_group_dict(
             validate,
             table_group_inherited_properties_cache
             )
+        
+        
         
         
     # do the foreign key annotations
@@ -5188,6 +5400,7 @@ def annotate_table_group_dict(
                             [foreign_key_definition,
                              first_row]
                             )
+            
                     
     return annotated_table_group_dict
 
@@ -5318,7 +5531,9 @@ def validate_and_normalize_metadata_table_dict(
             normalize_common_property_or_notes(
                 metadata_table_dict,
                 k,
-                v
+                v,
+                base_url,
+                default_language
                 )
         
         
@@ -5406,7 +5621,7 @@ def validate_and_normalize_metadata_table_dict(
                     )
             
             validate_and_normalize_metadata_schema_dict(
-                v,
+                metadata_table_dict[k],
                 referenced_url or metadata_document_location,
                 base_url,
                 default_language,
@@ -5991,12 +6206,15 @@ def validate_and_normalize_metadata_schema_dict(
     
     if is_referenced:
         
-        metadata_schema_dict.remove('@context')
+        metadata_schema_dict.pop('@context')
         
         if not '@id' in metadata_schema_dict:
             
             metadata_schema_dict['@id']=metadata_document_location
    
+        #print('-metadata_schema_dict',metadata_schema_dict)
+        
+        
     
 def annotate_schema_dict(
         annotated_table_dict,
@@ -6012,8 +6230,13 @@ def annotate_schema_dict(
     
     for k,v in metadata_schema_dict.items():
         
+        # primary key
+        if k=='primaryKey':
+            
+            pass  # need to do this later after all the colum names are set
+        
         # row titles
-        if k=='rowTitles':
+        elif k=='rowTitles':
             
             raise NotImplementedError
             
@@ -6025,7 +6248,8 @@ def annotate_schema_dict(
             schema_inherited_properties_cache[k]=v
             
             
-    for i in range(len(annotated_table_dict['columns'])):
+    # annotate columns
+    for i in range(len(metadata_schema_dict['columns'])):
         
         annotate_column_dict(
             annotated_table_dict['columns'][i],
@@ -6037,8 +6261,31 @@ def annotate_schema_dict(
             )
         
 
-    
-   
+    # primary key
+    if 'primaryKey' in metadata_schema_dict:
+        
+        primary_key=metadata_schema_dict['primaryKey']
+        
+        if not isinstance(primary_key,list):
+            primary_key=[primary_key]
+            
+        column_indexes=[]
+        
+        for x in primary_key:
+            
+            for i,annotated_column_dict in enumerate(annotated_table_dict['columns']):
+                
+                if x==annotated_column_dict['name']:
+                    
+                    column_indexes.append(i)
+                    
+        for row in annotated_table_dict['rows']:
+            
+            for column_index in column_indexes:
+                
+                row['primaryKey'].append(row['cells'][column_index])
+        
+        
     
 def get_referenced_table_and_columns_from_foreign_key_reference(
         foreign_key_reference,
@@ -6531,6 +6778,23 @@ def annotate_column_dict(
         elif k=='suppressOutput':
             
             annotated_column_dict['suppressOutput']=v
+            
+        # title
+        elif k=='titles':
+            
+            x=[]
+            
+            for lang_code,titles in v.items():  # lang_code, list of titles
+            
+                for title in titles:
+                    
+                    x.append(
+                        {'@value':title,
+                         '@language':lang_code
+                            }
+                        )
+        
+            annotated_column_dict['titles']=x
         
         # virtual
         elif k=='virtual':
@@ -6545,7 +6809,7 @@ def annotate_column_dict(
             column_inherited_properties_cache[k]=v
             
         # common properties
-        elif not k in ['titles','@id','@type']:
+        elif not k in ['@id','@type']:
             
             annotated_column_dict[k]=v
             
@@ -6744,7 +7008,19 @@ def validate_and_normalize_inherited_property(
         # The value of this property becomes the default annotation for 
         # the described column.
         
-        raise NotImplementedError
+        validate_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value,
+            expected_types=[str],
+            default_value=''
+            )
+        
+        normalize_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value
+            )
         
     # lang
     elif property_name=='lang':
@@ -6757,7 +7033,34 @@ def validate_and_normalize_inherited_property(
         # the described column. 
         # The default is und.
         
-        raise NotImplementedError
+        validate_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value,
+            expected_types=[str],
+            default_value='und'
+            )
+        
+        if not property_value=='und':
+        
+            if not langcodes.tag_is_valid(property_value):
+        
+                message='Property "lang" is not a valid language code. ' 
+                message+='Replacing with "und".'
+        
+                raise warnings.warn(message)
+                
+                property_value='und'
+                
+                metadata_obj_dict[property_name]=property_value
+        
+        
+        normalize_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value
+            )
+        
         
     # null
     elif property_name=='null':
@@ -6772,7 +7075,41 @@ def validate_and_normalize_inherited_property(
         # The value of this property becomes the null annotation for 
         # the described column.
         
-        raise NotImplementedError
+        validate_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value,
+            expected_types=[str,list],
+            default_value=''
+            )
+        
+        if isinstance(property_value,list):
+            
+            x=[]
+            
+            for item in property_value:
+                
+                if isinstance(property_value,str):
+                    
+                    x.append(item)
+            
+                else:
+                    
+                    message='Property "null" has an invalid array item. '
+                    message+='This is removed.'
+                    
+                    warnings.warn(message)
+        
+            property_value=x
+            
+            metadata_obj_dict['property_name']=property_value
+        
+        
+        normalize_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value
+            )
         
     # ordered
     elif property_name=='ordered':
@@ -6853,7 +7190,20 @@ def validate_and_normalize_inherited_property(
         # The value of this property becomes the separator annotation 
         # for the described column.
         
-        raise NotImplementedError
+        validate_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value,
+            expected_types=[str],
+            default_value=None
+            )
+        
+        normalize_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            property_value
+            )
+        
         
     # textDirection
     elif property_name=='textDirection':
@@ -7820,7 +8170,7 @@ def normalize_common_property_or_notes(
         
         for x in property_value:
             
-            y={property_name:property_value}
+            y={property_name:x}
         
             normalize_common_property_or_notes(
                 y,
@@ -7830,7 +8180,7 @@ def normalize_common_property_or_notes(
                 default_language
                 )
             
-            result.append(x)
+            result.append(y[property_name])
     
         property_value=result
     
@@ -7865,6 +8215,8 @@ def normalize_common_property_or_notes(
     elif isinstance(property_value,dict):
         
         for k, v in property_value.items():
+            
+            #print(k)
         
             # 1.4.1 If the property is @id, expand any prefixed names and resolve 
             #  its value against the base URL.
@@ -7920,7 +8272,7 @@ def normalize_common_property_or_notes(
                     default_language     
                     )
             
-                property_value[k]=v
+                property_value[k]=y[k]
     
             
     # 1.5 Otherwise, the value remains as is.
@@ -8003,13 +8355,15 @@ def normalize_object_property(
         property_value=referenced_metadata_obj_dict
         
         metadata_obj_dict[property_name]=property_value
-    
+        
+        #print('-property_value',property_value)
         
     else:
         
-        url=None
+        metadata_document_location=None
         
-    return url
+    return metadata_document_location
+
         
 def normalize_natural_language_property(
         metadata_obj_dict,
@@ -8166,19 +8520,26 @@ def create_json_ld(
         else:
             
             return json
-        
-        
-        
-    for value,replace_value in _replace_strings:
-        
-        json_ld=\
-            replace_string(
-                json_ld,
-                value,
-                replace_value
-                )
-        
     
+    #    
+    if not _replace_strings is None:
+        
+        for value,replace_value in _replace_strings:
+            
+            json_ld=\
+                replace_string(
+                    json_ld,
+                    value,
+                    replace_value
+                    )
+            
+    with open('json_ld.json','w') as f:
+        
+        json.dump(
+            json_ld,
+            f,
+            indent=4
+            )
     
     
     # json_string=json.dumps(json_ld)
