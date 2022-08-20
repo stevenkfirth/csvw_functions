@@ -1,0 +1,542 @@
+{
+    "id": null,
+    "notes": false,
+    "tables": [
+        {
+            "columns": [
+                {
+                    "table": "__recursion__",
+                    "number": 1,
+                    "sourceNumber": 1,
+                    "name": null,
+                    "titles": [],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1",
+                            "value": {
+                                "@value": "1",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "2",
+                            "value": {
+                                "@value": "2",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 2,
+                    "name": null,
+                    "titles": [],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "ADDISON AV",
+                            "value": {
+                                "@value": "ADDISON AV",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "EMERSON ST",
+                            "value": {
+                                "@value": "EMERSON ST",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 3,
+                    "name": null,
+                    "titles": [],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Celtis australis",
+                            "value": {
+                                "@value": "Celtis australis",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Liquidambar styraciflua",
+                            "value": {
+                                "@value": "Liquidambar styraciflua",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 4,
+                    "sourceNumber": 4,
+                    "name": null,
+                    "titles": [],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 5,
+                    "sourceNumber": 5,
+                    "name": null,
+                    "titles": [],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "10/18/2010",
+                            "value": {
+                                "@value": "10/18/2010",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "6/2/2010",
+                            "value": {
+                                "@value": "6/2/2010",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                }
+            ],
+            "rows": [
+                {
+                    "table": "__recursion__",
+                    "number": 1,
+                    "sourceNumber": 2,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1",
+                            "value": {
+                                "@value": "1",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "ADDISON AV",
+                            "value": {
+                                "@value": "ADDISON AV",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Celtis australis",
+                            "value": {
+                                "@value": "Celtis australis",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "10/18/2010",
+                            "value": {
+                                "@value": "10/18/2010",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 3,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "2",
+                            "value": {
+                                "@value": "2",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "EMERSON ST",
+                            "value": {
+                                "@value": "EMERSON ST",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Liquidambar styraciflua",
+                            "value": {
+                                "@value": "Liquidambar styraciflua",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "6/2/2010",
+                            "value": {
+                                "@value": "6/2/2010",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [
+                                []
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                }
+            ],
+            "id": null,
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv",
+            "tableDirection": "auto",
+            "suppressOutput": false,
+            "notes": [],
+            "foreignKeys": "__recursion__",
+            "transformations": [],
+            "rdfs:comment": {
+                "@value": "columns takes an array of columns, not a single column"
+            }
+        }
+    ]
+}

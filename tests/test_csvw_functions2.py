@@ -13,6 +13,8 @@ import json
 import datetime
 from rdflib import Graph, Literal, URIRef, XSD
 import csv
+import time
+import warnings
 
 test_dir='_github_w3c_csvw_tests'
 
@@ -68,22 +70,22 @@ def compare_json(self,json1,json2):
         self.assertEqual(json1,json2)
 
 
-def remove_recursion(
-        value
-        ):
-    ""
-    if isinstance(value,dict):
+# def remove_recursion(
+#         value
+#         ):
+#     ""
+#     if isinstance(value,dict):
         
-        return {k:remove_recursion(v) for k,v in value.items()
-                if not k in ['table','column','row']}
+#         return {k:remove_recursion(v) for k,v in value.items()
+#                 if not k in ['table','column','row']}
     
-    elif isinstance(value,list):
+#     elif isinstance(value,list):
         
-        return [remove_recursion(x) for x in value]
+#         return [remove_recursion(x) for x in value]
 
-    else:
+#     else:
         
-        return value
+#         return value
     
     
 
@@ -1766,13 +1768,19 @@ class TestCSVWTestCases(unittest.TestCase):
             manifest=json.load(f)
             
         # loop through json tests
-        for entry in manifest['entries']:
+        for i,entry in enumerate(manifest['entries']):
+            
+            #if not i==23: continue
+            
+            print(i)
             
             print('-manifest-entry',entry)
             
+            
             action_fp=os.path.join(test_dir,entry['action'])
             
-            result_fp=os.path.join(test_dir,entry['result'])
+            if 'result' in entry:
+                result_fp=os.path.join(test_dir,entry['result'])
             
             # overriding metadata option
             if 'metadata' in entry['option']:
@@ -1787,22 +1795,60 @@ class TestCSVWTestCases(unittest.TestCase):
             # validate option
             validate=False
             
-            annotated_table_group_dict=\
-                csvw_functions2.create_annotated_table_group(
-                        action_fp,
-                        overriding_metadata_file_path_or_url,
-                        validate=validate,
-                        _link_header=_link_header
-                        )
+            #raise Exception
+            
+            #with warnings.catch_warnings() as w:
                 
-            with open('annotated_table_group_dict.json','w') as f:
+            if entry['type']=='csvt:ToJsonTest':
                 
-                json.dump(
-                    remove_recursion(annotated_table_group_dict),
-                    f,
-                    indent=4
-                    )
+                annotated_table_group_dict=\
+                    csvw_functions2.create_annotated_table_group(
+                            action_fp,
+                            overriding_metadata_file_path_or_url,
+                            validate=validate,
+                            _link_header=_link_header
+                            )
                 
+            
+            elif entry['type']=='csvt:ToJsonTestWithWarnings':    
+            
+                with self.assertWarns(UserWarning):
+            
+                    annotated_table_group_dict=\
+                        csvw_functions2.create_annotated_table_group(
+                                action_fp,
+                                overriding_metadata_file_path_or_url,
+                                validate=validate,
+                                _link_header=_link_header
+                                )
+                        
+            elif entry['type']=='csvt:NegativeJsonTest':    
+            
+                with self.assertRaises(csvw_functions2.CSVWError):
+            
+                    annotated_table_group_dict=\
+                        csvw_functions2.create_annotated_table_group(
+                                action_fp,
+                                overriding_metadata_file_path_or_url,
+                                validate=validate,
+                                _link_header=_link_header
+                                )
+                        
+                        
+                        
+                        
+            else:
+                
+                raise Exception(entry['type'])
+                    
+                # if entry['type']=='csvt:ToJsonTestWithWarnings':
+                    
+                #     print(w)
+                    
+                #     self.assertTrue(w is not None)
+                #     self.assertTrue(len(w)>0)
+                
+            
                 
             # print('---')
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['name'])
@@ -1852,8 +1898,8 @@ class TestCSVWTestCases(unittest.TestCase):
             print('---------------------------')
             #break
             
-            import time
-            time.sleep(1)
+            #import time
+            #time.sleep(.1)
         
             
                 

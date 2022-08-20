@@ -654,7 +654,14 @@ encodings=[
 encoding_labels=[z for x in encodings for y in x['encodings'] for z in y['labels']]
 
 
+#%% ---Custom Exceptions and Warnings---
 
+class CSVWError(Exception):
+    ""
+    
+    
+class CSVWWarning(Warning):
+    ""
 
 
 #%% ---Model for Tabular Data and Metadata---
@@ -1172,7 +1179,7 @@ def get_metadata_from_default_or_site_wide_location(
             
             else:
             
-                raise ValueError
+                raise CSVWError
             
             #print('-table_url',table_url)
             
@@ -1317,7 +1324,7 @@ def create_annotated_table_group(
     
         message='"input_file_path_or_url" must end with either ".json" or ".csv"/'    
     
-        raise ValueError(message)
+        raise CSVWError(message)
         
         
     # If processing starts with a tabular data file, implementations:
@@ -1452,11 +1459,13 @@ def create_annotated_table_group(
     # in [tabular-metadata], coercing UM into a table group 
     # description, if necessary.
         
-    if 'tables' in metadata_document_dict:  # it's a TableGroup object
+    #...a TableGroup object
+    if 'tables' in metadata_document_dict:
         
         metadata_table_group_dict=metadata_document_dict
         
-    elif 'url' in metadata_document_dict:  # it's a Table object
+    #... a Table object
+    elif 'url' in metadata_document_dict:
     
         #...convert to TableGroup object
         metadata_table_group_dict={
@@ -1464,6 +1473,28 @@ def create_annotated_table_group(
             'tables': [metadata_document_dict]
             }
         metadata_table_group_dict['tables'][0].pop('@context', None)
+        
+    elif metadata_document_dict.get('@type')=='TableGroup':  
+        
+        metadata_table_group_dict=metadata_document_dict
+        
+    elif metadata_document_dict.get('@type')=='Table':  
+        
+        #...convert to TableGroup object
+        metadata_table_group_dict={
+            '@context': metadata_document_dict['@context'],
+            'tables': [metadata_document_dict]
+            }
+        metadata_table_group_dict['tables'][0].pop('@context', None)
+        
+    else:
+        
+        message='Metadata document is not a Table Group description object'
+        message+='or a Table description object.'
+        
+        raise CSVWError(message)
+        
+        
         
     #...normalize metadata
     base_url, default_language=\
@@ -1631,58 +1662,6 @@ def create_annotated_table_group(
                 indent=4
                 )
         
-        #...include virtual columns from metadata
-        #...as this isn't included when parsing the tabular data from text.
-        if 'tableSchema' in metadata_table_dict:
-        
-            for i, metadata_column_dict in \
-                enumerate(metadata_table_dict['tableSchema']['columns']):
-                    
-                    if metadata_column_dict.get('virtual')==True:
-                        
-                        annotated_column_dict=dict(
-                            table=annotated_table_dict, 
-                            number=i+1,
-                            sourceNumber=None,
-                            name=None,
-                            titles=[],
-                            virtual=False,
-                            suppressOutput=False,
-                            datatype={'base':'string'}, 
-                            default='',
-                            lang='und',
-                            null='',
-                            ordered=False,
-                            required=False,
-                            separator=None,
-                            textDirection='auto',
-                            aboutURL=None,
-                            propertyURL=None,
-                            valueURL=None,
-                            cells=[]
-                            )
-                        
-                        for annotated_row_dict in annotated_table_dict['rows']:
-                        
-                            annotated_cell_dict=dict(
-                                table=annotated_table_dict, 
-                                column=annotated_column_dict, 
-                                row=annotated_row_dict, 
-                                stringValue='',
-                                value=None,
-                                errors=[],
-                                textDirection='auto',
-                                ordered=False,
-                                aboutURL=None,
-                                propertyURL=None,
-                                valueURL=None
-                                )
-                        
-                            annotated_column_dict['cells'].append(annotated_cell_dict)
-                            annotated_row_dict['cells'].append(annotated_cell_dict)
-                
-                        annotated_table_dict['columns'].append(annotated_column_dict)
-            
         
         
         #...REMOVED: setting column names to _col.1 etc.
@@ -1745,7 +1724,8 @@ def create_annotated_table_group(
         for annotated_column_dict in annotated_table_dict['columns']:
             
             parse_cells_in_annotated_column_dict(
-                annotated_column_dict
+                annotated_column_dict,
+                dialect_description_dict.get('trim',True)
                 )
     
     
@@ -1828,18 +1808,15 @@ def create_annotated_table_group(
         else:
             
             return value
+
     
-    
+    with open('annotated_table_group_dict.json','w') as f:
         
-    
-    # with open('annotated_table_group_dict.json','w') as f:
-        
-    #     json.dump(
-    #         remove_recursion(annotated_table_group_dict),
-    #         f,
-    #         indent=4
-    #         )
-        
+        json.dump(
+            remove_recursion(annotated_table_group_dict),
+            f,
+            indent=4
+            )
         
     #    
     return annotated_table_group_dict
@@ -1872,7 +1849,8 @@ def normalize_url(
 #%% 6.4 Parsing Cells
 
 def parse_cells_in_annotated_column_dict(
-        annotated_column_dict
+        annotated_column_dict,
+        trim
         ):
     """
     """
@@ -1998,7 +1976,8 @@ def parse_cells_in_annotated_column_dict(
                 annotated_column_dict['null'],
                 annotated_column_dict['required'],
                 annotated_column_dict['separator'],
-                datatype_parse_function
+                datatype_parse_function,
+                trim,
                 )
             
         annotated_cell_dict['value']=cell_value
@@ -2013,7 +1992,8 @@ def parse_cell_steps_1_to_5(
         null,
         required,
         separator,
-        datatype_parse_function
+        datatype_parse_function,
+        trim
         ):
     """
     
@@ -2129,12 +2109,12 @@ def parse_cell_steps_1_to_5(
                         datatype_parse_function
                         )
                 
-                # #...needed for test036 ????????????????
-                # if isinstance(json_value,str):
-                #     json_value=get_trimmed_cell_value(
-                #         json_value,
-                #         trim
-                #         )
+                #...needed for test036 ????????????????
+                if isinstance(json_value,str):
+                    json_value=get_trimmed_cell_value(
+                        json_value,
+                        trim
+                        )
                 
                 cell_value={'@value':json_value,
                             '@type':datatypes[type_]}
@@ -2480,7 +2460,7 @@ def get_parse_number_function(
                 
                 json_value=json_value*modifier
                 
-            except ValueError:
+            except CSVWError:
                 
                 json_value=string_value
                 
@@ -2496,7 +2476,7 @@ def get_parse_number_function(
                 
                 json_value=json_value*modifier
                 
-            except ValueError:
+            except CSVWError:
                 
                 json_value=string_value
                 
@@ -2509,7 +2489,7 @@ def get_parse_number_function(
                     
                     int(x)  # will fail if an expoential number
                  
-            except ValueError:
+            except CSVWError:
                 
                 json_value=string_value
                 
@@ -2526,7 +2506,7 @@ def get_parse_number_function(
                 
                 json_value=json_value*modifier
                 
-            except ValueError:
+            except CSVWError:
                 
                 json_value=string_value
                 
@@ -4142,7 +4122,6 @@ def get_trimmed_cell_value(
 def validate_array_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         expected_types
         ):
     """
@@ -4170,6 +4149,8 @@ def validate_array_property(
     # (e.g. if it is an integer), compliant applications must issue a 
     # warning and proceed as if the property had been supplied with an 
     # empty array.
+    
+    property_value=metadata_obj_dict[property_name]
         
     if isinstance(property_value,list):
         
@@ -4179,6 +4160,13 @@ def validate_array_property(
             for item in property_value[::-1]:
                 
                 if not type(item) in expected_types:
+                    
+                    message=f'Item "{item}" ({type(item).__name__}) '
+                    message+='in array property "{property_name}" is not valid. '
+                    message+=f'Item should bo one of the following types: {expected_types}. '
+                    message+='Item is removed from array.'
+                    
+                    warnings.warn(message)
                     
                     property_value.remove(item)
     
@@ -4203,7 +4191,6 @@ def validate_array_property(
 def validate_link_property(
         metadata_obj_dict,
         property_name,
-        property_value
         ):
     """
     """
@@ -4232,6 +4219,8 @@ def validate_link_property(
     # EXAMPLE 7
     # "url": "http://example.org/example-2014-01-03.csv"
     
+    property_value=metadata_obj_dict[property_name]
+    
     if not isinstance(property_value,str):
         
         property_value_type=type(property_value).__name__
@@ -4253,7 +4242,6 @@ def validate_link_property(
 def validate_uri_template_property(
         metadata_obj_dict,
         property_name,
-        property_value
         ):
     """
     """
@@ -4261,6 +4249,8 @@ def validate_uri_template_property(
     # (e.g. if it is an integer), compliant applications must issue a 
     # warning and proceed as if the property had been supplied with an 
     # empty string.
+    
+    property_value=metadata_obj_dict[property_name]
     
     if not isinstance(property_value,str):
         
@@ -4416,7 +4406,6 @@ def get_URI_from_URI_template(
 def validate_column_reference_property(
         metadata_obj_dict,
         property_name,
-        property_value
         ):
     """
     """
@@ -4470,6 +4459,8 @@ def validate_column_reference_property(
     # property; if it has an invalid value, such as an empty array, 
     # then the processor will issue an error as if the property 
     # were not specified at all.
+    
+    property_value=metadata_obj_dict[property_name]
         
     if not isinstance(property_value,str) and not isinstance(property_value,list):
         
@@ -4540,7 +4531,6 @@ def get_columns_from_column_reference(
 def validate_object_property(
         metadata_obj_dict,
         property_name,
-        property_value
         ):
     """
     """
@@ -4553,6 +4543,8 @@ def validate_object_property(
     # object (e.g. if it is an integer), compliant applications must issue 
     # a warning and proceed as if the property had been specified as an 
     # object with no properties.
+    
+    property_value=metadata_obj_dict[property_name]
     
     if isinstance(property_value,str) or isinstance(property_value,dict):
         
@@ -4616,7 +4608,6 @@ def validate_object_property(
 def validate_natural_language_property(
         metadata_obj_dict,
         property_name,
-        property_value
         ):
     """
     """
@@ -4684,6 +4675,8 @@ def validate_natural_language_property(
     # valid language codes as defined by [BCP47] must be ignored, as 
     # must any properties whose value is not a string or an array, and 
     # any items that are not strings within array values of these properties.
+    
+    property_value=metadata_obj_dict[property_name]
         
     if isinstance(property_value,str):
         
@@ -4733,11 +4726,11 @@ def validate_natural_language_property(
 def validate_atomic_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         expected_types=None,
         expected_values=None,
         default_value=None,
-        required_values=None
+        required_values=None,
+        greater_than_or_equal_to=None
         ):
     """
     """
@@ -4758,15 +4751,15 @@ def validate_atomic_property(
     # and act as if the property had not been specified (which may mean 
     # using the default value for the property, or may mean raising an 
     # error and halting processing if the property is a required property).
+    
+    property_value=metadata_obj_dict[property_name]
 
     if not expected_types is None:
 
         if not type(property_value) in expected_types:
-        
-            property_value_type=type(property_value).__name__
             
             message=f'Property "{property_name}" with value '
-            message+=f'"{property_value}" ({property_value_type}) is not valid.'
+            message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
             message+=f' One of these types expected: "{expected_types}". '
             message+=f' Value replaced with "{default_value}". '
             
@@ -4779,9 +4772,24 @@ def validate_atomic_property(
         
         if not property_value in expected_values:
             
+            
             message=f'Property "{property_name}" with value '
-            message+=f'"{property_value}" ({property_value_type}) is not valid.'
+            message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
             message+=f' One of these values expected: "{expected_values}". '
+            message+=f' Value replaced with "{default_value}". '
+            
+            warnings.warn(message)
+    
+            property_value=default_value
+            
+            
+    if not greater_than_or_equal_to is None:
+        
+        if not property_value>=greater_than_or_equal_to:
+            
+            message=f'Property "{property_name}" with value '
+            message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
+            message+=f' Value should be greater than or equal to {greater_than_or_equal_to}. '
             message+=f' Value replaced with "{default_value}". '
             
             warnings.warn(message)
@@ -4794,11 +4802,11 @@ def validate_atomic_property(
         if not property_value in required_values:
             
             message=f'Property "{property_name}" with value '
-            message+=f'"{property_value}" ({property_value_type}) is not valid.'
+            message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
             message+=f' One of these values is required: "{expected_values}". '
             message+=f' Value replaced with "{default_value}". '
                 
-            raise ValueError(message)
+            raise CSVWError(message)
             
     
     metadata_obj_dict[property_name]=property_value
@@ -4827,7 +4835,7 @@ def validate_top_level_properties(
         
         message='Property "@context" is a required property.'
         
-        raise KeyError(message)
+        raise CSVWError(message)
     
     # This is an array property, as defined in Section 8.7 of [JSON-LD]. 
     
@@ -4901,9 +4909,12 @@ def validate_top_level_properties(
             
             if not langcodes.tag_is_valid(default_language):
         
-                message='Property "@language" is not a valid language code.'        
+                message=f'Property "@language" with value "{default_language}" ' 
+                message+='is not a valid language code.'        
         
-                raise ValueError(message)
+                warnings.warn(message)
+                
+                default_language='und'
         
         else:
             
@@ -4918,7 +4929,7 @@ def validate_top_level_properties(
                 message='@context object can only contain properties "@base" and "@language". '
                 message+=f'Property "{k}" is not valid.'
                 
-                raise ValueError(message)
+                raise CSVWError(message)
         
     
     return base_url, default_language
@@ -4944,8 +4955,6 @@ def validate_and_normalize_metadata_table_group_dict(
     # loop through items
     for k in list(metadata_table_group_dict):
         
-        v=metadata_table_group_dict[k]
-        
         # @context
         if k=='@context':
             
@@ -4961,20 +4970,21 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_array_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 [dict]
                 )
             
             # Compliant application must raise an error if this array does not contain one or more table descriptions.
             
-            if len(v)<1:
+            tables=metadata_table_group_dict[k]
+            
+            if len(tables)<1:
                 
                 message='Property "tables" must contain one or more table descriptions.'
                 
-                raise ValueError(message)
+                raise CSVWError(message)
                 
             # loop through tables
-            for metadata_table_dict in v:
+            for metadata_table_dict in tables:
                 
                 validate_and_normalize_metadata_table_dict(
                         metadata_table_dict,
@@ -4998,19 +5008,17 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_object_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 )
             
             referenced_url=\
                 normalize_object_property(
                     metadata_table_group_dict,
                     k,
-                    v,
                     base_url
                     )
             
             validate_and_normalize_metadata_dialect_dict(
-                    v,
+                    metadata_table_group_dict[k],
                     referenced_url or metadata_document_location,
                     base_url,
                     default_language,
@@ -5037,14 +5045,12 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_array_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 None
                 )
             
             normalize_common_property_or_notes(
                 metadata_table_group_dict,
-                k,
-                v
+                k
                 )
             
         # tableDirection
@@ -5063,7 +5069,6 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_atomic_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 expected_types=[str],
                 expected_values=['rtl','ltr','auto'],
                 default_value='auto',
@@ -5071,8 +5076,7 @@ def validate_and_normalize_metadata_table_group_dict(
             
             normalize_atomic_property(
                 metadata_table_group_dict,
-                k,
-                v
+                k
                 )
             
         # tableSchema
@@ -5087,20 +5091,18 @@ def validate_and_normalize_metadata_table_group_dict(
             
             validate_object_property(
                 metadata_table_group_dict,
-                k,
-                v,
+                k
                 )
             
             referenced_url=\
                 normalize_object_property(
                     metadata_table_group_dict,
                     k,
-                    v,
                     base_url
                     )
             
             validate_and_normalize_metadata_schema_dict(
-                v,
+                metadata_table_group_dict[k],
                 referenced_url or metadata_document_location,
                 base_url,
                 default_language,
@@ -5121,12 +5123,13 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_array_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 [dict]
                 )
             
+            transformations=metadata_table_group_dict[k]
+            
             # loop through transormations
-            for metadata_transformation_dict in v:
+            for metadata_transformation_dict in transformations:
                 
                 validate_and_normalize_metadata_transformation_dict(
                         metadata_transformation_dict,
@@ -5146,22 +5149,24 @@ def validate_and_normalize_metadata_table_group_dict(
             
             validate_link_property(
                 metadata_table_group_dict,
-                k,
-                v,
+                k
                 )
+            
+            id_=metadata_table_group_dict[k]
+              
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
+            
             
             normalize_link_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 base_url
                 )
-                
-            if v.startswith('_:'):
-                
-                message='Property "@id" must not start with "_:". '
-                
-                raise ValueError(message)
+            
                 
             
         # @type
@@ -5175,14 +5180,12 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_atomic_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 required_values=['TableGroup']
                 )
             
             normalize_atomic_property(
                 metadata_table_group_dict,
                 k,
-                v
                 )
             
         # inherited properties
@@ -5193,7 +5196,6 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_and_normalize_inherited_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -5204,7 +5206,6 @@ def validate_and_normalize_metadata_table_group_dict(
             validate_and_normalize_common_property(
                 metadata_table_group_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -5214,7 +5215,7 @@ def validate_and_normalize_metadata_table_group_dict(
         
         message='Property "tables" is a required property.'
         
-        raise KeyError(message)
+        raise CSVWError(message)
     
             
     #...from 5.1.4
@@ -5437,7 +5438,7 @@ def validate_and_normalize_metadata_table_dict(
             
             message='Metadata table description should not contain a "@context" property. '
             
-            raise ValueError(message)
+            raise CSVWError(message)
         
     # include tableSchema from table group, if not present
     if not 'tableSchema' in metadata_table_dict:
@@ -5448,7 +5449,7 @@ def validate_and_normalize_metadata_table_dict(
         
 
     # loop through items
-    for k, v in metadata_table_dict.items():
+    for k in list(metadata_table_dict):
         
         # @context
         if k=='@context':
@@ -5467,13 +5468,11 @@ def validate_and_normalize_metadata_table_dict(
             validate_link_property(
                 metadata_table_dict,
                 k,
-                v,
                 )
             
             normalize_link_property(
                 metadata_table_dict,
                 k,
-                v,
                 base_url
                 )
         
@@ -5485,19 +5484,17 @@ def validate_and_normalize_metadata_table_dict(
             validate_object_property(
                 metadata_table_dict,
                 k,
-                v,
                 )
             
             referenced_url=\
                 normalize_object_property(
                     metadata_table_dict,
                     k,
-                    v,
                     base_url
                     )
             
             validate_and_normalize_metadata_dialect_dict(
-                v,
+                metadata_table_dict[k],
                 referenced_url,
                 base_url,
                 default_language
@@ -5524,14 +5521,12 @@ def validate_and_normalize_metadata_table_dict(
             validate_array_property(
                 metadata_table_dict,
                 k,
-                v,
                 None
                 )
             
             normalize_common_property_or_notes(
                 metadata_table_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -5550,7 +5545,6 @@ def validate_and_normalize_metadata_table_dict(
             validate_atomic_property(
                 metadata_table_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=False,
                 )
@@ -5558,7 +5552,6 @@ def validate_and_normalize_metadata_table_dict(
             normalize_atomic_property(
                 metadata_table_dict,
                 k,
-                v
                 )
         
         # tableDirection
@@ -5571,7 +5564,6 @@ def validate_and_normalize_metadata_table_dict(
             validate_atomic_property(
                 metadata_table_dict,
                 k,
-                v,
                 expected_types=[str],
                 expected_values=['rtl','ltr','auto'],
                 default_value='auto',
@@ -5580,7 +5572,6 @@ def validate_and_normalize_metadata_table_dict(
             normalize_atomic_property(
                 metadata_table_dict,
                 k,
-                v
                 )
         
         # tableSchema
@@ -5609,14 +5600,12 @@ def validate_and_normalize_metadata_table_dict(
             validate_object_property(
                 metadata_table_dict,
                 k,
-                v,
                 )
             
             referenced_url=\
                 normalize_object_property(
                     metadata_table_dict,
                     k,
-                    v,
                     base_url
                     )
             
@@ -5640,12 +5629,13 @@ def validate_and_normalize_metadata_table_dict(
             validate_array_property(
                 metadata_table_dict,
                 k,
-                v,
                 [dict]
                 )
             
-            # loop through transormations
-            for metadata_transformation_dict in v:
+            transformations=metadata_table_dict[k]
+            
+            # loop through transformations
+            for metadata_transformation_dict in transformations:
                 
                 validate_and_normalize_metadata_transformation_dict(
                         metadata_transformation_dict,
@@ -5667,21 +5657,23 @@ def validate_and_normalize_metadata_table_dict(
             validate_link_property(
                 metadata_table_dict,
                 k,
-                v,
                 )
+            
+            id_=metadata_table_dict[k]
+            
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
             
             normalize_link_property(
                 metadata_table_dict,
                 k,
-                v,
                 base_url
                 )
                 
-            if v.startswith('_:'):
-                
-                message='Property "@id" must not start with "_:". '
-                
-                raise ValueError(message)
+            
         
         # @type
         elif k=='@type':
@@ -5694,14 +5686,12 @@ def validate_and_normalize_metadata_table_dict(
             validate_atomic_property(
                 metadata_table_dict,
                 k,
-                v,
                 required_values=['Table']
                 )
             
             normalize_atomic_property(
                 metadata_table_dict,
                 k,
-                v
                 )
         
         
@@ -5716,7 +5706,6 @@ def validate_and_normalize_metadata_table_dict(
             validate_and_normalize_inherited_property(
                 metadata_table_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -5731,7 +5720,6 @@ def validate_and_normalize_metadata_table_dict(
             validate_and_normalize_common_property(
                 metadata_table_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -5741,7 +5729,7 @@ def validate_and_normalize_metadata_table_dict(
         
         message='Property "url" is a required property.'
         
-        raise KeyError(message)
+        raise CSVWError(message)
     
     
 
@@ -5859,7 +5847,7 @@ def compare_table_descriptions(
         
         if validate:
             
-            raise ValueError(message)
+            raise CSVWError(message)
             
         else:
         
@@ -5911,13 +5899,11 @@ def validate_and_normalize_metadata_schema_dict(
             
             message='Metadata table description should not contain a "@context" property. '
             
-            raise ValueError(message)
+            raise CSVWError(message)
 
     
             
     for k in list(metadata_schema_dict):
-        
-        v=metadata_schema_dict[k]
         
         if k=='@context':
             
@@ -5938,15 +5924,15 @@ def validate_and_normalize_metadata_schema_dict(
             validate_array_property(
                 metadata_schema_dict,
                 k,
-                v,
                 expected_types=[dict]
                 )
-            
             
             name_cache=[]
             previous_is_virtual=False
             
-            for column_number, metadata_column_dict in enumerate(v):
+            columns=metadata_schema_dict[k]
+            
+            for column_number, metadata_column_dict in enumerate(columns):
             
                 validate_and_normalize_metadata_column_dict(
                         metadata_column_dict,
@@ -5965,7 +5951,7 @@ def validate_and_normalize_metadata_schema_dict(
                         message=f'Property "name" with value "{name}" '
                         message+='is not unique in the column descriptions.'
                         
-                        raise ValueError(message)
+                        raise CSVWError(message)
                         
                     else:
                         
@@ -5978,7 +5964,7 @@ def validate_and_normalize_metadata_schema_dict(
                     
                     message='A non-virtual column cannot come after a virtual column.'
                     
-                    raise ValueError(message)
+                    raise CSVWError(message)
                     
                 previous_is_virtual=is_virtual
                 
@@ -6018,30 +6004,27 @@ def validate_and_normalize_metadata_schema_dict(
             validate_array_property(
                 metadata_schema_dict,
                 k,
-                v,
                 expected_types=[dict]
                 )
             
-            for foreign_key_definition in v:
+            for foreign_key_definition in metadata_schema_dict[k]:
                 
                 #...check keys in foreign_key_definition
                 if not set(list(foreign_key_definition))==\
                     set(list(['columnReference','reference'])):
                     
-                    raise ValueError
+                    raise CSVWError
                 
                 #...validate column reference property
                 validate_column_reference_property(
                         foreign_key_definition,
-                        'columnReference',
-                        foreign_key_definition['columnReference']
+                        'columnReference'
                         )
             
                 #...validate_reference_property
                 validate_object_property(
                         foreign_key_definition,
-                        'reference',
-                        foreign_key_definition['reference']
+                        'reference'
                         )
                 
                 reference=foreign_key_definition['reference']
@@ -6052,21 +6035,19 @@ def validate_and_normalize_metadata_schema_dict(
                     not set(list(reference))==\
                         set(list(['schemaReference','columnReference'])):
                     
-                    raise ValueError
+                    raise CSVWError
                 
                 # resource (in reference)
                 if 'resource' in reference:
                     
                     validate_link_property(
                             reference,
-                            'resource',
-                            reference['resource']
+                            'resource'
                             )
                     
                     normalize_link_property(
                             reference,
                             'resource',
-                            reference['resource'],
                             base_url
                             )
                 
@@ -6075,22 +6056,19 @@ def validate_and_normalize_metadata_schema_dict(
                     
                     validate_link_property(
                             reference,
-                            'schemaReference',
-                            reference['schemaReference']
+                            'schemaReference'
                             )
                     
                     normalize_link_property(
                             reference,
                             'schemaReference',
-                            reference['schemaReference'],
                             base_url
                             )
                 
                 # columnReference (in reference)
                 validate_column_reference_property(
                         reference,
-                        'columnReference',
-                        reference['columnReference']
+                        'columnReference'
                         )
             
             
@@ -6114,10 +6092,8 @@ def validate_and_normalize_metadata_schema_dict(
             validate_column_reference_property(
                 metadata_schema_dict,
                 k,
-                v
                 )
-            
-            
+
             
         # rowTitles
         elif k=='rowTitles':
@@ -6135,21 +6111,23 @@ def validate_and_normalize_metadata_schema_dict(
             validate_link_property(
                 metadata_schema_dict,
                 k,
-                v,
                 )
+            
+            id_=metadata_schema_dict[k]
+                
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
             
             normalize_link_property(
                 metadata_schema_dict,
                 k,
-                v,
                 base_url
                 )
-                
-            if v.startswith('_:'):
-                
-                message='Property "@id" must not start with "_:". '
-                
-                raise ValueError(message)
+            
+            
         
         # @type
         elif k=='@type':
@@ -6162,14 +6140,12 @@ def validate_and_normalize_metadata_schema_dict(
             validate_atomic_property(
                 metadata_schema_dict,
                 k,
-                v,
-                required_values=['Table']
+                required_values=['Schema']
                 )
             
             normalize_atomic_property(
                 metadata_schema_dict,
                 k,
-                v
                 )
         
         # inherited properties
@@ -6183,7 +6159,6 @@ def validate_and_normalize_metadata_schema_dict(
             validate_and_normalize_inherited_property(
                 metadata_schema_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -6198,7 +6173,6 @@ def validate_and_normalize_metadata_schema_dict(
             validate_and_normalize_common_property(
                 metadata_schema_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -6248,6 +6222,56 @@ def annotate_schema_dict(
             schema_inherited_properties_cache[k]=v
             
             
+    # #...include virtual columns from metadata
+    
+    for i, metadata_column_dict in \
+        enumerate(metadata_schema_dict['columns']):
+            
+            if metadata_column_dict.get('virtual')==True:
+                
+                annotated_column_dict=dict(
+                    table=annotated_table_dict, 
+                    number=i+1,
+                    sourceNumber=None,
+                    name=None,
+                    titles=[],
+                    virtual=False,
+                    suppressOutput=False,
+                    datatype={'base':'string'}, 
+                    default='',
+                    lang='und',
+                    null='',
+                    ordered=False,
+                    required=False,
+                    separator=None,
+                    textDirection='auto',
+                    aboutURL=None,
+                    propertyURL=None,
+                    valueURL=None,
+                    cells=[]
+                    )
+                
+                for annotated_row_dict in annotated_table_dict['rows']:
+                
+                    annotated_cell_dict=dict(
+                        table=annotated_table_dict, 
+                        column=annotated_column_dict, 
+                        row=annotated_row_dict, 
+                        stringValue='',
+                        value=None,
+                        errors=[],
+                        textDirection='auto',
+                        ordered=False,
+                        aboutURL=None,
+                        propertyURL=None,
+                        valueURL=None
+                        )
+                
+                    annotated_column_dict['cells'].append(annotated_cell_dict)
+                    annotated_row_dict['cells'].append(annotated_cell_dict)
+        
+                annotated_table_dict['columns'].append(annotated_column_dict)
+    
     # annotate columns
     for i in range(len(metadata_schema_dict['columns'])):
         
@@ -6257,8 +6281,10 @@ def annotate_schema_dict(
             base_url,
             default_language,
             validate,
-            schema_inherited_properties_cache
+            schema_inherited_properties_cache,
+            annotated_table_dict['tableDirection']
             )
+        
         
 
     # primary key
@@ -6417,7 +6443,7 @@ def compare_schema_descriptions(
         
         if validate:
             
-            raise ValueError(message)
+            raise CSVWError(message)
             
         else:
         
@@ -6500,7 +6526,7 @@ def compare_schema_descriptions(
         
         if validate:
             
-            raise ValueError(message)
+            raise CSVWError(message)
             
         else:
         
@@ -6534,8 +6560,6 @@ def validate_and_normalize_metadata_column_dict(
     
     for k in list(metadata_column_dict):
         
-        v=metadata_column_dict[k]
-        
         # name
         if k=='name':
             
@@ -6549,14 +6573,12 @@ def validate_and_normalize_metadata_column_dict(
             validate_atomic_property(
                 metadata_column_dict,
                 k,
-                v,
                 expected_types=[str]
                 )
             
             normalize_atomic_property(
                 metadata_column_dict,
                 k,
-                v
                 )
 
             # For ease of reference within URI template properties, 
@@ -6569,12 +6591,14 @@ def validate_and_normalize_metadata_column_dict(
             # Currently not validating on URI-TEMPLATE restrictions...
             # ?? TO DO ??
             
-            if v.startswith('_'):
+            name=metadata_column_dict[k]
+            
+            if name.startswith('_'):
                 
-                message=f'Property "name" with value "{v}" is not valid. '
+                message=f'Property "name" with value "{name}" is not valid. '
                 message+='Value must not start with "_".'
                 
-                raise ValueError(message)
+                raise CSVWError(message)
         
         # suppressOutput
         elif k=='suppressOutput':
@@ -6589,7 +6613,6 @@ def validate_and_normalize_metadata_column_dict(
             validate_atomic_property(
                 metadata_column_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=False,
                 )
@@ -6597,7 +6620,6 @@ def validate_and_normalize_metadata_column_dict(
             normalize_atomic_property(
                 metadata_column_dict,
                 k,
-                v
                 )
             
         # titles
@@ -6619,13 +6641,11 @@ def validate_and_normalize_metadata_column_dict(
             validate_natural_language_property(
                 metadata_column_dict,
                 k,
-                v,
                 )
             
             normalize_natural_language_property(
                 metadata_column_dict,
                 k,
-                v,
                 default_language
                 )
             
@@ -6658,15 +6678,13 @@ def validate_and_normalize_metadata_column_dict(
             validate_atomic_property(
                 metadata_column_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=False,
                 )
             
             normalize_atomic_property(
                 metadata_column_dict,
-                k,
-                v
+                k
                 )
                     
         # @id
@@ -6681,21 +6699,23 @@ def validate_and_normalize_metadata_column_dict(
             validate_link_property(
                 metadata_column_dict,
                 k,
-                v,
                 )
+            
+            id_=metadata_column_dict[k]
+            
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
             
             normalize_link_property(
                 metadata_column_dict,
                 k,
-                v,
                 base_url
                 )
                 
-            if v.startswith('_:'):
-                
-                message='Property "@id" must not start with "_:". '
-                
-                raise ValueError(message)
+            
         
         # type
         elif k=='@type':
@@ -6708,14 +6728,12 @@ def validate_and_normalize_metadata_column_dict(
             validate_atomic_property(
                 metadata_column_dict,
                 k,
-                v,
                 required_values=['Column']
                 )
             
             normalize_atomic_property(
                 metadata_column_dict,
                 k,
-                v
                 )
             
         
@@ -6730,7 +6748,6 @@ def validate_and_normalize_metadata_column_dict(
             validate_and_normalize_inherited_property(
                 metadata_column_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )
@@ -6746,7 +6763,6 @@ def validate_and_normalize_metadata_column_dict(
             validate_and_normalize_common_property(
                 metadata_column_dict,
                 k,
-                v,
                 base_url,
                 default_language
                 )    
@@ -6761,7 +6777,8 @@ def annotate_column_dict(
         base_url,
         default_language,
         validate,
-        schema_inherited_properties_cache
+        schema_inherited_properties_cache,
+        table_direction
         ):
     """
     """
@@ -6860,13 +6877,18 @@ def annotate_column_dict(
     # text direction
     if 'textDirection' in column_inherited_properties_cache:
         
-        ordered=column_inherited_properties_cache['textDirection']
+        text_direction=column_inherited_properties_cache['textDirection']
         
-        annotated_column_dict['textDirection']=ordered
+        if text_direction=='inherit':
+            
+            text_direction=table_direction
+        
+        
+        annotated_column_dict['textDirection']=text_direction
         
         for annotated_cell_dict in annotated_column_dict['cells']:
             
-            annotated_cell_dict['textDirection']=ordered
+            annotated_cell_dict['textDirection']=text_direction
     
     # aboutURL
     if 'aboutUrl' in column_inherited_properties_cache:
@@ -6903,7 +6925,6 @@ def annotate_column_dict(
 def validate_and_normalize_inherited_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         base_url,
         default_language
         ):
@@ -6943,7 +6964,6 @@ def validate_and_normalize_inherited_property(
         validate_uri_template_property(
             metadata_obj_dict,
             property_name,
-            property_value
             )
         
         
@@ -6969,23 +6989,23 @@ def validate_and_normalize_inherited_property(
         validate_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value,
-            expected_types=[str,dict]
+            expected_types=[str,dict],
             )
+        
+        property_value=metadata_obj_dict[property_name]
         
         if isinstance(property_value,str):
         
             validate_atomic_property(
                 metadata_obj_dict, 
                 property_name, 
-                property_value,
-                expected_values=list(datatypes)
+                expected_values=list(datatypes),
+                default_value='string'
                 )
             
             normalize_atomic_property(
                 metadata_obj_dict, 
                 property_name, 
-                property_value
                 )
             
         else:   # it's a dict
@@ -7011,7 +7031,6 @@ def validate_and_normalize_inherited_property(
         validate_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value,
             expected_types=[str],
             default_value=''
             )
@@ -7019,7 +7038,6 @@ def validate_and_normalize_inherited_property(
         normalize_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value
             )
         
     # lang
@@ -7036,10 +7054,11 @@ def validate_and_normalize_inherited_property(
         validate_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value,
             expected_types=[str],
             default_value='und'
             )
+        
+        property_value=metadata_obj_dict[property_name]
         
         if not property_value=='und':
         
@@ -7048,7 +7067,7 @@ def validate_and_normalize_inherited_property(
                 message='Property "lang" is not a valid language code. ' 
                 message+='Replacing with "und".'
         
-                raise warnings.warn(message)
+                warnings.warn(message)
                 
                 property_value='und'
                 
@@ -7058,7 +7077,6 @@ def validate_and_normalize_inherited_property(
         normalize_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value
             )
         
         
@@ -7078,10 +7096,11 @@ def validate_and_normalize_inherited_property(
         validate_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value,
             expected_types=[str,list],
             default_value=''
             )
+        
+        property_value=metadata_obj_dict[property_name]
         
         if isinstance(property_value,list):
             
@@ -7102,13 +7121,12 @@ def validate_and_normalize_inherited_property(
         
             property_value=x
             
-            metadata_obj_dict['property_name']=property_value
+            metadata_obj_dict[property_name]=property_value
         
         
         normalize_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value
             )
         
     # ordered
@@ -7124,7 +7142,17 @@ def validate_and_normalize_inherited_property(
         # the described column, and the ordered annotation for the cells 
         # within that column.
         
-        raise NotImplementedError
+        validate_atomic_property(
+            metadata_obj_dict, 
+            property_name,
+            expected_types=[bool],
+            default_value=False
+            )
+        
+        normalize_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            )
         
     # propertyUrl
     elif property_name=='propertyUrl':
@@ -7146,8 +7174,7 @@ def validate_and_normalize_inherited_property(
         
         validate_uri_template_property(
             metadata_obj_dict,
-            property_name,
-            property_value
+            property_name
             )
         
     # required
@@ -7163,7 +7190,6 @@ def validate_and_normalize_inherited_property(
         validate_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value,
             expected_types=[bool],
             default_value=False
             )
@@ -7171,7 +7197,6 @@ def validate_and_normalize_inherited_property(
         normalize_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value
             )
         
     # separator
@@ -7193,7 +7218,6 @@ def validate_and_normalize_inherited_property(
         validate_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value,
             expected_types=[str],
             default_value=None
             )
@@ -7201,8 +7225,8 @@ def validate_and_normalize_inherited_property(
         normalize_atomic_property(
             metadata_obj_dict, 
             property_name, 
-            property_value
             )
+        
         
         
     # textDirection
@@ -7222,7 +7246,18 @@ def validate_and_normalize_inherited_property(
         # value of this property. See Bidirectional Tables in 
         # [tabular-data-model] for details.
         
-        raise NotImplementedError
+        validate_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            expected_types=[str],
+            expected_values=['ltr','rtl','auto','inherit'],
+            default_value='inherit'
+            )
+        
+        normalize_atomic_property(
+            metadata_obj_dict, 
+            property_name, 
+            )
         
     # valueUrl
     elif property_name=='valueUrl':
@@ -7250,8 +7285,7 @@ def validate_and_normalize_inherited_property(
                 
         validate_uri_template_property(
             metadata_obj_dict,
-            property_name,
-            property_value
+            property_name
             )
         
     
@@ -7263,13 +7297,11 @@ def validate_and_normalize_inherited_property(
 def validate_and_normalize_common_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         base_url,
         default_language
         ):
     """
     """
-    
     # Descriptions of groups of tables, tables, schemas and columns may 
     # contain any common properties whose names are either absolute URLs 
     # or prefixed names. 
@@ -7279,26 +7311,31 @@ def validate_and_normalize_common_property(
     # defined in Dublin Core Terms, DCAT, or schema.org.
     
     validate_common_property_name(
+        metadata_obj_dict,
         property_name
         )
     
-    validate_common_property_value(
-        property_name,
-        property_value
-        )
+    if property_name in metadata_obj_dict:
     
-    normalize_common_property_or_notes(
-        metadata_obj_dict,
-        property_name,
-        property_value,
-        base_url,
-        default_language
-        )
+        validate_common_property_value(
+            metadata_obj_dict,
+            property_name
+            )
+        
+    if property_name in metadata_obj_dict:
+    
+        normalize_common_property_or_notes(
+            metadata_obj_dict,
+            property_name,
+            base_url,
+            default_language
+            )
     
     
 #%% 5.8.1 Names of Common Properties
     
 def validate_common_property_name(
+        metadata_obj_dict,
         property_name
         ):
     """
@@ -7354,15 +7391,19 @@ def validate_common_property_name(
         
         message=f'Property "{property_name}" is a common property but '
         message+='has name which is not a prefixed name and is not an absolute URL. '
+        message+='Property is removed.'
         
-        raise ValueError(message)
+        warnings.warn(message)
+        
+        metadata_obj_dict.pop(property_name)
     
 
 #%% 5.8.2 Values of Common Properties
     
 def validate_common_property_value(
+        metadata_obj_dict,
         property_name,
-        property_value
+        index=None
         ):
     
     def validate_type_property_value(
@@ -7416,6 +7457,14 @@ def validate_common_property_value(
     # properties on other objects) adhere to the following restrictions, 
     # which are designed to ensure compatibility between JSON-LD-aware 
     # and non-JSON-LD-aware processors:
+        
+    if index is None:
+        
+        property_value=metadata_obj_dict[property_name]    
+        
+    else:
+        
+        property_value=metadata_obj_dict[property_name][index]
     
     if isinstance(property_value,dict):
         
@@ -7446,7 +7495,7 @@ def validate_common_property_value(
                 message+='As a "@value" property is present, there should '
                 message+='only be either a "@type" property or a "@language" property. '
                 
-                raise ValueError(message)
+                raise CSVWError(message)
             
             # The value of the @value property must be a string, number, or 
             # boolean value.
@@ -7463,7 +7512,7 @@ def validate_common_property_value(
                 message+='has invalid value of its "@value" object property. '
                 message+='This should be of type string, number or boolean'
                 
-                raise ValueError
+                raise CSVWError
             
             # If @type is also used, its value must be one of:
             if '@type' in property_value:
@@ -7505,7 +7554,7 @@ def validate_common_property_value(
                     message+='value "{type_}" ({type(type_).__name__}) '
                     message+='is invalid. '
                     
-                    raise ValueError(message)
+                    raise CSVWError(message)
                 
             # If a @language property is used, it must have a string value that 
             # adheres to the syntax defined in [BCP47], or be null.
@@ -7527,7 +7576,7 @@ def validate_common_property_value(
                     message+='value "{language}" ({type(language).__name__}) '
                     message+='is invalid. '
                     
-                    raise ValueError(message)
+                    raise CSVWError(message)
                 
                 
         else:  # no @value property present
@@ -7572,14 +7621,14 @@ def validate_common_property_value(
                         message='Property "@id" with value "{v}" ({type(v).__name__}) '
                         message+='is invalid. Expected type is string.'
                         
-                        raise TypeError(message)
+                        raise CSVWError(message)
                         
                     if v.startswith('_:'):
                         
                         message='Property "@id" with value "{v}" ({type(v).__name__}) '
                         message+='is invalid. The value must not start with "-:".'
                         
-                        raise ValueError(message)
+                        raise CSVWError(message)
         
                     
                 elif k=='@language':
@@ -7591,7 +7640,7 @@ def validate_common_property_value(
                     message+='is invalid. A @language property must not be '
                     message+='used on an object unless it also has a @value property.'
                     
-                    raise ValueError(message)
+                    raise CSVWError(message)
                 
                 else:
                     
@@ -7604,7 +7653,7 @@ def validate_common_property_value(
                         message+='is invalid. Aside from @value, @type, @language, ' 
                         message+='and @id, the properties used on an object must not start with "@".'
                         
-                        raise ValueError(message)
+                        raise CSVWError(message)
                     
                     # These restrictions are also described in section A. JSON-LD Dialect, 
                     # from the perspective of a processor that otherwise supports JSON-LD. 
@@ -7614,11 +7663,12 @@ def validate_common_property_value(
     
     elif isinstance(property_value,list):
         
-        for item in property_value:
+        for i in range(len(property_value)):
             
             validate_common_property_value(
+                metadata_obj_dict,
                 property_name,
-                item
+                index=i
                 )
         
     else:
@@ -7695,14 +7745,13 @@ def validate_and_normalize_metadata_dialect_dict(
             
             message='Metadata dilect description should not contain a "@context" property. '
             
-            raise ValueError(message)
+            raise CSVWError(message)
 
 
 
     for k in list(metadata_dialect_dict):
         
-        v=metadata_dialect_dict[k]
-
+        
 
         # commentPrefix
         if k=='commentPrefix':
@@ -7714,7 +7763,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[str],
                 default_value='#'
                 )
@@ -7722,7 +7770,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # delimiter
@@ -7735,7 +7782,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[str],
                 default_value=','
                 )
@@ -7743,7 +7789,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # doubleQuote
@@ -7757,7 +7802,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=True
                 )
@@ -7765,7 +7809,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # encoding
@@ -7779,7 +7822,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[str],
                 expected_values=encoding_labels,
                 default_value='utf-8'
@@ -7788,7 +7830,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # header
@@ -7803,7 +7844,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=True
                 )
@@ -7811,7 +7851,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # headerRowCount
@@ -7825,15 +7864,14 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[int],
+                greater_than_or_equal_to=0,
                 default_value=1
                 )
             
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # lineTerminators
@@ -7847,7 +7885,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[str,list],
                 default_value=['\r\n','\n']
                 )
@@ -7855,7 +7892,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # quoteChar
@@ -7870,7 +7906,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[str,type(None)],
                 default_value='"'
                 )
@@ -7878,7 +7913,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # skipBlankRows
@@ -7891,7 +7925,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=False
                 )
@@ -7899,7 +7932,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # skipColumns
@@ -7913,15 +7945,14 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[int],
+                greater_than_or_equal_to=0,
                 default_value=0
                 )
             
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # skipInitialSpace
@@ -7936,7 +7967,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[bool],
                 default_value=False
                 )
@@ -7944,7 +7974,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # skipRows
@@ -7958,15 +7987,14 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[int],
+                greater_than_or_equal_to=0,
                 default_value=0
                 )
             
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # trim
@@ -7982,7 +8010,6 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 expected_types=[bool,str],
                 expected_values=[True,False,'true','false','start','end'],
                 default_value=True
@@ -7991,7 +8018,6 @@ def validate_and_normalize_metadata_dialect_dict(
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
         
         # @id
@@ -8004,21 +8030,23 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_link_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 )
+            
+            id_=metadata_dialect_dict[k]
+                
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
             
             normalize_link_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 base_url
                 )
-                
-            if v.startswith('_:'):
-                
-                message='Property "@id" must not start with "_:". '
-                
-                raise ValueError(message)
+            
+            
         
         # @type
         elif k=='@type':
@@ -8031,14 +8059,12 @@ def validate_and_normalize_metadata_dialect_dict(
             validate_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v,
                 required_values=['Dialect']
                 )
             
             normalize_atomic_property(
                 metadata_dialect_dict,
                 k,
-                v
                 )
             
             
@@ -8064,8 +8090,210 @@ def validate_and_normalize_metadata_transformation_dict(
         ):
     """
     """
-    raise NotImplementedError
-     
+    # Transformation definitions must have the following properties:
+
+    for k in list(metadata_transformation_dict):        
+
+        # url
+        if k=='url':
+    
+            # A link property giving the single URL of the file that the 
+            # script or template is held in, relative to the location 
+            # of the metadata document.
+            
+            validate_link_property(
+                metadata_transformation_dict,
+                k,
+                )
+            
+            normalize_link_property(
+                metadata_transformation_dict,
+                k,
+                base_url
+                )
+        
+        # scriptFormat
+        elif k=='scriptFormat':
+        
+            # A link property giving the single URL for the format 
+            # that is used by the script or template. 
+            # If one has been defined, this should be a URL for a media 
+            # type, in the form 
+            # http://www.iana.org/assignments/media-types/media-type such as 
+            # http://www.iana.org/assignments/media-types/application/javascript. 
+            # Otherwise, it can be any URL that describes the script or 
+            # template format.
+        
+            # NOTE
+            # The scriptFormat URL is intended as an informative identifier 
+            # for the template format, and applications should not access 
+            # the URL. The template formats that an application supports 
+            # are implementation defined.
+            
+            validate_link_property(
+                metadata_transformation_dict,
+                k,
+                )
+            
+            normalize_link_property(
+                metadata_transformation_dict,
+                k,
+                base_url
+                )
+        
+        # targetFormat
+        elif k=='targetFormat':
+        
+            # A link property giving the single URL for the format that 
+            # will be created through the transformation. 
+            # If one has been defined, this should be a URL for a media 
+            # type, in the form 
+            # http://www.iana.org/assignments/media-types/media-type such as 
+            # http://www.iana.org/assignments/media-types/text/calendar. 
+            # Otherwise, it can be any URL that describes the target format.
+        
+            # NOTE
+            # The targetFormat URL is intended as an informative identifier 
+            # for the target format, and applications should not access the URL.
+        
+            validate_link_property(
+                metadata_transformation_dict,
+                k,
+                )
+            
+            normalize_link_property(
+                metadata_transformation_dict,
+                k,
+                base_url
+                )
+        
+        # source
+        elif k=='source':
+        
+            # A single string atomic property that provides, if specified, 
+            # the format to which the tabular data should be transformed 
+            # prior to the transformation using the script or template. 
+            # If the value is json, the tabular data must first be 
+            # transformed to JSON as defined by [csv2json] using standard mode. 
+            # If the value is rdf, the tabular data must first be transformed 
+            # to an RDF graph as defined by [csv2rdf] using standard mode. 
+            # If the source property is missing or null (the default) then 
+            # the source of the transformation is the annotated tabular 
+            # data model. 
+            # No other values are valid; applications must generate a 
+            # warning and behave as if the property had not been specified.
+            
+            validate_atomic_property(
+                metadata_transformation_dict,
+                k,
+                expected_values=['json','rdf',None]
+                )
+            
+            normalize_atomic_property(
+                metadata_transformation_dict,
+                k,
+                )
+        
+        # titles
+        elif k=='titles':
+        
+            # A natural language property that describes the format that 
+            # will be generated from the transformation. 
+            # This is useful if the target format is a generic format 
+            # (such as application/json) and the transformation is creating 
+            # a specific profile of that format.
+            
+            validate_natural_language_property(
+                metadata_transformation_dict,
+                k,
+                )
+            
+            normalize_natural_language_property(
+                metadata_transformation_dict,
+                k,
+                default_language
+                )
+        
+        # @id
+        elif k=='@id':
+        
+            # If included, @id is a link property that identifies the 
+            # transformation described by this transformation definition. 
+            # It must not start with _:.
+            
+            validate_link_property(
+                metadata_transformation_dict,
+                k,
+                )
+            
+            id_=metadata_transformation_dict[k]
+                
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
+            
+            normalize_link_property(
+                metadata_transformation_dict,
+                k,
+                base_url
+                )
+        
+        # @type
+        elif k=='@type':
+        
+            # If included, @type is an atomic property that must be set 
+            # to "Template". 
+            # Publishers may include this to provide additional information to JSON-LD based toolchains.
+        
+            validate_atomic_property(
+                metadata_transformation_dict,
+                k,
+                required_values=['Template']
+                )
+            
+            normalize_atomic_property(
+                metadata_transformation_dict,
+                k,
+                )
+        
+        else:
+            
+            # The transformation definition may contain any common properties 
+            # to provide extra metadata about the transformation.
+        
+            validate_and_normalize_common_property(
+                metadata_transformation_dict,
+                k,
+                base_url,
+                default_language
+                )
+    
+    # required properties
+    
+    # required properties
+    if not 'url' in metadata_transformation_dict:
+        
+        message='Property "url" is a required property.'
+        
+        raise CSVWError(message)
+        
+    if not 'scriptFormat' in metadata_transformation_dict:
+        
+        message='Property "scriptFormat" is a required property.'
+        
+        raise CSVWError(message)
+        
+    if not 'targetFormat' in metadata_transformation_dict:
+        
+        message='Property "targetFormat" is a required property.'
+        
+        raise CSVWError(message)
+    
+  
+    
+    
     
 #%% 5.11 Datatypes
 
@@ -8082,8 +8310,6 @@ def validate_and_normalize_derived_datatype(
     
     for k in list(metadata_datatype_dict):
         
-        v=metadata_datatype_dict[k]
-        
         # base
         if k=='base':
             
@@ -8099,7 +8325,6 @@ def validate_and_normalize_derived_datatype(
             validate_atomic_property(
                 metadata_datatype_dict, 
                 k,
-                v,
                 expected_types=[str],
                 expected_values=datatypes,
                 default_value='string'
@@ -8108,7 +8333,6 @@ def validate_and_normalize_derived_datatype(
             normalize_atomic_property(
                 metadata_datatype_dict, 
                 k, 
-                v
                 )
         
         # format
@@ -8124,18 +8348,17 @@ def validate_and_normalize_derived_datatype(
             validate_atomic_property(
                 metadata_datatype_dict, 
                 k,
-                v,
                 expected_types=[str,dict],
                 )
             
-            if isinstance(v,dict):
+            
+            if isinstance(metadata_datatype_dict[k],dict):
                 
                 raise NotImplementedError
             
             normalize_atomic_property(
                 metadata_datatype_dict, 
                 k, 
-                v
                 )
         
             
@@ -8152,12 +8375,12 @@ def validate_and_normalize_derived_datatype(
 def normalize_common_property_or_notes(
         metadata_obj_dict,
         property_name,
-        property_value,
         base_url,
         default_language
         ):
     """
     """
+    property_value=metadata_obj_dict[property_name]
 
     # 1. If the property is a common property or notes the value must be 
     #    normalized as follows:
@@ -8175,7 +8398,6 @@ def normalize_common_property_or_notes(
             normalize_common_property_or_notes(
                 y,
                 property_name,
-                x,
                 base_url,
                 default_language
                 )
@@ -8267,7 +8489,6 @@ def normalize_common_property_or_notes(
                 normalize_common_property_or_notes(
                     y,
                     k,
-                    v,
                     base_url,
                     default_language     
                     )
@@ -8287,11 +8508,11 @@ def normalize_common_property_or_notes(
 def normalize_link_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         base_url
         ):
     """
     """
+    property_value=metadata_obj_dict[property_name]
     #print('-property_name',property_name)
     #print('-property_value',property_value)
     #print('-base_url',base_url)
@@ -8319,11 +8540,11 @@ def normalize_link_property(
 def normalize_object_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         base_url
         ):
     """
     """
+    property_value=metadata_obj_dict[property_name]
     # 4. If the property is an object property with a string value, the 
     #    string is a URL referencing a JSON document containing a single 
     #    object. 
@@ -8368,11 +8589,12 @@ def normalize_object_property(
 def normalize_natural_language_property(
         metadata_obj_dict,
         property_name,
-        property_value,
         default_language
         ):
     """
     """
+    property_value=metadata_obj_dict[property_name]
+    
     # 6 If the property is a natural language property and the value is 
     #  not already an object, it is turned into an object whose properties 
     #  are language codes and where the values of those properties are arrays. 
@@ -8396,18 +8618,20 @@ def normalize_natural_language_property(
         
 def normalize_atomic_property(
         metadata_obj_dict,
-        property_name,
-        property_value
+        property_name
         ):
     """
     """
     # 7 If the property is an atomic property that can be a string or an 
     #  object, normalize to the object form as described for that property.
+    
+    property_value=metadata_obj_dict[property_name]
+    
     if property_name=='datatype' and isinstance(property_value,str):
         
         property_value={'base':property_value}
     
-    metadata_obj_dict[property_name]=property_value
+        metadata_obj_dict[property_name]=property_value
    
 
 #%% A.1. URL Compaction
@@ -8502,7 +8726,7 @@ def create_json_ld(
         
         elif isinstance(json,dict):
             
-            return {k:replace_string(
+            return {k.replace(value,replace_value):replace_string(
                         v,
                         value,
                         replace_value
