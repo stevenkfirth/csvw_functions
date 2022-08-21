@@ -1,0 +1,48 @@
+{
+    "@context": "http://www.w3.org/ns/csvw",
+    "tableSchema": {
+        "columns": [
+            {
+                "titles": {
+                    "und": [
+                        "GID"
+                    ]
+                },
+                "name": "GID"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "On Street"
+                    ]
+                },
+                "name": "On%20Street"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "Species"
+                    ]
+                },
+                "name": "Species"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "Trim Cycle"
+                    ]
+                },
+                "name": "Trim%20Cycle"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "Inventory Date"
+                    ]
+                },
+                "name": "Inventory%20Date"
+            }
+        ]
+    },
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv"
+}

@@ -3,11 +3,55 @@
     "tables": [
         {
             "rdfs:comment": {
-                "@value": "columns takes an array of columns, not a single column"
+                "@value": "If there is a non-empty case-sensitive intersection between the titles values, where matches must have a matching language; und matches any language, and languages match if they are equal when truncated, as defined in [BCP47], to the length of the shortest language tag."
+            },
+            "rdfs:label": {
+                "@value": "title incompatible with title on case"
             },
             "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv",
             "tableSchema": {
-                "columns": []
+                "columns": [
+                    {
+                        "titles": {
+                            "und": [
+                                "gid"
+                            ]
+                        },
+                        "name": "gid"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "on street"
+                            ]
+                        },
+                        "name": "on%20street"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "species"
+                            ]
+                        },
+                        "name": "species"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "trim cycle"
+                            ]
+                        },
+                        "name": "trim%20cycle"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "inventory date"
+                            ]
+                        },
+                        "name": "inventory%20date"
+                    }
+                ]
             }
         }
     ]

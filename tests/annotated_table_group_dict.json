@@ -8,8 +8,13 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": null,
-                    "titles": [],
+                    "name": "gid",
+                    "titles": [
+                        {
+                            "@value": "gid",
+                            "@language": "und"
+                        }
+                    ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
@@ -70,8 +75,13 @@
                     "table": "__recursion__",
                     "number": 2,
                     "sourceNumber": 2,
-                    "name": null,
-                    "titles": [],
+                    "name": "on%20street",
+                    "titles": [
+                        {
+                            "@value": "on street",
+                            "@language": "und"
+                        }
+                    ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
@@ -132,8 +142,13 @@
                     "table": "__recursion__",
                     "number": 3,
                     "sourceNumber": 3,
-                    "name": null,
-                    "titles": [],
+                    "name": "species",
+                    "titles": [
+                        {
+                            "@value": "species",
+                            "@language": "und"
+                        }
+                    ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
@@ -194,8 +209,13 @@
                     "table": "__recursion__",
                     "number": 4,
                     "sourceNumber": 4,
-                    "name": null,
-                    "titles": [],
+                    "name": "trim%20cycle",
+                    "titles": [
+                        {
+                            "@value": "trim cycle",
+                            "@language": "und"
+                        }
+                    ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
@@ -256,8 +276,13 @@
                     "table": "__recursion__",
                     "number": 5,
                     "sourceNumber": 5,
-                    "name": null,
-                    "titles": [],
+                    "name": "inventory%20date",
+                    "titles": [
+                        {
+                            "@value": "inventory date",
+                            "@language": "und"
+                        }
+                    ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
@@ -535,7 +560,10 @@
             "foreignKeys": "__recursion__",
             "transformations": [],
             "rdfs:comment": {
-                "@value": "columns takes an array of columns, not a single column"
+                "@value": "If there is a non-empty case-sensitive intersection between the titles values, where matches must have a matching language; und matches any language, and languages match if they are equal when truncated, as defined in [BCP47], to the length of the shortest language tag."
+            },
+            "rdfs:label": {
+                "@value": "title incompatible with title on case"
             }
         }
     ]

@@ -1,11 +1,28 @@
 {
     "@context": "http://www.w3.org/ns/csvw",
-    "rdfs:comment": "columns takes an array of columns, not a single column",
+    "rdfs:comment": "If there is a non-empty case-sensitive intersection between the titles values, where matches must have a matching language; und matches any language, and languages match if they are equal when truncated, as defined in [BCP47], to the length of the shortest language tag.",
+    "rdfs:label": "title incompatible with title on language",
     "url": "tree-ops.csv",
+    "lang": "de",
     "tableSchema": {
-        "columns": {
-            "name": "GID",
-            "titles": "GID"
-        }
+        "columns": [
+            {
+                "titles": "GID"
+            },
+            {
+                "titles": {
+                    "en": "On Street"
+                }
+            },
+            {
+                "titles": "Species"
+            },
+            {
+                "titles": "Trim Cycle"
+            },
+            {
+                "titles": "Inventory Date"
+            }
+        ]
     }
 }

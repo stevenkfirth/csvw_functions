@@ -744,7 +744,7 @@ def check_value_constraints(
 #%% Section 5 - Locating Metadata
 
 def locate_metadata(
-        tabular_data_file_url,  # absolute url
+        tabular_data_file_url,  
         tabular_data_file_headers,
         overriding_metadata_file_path_or_url,
         _link_header
@@ -796,26 +796,32 @@ def locate_metadata(
     # Locations and Site-wide Location Configuration specifies default 
     # URI patterns or paths to be used to locate metadata.    
         
+    metadata_document_dict=None
+    
     # 1
     if not overriding_metadata_file_path_or_url is None:
         
         metadata_document_dict, metadata_document_location=\
             get_overriding_metadata(
-                overriding_metadata_file_path_or_url
+                overriding_metadata_file_path_or_url,
+                tabular_data_file_url
                 )
     
     # 2
-    elif not tabular_data_file_headers is None or not _link_header is None:
-        
-        metadata_document_dict, metadata_document_location=\
-            get_metadata_from_link_header(
-                tabular_data_file_headers or _link_header,
-                tabular_data_file_url
-                )
+    
+    if metadata_document_dict is None:
+    
+        if not tabular_data_file_headers is None or not _link_header is None:
+            
+            metadata_document_dict, metadata_document_location=\
+                get_metadata_from_link_header(
+                    tabular_data_file_headers or _link_header,
+                    tabular_data_file_url
+                    )
             
         
     # 3
-    else:
+    if metadata_document_dict is None:
         
         metadata_document_dict, metadata_document_location=\
             get_metadata_from_default_or_site_wide_location(
@@ -839,7 +845,8 @@ def locate_metadata(
 #%% 5.1 Overriding Metadata
 
 def get_overriding_metadata(
-        overriding_metadata_file_path_or_url
+        overriding_metadata_file_path_or_url,
+        tabular_data_file_url
         ):
     """
     """
@@ -901,7 +908,7 @@ def get_overriding_metadata(
     metadata_text=metadata_response.read().decode()
     
     metadata_document_dict=json.loads(metadata_text)
-        
+    
     return metadata_document_dict,metadata_document_location
 
 
@@ -1024,6 +1031,13 @@ def get_metadata_from_link_header(
             
             return metadata_table_group_dict, metadata_document_location
             
+        else:
+            
+            message='Metadata file found does not explicitly '
+            message+='include a reference to the requested tabular data file. '
+            message+='Metadata file is ignored. '
+            
+            warnings.warn(message)
             
     return None, None
 
@@ -1213,6 +1227,15 @@ def get_metadata_from_default_or_site_wide_location(
             if table_url_resolved==tabular_data_file_url:
                     
                 return metadata_document_dict,metadata_url
+            
+            else:
+                
+                message='Metadata file found does not explicitly '
+                message+='include a reference to the requested tabular data file. '
+                message+='Metadata file is ignored. '
+                
+                warnings.warn(message)
+                
     
     # if no matches
     metadata_document_dict=None
@@ -1322,9 +1345,16 @@ def create_annotated_table_group(
     
     else:
     
-        message='"input_file_path_or_url" must end with either ".json" or ".csv"/'    
+        input_is_tabular_data_file=True
+        
+        #if '?' in input_file_path_or_url:
+            
+        #    input_file_path_or_url=input_file_path_or_url.split('?')[0]
+        
+        
+        #message='"input_file_path_or_url" must end with either ".json" or ".csv"/'    
     
-        raise CSVWError(message)
+        #raise CSVWError(message)
         
         
     # If processing starts with a tabular data file, implementations:
@@ -1334,7 +1364,8 @@ def create_annotated_table_group(
         # 1. Retrieve the tabular data file.
         
         #...set up the url
-        if os.path.isfile(input_file_path_or_url):
+        if os.path.isfile(input_file_path_or_url) or \
+            not hyperlink.parse(input_file_path_or_url).absolute:
             
             x=os.path.abspath(input_file_path_or_url)
             x=x.replace('\\','/')
@@ -1518,41 +1549,40 @@ def create_annotated_table_group(
         enumerate(metadata_table_group_dict['tables']):
             
         #...set up table url and headers
-        if not input_is_tabular_data_file:
             
-            url=metadata_table_dict['url']
+        url=metadata_table_dict['url']
+        
+        #...set up the url
+        if os.path.isfile(url):
             
-            #...set up the url
-            if os.path.isfile(url):
-                
-                x=os.path.abspath(url)
-                x=x.replace('\\','/')
-                x=r'file:///'+x
-                
-                tabular_data_file_url=normalize_url(x)
-                    
-                
-                
-            else:
-                
-                tabular_data_file_url=\
-                    urllib.parse.urljoin(
-                        metadata_document_location,
-                        url
-                        )
-                    
-            if tabular_data_file_url.startswith('file'):
-                
-                tabular_data_file_headers=None
+            x=os.path.abspath(url)
+            x=x.replace('\\','/')
+            x=r'file:///'+x
             
-            else:
-                    
-                tabular_data_file_headers=requests.head(tabular_data_file_url).headers
+            tabular_data_file_url=normalize_url(x)
                 
-            #print('-tabular_data_file_url',tabular_data_file_url)     
+            
+            
+        else:
+            
+            tabular_data_file_url=\
+                urllib.parse.urljoin(
+                    metadata_document_location,
+                    url
+                    )
                 
-            #print('-tabular_data_file_headers',tabular_data_file_headers)
-    
+        if tabular_data_file_url.startswith('file'):
+            
+            tabular_data_file_headers=None
+        
+        else:
+                
+            tabular_data_file_headers=requests.head(tabular_data_file_url).headers
+            
+        #print('-tabular_data_file_url',tabular_data_file_url)     
+            
+        #print('-tabular_data_file_headers',tabular_data_file_headers)
+
             
             
         # 3.1 Extract the dialect description (DD) from UM for the table 
@@ -1642,6 +1672,16 @@ def create_annotated_table_group(
             
         annotated_table_group_dict['tables'].append(annotated_table_dict)
             
+        #...for testing
+        with open('embedded_metadata_dict.json','w') as f:
+            
+            json.dump(
+                embedded_metadata_dict,
+                f,
+                indent=4
+                )
+        
+        
         #...if using embedded metadata
         if use_embedded_metadata_flag:
             
@@ -1790,14 +1830,14 @@ def create_annotated_table_group(
     #... for testing
     
     def remove_recursion(
-            value
+            value,
             ):
         ""
         if isinstance(value,dict):
             
             return {k:remove_recursion(v) if not k in 
                     ['table','column','row',
-                     'referencedRows','primaryKey','foreignKeys'] else '__recursion__'
+                      'referencedRows','primaryKey','foreignKeys'] else '__recursion__'
                     for k,v in value.items()
                     }
         
@@ -2193,7 +2233,11 @@ def parse_cell_steps_6_to_9(
         if separator is None and required==True:
             
             # ADD ERROR
-            raise NotImplementedError
+            message='column separator annotation is null and the column required annotation is true'
+            
+            warnings.warn(message)
+            
+            errors.append(message)
         
         return json_value, language, datatype['base'], errors  # returns None
     
@@ -3413,7 +3457,13 @@ def parse_tabular_data_from_text(
     #    use a normalizing transcoder to normalize into Unicode Normal Form C 
     #    as defined in [UAX15].
     
-    response=urllib.request.urlopen(tabular_data_file_url)
+    #...remove fragments and queries from tabular_data_file_url
+    url=urllib.parse.urljoin(tabular_data_file_url, 
+                         urllib.parse.urlparse(tabular_data_file_url).path)
+    
+    response=urllib.request.urlopen(
+        url
+        )
     
     tabular_data_file_text=response.read().decode(encoding)
     
@@ -3759,7 +3809,8 @@ def parse_tabular_data_from_text(
         
     validate_and_normalize_metadata_table_dict(
         metadata_table_dict,
-        metadata_document_location=None
+        metadata_document_location=None,
+        metadata_table_group_dict=None
         )
     
     return table_dict, metadata_table_dict
@@ -4466,17 +4517,31 @@ def validate_column_reference_property(
         
         message=f'Property "{property_name}" '
         message+=f'with value "{property_value}" <{type(property_value).__name__}> '
-        message+='is invalid. String or lst type expected. '
+        message+='is invalid. String or list type expected. '
         message+='Property is removed.'
+        
+        warnings.warn(message)
+        
+        metadata_obj_dict.remove(property_name)
+        
+        return
     
-    elif property_value==[]:
+    
+    if property_value==[]:
         
         message=f'Property "{property_name}" '
         message+=f'with value "{property_value}" <{type(property_value).__name__}> '
         message+='is invalid. Value must not be an emply array. '
         message+='Property is removed.'
+        
+        warnings.warn(message)
+        
+        metadata_obj_dict.remove(property_name)
+        
+        return
     
-    elif isinstance(property_value,list) and \
+    
+    if isinstance(property_value,list) and \
         not all([isinstance(x,str) for x in property_value]):
             
         message=f'Property "{property_name}" '
@@ -4484,13 +4549,14 @@ def validate_column_reference_property(
         message+='is invalid. All list items must be string. '
         message+='Property is removed.'
         
-    else:
+        warnings.warn(message)
+        
+        metadata_obj_dict.remove(property_name)
         
         return
         
-    warnings.warn(message)
     
-    metadata_obj_dict.remove(property_name)
+    
 
 
 def get_columns_from_column_reference(
@@ -4684,7 +4750,24 @@ def validate_natural_language_property(
     
     elif isinstance(property_value,list):
         
-        property_value=[x for x in property_value if isinstance(x,str)]
+        x=[]
+        
+        for item in property_value:
+            
+            if isinstance(item,str):
+                
+                x.append(item)
+                
+            else:
+                
+                message='Property "{property_name}" '
+                message+='with value "{property_value}" ({type(property_value).__name__}) '
+                message+='has non-string value in array. '
+                message+='Non-string value is removed'
+                
+                warnings.warn(message)
+                
+        property_value=x
     
     elif isinstance(property_value,dict):
         
@@ -4700,7 +4783,33 @@ def validate_natural_language_property(
                     
                 elif isinstance(v,list):
                     
-                    d[k]=[x for x in v if isinstance(x,str)]
+                    x=[]
+                    
+                    for item in v:
+                        
+                        if isinstance(item,str):
+                            
+                            x.append(item)
+                            
+                        else:
+                            
+                            message='Property "{property_name}" '
+                            message+='with value "{property_value}" ({type(property_value).__name__}) '
+                            message+='has non-string value in array. '
+                            message+='Non-string value is removed'
+                            
+                            warnings.warn(message)
+                            
+                    d[k]=x
+                    
+            else:
+                
+                message='Property "{property_name}" '
+                message+='with value "{property_value}" ({type(property_value).__name__}) '
+                message+='has invalid language code. '
+                message+='Property is removed'
+                
+                warnings.warn(message)
                 
         property_value=d
     
@@ -4708,7 +4817,7 @@ def validate_natural_language_property(
         
         message='Property "{property_name}" '
         message+='with value "{property_value}" ({type(property_value).__name__}) '
-        message=+'is of invalid type. '
+        message+='is of invalid type. '
         message+='Natural language property values must be either a string, a list or an object. '
         message+='Property value is replaced with an empty array'
         
@@ -4730,7 +4839,8 @@ def validate_atomic_property(
         expected_values=None,
         default_value=None,
         required_values=None,
-        greater_than_or_equal_to=None
+        greater_than_or_equal_to=None,
+        use_default_value=True
         ):
     """
     """
@@ -4759,30 +4869,61 @@ def validate_atomic_property(
         if not type(property_value) in expected_types:
             
             message=f'Property "{property_name}" with value '
-            message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
+            message+=f'"{property_value}property_value=metadata_obj_dict[property_name]" ({type(property_value).__name__}) is not valid.'
             message+=f' One of these types expected: "{expected_types}". '
-            message+=f' Value replaced with "{default_value}". '
             
-            warnings.warn(message)
+            if use_default_value:
             
-            property_value=default_value
+                message+=f' Value replaced with "{default_value}". '
+                
+                metadata_obj_dict[property_name]=default_value
+                
+                warnings.warn(message)
+                
+            else:
+                
+                message+='Property removed.'
+                
+                metadata_obj_dict.pop(property_name)
+
+                warnings.warn(message)
+                
+                return
             
+            
+    #
+    property_value=metadata_obj_dict[property_name]
         
     if not expected_values is None:
         
         if not property_value in expected_values:
             
-            
             message=f'Property "{property_name}" with value '
             message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
             message+=f' One of these values expected: "{expected_values}". '
-            message+=f' Value replaced with "{default_value}". '
             
-            warnings.warn(message)
+            if use_default_value:
+            
+                message+=f' Value replaced with "{default_value}". '
+                
+                metadata_obj_dict[property_name]=default_value
+                
+                warnings.warn(message)
+                
+            else:
+                
+                message+='Property removed.'
+                
+                metadata_obj_dict.pop(property_name)
     
-            property_value=default_value
+                warnings.warn(message)
+                
+                return
+        
             
-            
+    #
+    property_value=metadata_obj_dict[property_name]
+    
     if not greater_than_or_equal_to is None:
         
         if not property_value>=greater_than_or_equal_to:
@@ -4790,13 +4931,29 @@ def validate_atomic_property(
             message=f'Property "{property_name}" with value '
             message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
             message+=f' Value should be greater than or equal to {greater_than_or_equal_to}. '
-            message+=f' Value replaced with "{default_value}". '
             
-            warnings.warn(message)
+            if use_default_value:
+            
+                message+=f' Value replaced with "{default_value}". '
+                
+                metadata_obj_dict[property_name]=default_value
+                
+                warnings.warn(message)
+                
+            else:
+                
+                message+='Property removed.'
+                
+                metadata_obj_dict.pop(property_name)
+
+                warnings.warn(message)
+                
+                return
+            
     
-            property_value=default_value
-            
-            
+    #
+    property_value=metadata_obj_dict[property_name]
+    
     if not required_values is None:
         
         if not property_value in required_values:
@@ -4809,7 +4966,7 @@ def validate_atomic_property(
             raise CSVWError(message)
             
     
-    metadata_obj_dict[property_name]=property_value
+    
         
         
     
@@ -4989,10 +5146,10 @@ def validate_and_normalize_metadata_table_group_dict(
                 validate_and_normalize_metadata_table_dict(
                         metadata_table_dict,
                         metadata_document_location,
+                        metadata_table_group_dict,
                         base_url,
                         default_language,
                         has_top_level_property=False,
-                        table_group_table_schema=metadata_table_group_dict.get('tableSchema')
                         )
                 
         # dialect    
@@ -5217,26 +5374,202 @@ def validate_and_normalize_metadata_table_group_dict(
         
         raise CSVWError(message)
     
+    
+    
+    
+    
+    
+    
+    
             
     #...from 5.1.4
     # Compliant applications must issue a warning and proceed as if the 
     # column reference property had not been specified if:
     # - any of the supplied strings do not reference one or more columns.
     
-    # TO DO
-            
     #...from 5.5
     # resource
-    # The table group must contain a table whose url annotation is identical to the expanded value of this property. 
+    # The table group must contain a table whose url annotation is identical 
+    # to the expanded value of this property. 
     
     # TO DO
     
     #...from 5.5
     # schemaReference
-    # The table group must contain a table with a tableSchema having a @id that is identical to the expanded value of this property, and there must not be more than one such table. 
+    # The table group must contain a table with a tableSchema having a @id
+    # that is identical to the expanded value of this property, and there must not be more than one such table. 
     
     # TO DO
     
+    def test_column_reference_property(
+            column_reference,
+            metadata_table_dict,
+            raise_error=False
+            ):
+        """
+        """
+        if 'tableSchema' in metadata_table_dict:
+            
+            metadata_schema_dict=metadata_table_dict['tableSchema']    
+        
+            if not isinstance(column_reference,list):
+                
+                column_references=[column_reference]
+                
+            else:
+                
+                column_references=column_reference
+            
+        for name in column_references:
+            
+            #print('-name',name)
+            
+            for metadata_column_dict in metadata_schema_dict.get('columns',[]):
+                
+                #print("-metadata_column_dict.get('name')",metadata_column_dict.get('name'))
+                
+                if name==metadata_column_dict.get('name'):
+                    
+                    return
+            
+        message=f'Column reference property with value "{column_reference}" '
+        message+='does not match any column names. '
+
+        if raise_error:
+            
+            raise CSVWError(message)    
+            
+        else:
+
+            warnings.warn(message)
+        
+    
+    
+    for metadata_table_dict in metadata_table_group_dict.get('tables',[]):
+        
+        if 'tableSchema' in metadata_table_dict:
+            
+            metadata_schema_dict=metadata_table_dict['tableSchema']
+            
+            for foreign_key_dict in metadata_schema_dict.get('foreignKeys',[]):
+                
+                # foreign key column reference
+                column_reference=foreign_key_dict['columnReference']
+                
+                test_column_reference_property(
+                        column_reference,
+                        metadata_table_dict,
+                        raise_error=True
+                        )
+                    
+                # reference
+                reference_dict=foreign_key_dict['reference']
+                
+                referenced_table_dict=None
+                
+                # foreign key reference resource
+                if 'resource' in reference_dict:
+                    
+                    resource=reference_dict['resource']
+                    
+                    for metadata_table_dict2 \
+                        in metadata_table_group_dict.get('tables',[]):
+                
+                        if resource==metadata_table_dict2.get('url'):
+                            
+                            referenced_table_dict=metadata_table_dict2
+                            
+                            break
+                        
+                    if referenced_table_dict is None:
+                        
+                        message=f'Property "resource" with value "{resource}" '
+                        message+='does not match any table url. '
+
+                        raise CSVWError(message)
+                        
+                # foreign key reference resource
+                if 'schemaReference' in reference_dict:
+                    
+                    schema_reference=reference_dict['schemaReference']
+                    
+                    for metadata_table_dict2 \
+                        in metadata_table_group_dict.get('tables',[]):
+                            
+                        if 'tableSchema' in metadata_table_dict2:
+                            
+                            metadata_schema_dict2=metadata_table_dict2['tableSchema']
+                            
+                            if schema_reference==metadata_schema_dict2.get('@id'):
+                            
+                                referenced_table_dict=metadata_table_dict2
+                            
+                                break
+                        
+                    if referenced_table_dict is None:
+                        
+                        message=f'Property "schemaReference" with value "{schema_reference}" '
+                        message+='does not match any schema @id property. '
+
+                        raise CSVWError(message)
+                        
+                # foreign key reference column reference
+                column_reference=reference_dict['columnReference']
+                
+                test_column_reference_property(
+                        column_reference,
+                        referenced_table_dict,
+                        raise_error=True
+                        )
+                        
+            # primary key
+            if 'primaryKey' in metadata_schema_dict:
+                
+                column_reference=metadata_schema_dict['primaryKey']
+                
+                test_column_reference_property(
+                        column_reference,
+                        metadata_table_dict
+                        )
+                
+            # rowTitles
+            if 'rowTitles' in metadata_schema_dict:
+                
+                column_reference=metadata_schema_dict['rowTitles']
+                
+                test_column_reference_property(
+                        column_reference,
+                        metadata_table_dict
+                        )
+                
+    #...Section 5.6
+    # If there is no name property defined on this column, 
+    # the first titles value having the same language tag as 
+    # default language, or und or if no default language is 
+    # specified, becomes the name annotation for the described column. 
+    # This annotation must be percent-encoded as necessary to 
+    # conform to the syntactic requirements defined in [RFC3986].
+    
+    for metadata_table_dict in metadata_table_group_dict.get('tables',[]):
+        
+        if 'tableSchema' in metadata_table_dict:
+            
+            metadata_schema_dict=metadata_table_dict['tableSchema']
+            
+            for metadata_column_dict in metadata_schema_dict.get('columns',[]):
+    
+                if not 'name' in metadata_column_dict:
+                    
+                    if 'titles' in metadata_column_dict:
+                    
+                        x=metadata_column_dict['titles'][default_language][0]
+                        
+                        name=urllib.parse.quote(x.encode('utf8'))
+                        
+                        metadata_column_dict['name']=name
+
+    
+       
     
     #print('-metadata_table_group_dict',metadata_table_group_dict)
     
@@ -5413,10 +5746,10 @@ def annotate_table_group_dict(
 def validate_and_normalize_metadata_table_dict(
         metadata_table_dict,
         metadata_document_location,
+        metadata_table_group_dict,
         base_url=None,
         default_language=None,
-        has_top_level_property=True,
-        table_group_table_schema=None
+        has_top_level_property=True
         ):
     """
     """
@@ -5443,9 +5776,10 @@ def validate_and_normalize_metadata_table_dict(
     # include tableSchema from table group, if not present
     if not 'tableSchema' in metadata_table_dict:
         
-        if not table_group_table_schema is None:
+        if 'tableSchema' in metadata_table_group_dict:
         
-            metadata_table_dict['tableSchema']=table_group_table_schema
+            metadata_table_dict['tableSchema']=\
+                metadata_table_group_dict['tableSchema']
         
 
     # loop through items
@@ -5469,6 +5803,14 @@ def validate_and_normalize_metadata_table_dict(
                 metadata_table_dict,
                 k,
                 )
+            
+            url=metadata_table_dict[k]
+            
+            if url is None or url=='':
+                
+                message='Property "url" must have a value.'
+                
+                raise CSVWError(message)
             
             normalize_link_property(
                 metadata_table_dict,
@@ -5612,6 +5954,7 @@ def validate_and_normalize_metadata_table_dict(
             validate_and_normalize_metadata_schema_dict(
                 metadata_table_dict[k],
                 referenced_url or metadata_document_location,
+                metadata_table_group_dict,
                 base_url,
                 default_language,
                 has_top_level_property=True if referenced_url else False,
@@ -5732,7 +6075,34 @@ def validate_and_normalize_metadata_table_dict(
         raise CSVWError(message)
     
     
-
+    #...Section 5.6
+    # If there is no name property defined on this column, 
+    # the first titles value having the same language tag as 
+    # default language, or und or if no default language is 
+    # specified, becomes the name annotation for the described column. 
+    # This annotation must be percent-encoded as necessary to 
+    # conform to the syntactic requirements defined in [RFC3986].
+    
+    if has_top_level_property:
+    
+        if 'tableSchema' in metadata_table_dict:
+                
+            metadata_schema_dict=metadata_table_dict['tableSchema']
+            
+            for metadata_column_dict in metadata_schema_dict.get('columns',[]):
+    
+                if not 'name' in metadata_column_dict:
+                    
+                    if 'titles' in metadata_column_dict:
+                    
+                        x=metadata_column_dict['titles'][default_language][0]
+                        
+                        name=urllib.parse.quote(x.encode('utf8'))
+                        
+                        metadata_column_dict['name']=name
+    
+        
+    
 
 def annotate_table_dict(
         annotated_table_dict,
@@ -5816,12 +6186,14 @@ def annotate_table_dict(
             table_inherited_properties_cache
             )
         
-    else:
+    
+    #...provide default column names if needed
+    for annotated_column_dict in annotated_table_dict['columns']:
         
-        for annotated_column_dict in annotated_table_dict['columns']:
-        
+        if annotated_column_dict['name'] is None:
+    
             column_number=annotated_column_dict['number']
-        
+    
             annotated_column_dict['name']=f'_col.{column_number}'
 
 
@@ -5834,6 +6206,7 @@ def compare_table_descriptions(
         ):
     """
     """
+    
     # Two table descriptions are compatible if they have equivalent 
     # normalized url properties, and have compatible schemas as defined 
     # in section 5.5.1 Schema Compatibility.
@@ -5869,6 +6242,7 @@ def compare_table_descriptions(
 def validate_and_normalize_metadata_schema_dict(
         metadata_schema_dict,
         metadata_document_location,
+        metadata_table_group_dict,
         base_url=None,
         default_language=None,
         has_top_level_property=True,
@@ -6018,7 +6392,7 @@ def validate_and_normalize_metadata_schema_dict(
                 #...validate column reference property
                 validate_column_reference_property(
                         foreign_key_definition,
-                        'columnReference'
+                        'columnReference',
                         )
             
                 #...validate_reference_property
@@ -6068,7 +6442,7 @@ def validate_and_normalize_metadata_schema_dict(
                 # columnReference (in reference)
                 validate_column_reference_property(
                         reference,
-                        'columnReference'
+                        'columnReference',
                         )
             
             
@@ -6225,7 +6599,7 @@ def annotate_schema_dict(
     # #...include virtual columns from metadata
     
     for i, metadata_column_dict in \
-        enumerate(metadata_schema_dict['columns']):
+        enumerate(metadata_schema_dict.get('columns',[])):
             
             if metadata_column_dict.get('virtual')==True:
                 
@@ -6273,7 +6647,7 @@ def annotate_schema_dict(
                 annotated_table_dict['columns'].append(annotated_column_dict)
     
     # annotate columns
-    for i in range(len(metadata_schema_dict['columns'])):
+    for i in range(len(metadata_schema_dict.get('columns',[]))):
         
         annotate_column_dict(
             annotated_table_dict['columns'][i],
@@ -6431,7 +6805,7 @@ def compare_schema_descriptions(
     
     TM_non_virtual_columns=[x for x in TM_schema.get('columns',[]) 
                             if x.get('virtual',False)==False]
-    EM_non_virtual_columns=[x for x in TM_schema.get('columns',[]) 
+    EM_non_virtual_columns=[x for x in EM_schema.get('columns',[]) 
                             if x.get('virtual',False)==False]
     
     if not len(TM_non_virtual_columns)==len(EM_non_virtual_columns):
@@ -6467,15 +6841,19 @@ def compare_schema_descriptions(
         
         #
         if not 'name' in TM_column and not 'titles' in TM_column:
+            
             continue
         
         if not 'name' in EM_column and not 'titles' in EM_column:
+            
             continue
         
         #
         if 'name' in TM_column and 'name' in EM_column:
             if TM_column['name']==EM_column['name']:
                 continue
+        
+        
         
         #
         intersection=False
@@ -6500,7 +6878,12 @@ def compare_schema_descriptions(
                 break
               
         if intersection:
+            
+            
+            
+            
             continue
+        
         
         #
         if not validate:
@@ -6573,9 +6956,27 @@ def validate_and_normalize_metadata_column_dict(
             validate_atomic_property(
                 metadata_column_dict,
                 k,
-                expected_types=[str]
+                expected_types=[str],
+                use_default_value=False
                 )
             
+            if k in metadata_column_dict:
+                
+                name=metadata_column_dict[k]
+                
+                name_percent_encoded=urllib.parse.quote(name.encode('utf8'))
+                name_percent_encoded=name_percent_encoded.replace('%20','_')
+                
+                if not name_percent_encoded==name:
+                    
+                    message=f'Property "name" with value "{name}" is invalid.'
+                    message+='Column names are restricted as defined in Variables in [URI-TEMPLATE]'
+                    message+='Property is removed".'
+                    
+                    warnings.warn(message)
+                    
+                    metadata_column_dict.pop(k)
+                    
             normalize_atomic_property(
                 metadata_column_dict,
                 k,
@@ -6591,14 +6992,19 @@ def validate_and_normalize_metadata_column_dict(
             # Currently not validating on URI-TEMPLATE restrictions...
             # ?? TO DO ??
             
-            name=metadata_column_dict[k]
+            if 'name' in metadata_column_dict:
             
-            if name.startswith('_'):
+                name=metadata_column_dict[k]
                 
-                message=f'Property "name" with value "{name}" is not valid. '
-                message+='Value must not start with "_".'
-                
-                raise CSVWError(message)
+                if name.startswith('_'):
+                    
+                    message=f'Property "name" with value "{name}" is not valid. '
+                    message+='Value must not start with "_". '
+                    message+='Property is removed".'
+                    
+                    warnings.warn(message)
+                    
+                    metadata_column_dict.pop(k)
         
         # suppressOutput
         elif k=='suppressOutput':
@@ -6649,14 +7055,7 @@ def validate_and_normalize_metadata_column_dict(
                 default_language
                 )
             
-            if not 'name' in metadata_column_dict:
-                
-                x=metadata_column_dict['titles'][default_language][0]
-                
-                name=urllib.parse.quote(x.encode('utf8'))
-                
-                metadata_column_dict['name']=name
-        
+            #...title->name done later on
         
         # virtual
         elif k=='virtual':
@@ -7449,7 +7848,7 @@ def validate_common_property_value(
         message=f'Property "@type" with value "{value}" ({type(value).__name__}) '
         message+='is not valid'
             
-        raise (message)
+        raise CSVWError(message)
         
     
     # Common properties can take any JSON value, so long as any objects 
@@ -8625,13 +9024,15 @@ def normalize_atomic_property(
     # 7 If the property is an atomic property that can be a string or an 
     #  object, normalize to the object form as described for that property.
     
-    property_value=metadata_obj_dict[property_name]
+    if property_name in metadata_obj_dict:
     
-    if property_name=='datatype' and isinstance(property_value,str):
+        property_value=metadata_obj_dict[property_name]
         
-        property_value={'base':property_value}
-    
-        metadata_obj_dict[property_name]=property_value
+        if property_name=='datatype' and isinstance(property_value,str):
+            
+            property_value={'base':property_value}
+        
+            metadata_obj_dict[property_name]=property_value
    
 
 #%% A.1. URL Compaction
