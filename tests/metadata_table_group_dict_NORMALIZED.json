@@ -6,9 +6,9 @@
                 "@value": "If the datatype format annotation is a single string, this is interpreted in the same way as if it were an object with a pattern property whose value is that string."
             },
             "rdfs:label": {
-                "@value": "number format (valid combinations)"
+                "@value": "number format (value not matching format)"
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test155.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test157.csv",
             "tableSchema": {
                 "columns": [
                     {
@@ -19,7 +19,7 @@
                         },
                         "datatype": {
                             "base": "integer",
-                            "format": "#"
+                            "format": "0"
                         },
                         "name": "integer"
                     },
@@ -31,7 +31,7 @@
                         },
                         "datatype": {
                             "base": "decimal",
-                            "format": "#.0"
+                            "format": "#0.0"
                         },
                         "name": "decimal"
                     },
@@ -42,163 +42,10 @@
                             ]
                         },
                         "datatype": {
-                            "base": "double"
+                            "base": "double",
+                            "format": "0.00E0"
                         },
                         "name": "double"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "float"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "float"
-                        },
-                        "name": "float"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "number"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "number"
-                        },
-                        "name": "number"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "long"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "long"
-                        },
-                        "name": "long"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "int"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "int"
-                        },
-                        "name": "int"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "short"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "short"
-                        },
-                        "name": "short"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "byte"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "byte"
-                        },
-                        "name": "byte"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "nonNegativeInteger"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "nonNegativeInteger"
-                        },
-                        "name": "nonNegativeInteger"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "positiveInteger"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "string"
-                        },
-                        "name": "positiveInteger"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "unsignedLong"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "unsignedLong"
-                        },
-                        "name": "unsignedLong"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "unsignedInt"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "unsignedInt"
-                        },
-                        "name": "unsignedInt"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "unsignedShort"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "unsignedShort"
-                        },
-                        "name": "unsignedShort"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "unsignedByte"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "unsignedByte"
-                        },
-                        "name": "unsignedByte"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "nonPositiveInteger"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "nonPositiveInteger"
-                        },
-                        "name": "nonPositiveInteger"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "negativeInteger"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "negativeInteger"
-                        },
-                        "name": "negativeInteger"
                     }
                 ]
             }

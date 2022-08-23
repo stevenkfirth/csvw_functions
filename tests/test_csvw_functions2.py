@@ -1879,7 +1879,11 @@ class TestCSVWTestCases(unittest.TestCase):
             # print('---')
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['name'])
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['propertyURL'])
-            # print(annotated_table_group_dict['tables'][0]['columns'][1]['cells'][0]['propertyURL'])
+            try:
+                print(annotated_table_group_dict['tables'][0]['columns'][3]['cells'][0]['value'])
+            except Exception:
+                pass
+            
             #return
                 
             # mode option
@@ -1902,11 +1906,11 @@ class TestCSVWTestCases(unittest.TestCase):
                         _replace_strings=_replace_strings
                         )    
                         
-            print('-json_ld',json_ld)
+            #print('-json_ld',json_ld)
                   
             with open(result_fp,encoding='utf-8') as f:
                 json_ld_result=json.load(f)
-            print('-json_ld_result',json_ld_result)
+            #print('-json_ld_result',json_ld_result)
             
             self.maxDiff=None
             if not json_ld==json_ld_result:

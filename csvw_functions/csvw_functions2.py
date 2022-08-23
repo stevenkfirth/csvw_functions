@@ -115,7 +115,7 @@ datatypes={
     'short':'http://www.w3.org/2001/XMLSchema#short',
     'byte':'http://www.w3.org/2001/XMLSchema#byte',
     'nonNegativeInteger':'http://www.w3.org/2001/XMLSchema#nonNegativeInteger',
-    'postiveInteger':'http://www.w3.org/2001/XMLSchema#positiveInteger',
+    'positiveInteger':'http://www.w3.org/2001/XMLSchema#positiveInteger',
     'unsignedLong':'http://www.w3.org/2001/XMLSchema#unsignedLong',
     'unsignedInt':'http://www.w3.org/2001/XMLSchema#unsignedInt',
     'unsignedShort':'http://www.w3.org/2001/XMLSchema#UnsignedShort',
@@ -168,9 +168,9 @@ datatypes_longs=['long','int','short','byte']
 datatypes_nonNegativeIntegers=['nonNegativeInteger',
                                'positiveInteger',
                                'unsignedLong',
-                               'unsingedInt',
-                               'unsingedShort',
-                               'unsingedByte'
+                               'unsignedInt',
+                               'unsignedShort',
+                               'unsignedByte'
                                ]
 datatypes_nonPositiveIntegers=['nonPositiveInteger',
                               'negativeInteger']
@@ -180,7 +180,7 @@ datatypes_integers=(['integer']
                     +datatypes_nonPositiveIntegers)
 datatypes_decimals=(['decimal']
                     +datatypes_integers)
-datatypes_numbers=['double','number']+datatypes_decimals
+datatypes_numbers=['double','number','float']+datatypes_decimals
 
 datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
 
@@ -2022,8 +2022,10 @@ def parse_cells_in_annotated_column_dict(
                 trim,
                 )
             
+        print(cell_value,errors)
+            
         annotated_cell_dict['value']=cell_value
-        annotated_cell_dict['errors'].append(errors)
+        annotated_cell_dict['errors'].extend(errors)
         
         
 def parse_cell_steps_1_to_5(
@@ -2395,28 +2397,33 @@ def get_parse_number_function(
                 )
             
             pattern=datatype['format']
-        
+            
+        print('-pattern',pattern)
+            
         #...use babel function to see if the pattern is valid
         if not pattern is None:
-        
-            try:
-                
-                number_pattern=babel.numbers.parse_pattern(  
-                    pattern
-                    )  #...this is a babel.numbers.NumberPattern object instance.
             
-            except ValueError:
+            for x in pattern:
                 
-                message=f'Number format pattern with value "{pattern}" is invalid. '
-                message+='Pattern is set to None.'
+                if not x in ['0','#',decimal_char,group_char,'E','+','%','‰']:
                 
-                warnings.warn(message)
+                    message=f'Number format pattern with value "{pattern}" is invalid '
+                    message+=f'as it contains the character "{x}". '
+                    message+='Pattern is set to None.'
+                    
+                    print(message)
+                    
+                    warnings.warn(message)
+                    
+                    pattern=None
+                    
+                    break
                 
-                pattern=None
-            
     else:
         
         pattern=None
+        
+    print('-pattern',pattern)
         
         
     
@@ -2427,6 +2434,7 @@ def get_parse_number_function(
             ):
         """
         """
+        print('-string_value',string_value)
         
         def convert_string_value_to_float(
                 string_value,
@@ -2467,6 +2475,25 @@ def get_parse_number_function(
             return float(string_value)*modifier
         
         
+        #...at this stage, get the converted number if possible
+        try:
+            
+            json_value=convert_string_value_to_float(
+                    string_value,
+                    decimal_char,
+                    group_char
+                    )
+            conversion_error=False
+            
+        except ValueError:
+            
+            conversion_error=True
+        
+        print('-json_value',json_value)
+        print('-conversion_error',conversion_error)
+        
+        
+        
         
         #  If the groupChar is specified, but no pattern is supplied, when parsing 
         # the string value of a cell against this format specification, 
@@ -2491,39 +2518,25 @@ def get_parse_number_function(
         # 2. INF, or
         # 3. -INF.
         
-        # if string_value=='NaN':
+        if string_value=='NaN':
             
-        #     json_value=string_value
+            json_value=string_value
             
-        # elif string_value=='INF':
+        elif string_value=='INF':
             
-        #     json_value=string_value
+            json_value=string_value
             
-        # elif string_value=='-INF':
+        elif string_value=='-INF':
                 
-        #     json_value=string_value
+            json_value=string_value
     
                 
         # Implementations may also recognise numeric values that are in any of the 
         # standard-decimal, standard-percent or standard-scientific formats listed 
         # in the Unicode Common Locale Data Repository.
         
-        #...I THINK THIS IS COVERED BY THE PYTHON NUMBER PARSE BELOW
+        #...I THINK THIS IS COVERED BY THE PYTHON NUMBER PARSE ABOVE
         
-        
-        #...at this stage, get the converted number if possible
-        try:
-            
-            json_value=convert_string_value_to_float(
-                    string_value,
-                    decimal_char,
-                    group_char
-                    )
-            conversion_error=False
-            
-        except ValueError:
-            
-            conversion_error=True
         
         
     
@@ -2554,6 +2567,8 @@ def get_parse_number_function(
                 string_value2=babel.numbers.format_decimal(
                     json_value,
                     format=pattern)
+                
+                print('-string_value2',string_value2)
                 
                 if not string_value2==string_value:
                     
@@ -2614,7 +2629,9 @@ def get_parse_number_function(
                 message+=f'contains the decimalChar character "{decimal_char}". '
                 message+='Cell value is not converted to a number. '
                 
-                errors.append()
+                warnings.warn(message)
+                
+                errors.append(message)
                 
                 return string_value, 'string', errors  
                 
@@ -2629,7 +2646,9 @@ def get_parse_number_function(
                 message+='contains an exponent. '
                 message+='Cell value is not converted to a number. '
                 
-                errors.append()
+                warnings.warn(message)
+                
+                errors.append(message)
                 
                 return string_value, 'string', errors  
                 
@@ -2642,6 +2661,8 @@ def get_parse_number_function(
                 message+='datatype base is decimal or one of its sub-types. '
                 message+='Cell value is not converted to a number. '
                 
+                warnings.warn(message)
+                
                 errors.append(message)  
                 
                 return string_value, 'string', errors  
@@ -2653,6 +2674,8 @@ def get_parse_number_function(
         # the string value "1E6" as 1000000.
         
         #...this is done in the convert_string_value_to_float function.
+        
+        
         
         
         #

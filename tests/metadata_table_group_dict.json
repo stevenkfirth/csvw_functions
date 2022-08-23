@@ -1,83 +1,46 @@
 {
     "@context": "http://www.w3.org/ns/csvw",
-    "rdfs:comment": "If the datatype format annotation is a single string, this is interpreted in the same way as if it were an object with a pattern property whose value is that string.",
+    "rdfs:comment": "Numeric dataype with object format.",
     "rdfs:label": "number format (valid combinations)",
-    "url": "test155.csv",
+    "url": "test158.csv",
     "tableSchema": {
         "columns": [
             {
                 "titles": "integer",
                 "datatype": {
                     "base": "integer",
-                    "format": "#"
+                    "format": {
+                        "pattern": "#0"
+                    }
                 }
             },
             {
                 "titles": "decimal",
                 "datatype": {
                     "base": "decimal",
-                    "format": "#.0"
+                    "format": {
+                        "pattern": "#0.###"
+                    }
                 }
             },
             {
                 "titles": "double",
-                "datatype": "double"
+                "datatype": {
+                    "base": "double",
+                    "format": {
+                        "pattern": "#0.###E#0"
+                    }
+                }
             },
             {
-                "titles": "float",
-                "datatype": "float"
-            },
-            {
-                "titles": "number",
-                "datatype": "number"
-            },
-            {
-                "titles": "long",
-                "datatype": "long"
-            },
-            {
-                "titles": "int",
-                "datatype": "int"
-            },
-            {
-                "titles": "short",
-                "datatype": "short"
-            },
-            {
-                "titles": "byte",
-                "datatype": "byte"
-            },
-            {
-                "titles": "nonNegativeInteger",
-                "datatype": "nonNegativeInteger"
-            },
-            {
-                "titles": "positiveInteger",
-                "datatype": "positiveInteger"
-            },
-            {
-                "titles": "unsignedLong",
-                "datatype": "unsignedLong"
-            },
-            {
-                "titles": "unsignedInt",
-                "datatype": "unsignedInt"
-            },
-            {
-                "titles": "unsignedShort",
-                "datatype": "unsignedShort"
-            },
-            {
-                "titles": "unsignedByte",
-                "datatype": "unsignedByte"
-            },
-            {
-                "titles": "nonPositiveInteger",
-                "datatype": "nonPositiveInteger"
-            },
-            {
-                "titles": "negativeInteger",
-                "datatype": "negativeInteger"
+                "titles": "decimal1",
+                "datatype": {
+                    "base": "decimal",
+                    "format": {
+                        "decimalChar": ",",
+                        "groupChar": "."
+                    }
+                }
             }
         ]
     }
