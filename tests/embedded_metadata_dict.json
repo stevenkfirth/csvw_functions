@@ -5,44 +5,140 @@
             {
                 "titles": {
                     "und": [
-                        "GID"
+                        "integer"
                     ]
                 },
-                "name": "GID"
+                "name": "integer"
             },
             {
                 "titles": {
                     "und": [
-                        "On Street"
+                        "decimal"
                     ]
                 },
-                "name": "On%20Street"
+                "name": "decimal"
             },
             {
                 "titles": {
                     "und": [
-                        "Species"
+                        "double"
                     ]
                 },
-                "name": "Species"
+                "name": "double"
             },
             {
                 "titles": {
                     "und": [
-                        "Trim Cycle"
+                        "float"
                     ]
                 },
-                "name": "Trim%20Cycle"
+                "name": "float"
             },
             {
                 "titles": {
                     "und": [
-                        "Inventory Date"
+                        "number"
                     ]
                 },
-                "name": "Inventory%20Date"
+                "name": "number"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "long"
+                    ]
+                },
+                "name": "long"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "int"
+                    ]
+                },
+                "name": "int"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "short"
+                    ]
+                },
+                "name": "short"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "byte"
+                    ]
+                },
+                "name": "byte"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "nonNegativeInteger"
+                    ]
+                },
+                "name": "nonNegativeInteger"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "positiveInteger"
+                    ]
+                },
+                "name": "positiveInteger"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "unsignedLong"
+                    ]
+                },
+                "name": "unsignedLong"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "unsignedInt"
+                    ]
+                },
+                "name": "unsignedInt"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "unsignedShort"
+                    ]
+                },
+                "name": "unsignedShort"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "unsignedByte"
+                    ]
+                },
+                "name": "unsignedByte"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "nonPositiveInteger"
+                    ]
+                },
+                "name": "nonPositiveInteger"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "negativeInteger"
+                    ]
+                },
+                "name": "negativeInteger"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test155.csv"
 }

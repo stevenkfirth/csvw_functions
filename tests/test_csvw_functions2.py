@@ -97,6 +97,32 @@ def rdf_test(
     """
     """
     
+    
+    
+class TestSection_6_4_2_Formats_for_numeric_type(unittest.TestCase):
+    ""
+    
+    
+        
+    def xtest_parse_LDML_number_pattern(self):
+        ""
+        
+        result=csvw_functions2.parse_LDML_number_pattern(
+            pattern='0%',
+            p=True
+            )
+        
+        print(result)
+        
+        
+        # result=csvw_functions2.parse_LDML_number_pattern(
+        #     pattern='#',
+        #     p=True
+        #     )
+        
+        # print(result)
+    
+    
 
 #%% TESTS - Generating JSON from Tabular Data on the Web
 
@@ -1920,6 +1946,8 @@ class TestCSVWTestCases(unittest.TestCase):
 if __name__=='__main__':
     
     unittest.main(TestCSVWTestCases())
+    
+    #unittest.main(TestSection_6_4_2_Formats_for_numeric_type())
 
 
 

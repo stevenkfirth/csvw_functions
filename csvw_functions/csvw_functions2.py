@@ -33,6 +33,8 @@ import hyperlink
 import uritemplate
 import langcodes
 import datetime
+import re
+import babel.numbers
 
 
 #%% ---Module Level Variables---
@@ -2293,6 +2295,131 @@ def parse_cell_steps_6_to_9(
 def get_parse_number_function(
         datatype
         ):
+    """
+    """
+    
+    # By default, numeric values must be in the formats defined in
+    # [xmlschema11-2]. 
+    # It is not uncommon for numbers within tabular data to be 
+    # formatted for human consumption, which may involve using 
+    # commas for decimal points, grouping digits in the number 
+    # using commas, or adding percent signs to the number.
+
+    # If the datatype base is a numeric type, the datatype format 
+    # annotation indicates the expected format for that number. 
+    # Its value must be either a single string or an object with 
+    # one or more of the properties:
+    
+    # decimalChar
+    # A string whose value is used to represent a decimal point within the number. 
+    # The default value is ".". If the supplied value is not a string, 
+    # implementations must issue a warning and proceed as if the property 
+    # had not been specified.
+    
+    datatype_format=datatype.get('format')
+    
+    if isinstance(datatype_format,dict) and 'decimalChar' in datatype_format:
+        
+        validate_atomic_property(
+            datatype_format,
+            'decimalChar',
+            expected_types=[str],
+            default_value='.'
+            )
+        
+        decimal_char=datatype_format['decimalChar']
+        
+    else:
+        
+        decimal_char='.'
+    
+    
+    # groupChar
+    # A string whose value is used to group digits within the number. 
+    # The default value is null. If the supplied value is not a string, 
+    # implementations must issue a warning and proceed as if the property had 
+    # not been specified.
+    
+    if isinstance(datatype_format,dict) and 'groupChar' in datatype_format:
+        
+        validate_atomic_property(
+            datatype_format,
+            'groupChar',
+            expected_types=[str],
+            default_value=None
+            )
+        
+        group_char=datatype_format['groupChar']
+        
+    else:
+        
+        group_char=None
+    
+    
+    # pattern
+    # A number format pattern as defined in [UAX35]. 
+    # Implementations must recognise number format patterns containing the 
+    # symbols 0, #, the specified decimalChar (or "." if unspecified), the 
+    # specified groupChar (or "," if unspecified), E, +, % and ‰. 
+    # Implementations may additionally recognise number format patterns 
+    # containing other special pattern characters defined in [UAX35]. 
+    # If the supplied value is not a string, or if it contains an invalid 
+    # number format pattern or uses special pattern characters that the 
+    # implementation does not recognise, implementations must issue a warning 
+    # and proceed as if the property had not been specified.
+    
+    # If the datatype format annotation is a single string, this is 
+    # interpreted in the same way as if it were an object with a pattern 
+    # property whose value is that string.
+    
+    if not datatype_format is None:
+    
+        if isinstance(datatype_format,dict) and 'pattern' in datatype_format:
+            
+            validate_atomic_property(
+                datatype_format,
+                'pattern',
+                expected_types=[str],
+                default_value=None
+                )
+            
+            pattern=datatype_format['pattern']
+            
+        else:
+            
+            validate_atomic_property(
+                datatype,
+                'format',
+                expected_types=[str],
+                default_value=None
+                )
+            
+            pattern=datatype['format']
+        
+        #...use babel function to see if the pattern is valid
+        if not pattern is None:
+        
+            try:
+                
+                number_pattern=babel.numbers.parse_pattern(  
+                    pattern
+                    )  #...this is a babel.numbers.NumberPattern object instance.
+            
+            except ValueError:
+                
+                message=f'Number format pattern with value "{pattern}" is invalid. '
+                message+='Pattern is set to None.'
+                
+                warnings.warn(message)
+                
+                pattern=None
+            
+    else:
+        
+        pattern=None
+        
+        
+    
     
     def parse_number(
             string_value,
@@ -2301,83 +2428,44 @@ def get_parse_number_function(
         """
         """
         
-        value_type=datatype['base']
-        
-        datatype_format=datatype.get('format')
-        
-        # the datatype format annotation indicates the expected format for that 
-        # number. Its value must be either a single string or an object with one 
-        # or more of the properties
-        
-        # decimalChar
-        # A string whose value is used to represent a decimal point within the number. 
-        # The default value is ".". If the supplied value is not a string, 
-        # implementations must issue a warning and proceed as if the property 
-        # had not been specified.
-        
-        decimal_char='.'
-        
-        if isinstance(datatype_format,dict) and 'decimalChar' in datatype_format:
+        def convert_string_value_to_float(
+                string_value,
+                decimal_char,
+                group_char
+                ):
+            """
             
-            decimal_char=datatype_format['decimalChar']
+            :raises ValueError: if string_value cannot be converted
+            
+            """
+            #...deals with percent and permille
+            modifier=1
+            if string_value.endswith('%'):
                 
-            if not isinstance(decimal_char,str):
-             
-                 # ISSUE WARNING
-                 decimal_char='.'
-            
-        # groupChar
-        # A string whose value is used to group digits within the number. 
-        # The default value is null. If the supplied value is not a string, 
-        # implementations must issue a warning and proceed as if the property had 
-        # not been specified.
-        
-        group_char=None
-        
-        if isinstance(datatype_format,dict) and 'groupChar' in datatype_format:
-            
-            group_char=datatype_format['groupChar']
+                string_value=string_value[:-1]
                 
-            if not isinstance(group_char,str):
-             
-                 # ISSUE WARNING
-                 group_char=None
-        
-        
-        # pattern
-        # A number format pattern as defined in [UAX35]. 
-        # Implementations must recognise number format patterns containing the 
-        # symbols 0, #, the specified decimalChar (or "." if unspecified), the 
-        # specified groupChar (or "," if unspecified), E, +, % and ‰. 
-        # Implementations may additionally recognise number format patterns 
-        # containing other special pattern characters defined in [UAX35]. 
-        # If the supplied value is not a string, or if it contains an invalid 
-        # number format pattern or uses special pattern characters that the 
-        # implementation does not recognise, implementations must issue a warning 
-        # and proceed as if the property had not been specified.
-        
-        pattern=None
-        
-        if isinstance(datatype_format,dict) and 'pattern' in datatype_format:
-            
-            pattern=datatype_format['pattern']
-            
-            if not isinstance(pattern,str):
+                modifier=0.01
                 
-                # ISSUE WARNING
-                pattern=None
+            elif string_value.endswith('‰'):
                 
-        # If the datatype format annotation is a single string, this is 
-        # interpreted in the same way as if it were an object with a pattern 
-        # property whose value is that string.
-        elif isinstance(datatype_format,str):
-                      
-            pattern=datatype_format
+                string_value=string_value[:-1]
+                
+                modifier=0.001
             
-            if not isinstance(pattern,str):
+            
+            #...replace decimal_char and group_char characters
+            if not decimal_char=='.':
                 
-                # ISSUE WARNING
-                pattern=None
+                string_value=string_value.replace(decimal_char,'.')
+                
+            if not group_char is None: 
+                
+                string_value=string_value.replace(group_char,'')
+        
+        
+            #...convert
+            return float(string_value)*modifier
+        
         
         
         #  If the groupChar is specified, but no pattern is supplied, when parsing 
@@ -2394,22 +2482,51 @@ def get_parse_number_function(
         #    optional + or - sign followed by one or more decimal digits (0-9), or
         # 6. followed by an optional percent (%) or per-mille (‰) sign.
         
+        #...DONE BELOW
+        
+        
         # or that are one of the special values:
         
         # 1. NaN,
         # 2. INF, or
         # 3. -INF.
         
-        
+        # if string_value=='NaN':
+            
+        #     json_value=string_value
+            
+        # elif string_value=='INF':
+            
+        #     json_value=string_value
+            
+        # elif string_value=='-INF':
+                
+        #     json_value=string_value
     
-        
-        
+                
         # Implementations may also recognise numeric values that are in any of the 
         # standard-decimal, standard-percent or standard-scientific formats listed 
         # in the Unicode Common Locale Data Repository.
         
-        # TO DO
+        #...I THINK THIS IS COVERED BY THE PYTHON NUMBER PARSE BELOW
         
+        
+        #...at this stage, get the converted number if possible
+        try:
+            
+            json_value=convert_string_value_to_float(
+                    string_value,
+                    decimal_char,
+                    group_char
+                    )
+            conversion_error=False
+            
+        except ValueError:
+            
+            conversion_error=True
+        
+        
+    
         
         # Implementations must add a validation error to the errors annotation 
         # for the cell, and set the cell value to a string rather than a number 
@@ -2419,14 +2536,73 @@ def get_parse_number_function(
         
         if not pattern is None:
             
-            raise NotImplementedError
-        
+            if conversion_error:
+                
+                message=f'Cell value "{string_value}" is not in the format '
+                message+=f'specified "{pattern}". '
+                message+='Cell value is not converted to a number. '
+                
+                warnings.warn(message)
+                
+                errors.append(message)
+                
+                return string_value, 'string', errors
+                
+                
+            else:
+                
+                string_value2=babel.numbers.format_decimal(
+                    json_value,
+                    format=pattern)
+                
+                if not string_value2==string_value:
+                    
+                    message=f'Cell value "{string_value}" is not in the format '
+                    message+=f'specified "{pattern}". '
+                    message+='Cell value is not converted to a number. '
+                    
+                    warnings.warn(message)
+                    
+                    errors.append(message)
+                    
+                    return string_value, 'string', errors
+                    
         # - otherwise, if the string
         #     - does not meet the numeric format defined above,
         #     - contains two consecutive groupChar strings,
         
-        # TO DO
-        
+        else:
+            
+            if conversion_error:
+                
+                message=f'Cell value "{string_value}" is not in a format '
+                message+='which can be converted to a number. '
+                message+='Cell value is not converted to a number. '
+                
+                warnings.warn(message)
+                
+                errors.append(message)
+                
+                return string_value, 'string', errors
+                
+                
+            else:
+                
+                if not group_char is None:
+            
+                    if group_char+group_char in string_value:
+                        
+                        message=f'Cell value "{string_value}" contains '
+                        message+='two consecutive groupChar strings. '
+                        message+='Cell value is not converted to a number. '
+                        
+                        warnings.warn(message)
+                        
+                        errors.append(message)
+                        
+                        return string_value, 'string', errors
+            
+
         # - contains the decimalChar, if the datatype base is integer or one of 
         #   its sub-types,
         
@@ -2434,33 +2610,41 @@ def get_parse_number_function(
             
             if decimal_char in string_value:
                 
-                json_value=string_value
+                message=f'Cell value "{string_value}" not valid as it '
+                message+=f'contains the decimalChar character "{decimal_char}". '
+                message+='Cell value is not converted to a number. '
                 
-                value_type='string'
+                errors.append()
                 
-                errors.append(f'Value "{string_value}" not valid as it contains the decimalChar character "{decimal_char}"')
-                
-                return json_value, value_type, errors  
+                return string_value, 'string', errors  
                 
         # - contains an exponent, if the datatype base is decimal or one of its 
         #   sub-types, or
         
-        # DONE BELOW
-        
+        elif datatype['base'] in datatypes_decimals:
+            
+            if 'E' in string_value or 'e' in string_value:
+                
+                message=f'Cell value "{string_value}" not valid as it '
+                message+='contains an exponent. '
+                message+='Cell value is not converted to a number. '
+                
+                errors.append()
+                
+                return string_value, 'string', errors  
+                
         # - is one of the special values NaN, INF, or -INF, if the datatype base 
         #   is decimal or one of its sub-types.
-        
-        if datatype['base']=='decimal':
             
             if string_value in ['Nan','INF','-INF']:
                 
-                json_value=string_value
+                message=f'Cell value "{string_value}" not valid as its '
+                message+='datatype base is decimal or one of its sub-types. '
+                message+='Cell value is not converted to a number. '
                 
-                value_type='string'
+                errors.append(message)  
                 
-                errors.append(f'Value "{string_value}" not valid as it ...')  # TO DO
-                
-                return json_value, value_type, errors  
+                return string_value, 'string', errors  
         
         
         # Implementations must use the sign, exponent, percent, and per-mille signs 
@@ -2468,269 +2652,247 @@ def get_parse_number_function(
         # For example, the string value "-25%" must be interpreted as -0.25 and 
         # the string value "1E6" as 1000000.
         
+        #...this is done in the convert_string_value_to_float function.
         
         
-        
-        # deals with percent and permille
-        modifier=1
-        if string_value.endswith('%'):
+        #
+        return json_value,  datatype['base'], errors
             
-            string_value=string_value[:-1]
-            
-            modifier=0.01
-            
-        elif string_value.endswith('‰'):
-            
-            string_value=string_value[:-1]
-            
-            modifier=0.001
         
-        
-        # replace decimal_char and group_char characters
-        if not decimal_char=='.':
-            
-            string_value=string_value.replace(decimal_char,'.')
-            
-        if not group_char is None: 
-            
-            string_value=string_value.replace(group_char,'')
-        
-        # convert string to number    
-        if datatype['base'] in datatypes_integers:
-        
-            try:
-                
-                json_value=int(string_value)  # will fail if an exponential number
-                
-                json_value=json_value*modifier
-                
-            except CSVWError:
-                
-                json_value=string_value
-                
-                value_type='string'
-                
-                errors.append(f'Value "{string_value}" is not a valid integer')
-        
-        elif datatype['base']=='decimal':
-            
-            try:
-                
-                json_value=float(string_value)  # will not fail if an exponential number
-                
-                json_value=json_value*modifier
-                
-            except CSVWError:
-                
-                json_value=string_value
-                
-                value_type='string'
-                
-                errors.append(f'Value "{string_value}" is not a valid decimal')
-        
-            try:
-                for x in string_value.split['.']:
-                    
-                    int(x)  # will fail if an expoential number
-                 
-            except CSVWError:
-                
-                json_value=string_value
-                
-                value_type='string'
-                
-                errors.append(f'Value "{string_value}" is not a valid decimal')
-        
-        
-        else:
-            
-            try:
-                
-                json_value=float(string_value)  # assuming that this will work for all valid cases of ULDM number formats...
-                
-                json_value=json_value*modifier
-                
-            except CSVWError:
-                
-                json_value=string_value
-                
-                errors.append(f'Value "{string_value}" is not a valid number')
-                
-        
-        return json_value, value_type, errors
-
     return parse_number
 
 
-def parse_number_pattern(
+def parse_LDML_number_pattern(
         pattern,
         p=False
         ):
     """Breaks down a number pattern into constituent components.
     
-    :param pattern: A number patter as specified in the Unicode Locale
+    :param pattern: A number pattern as specified in the Unicode Locale
         Data Markup Language.
     
     """
+    
+    def parse_subpattern(
+        subpattern,  # a positive_pattern or a negative pattern
+        p=False):
+        ""
+
+        if p: print('subpattern',subpattern)
+
+        # mantissa and exponent in scientific notation
+        x=subpattern.split('E')
+        subpattern_mantissa_part=x[0]
+        if len(x)==2:
+            subpattern_exponent_part=x[1]
+        else:
+            subpattern_exponent_part=None
+        if p: print('subpattern_mantissa_part',
+                    subpattern_mantissa_part)
+        if p: print('subpattern_exponent_part',
+                    subpattern_exponent_part)
+        
+        # integral and fractional parts
+        x=subpattern_mantissa_part.split('.')
+        subpattern_integral_part=x[0]
+        if len(x)==2:
+            subpattern_fractional_part=x[1]
+        else:
+            subpattern_fractional_part=None
+        if p: print('subpattern_integral_part',
+                    subpattern_integral_part)
+        if p: print('subpattern_fractional_part',
+                    subpattern_fractional_part)
+
+        reverse_subpattern_integral_part=subpattern_integral_part[::-1]
+        if p: print('reverse_subpattern_integral_part',
+                    reverse_subpattern_integral_part)    
+        
+        # integral grouping size
+        subpattern_integral_part_primary_grouping_size=None
+        subpattern_integral_part_secondary_grouping_size=None
+        positions_of_group_char=[i for i, x 
+                                 in enumerate(reverse_subpattern_integral_part) 
+                                 if x==',']
+        if p: print('positions_of_group_char',positions_of_group_char)
+        if len(positions_of_group_char)>0:
+            subpattern_integral_part_primary_grouping_size=positions_of_group_char[0]
+        if len(positions_of_group_char)>1:
+            subpattern_integral_part_secondary_grouping_size=\
+                positions_of_group_char[1]-positions_of_group_char[0]
+        if p: print('subpattern_integral_part_primary_grouping_size',
+                    subpattern_integral_part_primary_grouping_size)
+        if p: print('subpattern_integral_part_secondary_grouping_size',
+                    subpattern_integral_part_secondary_grouping_size)
+            
+        
+        reverse_subpattern_integral_part_no_group_char=\
+            reverse_subpattern_integral_part.replace(',','')
+        if p: print('reverse_subpattern_integral_part_no_group_char',
+              reverse_subpattern_integral_part_no_group_char)
+        
+        # subpattern_zero_padding_count
+        i=0
+        subpattern_integral_part_zero_padding_count=0
+        while True:
+            if i==len(reverse_subpattern_integral_part_no_group_char):
+                break
+            if reverse_subpattern_integral_part_no_group_char[i]=='0':
+                subpattern_integral_part_zero_padding_count+=1
+                i+=1
+            else:
+                break
+        if p: print('subpattern_integral_part_zero_padding_count',
+              subpattern_integral_part_zero_padding_count)
+               
+        # skip past hash symbols
+        while True:
+            if i==len(reverse_subpattern_integral_part_no_group_char):
+                break
+            if reverse_subpattern_integral_part_no_group_char[i]=='#':
+                i+=1
+            else:
+                break
+        
+        # prefix
+        reverse_subpattern_integral_part_prefix=''
+        
+        while True:
+            
+            if i==len(reverse_subpattern_integral_part_no_group_char):
+                break
+            
+            x=reverse_subpattern_integral_part_no_group_char[i]
+            
+            if x in ['+','-','%','‰']:
+                
+                reverse_subpattern_integral_part_prefix+=x
+                i+=1
+                
+            else:
+                raise Exception
+                
+        subpattern_prefix=reverse_subpattern_integral_part_prefix[::-1]
+        
+        if p: print('subpattern_prefix',
+                    subpattern_prefix)
+        
+        # subpattern_fractional_part_zero_padding_count
+        if subpattern_fractional_part is None:
+            
+            subpattern_fractional_part_zero_padding_count=None
+            
+        else:
+            
+            i=0
+            subpattern_fractional_part_zero_padding_count=0
+            while True:
+                if i==len(subpattern_fractional_part):
+                    break
+                if subpattern_fractional_part[i]=='0':
+                    subpattern_fractional_part_zero_padding_count+=1
+                    i+=1
+                else:
+                    break
+        if p: print('subpattern_fractional_part_zero_padding_count',
+                    subpattern_fractional_part_zero_padding_count)
+               
+        # subpattern_fractional_part_hash_padding_count
+        if subpattern_fractional_part is None:
+            
+            subpattern_fractional_part_hash_padding_count=None
+            
+        else:
+        
+            subpattern_fractional_part_hash_padding_count=0
+            while True:
+                if i==len(subpattern_fractional_part):
+                    break
+                if subpattern_fractional_part[i]=='#':
+                    subpattern_fractional_part_hash_padding_count+=1
+                    i+=1
+                else:
+                    break
+                
+        if p: print('subpattern_fractional_part_hash_padding_count',
+                    subpattern_fractional_part_hash_padding_count)
+        
+        # suffix
+        if subpattern_fractional_part is None:
+            
+            subpattern_fractional_part_suffix=None
+            
+        else:
+        
+            subpattern_fractional_part_suffix=''
+            while True:
+                if i==len(subpattern_fractional_part):
+                    break
+                x=subpattern_fractional_part[i]
+                if x in ['+','-','%','‰']:
+                    subpattern_fractional_part_suffix+=x
+                    i+=1
+                else:
+                    raise Exception
+                    
+        if p: print('subpattern_fractional_part_suffix',
+                    subpattern_fractional_part_suffix)
+        
+        return dict(
+            subpattern=subpattern,
+            subpattern_mantissa_part=subpattern_mantissa_part,
+            subpattern_exponent_part=subpattern_exponent_part,
+            subpattern_integral_part=subpattern_integral_part,
+            subpattern_fractional_part=subpattern_fractional_part,
+            subpattern_integral_part_primary_grouping_size=\
+                subpattern_integral_part_primary_grouping_size,
+            subpattern_integral_part_secondary_grouping_size=\
+                subpattern_integral_part_secondary_grouping_size,
+            subpattern_integral_part_zero_padding_count=\
+                subpattern_integral_part_zero_padding_count,
+            subpattern_prefix=\
+                subpattern_prefix,
+            subpattern_fractional_part_zero_padding_count=\
+                subpattern_fractional_part_zero_padding_count,
+            subpattern_fractional_part_hash_padding_count=\
+                subpattern_fractional_part_hash_padding_count,
+            subpattern_fractional_part_suffix=\
+                subpattern_fractional_part_suffix,
+            )
+    
     if p: print('pattern',pattern)
     
+    # find positive and negative patterns
     x=pattern.split(';')
-    positive_pattern=x[0].strip()
-    if len(x)==2:
+    
+    if len(x)==1:
+    
+        positive_pattern=x[0].strip()
+        negative_pattern=positive_pattern
+    
+    if len(x)>1:
+        
+        positive_pattern=x[0].strip()
         negative_pattern=x[1].strip()
-    else:
-        negative_pattern=None
+        
     if p: print('positive_pattern',positive_pattern)
     if p: print('negative_pattern',negative_pattern)
+    
+    result={}
+    
+    result['positive_pattern']=\
+        parse_subpattern(
+            positive_pattern,
+            p=p
+            )
         
-    # mantissa and exponent in scientific notation
-    x=positive_pattern.split('E')
-    positive_pattern_mantissa_part=x[0]
-    if len(x)==2:
-        positive_pattern_exponent_part=x[1]
-    else:
-        positive_pattern_exponent_part=None
-    if p: print('positive_pattern_mantissa_part',
-                positive_pattern_mantissa_part)
-    if p: print('positive_pattern_exponent_part',
-                positive_pattern_exponent_part)
-    
-    # integral and fractional parts
-    x=positive_pattern_mantissa_part.split('.')
-    positive_pattern_integral_part=x[0]
-    if len(x)==2:
-        positive_pattern_fractional_part=x[1]
-    else:
-        postive_pattern_fractional_part=None
-    if p: print('positive_pattern_integral_part',
-                positive_pattern_integral_part)
-    if p: print('positive_pattern_fractional_part',
-                positive_pattern_fractional_part)
-
-    reverse_positive_pattern_integral_part=positive_pattern_integral_part[::-1]
-    if p: print('reverse_positive_pattern_integral_part',
-                reverse_positive_pattern_integral_part)    
-    
-    # integral grouping size
-    positive_pattern_integral_part_primary_grouping_size=None
-    positive_pattern_integral_part_secondary_grouping_size=None
-    positions_of_group_char=[i for i, x 
-                             in enumerate(reverse_positive_pattern_integral_part) 
-                             if x==',']
-    if p: print('positions_of_group_char',positions_of_group_char)
-    if len(positions_of_group_char)>0:
-        positive_pattern_integral_part_primary_grouping_size=positions_of_group_char[0]
-    if len(positions_of_group_char)>1:
-        positive_pattern_integral_part_secondary_grouping_size=\
-            positions_of_group_char[1]-positions_of_group_char[0]
-    if p: print('positive_pattern_integral_part_primary_grouping_size',
-                positive_pattern_integral_part_primary_grouping_size)
-    if p: print('positive_pattern_integral_part_secondary_grouping_size',
-                positive_pattern_integral_part_secondary_grouping_size)
+    result['negativePattern']=\
+        parse_subpattern(
+            negative_pattern,
+            p=p
+            )
         
-    
-    reverse_positive_pattern_integral_part_no_group_char=\
-        reverse_positive_pattern_integral_part.replace(',','')
-    if p: print('reverse_positive_pattern_integral_part_no_group_char',
-          reverse_positive_pattern_integral_part_no_group_char)
-    
-    # positive_pattern_zero_padding_count
-    i=0
-    positive_pattern_integral_part_zero_padding_count=0
-    while True:
-        if i==len(reverse_positive_pattern_integral_part_no_group_char):
-            break
-        if reverse_positive_pattern_integral_part_no_group_char[i]=='0':
-            positive_pattern_integral_part_zero_padding_count+=1
-            i+=1
-        else:
-            break
-    if p: print('positive_pattern_integral_part_zero_padding_count',
-          positive_pattern_integral_part_zero_padding_count)
-           
-    # skip past hash symbols
-    while True:
-        if i==len(reverse_positive_pattern_integral_part_no_group_char):
-            break
-        if reverse_positive_pattern_integral_part_no_group_char[i]=='#':
-            i+=1
-        else:
-            break
-    
-    # prefix
-    reverse_positive_pattern_integral_part_prefix=''
-    while True:
-        if i==len(reverse_positive_pattern_integral_part_no_group_char):
-            break
-        x=reverse_positive_pattern_integral_part_no_group_char[i]
-        if x in ['+','-','%','‰']:
-            reverse_positive_pattern_integral_part_prefix+=x
-            i+=1
-        else:
-            raise Exception
-    positive_pattern_integral_part_prefix=reverse_positive_pattern_integral_part_prefix[::-1]
-    if p: print('positive_pattern_integral_part_prefix',
-                positive_pattern_integral_part_prefix)
-    
-    # positive_pattern_fractional_part_zero_padding_count
-    i=0
-    positive_pattern_fractional_part_zero_padding_count=0
-    while True:
-        if i==len(positive_pattern_fractional_part):
-            break
-        if positive_pattern_fractional_part[i]=='0':
-            positive_pattern_fractional_part_zero_padding_count+=1
-            i+=1
-        else:
-            break
-    if p: print('positive_pattern_fractional_part_zero_padding_count',
-                positive_pattern_fractional_part_zero_padding_count)
-           
-    # positive_pattern_fractional_part_hash_padding_count
-    positive_pattern_fractional_part_hash_padding_count=0
-    while True:
-        if i==len(positive_pattern_fractional_part):
-            break
-        if positive_pattern_fractional_part[i]=='#':
-            positive_pattern_fractional_part_hash_padding_count+=1
-            i+=1
-        else:
-            break
-    if p: print('positive_pattern_fractional_part_hash_padding_count',
-                positive_pattern_fractional_part_hash_padding_count)
-    
-    # suffix
-    positive_pattern_fractional_part_suffix=''
-    while True:
-        if i==len(positive_pattern_fractional_part):
-            break
-        x=positive_pattern_fractional_part[i]
-        if x in ['+','-','%','‰']:
-            positive_pattern_fractional_part_suffix+=x
-            i+=1
-        else:
-            raise Exception
-    if p: print('positive_pattern_fractional_part_suffix',
-                positive_pattern_fractional_part_suffix)
-    
-    return dict(
-        positive_pattern_integral_part_primary_grouping_size=\
-            positive_pattern_integral_part_primary_grouping_size,
-        positive_pattern_integral_part_secondary_grouping_size=\
-            positive_pattern_integral_part_secondary_grouping_size,
-        positive_pattern_integral_part_zero_padding_count=\
-            positive_pattern_integral_part_zero_padding_count,
-        positive_pattern_integral_part_prefix=\
-            positive_pattern_integral_part_prefix,
-        positive_pattern_fractional_part_zero_padding_count=\
-            positive_pattern_fractional_part_zero_padding_count,
-        positive_pattern_fractional_part_hash_padding_count=\
-            positive_pattern_fractional_part_hash_padding_count,
-        positive_pattern_fractional_part_suffix=\
-            positive_pattern_fractional_part_suffix,
-        
-        
-        )
+    return result
         
         
 
@@ -3314,9 +3476,26 @@ def get_parse_other_types_function(
     if not datatype['base'] in ['html','xml','json'] and \
         'format' in datatype:
             
-        raise NotImplementedError
+        try:
+            
+            re.compile(datatype['format'])
+            
+            datatype2=dict(**datatype)
+            
+        except re.error:
+            
+            message='Property "format" with value "{datatype["format"]}" '
+            message+='is not a valid regular expression. '
+            message+='Property is removed. '
+            
+            warnings.warn(message)
+            
+            datatype2={k:v for k,v in datatype.items()
+                       if not k=='format'}
+            
+    else:
         
-        # check if format is a vaild regular expression
+        datatype2=dict(**datatype)
     
     
     def parse_other_types(
@@ -3328,14 +3507,21 @@ def get_parse_other_types_function(
         
         json_value=string_value
         
-        value_type=datatype['base']
+        value_type=datatype2['base']
         
-        if not datatype['base'] in ['html','xml','json'] and \
-            'format' in datatype:
-                
-            raise NotImplementedError
+        if not datatype2['base'] in ['html','xml','json'] and \
+            'format' in datatype2:
             
-            # check if value matches regular expression
+            regexp = re.compile(datatype2['format'])
+            
+            if not regexp.search(string_value):
+                
+                message=f'string_value "{string_value}" does not match '
+                message+=f'regular expression "{datatype["format"]}".'
+                
+                warnings.warn(message)
+                
+                errors.append(message)
         
     
         return json_value,value_type,errors
@@ -5562,13 +5748,21 @@ def validate_and_normalize_metadata_table_group_dict(
                     
                     if 'titles' in metadata_column_dict:
                     
-                        x=metadata_column_dict['titles'][default_language][0]
+                        if default_language in metadata_column_dict['titles']:    
+                    
+                            x=metadata_column_dict['titles'][default_language][0]
                         
-                        name=urllib.parse.quote(x.encode('utf8'))
+                            name=urllib.parse.quote(x.encode('utf8'))
                         
-                        metadata_column_dict['name']=name
+                            metadata_column_dict['name']=name
 
-    
+                        else:
+                            
+                            message='No title exists with default language tag. '
+                            message+=' Column name property is not set.'
+                            
+                            warnings.warn(message)
+                            
        
     
     #print('-metadata_table_group_dict',metadata_table_group_dict)
@@ -8751,9 +8945,13 @@ def validate_and_normalize_derived_datatype(
                 )
             
             
+            
             if isinstance(metadata_datatype_dict[k],dict):
                 
+                
+                
                 raise NotImplementedError
+            
             
             normalize_atomic_property(
                 metadata_datatype_dict, 

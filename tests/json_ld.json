@@ -1,33 +1,132 @@
 {
     "tables": [
         {
-            "url": "http://www.w3.org/2013/csvw/tests/tree-ops.csv",
-            "rdfs:comment": "If there is a non-empty case-sensitive intersection between the titles values, where matches must have a matching language; und matches any language, and languages match if they are equal when truncated, as defined in [BCP47], to the length of the shortest language tag.",
-            "rdfs:label": "title incompatible with title on case",
+            "url": "http://www.w3.org/2013/csvw/tests/test155.csv",
+            "rdfs:comment": "If the datatype format annotation is a single string, this is interpreted in the same way as if it were an object with a pattern property whose value is that string.",
+            "rdfs:label": "number format (valid combinations)",
             "row": [
                 {
                     "rownum": 1,
-                    "url": "http://www.w3.org/2013/csvw/tests/tree-ops.csv#row=2",
+                    "url": "http://www.w3.org/2013/csvw/tests/test155.csv#row=2",
                     "describes": [
                         {
-                            "gid": "1",
-                            "on street": "ADDISON AV",
-                            "species": "Celtis australis",
-                            "trim cycle": "Large Tree Routine Prune",
-                            "inventory date": "10/18/2010"
+                            "integer": 0.0,
+                            "decimal": 0.1,
+                            "double": 0.0,
+                            "float": "0.0e0",
+                            "number": 0.0,
+                            "long": -10.0,
+                            "int": -10.0,
+                            "short": -10.0,
+                            "byte": -10.0,
+                            "nonNegativeInteger": 1.0,
+                            "positiveInteger": "1",
+                            "unsignedLong": 1.0,
+                            "unsignedInt": "1",
+                            "unsignedShort": "1",
+                            "unsignedByte": "1",
+                            "nonPositiveInteger": 0.0,
+                            "negativeInteger": -1.0
                         }
                     ]
                 },
                 {
                     "rownum": 2,
-                    "url": "http://www.w3.org/2013/csvw/tests/tree-ops.csv#row=3",
+                    "url": "http://www.w3.org/2013/csvw/tests/test155.csv#row=3",
                     "describes": [
                         {
-                            "gid": "2",
-                            "on street": "EMERSON ST",
-                            "species": "Liquidambar styraciflua",
-                            "trim cycle": "Large Tree Routine Prune",
-                            "inventory date": "6/2/2010"
+                            "integer": 10.0,
+                            "decimal": 10.1,
+                            "double": 101.0,
+                            "float": "10.10e1",
+                            "number": 101.0,
+                            "long": 1234.0,
+                            "int": 1234.0,
+                            "short": 1234.0,
+                            "byte": 123.0,
+                            "nonNegativeInteger": 123.0,
+                            "positiveInteger": "123",
+                            "unsignedLong": 1234.0,
+                            "unsignedInt": "1234",
+                            "unsignedShort": "1234",
+                            "unsignedByte": "123",
+                            "nonPositiveInteger": -123.0,
+                            "negativeInteger": -123.0
+                        }
+                    ]
+                },
+                {
+                    "rownum": 3,
+                    "url": "http://www.w3.org/2013/csvw/tests/test155.csv#row=4",
+                    "describes": [
+                        {
+                            "integer": 10.0,
+                            "decimal": 10.1,
+                            "double": NaN,
+                            "float": "NaN",
+                            "number": NaN,
+                            "long": 1234.0,
+                            "int": 1234.0,
+                            "short": 1234.0,
+                            "byte": 123.0,
+                            "nonNegativeInteger": 123.0,
+                            "positiveInteger": "123",
+                            "unsignedLong": 1234.0,
+                            "unsignedInt": "1234",
+                            "unsignedShort": "1234",
+                            "unsignedByte": "123",
+                            "nonPositiveInteger": -123.0,
+                            "negativeInteger": -123.0
+                        }
+                    ]
+                },
+                {
+                    "rownum": 4,
+                    "url": "http://www.w3.org/2013/csvw/tests/test155.csv#row=5",
+                    "describes": [
+                        {
+                            "integer": 10.0,
+                            "decimal": 10.1,
+                            "double": Infinity,
+                            "float": "INF",
+                            "number": Infinity,
+                            "long": 1234.0,
+                            "int": 1234.0,
+                            "short": 1234.0,
+                            "byte": 123.0,
+                            "nonNegativeInteger": 123.0,
+                            "positiveInteger": "123",
+                            "unsignedLong": 1234.0,
+                            "unsignedInt": "1234",
+                            "unsignedShort": "1234",
+                            "unsignedByte": "123",
+                            "nonPositiveInteger": -123.0,
+                            "negativeInteger": -123.0
+                        }
+                    ]
+                },
+                {
+                    "rownum": 5,
+                    "url": "http://www.w3.org/2013/csvw/tests/test155.csv#row=6",
+                    "describes": [
+                        {
+                            "integer": 10.0,
+                            "decimal": 10.1,
+                            "double": -Infinity,
+                            "float": "-INF",
+                            "number": -Infinity,
+                            "long": 1234.0,
+                            "int": 1234.0,
+                            "short": 1234.0,
+                            "byte": 123.0,
+                            "nonNegativeInteger": 123.0,
+                            "positiveInteger": "123",
+                            "unsignedLong": 1234.0,
+                            "unsignedInt": "1234",
+                            "unsignedShort": "1234",
+                            "unsignedByte": "123",
+                            "nonPositiveInteger": -123.0,
+                            "negativeInteger": -123.0
                         }
                     ]
                 }
