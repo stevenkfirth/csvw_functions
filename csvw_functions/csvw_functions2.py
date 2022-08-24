@@ -2322,13 +2322,6 @@ def get_parse_number_function(
     
     if isinstance(datatype_format,dict) and 'decimalChar' in datatype_format:
         
-        validate_atomic_property(
-            datatype_format,
-            'decimalChar',
-            expected_types=[str],
-            default_value='.'
-            )
-        
         decimal_char=datatype_format['decimalChar']
         
     else:
@@ -2343,13 +2336,6 @@ def get_parse_number_function(
     # not been specified.
     
     if isinstance(datatype_format,dict) and 'groupChar' in datatype_format:
-        
-        validate_atomic_property(
-            datatype_format,
-            'groupChar',
-            expected_types=[str],
-            default_value=None
-            )
         
         group_char=datatype_format['groupChar']
         
@@ -2376,36 +2362,20 @@ def get_parse_number_function(
     
     if not datatype_format is None:
     
-        if isinstance(datatype_format,dict) and 'pattern' in datatype_format:
+        if isinstance(datatype_format,dict):
             
-            validate_atomic_property(
-                datatype_format,
-                'pattern',
-                expected_types=[str],
-                default_value=None
-                )
+            pattern=datatype_format.get('pattern')
             
-            pattern=datatype_format['pattern']
+        else:  #... datatype_format is a string or None
             
-        else:
+            pattern=datatype_format
             
-            validate_atomic_property(
-                datatype,
-                'format',
-                expected_types=[str],
-                default_value=None
-                )
-            
-            pattern=datatype['format']
-            
-        print('-pattern',pattern)
-            
-        #...use babel function to see if the pattern is valid
+        #...cehck if pattern is valid
         if not pattern is None:
             
             for x in pattern:
                 
-                if not x in ['0','#',decimal_char,group_char,'E','+','%','‰']:
+                if not x in ['0','#','.',',','E','+','%','‰']:
                 
                     message=f'Number format pattern with value "{pattern}" is invalid '
                     message+=f'as it contains the character "{x}". '
@@ -2418,6 +2388,13 @@ def get_parse_number_function(
                     pattern=None
                     
                     break
+                
+        if not pattern is None:
+                
+            pattern_dict=\
+                parse_LDML_number_pattern(
+                    pattern
+                    )
                 
     else:
         
@@ -2564,13 +2541,71 @@ def get_parse_number_function(
                 
             else:
                 
-                string_value2=babel.numbers.format_decimal(
-                    json_value,
-                    format=pattern)
+                #...use babel to convert parse number back to a string
+                #...then check converted string is the same as the original string
+                #...need to create variations on the patter for this to work
+                #...by substituting '#'s for '0's in the fractional parts
                 
-                print('-string_value2',string_value2)
+                a,_,exponent_part=pattern.partition('E')
                 
-                if not string_value2==string_value:
+                exponent_integral_part,_,exponent_fractional_part=\
+                    exponent_part.partition('.')
+                
+                integral_part,_,fractional_part=a.partition('.')
+                
+                patterns=[]
+                
+                # loop through fractional parts
+                while True:
+                    
+                    # loop through exponent fractional parts
+                    x=exponent_fractional_part
+                        
+                    while True:
+                    
+                        pattern2=f'{integral_part}'
+                        if fractional_part:
+                            pattern2+=f'.{fractional_part}'
+                        if exponent_part:
+                            pattern2+=f'E{exponent_integral_part}'
+                            if exponent_fractional_part:
+                                pattern2+=f'.{exponent_fractional_part}'
+                            
+                        patterns.append(pattern2)
+                
+                        if not '#' in x:
+                            
+                            break
+                        
+                        else:
+                            
+                            x=x.replace('#','0',1)
+                
+                    if not '#' in fractional_part:
+                        
+                        break
+                    
+                    else:
+                        
+                        fractional_part=fractional_part.replace('#','0',1)
+                    
+                print('-patterns',patterns)
+                 
+                #
+                result=[]
+                
+                for pattern2 in patterns:
+                    
+                    string_value2=babel.numbers.format_decimal(
+                        json_value,
+                        format=pattern2)
+                
+                    result.append(string_value2)
+                    
+                print('result',result)
+                              
+                #
+                if not string_value in result:
                     
                     message=f'Cell value "{string_value}" is not in the format '
                     message+=f'specified "{pattern}". '
@@ -2693,229 +2728,343 @@ def parse_LDML_number_pattern(
     
     :param pattern: A number pattern as specified in the Unicode Locale
         Data Markup Language.
+        
+    :returns: (positive_subpattern, negative_subpattern)
     
     """
     
-    def parse_subpattern(
-        subpattern,  # a positive_pattern or a negative pattern
-        p=False):
+
+    def zero_and_hash_count(
+            pattern2,
+            mode, # integral or fractional
+            ):
         ""
-
-        if p: print('subpattern',subpattern)
-
-        # mantissa and exponent in scientific notation
-        x=subpattern.split('E')
-        subpattern_mantissa_part=x[0]
-        if len(x)==2:
-            subpattern_exponent_part=x[1]
-        else:
-            subpattern_exponent_part=None
-        if p: print('subpattern_mantissa_part',
-                    subpattern_mantissa_part)
-        if p: print('subpattern_exponent_part',
-                    subpattern_exponent_part)
+        zero_count=0
+        hash_count=0
         
-        # integral and fractional parts
-        x=subpattern_mantissa_part.split('.')
-        subpattern_integral_part=x[0]
-        if len(x)==2:
-            subpattern_fractional_part=x[1]
-        else:
-            subpattern_fractional_part=None
-        if p: print('subpattern_integral_part',
-                    subpattern_integral_part)
-        if p: print('subpattern_fractional_part',
-                    subpattern_fractional_part)
-
-        reverse_subpattern_integral_part=subpattern_integral_part[::-1]
-        if p: print('reverse_subpattern_integral_part',
-                    reverse_subpattern_integral_part)    
-        
-        # integral grouping size
-        subpattern_integral_part_primary_grouping_size=None
-        subpattern_integral_part_secondary_grouping_size=None
-        positions_of_group_char=[i for i, x 
-                                 in enumerate(reverse_subpattern_integral_part) 
-                                 if x==',']
-        if p: print('positions_of_group_char',positions_of_group_char)
-        if len(positions_of_group_char)>0:
-            subpattern_integral_part_primary_grouping_size=positions_of_group_char[0]
-        if len(positions_of_group_char)>1:
-            subpattern_integral_part_secondary_grouping_size=\
-                positions_of_group_char[1]-positions_of_group_char[0]
-        if p: print('subpattern_integral_part_primary_grouping_size',
-                    subpattern_integral_part_primary_grouping_size)
-        if p: print('subpattern_integral_part_secondary_grouping_size',
-                    subpattern_integral_part_secondary_grouping_size)
-            
-        
-        reverse_subpattern_integral_part_no_group_char=\
-            reverse_subpattern_integral_part.replace(',','')
-        if p: print('reverse_subpattern_integral_part_no_group_char',
-              reverse_subpattern_integral_part_no_group_char)
-        
-        # subpattern_zero_padding_count
+        pattern2.replace(',','')
         i=0
-        subpattern_integral_part_zero_padding_count=0
-        while True:
-            if i==len(reverse_subpattern_integral_part_no_group_char):
-                break
-            if reverse_subpattern_integral_part_no_group_char[i]=='0':
-                subpattern_integral_part_zero_padding_count+=1
-                i+=1
-            else:
-                break
-        if p: print('subpattern_integral_part_zero_padding_count',
-              subpattern_integral_part_zero_padding_count)
-               
-        # skip past hash symbols
-        while True:
-            if i==len(reverse_subpattern_integral_part_no_group_char):
-                break
-            if reverse_subpattern_integral_part_no_group_char[i]=='#':
-                i+=1
-            else:
-                break
+        end_of_zeros_flag=False
         
-        # prefix
-        reverse_subpattern_integral_part_prefix=''
+        if mode=='integral':
+            pattern2=pattern2[::-1]
+        elif mode=='fractional':
+            pass
+        else:
+            raise Exception
         
-        while True:
+        
+        
+        while i<len(pattern2):
             
-            if i==len(reverse_subpattern_integral_part_no_group_char):
-                break
-            
-            x=reverse_subpattern_integral_part_no_group_char[i]
-            
-            if x in ['+','-','%','‰']:
+            if pattern2[i]=='0':
                 
-                reverse_subpattern_integral_part_prefix+=x
-                i+=1
+                if end_of_zeros_flag:
+                    
+                    raise Exception
                 
+                else:
+                    
+                    zero_count+=1
+            
+            elif pattern2[i]=='#':
+                
+                end_of_zeros_flag=True
+            
+                hash_count+=1
+            
             else:
+                
                 raise Exception
                 
-        subpattern_prefix=reverse_subpattern_integral_part_prefix[::-1]
+            i+=1
         
-        if p: print('subpattern_prefix',
-                    subpattern_prefix)
         
-        # subpattern_fractional_part_zero_padding_count
-        if subpattern_fractional_part is None:
-            
-            subpattern_fractional_part_zero_padding_count=None
-            
-        else:
-            
-            i=0
-            subpattern_fractional_part_zero_padding_count=0
-            while True:
-                if i==len(subpattern_fractional_part):
-                    break
-                if subpattern_fractional_part[i]=='0':
-                    subpattern_fractional_part_zero_padding_count+=1
-                    i+=1
-                else:
-                    break
-        if p: print('subpattern_fractional_part_zero_padding_count',
-                    subpattern_fractional_part_zero_padding_count)
-               
-        # subpattern_fractional_part_hash_padding_count
-        if subpattern_fractional_part is None:
-            
-            subpattern_fractional_part_hash_padding_count=None
-            
-        else:
-        
-            subpattern_fractional_part_hash_padding_count=0
-            while True:
-                if i==len(subpattern_fractional_part):
-                    break
-                if subpattern_fractional_part[i]=='#':
-                    subpattern_fractional_part_hash_padding_count+=1
-                    i+=1
-                else:
-                    break
+        return zero_count,hash_count
                 
-        if p: print('subpattern_fractional_part_hash_padding_count',
-                    subpattern_fractional_part_hash_padding_count)
+    #---
+    
+    # prefix
+    if pattern.startswith('+'):
         
-        # suffix
-        if subpattern_fractional_part is None:
+        prefix='+'
+        pattern_no_prefix=pattern[1:]
+        
+    else:
+        
+        prefix=''
+        pattern_no_prefix=pattern
+        
+    # suffix
+    if pattern_no_prefix.endswith('%'):
+        
+        suffix='%'
+        pattern_no_prefix_and_suffix=pattern_no_prefix[:-1]
+        
+    elif pattern.endswith('‰'):
+        
+        suffix='‰'
+        pattern_no_prefix_and_suffix=pattern_no_prefix[:-1]
+        
+    else:
+        
+        suffix=''
+        pattern_no_prefix_and_suffix=pattern_no_prefix
+    
+    #...check no invalid prefixes or suffixes remain
+    assert pattern_no_prefix_and_suffix[0] in ['#','0']
+    assert pattern_no_prefix_and_suffix[-1] in ['#','0']
+    
+    # mantissa and exponent in scientific notation
+    mantissa_part, _, exponent_part_with_prefix=\
+        pattern_no_prefix_and_suffix.partition('E')
+    
+    # exponent_prefix
+    if exponent_part_with_prefix.startswith('+'):
+        
+        exponent_prefix='+'
+        exponent_part=exponent_part_with_prefix[1:]
+        
+    else:
+        
+        exponent_prefix=''
+        exponent_part=exponent_part_with_prefix
+    
+    
+    
+    # integral and fractional parts
+    integral_part, _, fractional_part=\
+        mantissa_part.partition('.')
+    
+    
+    # integral grouping size
+    reverse_integral_part=integral_part[::-1]
+    integral_part_primary_grouping_size=0
+    integral_part_secondary_grouping_size=0
+    positions_of_group_char=[i for i, x 
+                             in enumerate(reverse_integral_part) 
+                             if x==',']
+    if len(positions_of_group_char)>0:
+        integral_part_primary_grouping_size=positions_of_group_char[0]
+    if len(positions_of_group_char)>1:
+        integral_part_secondary_grouping_size=\
+            positions_of_group_char[1]-positions_of_group_char[0]
+    
+    # integral zeros and hashes
+    integral_part_zero_padding_count,\
+        integral_part_hash_padding_count=\
+            zero_and_hash_count(
+                    integral_part,
+                    mode='integral'
+                    )
+    
+    # fractional zeros and hashes
+    fractional_part_zero_padding_count,\
+        fractional_part_hash_padding_count=\
+            zero_and_hash_count(
+                    fractional_part,
+                    mode='fractional'
+                    )
+    
+    
+    # exponent zeros and hashes
+    exponent_part_zero_padding_count,\
+        exponent_part_hash_padding_count=\
+            zero_and_hash_count(
+                    exponent_part,
+                    mode='integral'
+                    )
+    
+    return dict(
+        pattern=pattern,
+        prefix=\
+            prefix,
+        suffix=\
+            suffix,
+        mantissa_part=\
+            mantissa_part,
+        integral_part=\
+            integral_part,
+        integral_part_primary_grouping_size=\
+            integral_part_primary_grouping_size,
+        integral_part_secondary_grouping_size=\
+            integral_part_secondary_grouping_size,
+        integral_part_zero_padding_count=\
+            integral_part_zero_padding_count,
+        integral_part_hash_padding_count=\
+            integral_part_hash_padding_count,
+        fractional_part=\
+            fractional_part,
+        fractional_part_zero_padding_count=\
+            fractional_part_zero_padding_count,
+        fractional_part_hash_padding_count=\
+            fractional_part_hash_padding_count,
+        exponent_prefix=\
+            exponent_prefix,
+        exponent_part=\
+            exponent_part,
+        exponent_part_zero_padding_count=\
+            exponent_part_zero_padding_count,
+        exponent_part_hash_padding_count=\
+            exponent_part_hash_padding_count
+            )
+        
+    
+
+
+def validate_LDML_number(
+        string_value,
+        errors,
+        pattern_dict,
+        decimal_char,
+        group_char
+        ):
+    """
+    """
+    prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix=\
+        parse_LDML_number(
+            string_value,
+            decimal_char
+            )
+        
+    print((prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix))
+    
+    print(pattern_dict)
+        
+    
+    # prefix
+    if prefix=='+':
+        
+        if not pattern_dict['prefix']=='+':
             
-            subpattern_fractional_part_suffix=None
+            message='prefix'
             
-        else:
+            warnings.warn(message)
+            
+    # integral_part
+    if len(integral_part.replace(group_char,''))<pattern_dict['integral_part_zero_padding_count']:
         
-            subpattern_fractional_part_suffix=''
-            while True:
-                if i==len(subpattern_fractional_part):
-                    break
-                x=subpattern_fractional_part[i]
-                if x in ['+','-','%','‰']:
-                    subpattern_fractional_part_suffix+=x
-                    i+=1
-                else:
-                    raise Exception
-                    
-        if p: print('subpattern_fractional_part_suffix',
-                    subpattern_fractional_part_suffix)
+        message='integral part zero padding'
         
-        return dict(
-            subpattern=subpattern,
-            subpattern_mantissa_part=subpattern_mantissa_part,
-            subpattern_exponent_part=subpattern_exponent_part,
-            subpattern_integral_part=subpattern_integral_part,
-            subpattern_fractional_part=subpattern_fractional_part,
-            subpattern_integral_part_primary_grouping_size=\
-                subpattern_integral_part_primary_grouping_size,
-            subpattern_integral_part_secondary_grouping_size=\
-                subpattern_integral_part_secondary_grouping_size,
-            subpattern_integral_part_zero_padding_count=\
-                subpattern_integral_part_zero_padding_count,
-            subpattern_prefix=\
-                subpattern_prefix,
-            subpattern_fractional_part_zero_padding_count=\
-                subpattern_fractional_part_zero_padding_count,
-            subpattern_fractional_part_hash_padding_count=\
-                subpattern_fractional_part_hash_padding_count,
-            subpattern_fractional_part_suffix=\
-                subpattern_fractional_part_suffix,
-            )
-    
-    if p: print('pattern',pattern)
-    
-    # find positive and negative patterns
-    x=pattern.split(';')
-    
-    if len(x)==1:
-    
-        positive_pattern=x[0].strip()
-        negative_pattern=positive_pattern
-    
-    if len(x)>1:
+        warnings.warn(message)
         
-        positive_pattern=x[0].strip()
-        negative_pattern=x[1].strip()
-        
-    if p: print('positive_pattern',positive_pattern)
-    if p: print('negative_pattern',negative_pattern)
+    # fractional_part
     
-    result={}
+        
+    if len(fractional_part)<pattern_dict['fractional_part_zero_padding_count']:
+        
+        message='fractional part zero padding'
+        
+        warnings.warn(message)
+        
+    if len(fractional_part)>\
+        pattern_dict['fractional_part_zero_padding_count']\
+            + pattern_dict['fractional_part_hash_padding_count']:
+        
+        message='fractional part hash padding'
+        
+        warnings.warn(message)
     
-    result['positive_pattern']=\
-        parse_subpattern(
-            positive_pattern,
-            p=p
-            )
+    # exponent prefix
+    if exponent_prefix=='+':
         
-    result['negativePattern']=\
-        parse_subpattern(
-            negative_pattern,
-            p=p
-            )
+        if not pattern_dict['exponent_prefix']=='+':
+            
+            message='exponent prefix'
+            
+            warnings.warn(message)
+    
+    # exponent part
+    if len(exponent_part.replace(group_char,''))<pattern_dict['exponent_part_zero_padding_count']:
         
-    return result
+        message='exponent part'
+        
+        warnings.warn(message)
+    
+    # suffix
+       
+    
+    
+    
+    
+    
+def parse_LDML_number(
+        string_value,
+        decimal_char
+        ):
+    """
+    """
+    # prefix
+    if string_value[0] in ['+','-']:
+        
+        prefix=string_value[0]
+        string_value_no_prefix=string_value[1:]
+        
+    else:
+        
+        prefix=''
+        string_value_no_prefix=string_value
+        
+        
+    # suffix
+    if string_value_no_prefix[-1] in ['%','‰']:
+        
+        suffix=string_value_no_prefix[-1]
+        string_value_no_prefix_and_suffix=string_value_no_prefix[:-1]
+        
+    else:
+        
+        suffix=''
+        string_value_no_prefix_and_suffix=string_value_no_prefix
+    
+    
+    #...check no invalid prefixes or suffixes remain
+    assert string_value_no_prefix_and_suffix[0] in ['0','1','2','3','4','5','6','7','8','9']
+    assert string_value_no_prefix_and_suffix[-1] in ['0','1','2','3','4','5','6','7','8','9']
+    
+    
+    # mantissa and exponent in scientific notation
+    mantissa_part, _, exponent_part_with_prefix=\
+        string_value_no_prefix_and_suffix.partition('E')
+    
+    
+    # integral and fractional parts
+    integral_part, _, fractional_part=\
+        mantissa_part.partition(decimal_char)
+        
+    # exponent prefix
+    if exponent_part_with_prefix and exponent_part_with_prefix[0] in ['+','-']:
+        
+        exponent_prefix=exponent_part_with_prefix[0]
+        exponent_part=exponent_part_with_prefix[1:]
+        
+    else:
+        
+        exponent_prefix=''
+        exponent_part=exponent_part_with_prefix
+        
+        
+    #...checks
+    for x in integral_part:
+        assert x in ['0','1','2','3','4','5','6','7','8','9']
+    for x in fractional_part:
+        assert x in ['0','1','2','3','4','5','6','7','8','9']
+    for x in exponent_part:
+        assert x in ['0','1','2','3','4','5','6','7','8','9']
+        
+    
+    #
+    return (prefix, 
+            integral_part, 
+            fractional_part, 
+            exponent_prefix, 
+            exponent_part, 
+            suffix)
+    
+    
+    
+            
+    
         
         
 
@@ -8968,13 +9117,89 @@ def validate_and_normalize_derived_datatype(
                 )
             
             
+            if isinstance(metadata_datatype_dict[k],str):
             
-            if isinstance(metadata_datatype_dict[k],dict):
-                
-                
-                
-                raise NotImplementedError
+                validate_atomic_property(
+                    metadata_datatype_dict,
+                    'format',
+                    expected_types=[str],
+                    default_value=None
+                    )
             
+            elif isinstance(metadata_datatype_dict[k],dict):
+                
+                for k1 in list(metadata_datatype_dict[k]):
+                    
+                    # decimalChar
+                    if k1=='decimalChar':
+                        
+                        # A string whose value is used to represent a decimal 
+                        # point within the number. 
+                        # The default value is ".". 
+                        # If the supplied value is not a string, 
+                        # implementations must issue a warning and proceed 
+                        # as if the property had not been specified.
+                        
+                        validate_atomic_property(
+                            metadata_datatype_dict[k],
+                            'decimalChar',
+                            expected_types=[str],
+                            default_value='.'
+                            )
+                        
+                    # groupChar
+                    elif k1=='groupChar':
+                        
+                        # A string whose value is used to group digits within 
+                        # the number. 
+                        # The default value is null. 
+                        # If the supplied value is not a string, 
+                        # implementations must issue a warning and proceed 
+                        # as if the property had not been specified.
+                        
+                        validate_atomic_property(
+                            metadata_datatype_dict[k],
+                            'groupChar',
+                            expected_types=[str],
+                            default_value=None
+                            )
+                        
+                    # pattern
+                    elif k1=='pattern':
+                        
+                        # A number format pattern as defined in [UAX35]. 
+                        # Implementations must recognise number format 
+                        # patterns containing the symbols 0, #, 
+                        # the specified decimalChar (or "." if unspecified), 
+                        # the specified groupChar (or "," if unspecified), 
+                        # E, +, % and ‰. 
+                        # Implementations may additionally recognise number 
+                        # format patterns containing other special pattern 
+                        # characters defined in [UAX35]. 
+                        # If the supplied value is not a string, or if it 
+                        # contains an invalid number format pattern or uses 
+                        # special pattern characters that the implementation 
+                        # does not recognise, implementations must issue a 
+                        # warning and proceed as if the property had not 
+                        # been specified.
+                        
+                        validate_atomic_property(
+                            metadata_datatype_dict[k],
+                            'pattern',
+                            expected_types=[str],
+                            default_value=None
+                            )
+                        
+                    else:
+                        
+                        message='Property "{k1}" not allowd in format object. '
+                        message+='Property is removed.'
+                        
+                        warnings.warn(message)
+                        
+                        metadata_datatype_dict[k].pop(k1)
+                
+                
             
             normalize_atomic_property(
                 metadata_datatype_dict, 

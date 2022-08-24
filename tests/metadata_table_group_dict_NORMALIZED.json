@@ -3,12 +3,12 @@
     "tables": [
         {
             "rdfs:comment": {
-                "@value": "If the datatype format annotation is a single string, this is interpreted in the same way as if it were an object with a pattern property whose value is that string."
+                "@value": "Numeric dataype with object format."
             },
             "rdfs:label": {
-                "@value": "number format (value not matching format)"
+                "@value": "number format (valid combinations)"
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test157.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test158.csv",
             "tableSchema": {
                 "columns": [
                     {
@@ -19,7 +19,9 @@
                         },
                         "datatype": {
                             "base": "integer",
-                            "format": "0"
+                            "format": {
+                                "pattern": "#0"
+                            }
                         },
                         "name": "integer"
                     },
@@ -31,7 +33,9 @@
                         },
                         "datatype": {
                             "base": "decimal",
-                            "format": "#0.0"
+                            "format": {
+                                "pattern": "#0.###"
+                            }
                         },
                         "name": "decimal"
                     },
@@ -43,9 +47,26 @@
                         },
                         "datatype": {
                             "base": "double",
-                            "format": "0.00E0"
+                            "format": {
+                                "pattern": "#0.###E#0"
+                            }
                         },
                         "name": "double"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "decimal1"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "decimal",
+                            "format": {
+                                "decimalChar": ",",
+                                "groupChar": "."
+                            }
+                        },
+                        "name": "decimal1"
                     }
                 ]
             }
