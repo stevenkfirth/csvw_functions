@@ -8,20 +8,17 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "integer",
+                    "name": "boolean",
                     "titles": [
                         {
-                            "@value": "integer",
+                            "@value": "boolean",
                             "@language": "und"
                         }
                     ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
-                        "base": "integer",
-                        "format": {
-                            "pattern": "#0"
-                        }
+                        "base": "boolean"
                     },
                     "default": "",
                     "lang": "und",
@@ -38,223 +35,14 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "0",
+                            "stringValue": "100",
                             "value": {
-                                "@value": 0.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10",
-                            "value": {
-                                "@value": 10.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 2,
-                    "sourceNumber": 2,
-                    "name": "decimal",
-                    "titles": [
-                        {
-                            "@value": "decimal",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "decimal",
-                        "format": {
-                            "pattern": "#0.###"
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "0.1",
-                            "value": {
-                                "@value": 0.1,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10.1",
-                            "value": {
-                                "@value": 10.1,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 3,
-                    "sourceNumber": 3,
-                    "name": "double",
-                    "titles": [
-                        {
-                            "@value": "double",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "double",
-                        "format": {
-                            "pattern": "#0.###E#0"
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "0.0E0",
-                            "value": {
-                                "@value": 0.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#double"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10.10E1",
-                            "value": {
-                                "@value": "10.10E1",
+                                "@value": "100",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "Cell value \"10.10E1\" is not in the format specified \"#0.###E#0\". Cell value is not converted to a number. "
+                                "Boolean value \"100\" does not match either the true values \"['1', 'true']\" or false values \"['0', 'false']\". Boolean value is not converted to boolean, string value returned."
                             ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 4,
-                    "sourceNumber": 4,
-                    "name": "decimal1",
-                    "titles": [
-                        {
-                            "@value": "decimal1",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "decimal",
-                        "format": {
-                            "decimalChar": ",",
-                            "groupChar": "."
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10.000,1",
-                            "value": {
-                                "@value": 100001.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,1",
-                            "value": {
-                                "@value": 11.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -276,136 +64,14 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "0",
+                            "stringValue": "100",
                             "value": {
-                                "@value": 0.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "0.1",
-                            "value": {
-                                "@value": 0.1,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "0.0E0",
-                            "value": {
-                                "@value": 0.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#double"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10.000,1",
-                            "value": {
-                                "@value": 100001.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
-                    "titles": []
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 2,
-                    "sourceNumber": 3,
-                    "primaryKey": "__recursion__",
-                    "referencedRows": "__recursion__",
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10",
-                            "value": {
-                                "@value": 10.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10.1",
-                            "value": {
-                                "@value": 10.1,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "10.10E1",
-                            "value": {
-                                "@value": "10.10E1",
+                                "@value": "100",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "Cell value \"10.10E1\" is not in the format specified \"#0.###E#0\". Cell value is not converted to a number. "
+                                "Boolean value \"100\" does not match either the true values \"['1', 'true']\" or false values \"['0', 'false']\". Boolean value is not converted to boolean, string value returned."
                             ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,1",
-                            "value": {
-                                "@value": 11.0,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -417,17 +83,17 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test158.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test186.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
             "transformations": [],
             "rdfs:comment": {
-                "@value": "Numeric dataype with object format."
+                "@value": "Implementations MUST add a validation error to the errors annotation for the cell if the string being parsed."
             },
             "rdfs:label": {
-                "@value": "number format (valid combinations)"
+                "@value": "boolean format (not matching datatype)"
             }
         }
     ]

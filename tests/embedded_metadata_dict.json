@@ -5,36 +5,84 @@
             {
                 "titles": {
                     "und": [
-                        "integer"
+                        "date"
                     ]
                 },
-                "name": "integer"
+                "name": "date"
             },
             {
                 "titles": {
                     "und": [
-                        "decimal"
+                        "time"
                     ]
                 },
-                "name": "decimal"
+                "name": "time"
             },
             {
                 "titles": {
                     "und": [
-                        "double"
+                        "dateTime"
                     ]
                 },
-                "name": "double"
+                "name": "dateTime"
             },
             {
                 "titles": {
                     "und": [
-                        "decimal1"
+                        "datetime"
                     ]
                 },
-                "name": "decimal1"
+                "name": "datetime"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "dateTimeStamp"
+                    ]
+                },
+                "name": "dateTimeStamp"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gDay"
+                    ]
+                },
+                "name": "gDay"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gMonth"
+                    ]
+                },
+                "name": "gMonth"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gMonthDay"
+                    ]
+                },
+                "name": "gMonthDay"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gYear"
+                    ]
+                },
+                "name": "gYear"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gYearMonth"
+                    ]
+                },
+                "name": "gYearMonth"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test158.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test187.csv"
 }

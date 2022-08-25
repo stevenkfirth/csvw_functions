@@ -184,6 +184,8 @@ datatypes_numbers=['double','number','float']+datatypes_decimals
 
 datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
 
+datatypes_binary=['base64Binary','binary','hexBinary']
+
 
 #%% Encodings
 
@@ -672,13 +674,156 @@ class CSVWWarning(Warning):
 
 #%% 4.6 Datatypes
 
+def validate_value_for_datatype_base(
+        value,
+        errors,
+        datatype_base
+        ):
+    """
+    
+    :returns: True if valid; otherwise False
+    
+    """
+    #  All values of the datatype must be valid values of the base datatype.
+    
+    
+    
+    if datatype_base=='integer':
+        
+        pass
+    
+    elif datatype_base=='long':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            minimum=-9223372036854775808,
+            maximum=9223372036854775807
+            )
+    
+    elif datatype_base=='int':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            minimum=-2147483648,
+            maximum=2147483647
+            )
+    
+    elif datatype_base=='short':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            minimum=-32768,
+            maximum=32767
+            )
+    
+    elif datatype_base=='byte':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            minimum=-128,
+            maximum=127
+            )
+    
+    elif datatype_base=='nonNegativeInteger':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            minimum=0
+            )
+    
+    elif datatype_base=='positiveInteger':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            minimum_exclusive=0
+            )
+    
+    elif datatype_base=='unsignedLong':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            maximum=18446744073709551615,
+            minimum=0
+            )
+    
+    elif datatype_base=='unsignedInt':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            maximum=4294967295,
+            minimum=0
+            )
+    
+    elif datatype_base=='unsignedShort':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            maximum=65535,
+            minimum=0
+            )
+    
+    elif datatype_base=='unsignedByte':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            maximum=255,
+            minimum=0
+            )
+    
+    elif datatype_base=='nonPositiveInteger':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            maximum=0
+            )
+    
+    elif datatype_base=='negativeInteger':
+        
+        return check_value_constraints(
+            value,
+            errors,
+            datatype_base,
+            maximum_exclusive=0
+            )
+    
+    
+    return True
+    
+
+
+
+
 #%% 4.6.1 Length Constraints
 
 def check_length_constraints(
-        json_value,
-        value_type,
-        datatype,
-        errors
+        value,
+        errors,
+        datatype_base,
+        length=None,
+        minimum_length=None,
+        maximum_length=None
         ):
     """
     """
@@ -695,28 +840,76 @@ def check_length_constraints(
     
     # If the value is a list, the constraint applies to each element of the list.
     
-    if 'length' in datatype:
+    if value is None:
+        
+        value_length=0
+        
+    elif datatype_base in datatypes_strings:
+        
+        value_length=len(value)
+        
+    elif datatype_base in datatypes_binary:
+        
+        value_length=len(value.encode('utf-8'))  #??? needs checking
     
-        raise NotImplementedError
+    
+    if not length is None:
+    
+        if not value_length==length:
+            
+            message='length'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
         
-    if 'minimumLength' in datatype:
         
-        raise NotImplementedError
+    if not minimum_length is None:
         
-    if 'maximumLength' in datatype:
+        if value_length<minimum_length:
+            
+            message='minimum_length'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
         
-        raise NotImplementedError
+        
+    if not maximum_length is None:
+        
+        if value_length>maximum_length:
+            
+            message='maximum_length'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
+        
+        
+    return True
     
     
 #%% 4.6.2 Value Constraints
 
 def check_value_constraints(
-        json_value,
-        value_type,
-        datatype,
-        errors
+        value,
+        errors,
+        datatype_base,
+        minimum=None,
+        maximum=None,
+        minimum_exclusive=None,
+        maximum_exclusive=None
         ):
     """
+    
+    :returns: True is value passes the constraints; otherwise False
+    
     """
     # The minimum, maximum, minimum exclusive, and maximum exclusive 
     # annotations indicate limits on cell values. 
@@ -727,21 +920,60 @@ def check_value_constraints(
     
     # If the value is a list, the constraint applies to each element of the list.
     
-    if 'minimum' in datatype:
     
-        raise NotImplementedError
+    if not minimum is None:
+        
+        if value<minimum:
+            
+            message='minimum'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
+        
     
-    if 'maximum' in datatype:
+    if not maximum is None:
         
-        raise NotImplementedError
+        if value>maximum:
         
-    if 'minimumExclusive' in datatype:
-        
-        raise NotImplementedError
+            message='maximum'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
     
-    if 'maximumExclusive' in datatype:
         
-        raise NotImplementedError
+    if not minimum_exclusive is None:
+        
+        if value<=minimum_exclusive:
+        
+            message='minimum_exclusive'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
+    
+    
+    if not maximum_exclusive is None:
+        
+        if value>=maximum_exclusive:
+        
+            message='maximum_exclusive'
+                
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return False
+    
+    
+    return True
 
 #%% Section 5 - Locating Metadata
 
@@ -2274,19 +2506,36 @@ def parse_cell_steps_6_to_9(
     #    if one is specified, as described below. 
     #    If there are any errors, add them to the list of errors for the cell.
     
-    check_length_constraints(
+    #
+    result=\
+        check_length_constraints(
             json_value,
-            value_type,
-            datatype,
-            errors
+            errors,
+            datatype['base'],
+            length=datatype.get('length'),
+            minimum_length=datatype.get('minimumLength'),
+            maximum_length=datatype.get('maximumLength')
             )
     
-    check_value_constraints(
+    if not result:
+        
+        return string_value, language, 'string', errors
+    
+    #
+    result=\
+        check_value_constraints(
             json_value,
-            value_type,
-            datatype,
-            errors
+            errors,
+            datatype['base'],
+            minimum=datatype.get('minimum'),
+            maximum=datatype.get('maximum'),
+            minimum_exclusive=datatype.get('minimumExclusive'),
+            maximum_exclusive=datatype.get('maximumExclusive')
             )
+    
+    if not result:
+        
+        return string_value, language, 'string', errors
     
     return json_value, language,value_type, errors
     
@@ -2299,6 +2548,10 @@ def get_parse_number_function(
         ):
     """
     """
+    
+    datatype_format=datatype.get('format')
+    
+    datatype_base=datatype['base']
     
     # By default, numeric values must be in the formats defined in
     # [xmlschema11-2]. 
@@ -2317,8 +2570,6 @@ def get_parse_number_function(
     # The default value is ".". If the supplied value is not a string, 
     # implementations must issue a warning and proceed as if the property 
     # had not been specified.
-    
-    datatype_format=datatype.get('format')
     
     if isinstance(datatype_format,dict) and 'decimalChar' in datatype_format:
         
@@ -2370,7 +2621,7 @@ def get_parse_number_function(
             
             pattern=datatype_format
             
-        #...cehck if pattern is valid
+        #...check if pattern is valid
         if not pattern is None:
             
             for x in pattern:
@@ -2400,10 +2651,11 @@ def get_parse_number_function(
         
         pattern=None
         
-    print('-pattern',pattern)
+    #print('-datatype',datatype)
+    #print('-pattern',pattern)
+    #print('-decimal_char',decimal_char)
+    #print('-group_char',group_char)
         
-        
-    
     
     def parse_number(
             string_value,
@@ -2411,16 +2663,19 @@ def get_parse_number_function(
             ):
         """
         """
-        print('-string_value',string_value)
+        #print('-string_value',string_value)
         
-        def convert_string_value_to_float(
+        def convert_string_value_to_number(
                 string_value,
+                datatype_base,
                 decimal_char,
                 group_char
                 ):
             """
             
             :raises ValueError: if string_value cannot be converted
+            
+            :rtype: int or float
             
             """
             #...deals with percent and permille
@@ -2438,25 +2693,35 @@ def get_parse_number_function(
                 modifier=0.001
             
             
-            #...replace decimal_char and group_char characters
-            if not decimal_char=='.':
+            #...replace decimal_char 
+            string_value=string_value.replace(decimal_char,'X')
                 
-                string_value=string_value.replace(decimal_char,'.')
-                
+            
+            #...replace group_char
             if not group_char is None: 
                 
                 string_value=string_value.replace(group_char,'')
+                
+            string_value=string_value.replace('X','.')
         
         
             #...convert
-            return float(string_value)*modifier
+            if datatype_base in datatypes_integers:
+                
+                return int(string_value)*modifier
+            
+            else:
+                
+                return float(string_value)*modifier
         
         
-        #...at this stage, get the converted number if possible
+        #---
+        #...convert the string value to a number
         try:
             
-            json_value=convert_string_value_to_float(
+            json_value=convert_string_value_to_number(
                     string_value,
+                    datatype_base,
                     decimal_char,
                     group_char
                     )
@@ -2464,12 +2729,11 @@ def get_parse_number_function(
             
         except ValueError:
             
+            json_value=None
             conversion_error=True
-        
-        print('-json_value',json_value)
-        print('-conversion_error',conversion_error)
-        
-        
+            
+        #print('-json_value',json_value)
+        #print('-conversion_error',conversion_error)
         
         
         #  If the groupChar is specified, but no pattern is supplied, when parsing 
@@ -2495,29 +2759,18 @@ def get_parse_number_function(
         # 2. INF, or
         # 3. -INF.
         
-        if string_value=='NaN':
+        if string_value in ['NaN','INF','-INF']:
             
             json_value=string_value
             
-        elif string_value=='INF':
-            
-            json_value=string_value
-            
-        elif string_value=='-INF':
-                
-            json_value=string_value
-    
                 
         # Implementations may also recognise numeric values that are in any of the 
         # standard-decimal, standard-percent or standard-scientific formats listed 
         # in the Unicode Common Locale Data Repository.
         
-        #...I THINK THIS IS COVERED BY THE PYTHON NUMBER PARSE ABOVE
-        
-        
+        #...NOT DONE, ALTHOUGH ANY NUMBER THAT PYTHON CAN PARSE WILL WORK
         
     
-        
         # Implementations must add a validation error to the errors annotation 
         # for the cell, and set the cell value to a string rather than a number 
         # if the string being parsed:
@@ -2526,7 +2779,15 @@ def get_parse_number_function(
         
         if not pattern is None:
             
-            if conversion_error:
+            result=validate_LDML_number(
+                string_value,
+                errors,
+                pattern_dict,
+                decimal_char,
+                group_char
+                )
+            
+            if not result:
                 
                 message=f'Cell value "{string_value}" is not in the format '
                 message+=f'specified "{pattern}". '
@@ -2537,96 +2798,18 @@ def get_parse_number_function(
                 errors.append(message)
                 
                 return string_value, 'string', errors
-                
-                
-            else:
-                
-                #...use babel to convert parse number back to a string
-                #...then check converted string is the same as the original string
-                #...need to create variations on the patter for this to work
-                #...by substituting '#'s for '0's in the fractional parts
-                
-                a,_,exponent_part=pattern.partition('E')
-                
-                exponent_integral_part,_,exponent_fractional_part=\
-                    exponent_part.partition('.')
-                
-                integral_part,_,fractional_part=a.partition('.')
-                
-                patterns=[]
-                
-                # loop through fractional parts
-                while True:
-                    
-                    # loop through exponent fractional parts
-                    x=exponent_fractional_part
-                        
-                    while True:
-                    
-                        pattern2=f'{integral_part}'
-                        if fractional_part:
-                            pattern2+=f'.{fractional_part}'
-                        if exponent_part:
-                            pattern2+=f'E{exponent_integral_part}'
-                            if exponent_fractional_part:
-                                pattern2+=f'.{exponent_fractional_part}'
-                            
-                        patterns.append(pattern2)
-                
-                        if not '#' in x:
-                            
-                            break
-                        
-                        else:
-                            
-                            x=x.replace('#','0',1)
-                
-                    if not '#' in fractional_part:
-                        
-                        break
-                    
-                    else:
-                        
-                        fractional_part=fractional_part.replace('#','0',1)
-                    
-                print('-patterns',patterns)
-                 
-                #
-                result=[]
-                
-                for pattern2 in patterns:
-                    
-                    string_value2=babel.numbers.format_decimal(
-                        json_value,
-                        format=pattern2)
-                
-                    result.append(string_value2)
-                    
-                print('result',result)
-                              
-                #
-                if not string_value in result:
-                    
-                    message=f'Cell value "{string_value}" is not in the format '
-                    message+=f'specified "{pattern}". '
-                    message+='Cell value is not converted to a number. '
-                    
-                    warnings.warn(message)
-                    
-                    errors.append(message)
-                    
-                    return string_value, 'string', errors
-                    
+            
+            
         # - otherwise, if the string
         #     - does not meet the numeric format defined above,
-        #     - contains two consecutive groupChar strings,
         
         else:
             
             if conversion_error:
                 
-                message=f'Cell value "{string_value}" is not in a format '
-                message+='which can be converted to a number. '
+                message=f'Cell string value "{string_value}" is not in a format '
+                message+='which can be converted to a number '
+                message+='of type "{datatype_base}". '
                 message+='Cell value is not converted to a number. '
                 
                 warnings.warn(message)
@@ -2635,22 +2818,34 @@ def get_parse_number_function(
                 
                 return string_value, 'string', errors
                 
-                
             else:
                 
-                if not group_char is None:
+                result=\
+                    validate_value_for_datatype_base(
+                        json_value,
+                        errors,
+                        datatype_base
+                        )
+                    
+                if not result:
+                    
+                    return string_value, 'string', errors
             
-                    if group_char+group_char in string_value:
-                        
-                        message=f'Cell value "{string_value}" contains '
-                        message+='two consecutive groupChar strings. '
-                        message+='Cell value is not converted to a number. '
-                        
-                        warnings.warn(message)
-                        
-                        errors.append(message)
-                        
-                        return string_value, 'string', errors
+            
+        #     - contains two consecutive groupChar strings,
+        if not group_char is None:
+    
+            if group_char+group_char in string_value:
+                
+                message=f'Cell value "{string_value}" contains '
+                message+='two consecutive groupChar strings. '
+                message+='Cell value is not converted to a number. '
+                
+                warnings.warn(message)
+                
+                errors.append(message)
+                
+                return string_value, 'string', errors
             
 
         # - contains the decimalChar, if the datatype base is integer or one of 
@@ -2670,6 +2865,7 @@ def get_parse_number_function(
                 
                 return string_value, 'string', errors  
                 
+            
         # - contains an exponent, if the datatype base is decimal or one of its 
         #   sub-types, or
         
@@ -2687,10 +2883,11 @@ def get_parse_number_function(
                 
                 return string_value, 'string', errors  
                 
+            
         # - is one of the special values NaN, INF, or -INF, if the datatype base 
         #   is decimal or one of its sub-types.
             
-            if string_value in ['Nan','INF','-INF']:
+            if string_value in ['NaN','INF','-INF']:
                 
                 message=f'Cell value "{string_value}" not valid as its '
                 message+='datatype base is decimal or one of its sub-types. '
@@ -2708,13 +2905,11 @@ def get_parse_number_function(
         # For example, the string value "-25%" must be interpreted as -0.25 and 
         # the string value "1E6" as 1000000.
         
-        #...this is done in the convert_string_value_to_float function.
-        
-        
+        #...this is done in the convert_string_value_to_number function.
         
         
         #
-        return json_value,  datatype['base'], errors
+        return json_value,  datatype_base, errors
             
         
     return parse_number
@@ -2732,11 +2927,9 @@ def parse_LDML_number_pattern(
     :returns: (positive_subpattern, negative_subpattern)
     
     """
-    
-
     def zero_and_hash_count(
             pattern2,
-            mode, # integral or fractional
+            mode, # "integral" or "fractional"
             ):
         ""
         zero_count=0
@@ -2746,6 +2939,7 @@ def parse_LDML_number_pattern(
         i=0
         end_of_zeros_flag=False
         
+        #
         if mode=='integral':
             pattern2=pattern2[::-1]
         elif mode=='fractional':
@@ -2753,8 +2947,7 @@ def parse_LDML_number_pattern(
         else:
             raise Exception
         
-        
-        
+        #
         while i<len(pattern2):
             
             if pattern2[i]=='0':
@@ -2779,7 +2972,7 @@ def parse_LDML_number_pattern(
                 
             i+=1
         
-        
+        #
         return zero_count,hash_count
                 
     #---
@@ -2794,6 +2987,7 @@ def parse_LDML_number_pattern(
         
         prefix=''
         pattern_no_prefix=pattern
+        
         
     # suffix
     if pattern_no_prefix.endswith('%'):
@@ -2811,13 +3005,16 @@ def parse_LDML_number_pattern(
         suffix=''
         pattern_no_prefix_and_suffix=pattern_no_prefix
     
+    
     #...check no invalid prefixes or suffixes remain
     assert pattern_no_prefix_and_suffix[0] in ['#','0']
     assert pattern_no_prefix_and_suffix[-1] in ['#','0']
     
+    
     # mantissa and exponent in scientific notation
     mantissa_part, _, exponent_part_with_prefix=\
         pattern_no_prefix_and_suffix.partition('E')
+    
     
     # exponent_prefix
     if exponent_part_with_prefix.startswith('+'):
@@ -2831,7 +3028,6 @@ def parse_LDML_number_pattern(
         exponent_part=exponent_part_with_prefix
     
     
-    
     # integral and fractional parts
     integral_part, _, fractional_part=\
         mantissa_part.partition('.')
@@ -2841,14 +3037,18 @@ def parse_LDML_number_pattern(
     reverse_integral_part=integral_part[::-1]
     integral_part_primary_grouping_size=0
     integral_part_secondary_grouping_size=0
+    
     positions_of_group_char=[i for i, x 
                              in enumerate(reverse_integral_part) 
                              if x==',']
+    
     if len(positions_of_group_char)>0:
         integral_part_primary_grouping_size=positions_of_group_char[0]
+        
     if len(positions_of_group_char)>1:
         integral_part_secondary_grouping_size=\
             positions_of_group_char[1]-positions_of_group_char[0]
+    
     
     # integral zeros and hashes
     integral_part_zero_padding_count,\
@@ -2857,6 +3057,7 @@ def parse_LDML_number_pattern(
                     integral_part,
                     mode='integral'
                     )
+    
     
     # fractional zeros and hashes
     fractional_part_zero_padding_count,\
@@ -2910,8 +3111,6 @@ def parse_LDML_number_pattern(
             )
         
     
-
-
 def validate_LDML_number(
         string_value,
         errors,
@@ -2920,42 +3119,65 @@ def validate_LDML_number(
         group_char
         ):
     """
-    """
-    prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix=\
-        parse_LDML_number(
-            string_value,
-            decimal_char
-            )
-        
-    print((prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix))
     
-    print(pattern_dict)
+    :returns: True if valid; otherwise False
+    
+    """
+    try:
+        
+        prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix=\
+            parse_LDML_number(
+                string_value,
+                errors,
+                decimal_char
+                )
+            
+    except ValueError:
+        
+        return False
+        
+    #print((prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix))
+    
+    #print(pattern_dict)
         
     
     # prefix
-    if prefix=='+':
+    if prefix=='+' and not pattern_dict['prefix']=='+':
+            
+        message='prefix'
         
-        if not pattern_dict['prefix']=='+':
+        warnings.warn(message)
+        
+        return False
             
-            message='prefix'
-            
-            warnings.warn(message)
-            
+    
     # integral_part
-    if len(integral_part.replace(group_char,''))<pattern_dict['integral_part_zero_padding_count']:
+    if not group_char is None:
+        
+        x=integral_part.replace(group_char,'')
+        
+    else:
+    
+        x=integral_part
+    
+    if len(x)<pattern_dict['integral_part_zero_padding_count']:
         
         message='integral part zero padding'
         
         warnings.warn(message)
         
-    # fractional_part
+        return False
     
         
+    # fractional_part
+    
     if len(fractional_part)<pattern_dict['fractional_part_zero_padding_count']:
         
         message='fractional part zero padding'
         
         warnings.warn(message)
+        
+        return False
         
     if len(fractional_part)>\
         pattern_dict['fractional_part_zero_padding_count']\
@@ -2964,6 +3186,9 @@ def validate_LDML_number(
         message='fractional part hash padding'
         
         warnings.warn(message)
+        
+        return False
+    
     
     # exponent prefix
     if exponent_prefix=='+':
@@ -2973,23 +3198,36 @@ def validate_LDML_number(
             message='exponent prefix'
             
             warnings.warn(message)
+            
+            return False
+        
     
     # exponent part
-    if len(exponent_part.replace(group_char,''))<pattern_dict['exponent_part_zero_padding_count']:
+    
+    if not group_char is None:
+        
+        x=exponent_part.replace(group_char,'')
+        
+    else:
+    
+        x=exponent_part
+    
+    if len(x)<pattern_dict['exponent_part_zero_padding_count']:
         
         message='exponent part'
         
         warnings.warn(message)
-    
-    # suffix
-       
-    
+        
+        return False
     
     
+    #
+    return True
     
     
 def parse_LDML_number(
         string_value,
+        errors,
         decimal_char
         ):
     """
@@ -3018,9 +3256,24 @@ def parse_LDML_number(
         string_value_no_prefix_and_suffix=string_value_no_prefix
     
     
-    #...check no invalid prefixes or suffixes remain
-    assert string_value_no_prefix_and_suffix[0] in ['0','1','2','3','4','5','6','7','8','9']
-    assert string_value_no_prefix_and_suffix[-1] in ['0','1','2','3','4','5','6','7','8','9']
+    #...check start
+    if not string_value_no_prefix_and_suffix[0] in ['0','1','2','3','4','5','6','7','8','9']:
+        
+        message='start does not contain a number'
+            
+        errors.append(message)
+            
+        raise ValueError
+        
+        
+    #...check end
+    if not string_value_no_prefix_and_suffix[-1] in ['0','1','2','3','4','5','6','7','8','9']:
+        
+        message='end does not contain a number'
+            
+        errors.append(message)
+            
+        raise ValueError
     
     
     # mantissa and exponent in scientific notation
@@ -3031,6 +3284,7 @@ def parse_LDML_number(
     # integral and fractional parts
     integral_part, _, fractional_part=\
         mantissa_part.partition(decimal_char)
+        
         
     # exponent prefix
     if exponent_part_with_prefix and exponent_part_with_prefix[0] in ['+','-']:
@@ -3044,13 +3298,40 @@ def parse_LDML_number(
         exponent_part=exponent_part_with_prefix
         
         
-    #...checks
+    #...check integral part
     for x in integral_part:
-        assert x in ['0','1','2','3','4','5','6','7','8','9']
+        
+        if not x in ['0','1','2','3','4','5','6','7','8','9']:
+            
+            message='error in integral part'
+            
+            errors.append(message)
+            
+            raise ValueError
+        
+        
+    #...check fractional part
     for x in fractional_part:
-        assert x in ['0','1','2','3','4','5','6','7','8','9']
+        
+        if not x in ['0','1','2','3','4','5','6','7','8','9']:
+            
+            message='error in fractional part'
+            
+            errors.append(message)
+            
+            raise ValueError
+        
+        
+    #...check exponent part
     for x in exponent_part:
-        assert x in ['0','1','2','3','4','5','6','7','8','9']
+        
+        if not x in ['0','1','2','3','4','5','6','7','8','9']:
+            
+            message='error in exponent part'
+            
+            errors.append(message)
+            
+            raise ValueError
         
     
     #
@@ -3075,86 +3356,95 @@ def get_parse_boolean_function(
         ):
     """
     """
+    # Boolean values may be represented in many ways aside from the standard 
+    # 1 and 0 or true and false.
     
+    # If the datatype base for a cell is boolean, the datatype format 
+    # annotation provides the true value followed by the false value, 
+    # separated by |. 
+    # For example if format is Y|N then cells must hold either Y or N with 
+    # Y meaning true and N meaning false. 
+    # If the format does not follow this syntax, implementations must 
+    # issue a warning and proceed as if no format had been provided.
+    
+    # The resulting cell value will be one or more boolean true or false values.
+    
+    datatype_base=datatype['base']
+    
+    datatype_format=datatype.get('format')
+    
+    true_values=['1','true']
+    
+    false_values=['0','false']
+
+    
+    #
+    if isinstance(datatype_format,str):
+    
+        x=datatype_format.split('|')
+        
+        if not len(x)==2:
+            
+            message='Boolean format "{datatype_format}" must contain exactly one "|" character.'
+            
+            warnings.warn(message)
+            
+    
+        elif x[0]==x[1]:
+                
+            message='Boolean format "{datatype_format}" must contain different string values for true and false. '
+            
+            warnings.warn(message)
+                    
+        else:
+            
+            true_values=[x[0]]
+            
+            false_values=[x[1]]
+            
+    else:
+        
+        message='Boolean format "{datatype_format}" must be a string.'
+        
+        warnings.warn(message)
+            
+            
+    #print('-true_values',true_values)
+    #print('-false_values',false_values)
+
+
     def parse_boolean(
             string_value,
             errors
             ):
         """
         """
-        value_type=datatype['base']
-        
-        # Boolean values may be represented in many ways aside from the standard 
-        # 1 and 0 or true and false.
-        
-        if string_value in ['1','true']:
+        if string_value in true_values:
             
             json_value=True
             
-            return json_value, value_type, errors
-        
-        elif string_value in ['0','false']:
+        elif string_value in false_values:
             
             json_value=False
             
-            return json_value, value_type, errors
-        
-        #If the datatype base for a cell is boolean, the datatype format 
-        # annotation provides the true value followed by the false value, 
-        # separated by |. 
-        # For example if format is Y|N then cells must hold either Y or N with 
-        # Y meaning true and N meaning false. 
-        # If the format does not follow this syntax, implementations must 
-        # issue a warning and proceed as if no format had been provided.
-        
-        if not datatype['format'] is None:
+        else:
             
-            x=datatype['format'].split('|')
+            message=f'Boolean value "{string_value}" does not match either '
+            message+=f'the true values "{true_values}" '
+            message+=f'or false values "{false_values}". '
+            message+='Boolean value is not converted to boolean, string value returned.'
             
-            if len(x)==0:
-                
-                warnings.warn('')
-                
-            elif len(x)>2:
-                
-                warnings.warn('')
-                
-            else:
-                
-                true_string=x[0]
-                
-                if len(true_string)==0:
-                    
-                    warnings.warn()
-                    
-                else:
-                    
-                    false_string=x[1]
-                    
-                    if len(false_string)==0:
-                        
-                        warnings.warn()
-                        
-                    else:
-                        
-                        if string_value in true_string:
-                            
-                            json_value=True
-                            
-                            return json_value, value_type, errors
-                        
-                        elif string_value in false_string:
-                            
-                            json_value=False
-                            
-                            return json_value, value_type, errors
-                
-        # if no match
-        json_value=string_value
-        value_type='string'
-        errors.append('no match to boolean')        
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return string_value, 'string', errors
         
-        return json_value, value_type, errors
+        
+        #
+        return json_value, datatype_base, errors
+        
+        
         
           
     return parse_boolean

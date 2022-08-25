@@ -1,31 +1,16 @@
 {
     "tables": [
         {
-            "url": "http://www.w3.org/2013/csvw/tests/test158.csv",
-            "rdfs:comment": "Numeric dataype with object format.",
-            "rdfs:label": "number format (valid combinations)",
+            "url": "http://www.w3.org/2013/csvw/tests/test186.csv",
+            "rdfs:comment": "Implementations MUST add a validation error to the errors annotation for the cell if the string being parsed.",
+            "rdfs:label": "boolean format (not matching datatype)",
             "row": [
                 {
                     "rownum": 1,
-                    "url": "http://www.w3.org/2013/csvw/tests/test158.csv#row=2",
+                    "url": "http://www.w3.org/2013/csvw/tests/test186.csv#row=2",
                     "describes": [
                         {
-                            "integer": 0.0,
-                            "decimal": 0.1,
-                            "double": 0.0,
-                            "decimal1": 100001.0
-                        }
-                    ]
-                },
-                {
-                    "rownum": 2,
-                    "url": "http://www.w3.org/2013/csvw/tests/test158.csv#row=3",
-                    "describes": [
-                        {
-                            "integer": 10.0,
-                            "decimal": 10.1,
-                            "double": "10.10E1",
-                            "decimal1": 11.0
+                            "boolean": "100"
                         }
                     ]
                 }

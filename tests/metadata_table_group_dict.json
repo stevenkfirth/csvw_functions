@@ -1,45 +1,68 @@
 {
     "@context": "http://www.w3.org/ns/csvw",
-    "rdfs:comment": "Numeric dataype with object format.",
-    "rdfs:label": "number format (valid combinations)",
-    "url": "test158.csv",
+    "rdfs:comment": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification.",
+    "rdfs:label": "date format (valid native combinations)",
+    "url": "test187.csv",
     "tableSchema": {
         "columns": [
             {
-                "titles": "integer",
+                "titles": "date",
                 "datatype": {
-                    "base": "integer",
-                    "format": {
-                        "pattern": "#0"
-                    }
+                    "base": "date"
                 }
             },
             {
-                "titles": "decimal",
+                "titles": "time",
                 "datatype": {
-                    "base": "decimal",
-                    "format": {
-                        "pattern": "#0.###"
-                    }
+                    "base": "time"
                 }
             },
             {
-                "titles": "double",
+                "titles": "dateTime",
                 "datatype": {
-                    "base": "double",
-                    "format": {
-                        "pattern": "#0.###E#0"
-                    }
+                    "base": "dateTime"
                 }
             },
             {
-                "titles": "decimal1",
+                "titles": "datetime",
                 "datatype": {
-                    "base": "decimal",
-                    "format": {
-                        "decimalChar": ",",
-                        "groupChar": "."
-                    }
+                    "base": "datetime"
+                }
+            },
+            {
+                "titles": "dateTimeStamp",
+                "datatype": {
+                    "base": "dateTimeStamp"
+                }
+            },
+            {
+                "titles": "gDay",
+                "datatype": {
+                    "base": "gDay"
+                }
+            },
+            {
+                "titles": "gMonth",
+                "datatype": {
+                    "base": "gMonth"
+                }
+            },
+            {
+                "titles": "gMonthDay",
+                "datatype": {
+                    "base": "gMonthDay"
+                }
+            },
+            {
+                "titles": "gYear",
+                "datatype": {
+                    "base": "gYear"
+                }
+            },
+            {
+                "titles": "gYearMonth",
+                "datatype": {
+                    "base": "gYearMonth"
                 }
             }
         ]

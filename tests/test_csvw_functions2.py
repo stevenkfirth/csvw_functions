@@ -68,6 +68,8 @@ def compare_json(self,json1,json2):
     else:
         
         self.assertEqual(json1,json2)
+        
+        self.assertEqual(type(json1),type(json2))
 
 
 # def remove_recursion(

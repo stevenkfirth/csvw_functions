@@ -3,70 +3,123 @@
     "tables": [
         {
             "rdfs:comment": {
-                "@value": "Numeric dataype with object format."
+                "@value": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification."
             },
             "rdfs:label": {
-                "@value": "number format (valid combinations)"
+                "@value": "date format (valid native combinations)"
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test158.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test187.csv",
             "tableSchema": {
                 "columns": [
                     {
                         "titles": {
                             "und": [
-                                "integer"
+                                "date"
                             ]
                         },
                         "datatype": {
-                            "base": "integer",
-                            "format": {
-                                "pattern": "#0"
-                            }
+                            "base": "date"
                         },
-                        "name": "integer"
+                        "name": "date"
                     },
                     {
                         "titles": {
                             "und": [
-                                "decimal"
+                                "time"
                             ]
                         },
                         "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "#0.###"
-                            }
+                            "base": "time"
                         },
-                        "name": "decimal"
+                        "name": "time"
                     },
                     {
                         "titles": {
                             "und": [
-                                "double"
+                                "dateTime"
                             ]
                         },
                         "datatype": {
-                            "base": "double",
-                            "format": {
-                                "pattern": "#0.###E#0"
-                            }
+                            "base": "dateTime"
                         },
-                        "name": "double"
+                        "name": "dateTime"
                     },
                     {
                         "titles": {
                             "und": [
-                                "decimal1"
+                                "datetime"
                             ]
                         },
                         "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "decimalChar": ",",
-                                "groupChar": "."
-                            }
+                            "base": "datetime"
                         },
-                        "name": "decimal1"
+                        "name": "datetime"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "dateTimeStamp"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "dateTimeStamp"
+                        },
+                        "name": "dateTimeStamp"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gDay"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gDay"
+                        },
+                        "name": "gDay"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gMonth"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gMonth"
+                        },
+                        "name": "gMonth"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gMonthDay"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "string"
+                        },
+                        "name": "gMonthDay"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gYear"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gYear"
+                        },
+                        "name": "gYear"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gYearMonth"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gYearMonth"
+                        },
+                        "name": "gYearMonth"
                     }
                 ]
             }
