@@ -8,17 +8,652 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "boolean",
+                    "name": "countryCode",
                     "titles": [
                         {
-                            "@value": "boolean",
+                            "@value": "countryCode",
                             "@language": "und"
                         }
                     ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
-                        "base": "boolean"
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "http://example.org/countries.csv{#countryCode}",
+                    "propertyURL": "http://www.geonames.org/ontology{#_name}",
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AD",
+                            "value": {
+                                "@value": "AD",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://www.geonames.org/ontology#countryCode",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AE",
+                            "value": {
+                                "@value": "AE",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://www.geonames.org/ontology#countryCode",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://www.geonames.org/ontology#countryCode",
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 2,
+                    "name": "latitude",
+                    "titles": [
+                        {
+                            "@value": "latitude",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "number"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "http://example.org/countries.csv{#countryCode}",
+                    "propertyURL": "http://schema.org/{_name}",
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "42.546245",
+                            "value": {
+                                "@value": 42.546245,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://schema.org/latitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "23.424076",
+                            "value": {
+                                "@value": 23.424076,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://schema.org/latitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "33.93911",
+                            "value": {
+                                "@value": 33.93911,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://schema.org/latitude",
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 3,
+                    "name": "longitude",
+                    "titles": [
+                        {
+                            "@value": "longitude",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "number"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "http://example.org/countries.csv{#countryCode}",
+                    "propertyURL": "http://schema.org/{_name}",
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1.601554",
+                            "value": {
+                                "@value": 1.601554,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://schema.org/longitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "53.847818",
+                            "value": {
+                                "@value": 53.847818,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://schema.org/longitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "67.709953",
+                            "value": {
+                                "@value": 67.709953,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://schema.org/longitude",
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 4,
+                    "sourceNumber": 4,
+                    "name": "name",
+                    "titles": [
+                        {
+                            "@value": "name",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "http://example.org/countries.csv{#countryCode}",
+                    "propertyURL": "http://schema.org/{_name}",
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Andorra",
+                            "value": {
+                                "@value": "Andorra",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://schema.org/name",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "United Arab Emirates",
+                            "value": {
+                                "@value": "United Arab Emirates",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://schema.org/name",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Afghanistan",
+                            "value": {
+                                "@value": "Afghanistan",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://schema.org/name",
+                            "valueURL": null
+                        }
+                    ]
+                }
+            ],
+            "rows": [
+                {
+                    "table": "__recursion__",
+                    "number": 1,
+                    "sourceNumber": 2,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AD",
+                            "value": {
+                                "@value": "AD",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://www.geonames.org/ontology#countryCode",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "42.546245",
+                            "value": {
+                                "@value": 42.546245,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://schema.org/latitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1.601554",
+                            "value": {
+                                "@value": 1.601554,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://schema.org/longitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Andorra",
+                            "value": {
+                                "@value": "Andorra",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AD",
+                            "propertyURL": "http://schema.org/name",
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 3,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AE",
+                            "value": {
+                                "@value": "AE",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://www.geonames.org/ontology#countryCode",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "23.424076",
+                            "value": {
+                                "@value": 23.424076,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://schema.org/latitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "53.847818",
+                            "value": {
+                                "@value": 53.847818,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://schema.org/longitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "United Arab Emirates",
+                            "value": {
+                                "@value": "United Arab Emirates",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AE",
+                            "propertyURL": "http://schema.org/name",
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 4,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://www.geonames.org/ontology#countryCode",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "33.93911",
+                            "value": {
+                                "@value": 33.93911,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://schema.org/latitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "67.709953",
+                            "value": {
+                                "@value": 67.709953,
+                                "@type": "http://www.w3.org/2001/XMLSchema#double"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://schema.org/longitude",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Afghanistan",
+                            "value": {
+                                "@value": "Afghanistan",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "http://example.org/countries.csv#AF",
+                            "propertyURL": "http://schema.org/name",
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                }
+            ],
+            "id": null,
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/countries.csv",
+            "tableDirection": "auto",
+            "suppressOutput": false,
+            "notes": [],
+            "foreignKeys": "__recursion__",
+            "transformations": []
+        },
+        {
+            "columns": [
+                {
+                    "table": "__recursion__",
+                    "number": 1,
+                    "sourceNumber": 1,
+                    "name": "countryRef",
+                    "titles": [
+                        {
+                            "@value": "countryRef",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": "http://example.org/countries.csv{#countryRef}",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": "http://example.org/countries.csv#AF"
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": "http://example.org/countries.csv#AF"
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": "http://example.org/countries.csv#AF"
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 2,
+                    "name": "year",
+                    "titles": [
+                        {
+                            "@value": "year",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "gYear"
                     },
                     "default": "",
                     "lang": "und",
@@ -35,14 +670,121 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "100",
+                            "stringValue": "1960",
                             "value": {
-                                "@value": "100",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                                "@value": "1960",
+                                "@type": "http://www.w3.org/2001/XMLSchema#gYear"
                             },
-                            "errors": [
-                                "Boolean value \"100\" does not match either the true values \"['1', 'true']\" or false values \"['0', 'false']\". Boolean value is not converted to boolean, string value returned."
-                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1961",
+                            "value": {
+                                "@value": "1961",
+                                "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1962",
+                            "value": {
+                                "@value": "1962",
+                                "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 3,
+                    "name": "population",
+                    "titles": [
+                        {
+                            "@value": "population",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "integer"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "9616353",
+                            "value": {
+                                "@value": 9616353,
+                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "9799379",
+                            "value": {
+                                "@value": 9799379,
+                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "9989846",
+                            "value": {
+                                "@value": 9989846,
+                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
+                            },
+                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -64,14 +806,163 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "100",
+                            "stringValue": "AF",
                             "value": {
-                                "@value": "100",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
                             },
-                            "errors": [
-                                "Boolean value \"100\" does not match either the true values \"['1', 'true']\" or false values \"['0', 'false']\". Boolean value is not converted to boolean, string value returned."
-                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": "http://example.org/countries.csv#AF"
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1960",
+                            "value": {
+                                "@value": "1960",
+                                "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "9616353",
+                            "value": {
+                                "@value": 9616353,
+                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 3,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": "http://example.org/countries.csv#AF"
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1961",
+                            "value": {
+                                "@value": "1961",
+                                "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "9799379",
+                            "value": {
+                                "@value": 9799379,
+                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 4,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "AF",
+                            "value": {
+                                "@value": "AF",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": "http://example.org/countries.csv#AF"
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "1962",
+                            "value": {
+                                "@value": "1962",
+                                "@type": "http://www.w3.org/2001/XMLSchema#gYear"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "9989846",
+                            "value": {
+                                "@value": 9989846,
+                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
+                            },
+                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -83,18 +974,12 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test186.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/country_slice.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
-            "transformations": [],
-            "rdfs:comment": {
-                "@value": "Implementations MUST add a validation error to the errors annotation for the cell if the string being parsed."
-            },
-            "rdfs:label": {
-                "@value": "boolean format (not matching datatype)"
-            }
+            "transformations": []
         }
     ]
 }

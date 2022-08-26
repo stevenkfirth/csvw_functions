@@ -2205,6 +2205,7 @@ def parse_cells_in_annotated_column_dict(
     # datetime
     elif datatype['base'] in ['dateTime', 'datetime']:
         
+        raise NotImplementedError
         datatype_parse_function=\
             get_parse_datetime_function(
                 datatype
@@ -3452,22 +3453,212 @@ def get_parse_boolean_function(
  
 #%% 6.4.4. Formats for dates and times
 
-date_formats=[
-    'yyyy-MM-dd',
-    'yyyyMMdd',
-    'dd-MM-yyyy',
-    'd-M-yyyy',
-    'MM-dd-yyyy',
-    'M-d-yyyy',
-    'dd/MM/yyyy',
-    'd/M/yyyy',
-    'MM/dd/yyyy',
-    'M/d/yyyy',
-    'dd.MM.yyyy',
-    'd.M.yyyy',
-    'MM.dd.yyyy',
-    'M.d.yyyy',
-    ]
+def get_timezone_format(
+        datatype_format
+        ):
+    """
+    """
+    x=datatype_format#  .strip()
+    
+    if x.endswith('XXX'):
+        
+        timezone_format='XXX'
+        
+    elif x.endswith('XX'):
+        
+        timezone_format='XX'
+        
+    elif x.endswith('X'):
+        
+        timezone_format='X'
+        
+    elif x.endswith('xxx'):
+        
+        timezone_format='xxx'
+        
+    elif x.endswith('xx'):
+        
+        timezone_format='xx'
+        
+    elif x.endswith('x'):
+        
+        timezone_format='x'
+        
+    else:
+        
+        timezone_format=''
+        timezone_gap=''
+    
+    #
+    if not timezone_format=='':
+        
+        x=len(timezone_format)
+        
+        if datatype_format[-x-1]==' ':
+            
+            timezone_gap=' '
+            
+        else:
+            
+            timezone_gap=''
+    
+    #
+    return timezone_format,timezone_gap
+
+
+def get_timezone_string(
+        string_value,
+        timezone_format
+        ):
+    """
+    """
+    x=string_value#  .strip()
+    
+    if timezone_format=='':
+        
+        return ''
+    
+    
+    elif timezone_format=='X':
+        
+        if string_value.endswith('Z'):
+            
+            return 'Z'
+    
+        elif x[-3] in ['+','-']:
+            
+            return x[-3:]
+        
+        elif x[-5] in ['+','-']:
+            
+            return x[-5:]
+        
+        else:
+            
+            raise Exception
+            
+    
+    elif timezone_format=='XX':
+        
+        if string_value.endswith('Z'):
+            
+            return 'Z'
+    
+        elif x[-5] in ['+','-']:
+            
+            return x[-5:]
+        
+        else:
+            
+            raise Exception
+    
+    
+    elif timezone_format=='XXX':
+        
+        if string_value.endswith('Z'):
+            
+            return 'Z'
+    
+        elif x[-6] in ['+','-']:
+            
+            return x[-5:]
+        
+        else:
+            
+            raise Exception
+            
+    
+    elif timezone_format=='x':
+        
+        if x[-3] in ['+','-']:
+            
+            return x[-3:]
+        
+        elif x[-5] in ['+','-']:
+            
+            return x[-5:]
+        
+        else:
+            
+            raise Exception
+            
+    
+    elif timezone_format=='xx':
+        
+        if x[-5] in ['+','-']:
+            
+            return x[-5:]
+        
+        else:
+            
+            raise Exception
+    
+    
+    elif timezone_format=='xxx':
+        
+        if x[-6] in ['+','-']:
+            
+            return x[-5:]
+        
+        else:
+            
+            raise Exception
+    
+    
+    else:
+        
+        raise Exception
+        
+
+def parse_timezone_string(
+        timezone_string
+        ):
+    ""
+    
+    if timezone_string=='':
+        
+        return ''
+    
+    elif timezone_string=='Z':
+        
+        return '+00:00'
+    
+    elif len(timezone_string)==3:
+        
+        sign=timezone_string[0]
+        hours=timezone_string[1:]
+        minutes=0
+        
+    elif len(timezone_string)==5:
+        
+        sign=timezone_string[0]
+        hours=timezone_string[1:3]
+        minutes=timezone_string[3:]
+        
+    elif len(timezone_string)==6:
+        
+        sign=timezone_string[0]
+        hours=timezone_string[1:3]
+        minutes=timezone_string[4:]
+        
+    else:
+        
+        raise ValueError
+    
+    #    
+    if not sign in ['+','-']:
+        
+        raise ValueError
+        
+    if hours<0 or hours>23:
+        
+        raise ValueError
+        
+    if minutes<0 or minutes>59:
+        
+        raise ValueError
+        
+    return f'{sign}{hours:02}:{minutes:02}'
 
 
 def get_parse_date_function(
@@ -3475,99 +3666,269 @@ def get_parse_date_function(
         ):
     """
     """
+    print('-datatype',datatype)
+    
+    datatype_format=datatype.get('format')
+    
+    # By default, dates and times are assumed to be in the format defined 
+    # in [xmlschema11-2]. However dates and times are commonly represented 
+    # in tabular data in other formats.
+    
+    # If the datatype base is a date or time type, the datatype format 
+    # annotation indicates the expected format for that date or time.
+    
+    # The supported date and time format patterns listed here are 
+    # expressed in terms of the date field symbols defined in [UAX35]. 
+    # These formats must be recognised by implementations and must be 
+    # interpreted as defined in that specification. 
+    # Implementations may additionally recognise other date format patterns. 
+    # Implementations must issue a warning if the date format pattern is 
+    # invalid or not recognised and proceed as if no date format 
+    # pattern had been provided.
+    
+    # NOTE
+    # For interoperability, authors of metadata documents should use 
+    # only the formats listed in this section.
+    
+    # The following date format patterns must be recognized by implementations:
+    # yyyy-MM-dd e.g., 2015-03-22
+    # yyyyMMdd e.g., 20150322
+    # dd-MM-yyyy e.g., 22-03-2015
+    # d-M-yyyy e.g., 22-3-2015
+    # MM-dd-yyyy e.g., 03-22-2015
+    # M-d-yyyy e.g., 3-22-2015
+    # dd/MM/yyyy e.g., 22/03/2015
+    # d/M/yyyy e.g., 22/3/2015
+    # MM/dd/yyyy e.g., 03/22/2015
+    # M/d/yyyy e.g., 3/22/2015
+    # dd.MM.yyyy e.g., 22.03.2015
+    # d.M.yyyy e.g., 22.3.2015
+    # MM.dd.yyyy e.g., 03.22.2015
+    # M.d.yyyy e.g., 3.22.2015
+    
+    # Implementations must also recognise date, time, and date/time format patterns that end with timezone markers consisting of between one and three x or X characters, possibly after a single space. These must be interpreted as follows:
 
+    # X e.g., -08, +0530, or Z (minutes are optional)
+    # XX e.g., -0800, +0530, or Z
+    # XXX e.g., -08:00, +05:30, or Z
+    # x e.g., -08 or +0530 (Z is not permitted)
+    # xx e.g., -0800 or +0530 (Z is not permitted)
+    # xxx e.g., -08:00 or +05:30 (Z is not permitted)
+    
+    # For example, date format patterns could include yyyy-MM-ddTHH:mm:ssXXX 
+    # for 2015-03-15T15:02:37Z or 2015-03-15T15:02:37-05:00, or HH:mm x for 15:02 -05.
+    
+    # The cell value will one or more dates/time values extracted using the format.
+    
+    # NOTE
+    # For simplicity, this version of this standard does not support 
+    # abbreviated or full month or day names, or double digit years. 
+    # Future versions of this standard may support other date and time 
+    # formats, or general purpose date/time pattern strings. 
+    # Authors of schemas should use appropriate regular expressions, along 
+    # with the string datatype, for dates and times that use a format other 
+    # than that specified here.
+    
+    if not datatype_format is None:
+        
+        timezone_format,timezone_gap=\
+            get_timezone_format(
+                    datatype_format
+                    )
+        
+        date_format=\
+            datatype_format.removesuffix(
+                timezone_gap+timezone_format
+                )
+        
+        if not date_format in [
+            'yyyy-MM-dd',
+            'yyyyMMdd',
+            'dd-MM-yyyy',
+            'd-M-yyyy',
+            'MM-dd-yyyy',
+            'M-d-yyyy',
+            'dd/MM/yyyy',
+            'd/M/yyyy',
+            'MM/dd/yyyy',
+            'M/d/yyyy',
+            'dd.MM.yyyy',
+            'd.M.yyyy',
+            'MM.dd.yyyy',
+            'M.d.yyyy',
+            ]:
+            
+            date_format='yyyy-MM-dd'
+            
+    else:
+        
+        date_format='yyyy-MM-dd'
+        timezone_format=''
+        timezone_gap=''
+            
+    
+    #...get separator
+    if '-' in date_format:
+        
+        separator='-'
+        
+    elif '/' in date_format:
+        
+        separator='/'
+        
+    elif '.' in date_format:
+        
+        separator='.'
+        
+    else:
+        
+        separator=''
+        
+    
+    #...get separated codes
+    if date_format=='yyyyMMdd':
+        
+        separated_codes=['yyyy','MM','dd']
+        
+    else:
+        
+        separated_codes=date_format.split(separator)
+    
+        
+    print('-timezone_format',timezone_format)
+    print('-timezone_gap',timezone_gap)
+    print('-date_format',date_format)
+    print('-separator',separator)
+    print('-separated_codes',separated_codes)
+    
+    
     def parse_date(
             string_value,
             errors
             ):
         """
         """
+        print('-string_value',string_value)
         
-        # By default, dates and times are assumed to be in the format defined 
-        # in [xmlschema11-2]. However dates and times are commonly represented 
-        # in tabular data in other formats.
-    
-        if datatype['format'] is None:
+        #
+        timezone_string=\
+            get_timezone_string(
+                string_value,
+                timezone_format
+                )
             
-            datatype_format='yyyy-MM-dd'  # NEEDS CHECKING ??
+        print('-timezone_string',timezone_string)
+        
+        #
+        xsd_timezone_string=\
+            parse_timezone_string(
+                timezone_string
+                )
+        print('-xsd_timezone_string',xsd_timezone_string)
             
+        #
+        date_string=\
+            string_value.removesuffix(
+                timezone_gap+timezone_string
+                )
+        
+        print('-date_string',date_string)
+        
+        #
+        if separator=='':
+            
+            separated_date_string=\
+                (
+                    date_string[:4],
+                    date_string[4:6],
+                    date_string[6:]
+                 )
+        
         else:
             
-            datatype_format=datatype['format']
-   
-        # If the datatype base is a date or time type, the datatype format 
-        # annotation indicates the expected format for that date or time.
-        
-        # The supported date and time format patterns listed here are 
-        # expressed in terms of the date field symbols defined in [UAX35]. 
-        # These formats must be recognised by implementations and must be 
-        # interpreted as defined in that specification. 
-        # Implementations may additionally recognise other date format patterns. 
-        # Implementations must issue a warning if the date format pattern is 
-        # invalid or not recognised and proceed as if no date format 
-        # pattern had been provided.
-        
-        date_and_timezone_format=datatype_format
-        
-        # separate date format and possible timezone format
-        timezone_format, timezone_gap=get_timezone_format(date_and_timezone_format)
-    
-        if not timezone_format is None:
-    
-            date_format=date_and_timezone_format[:-len(timezone_format)-len(timezone_gap)]
+            separated_date_string=date_string.split(separator)
             
-        else:
-    
-            date_format=date_and_timezone_format        
-    
-        # check if date format is in the approved list
-        if not date_format in date_formats:
+        print('-separated_date_string',separated_date_string)
             
-            raise Exception
+        #
+        for code, date_substring in zip(
+                separated_codes,
+                separated_date_string
+                ):
             
-        # reformat timezone in string_value for Python parsing
-        if not timezone_format is None:
-            
-            timezone_string=get_timezone_string(string_value)
-            
-            reformatted_timezone_string=\
-                reformat_timezone_in_string_value(
-                    timezone_string,
-                    timezone_format
-                    )
+            if code=='yyyy':
+                
+                year=int(date_substring)
+                
+                if not len(date_substring)==4:
+                    
+                    raise ValueError
+                
+            elif code=='MM':
+                
+                month=int(date_substring)
+                
+                if not len(date_substring)==2:
+                    
+                    raise ValueError
+                
+                
+            elif code=='M':
+                
+                month=int(date_substring)
+                
+                if month<10:
+                    
+                    if not len(date_substring)==1:
+                        
+                        raise ValueError
+                    
+                else:
+                    
+                    if not len(date_substring)==2:
+                        
+                        raise ValueError
+                    
+            elif code=='dd':
+                
+                day=int(date_substring)
+                
+                if not len(date_substring)==2:
+                    
+                    raise ValueError
+                
+                
+            elif code=='d':
+                
+                day=int(date_substring)
+                
+                if day<10:
+                    
+                    if not len(date_substring)==1:
+                        
+                        raise ValueError
+                    
+                else:
+                    
+                    if not len(date_substring)==2:
+                        
+                        raise ValueError
+                    
+                
+                
+            else:
+                
+                raise Exception
+                
+        print('-year,month,day',year,month,day)
         
-            string_value=\
-                string_value.replace(
-                    timezone_string,
-                    reformatted_timezone_string)
         
-        # reformat date_format for Python parsing
+        x=datetime.date(year,month,day)
         
-        x=date_and_timezone_format
-        x=x.replace('yyyy','%Y')
-        x=x.replace('MM','%m')
-        x=x.replace('M','%m')
-        if 'dd' in x:
-            x=x.replace('dd','%d')
-        else:
-            x=x.replace('d','%d')
-        
-        if not timezone_format is None:
-            x=x.replace(timezone_format,'%z')
-        
-        # parse date
-        #print(string_value)
-        dt=datetime.datetime.strptime(string_value, x)  
-        dt_isoformat=dt.isoformat()
-        
-        # set date value
-        json_value=dt_isoformat.split('T')[0]
-        
-        # include timezone info as date
-        if not timezone_format is None:
-            json_value=json_value+dt_isoformat[-6:]
+        json_value=x.isoformat()+xsd_timezone_string
         
         return json_value, datatype['base'], errors
+    
     
     return parse_date
     
@@ -3619,65 +3980,7 @@ def reformat_timezone_in_string_value(
             raise Exception  
             
             
-def get_timezone_string(
-        string_value
-        ):
-    """
-    """
-    x=string_value.strip()
-    
-    if x.endswith('Z'):
-        
-        return 'Z'
-    
-    elif x[-3] in ['+','-']:
-        
-        return x[-3:]
-    
-    elif x[-5] in ['+','-']:
-        
-        return x[-5:]
-    
-    elif x[-6] in ['+','-']:
-        
-        return x[-6:]
-    
-    else:
-        
-        raise Exception
-    
-        
-def get_timezone_format(
-        datatype_format
-        ):
-    """
-    """
-    x=datatype_format.strip()
-    
-    if x.endswith('XXX'):
-        timezone_format='XXX'
-    elif x.endswith('XX'):
-        timezone_format='XX'
-    elif x.endswith('X'):
-        timezone_format='X'
-    elif x.endswith('xxx'):
-        timezone_format='xxx'
-    elif x.endswith('xx'):
-        timezone_format='xx'
-    elif x.endswith('x'):
-        timezone_format='x'
-    else:
-        timezone_format=None
-        timezone_gap=''
-    
-    if not timezone_format is None:
-        x=len(timezone_format)
-        if datatype_format[-x-1]==' ':
-            timezone_gap=' '
-        else:
-            timezone_gap=''
-        
-    return timezone_format,timezone_gap
+
         
         
 def parse_time(
@@ -3814,6 +4117,9 @@ def get_parse_datetime_function(
         datatype
         ):
 
+    
+    raise NotImplementedError
+    
     
     def parse_datetime(
             string_value,
