@@ -5,44 +5,84 @@
             {
                 "titles": {
                     "und": [
-                        "Name"
+                        "date"
                     ]
                 },
-                "name": "Name"
+                "name": "date"
             },
             {
                 "titles": {
                     "und": [
-                        "Start Date"
+                        "time"
                     ]
                 },
-                "name": "Start%20Date"
+                "name": "time"
             },
             {
                 "titles": {
                     "und": [
-                        "Location Name"
+                        "dateTime"
                     ]
                 },
-                "name": "Location%20Name"
+                "name": "dateTime"
             },
             {
                 "titles": {
                     "und": [
-                        "Location Address"
+                        "datetime"
                     ]
                 },
-                "name": "Location%20Address"
+                "name": "datetime"
             },
             {
                 "titles": {
                     "und": [
-                        "Ticket Url"
+                        "dateTimeStamp"
                     ]
                 },
-                "name": "Ticket%20Url"
+                "name": "dateTimeStamp"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gDay"
+                    ]
+                },
+                "name": "gDay"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gMonth"
+                    ]
+                },
+                "name": "gMonth"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gMonthDay"
+                    ]
+                },
+                "name": "gMonthDay"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gYear"
+                    ]
+                },
+                "name": "gYear"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "gYearMonth"
+                    ]
+                },
+                "name": "gYearMonth"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test032/events-listing.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test187.csv"
 }

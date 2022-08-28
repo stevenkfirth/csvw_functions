@@ -1,109 +1,125 @@
 {
-    "@context": [
-        "http://www.w3.org/ns/csvw",
-        {
-            "@language": "en"
-        }
-    ],
+    "@context": "http://www.w3.org/ns/csvw",
     "tables": [
         {
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test032/events-listing.csv",
-            "dialect": {
-                "trim": true
+            "rdfs:comment": {
+                "@value": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification."
             },
+            "rdfs:label": {
+                "@value": "date format (valid native combinations)"
+            },
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test187.csv",
             "tableSchema": {
                 "columns": [
                     {
-                        "name": "name",
                         "titles": {
-                            "en": [
-                                "Name"
-                            ]
-                        },
-                        "aboutUrl": "#event-{_row}",
-                        "propertyUrl": "schema:name"
-                    },
-                    {
-                        "name": "start_date",
-                        "titles": {
-                            "en": [
-                                "Start Date"
+                            "und": [
+                                "date"
                             ]
                         },
                         "datatype": {
-                            "base": "datetime",
-                            "format": "yyyy-MM-ddTHH:mm"
+                            "base": "date"
                         },
-                        "aboutUrl": "#event-{_row}",
-                        "propertyUrl": "schema:startDate"
+                        "name": "date"
                     },
                     {
-                        "name": "location_name",
                         "titles": {
-                            "en": [
-                                "Location Name"
-                            ]
-                        },
-                        "aboutUrl": "#place-{_row}",
-                        "propertyUrl": "schema:name"
-                    },
-                    {
-                        "name": "location_address",
-                        "titles": {
-                            "en": [
-                                "Location Address"
-                            ]
-                        },
-                        "aboutUrl": "#place-{_row}",
-                        "propertyUrl": "schema:address"
-                    },
-                    {
-                        "name": "ticket_url",
-                        "titles": {
-                            "en": [
-                                "Ticket Url"
+                            "und": [
+                                "time"
                             ]
                         },
                         "datatype": {
-                            "base": "anyURI"
+                            "base": "time"
                         },
-                        "aboutUrl": "#offer-{_row}",
-                        "propertyUrl": "schema:url"
+                        "name": "time"
                     },
                     {
-                        "name": "type_event",
-                        "virtual": true,
-                        "aboutUrl": "#event-{_row}",
-                        "propertyUrl": "rdf:type",
-                        "valueUrl": "schema:MusicEvent"
+                        "titles": {
+                            "und": [
+                                "dateTime"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "dateTime"
+                        },
+                        "name": "dateTime"
                     },
                     {
-                        "name": "type_place",
-                        "virtual": true,
-                        "aboutUrl": "#place-{_row}",
-                        "propertyUrl": "rdf:type",
-                        "valueUrl": "schema:Place"
+                        "titles": {
+                            "und": [
+                                "datetime"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "datetime"
+                        },
+                        "name": "datetime"
                     },
                     {
-                        "name": "type_offer",
-                        "virtual": true,
-                        "aboutUrl": "#offer-{_row}",
-                        "propertyUrl": "rdf:type",
-                        "valueUrl": "schema:Offer"
+                        "titles": {
+                            "und": [
+                                "dateTimeStamp"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "dateTimeStamp"
+                        },
+                        "name": "dateTimeStamp"
                     },
                     {
-                        "name": "location",
-                        "virtual": true,
-                        "aboutUrl": "#event-{_row}",
-                        "propertyUrl": "schema:location",
-                        "valueUrl": "#place-{_row}"
+                        "titles": {
+                            "und": [
+                                "gDay"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gDay"
+                        },
+                        "name": "gDay"
                     },
                     {
-                        "name": "offers",
-                        "virtual": true,
-                        "aboutUrl": "#event-{_row}",
-                        "propertyUrl": "schema:offers",
-                        "valueUrl": "#offer-{_row}"
+                        "titles": {
+                            "und": [
+                                "gMonth"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gMonth"
+                        },
+                        "name": "gMonth"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gMonthDay"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "string"
+                        },
+                        "name": "gMonthDay"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gYear"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gYear"
+                        },
+                        "name": "gYear"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "gYearMonth"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "gYearMonth"
+                        },
+                        "name": "gYearMonth"
                     }
                 ]
             }
