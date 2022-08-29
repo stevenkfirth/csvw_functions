@@ -8,17 +8,20 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "boolean",
+                    "name": "date",
                     "titles": [
                         {
-                            "@value": "boolean",
+                            "@value": "date",
                             "@language": "und"
                         }
                     ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
-                        "base": "boolean"
+                        "base": "date",
+                        "format": {
+                            "pattern": "yy-MM-dd"
+                        }
                     },
                     "default": "",
                     "lang": "und",
@@ -35,13 +38,13 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "100",
+                            "stringValue": "15-06-05",
                             "value": {
-                                "@value": "100",
+                                "@value": "15-06-05",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "Boolean value \"100\" does not match either the true values \"['1', 'true']\" or false values \"['0', 'false']\". Boolean value is not converted to boolean, string value returned."
+                                "Invalid isoformat string 15-06-05. "
                             ],
                             "textDirection": "auto",
                             "ordered": false,
@@ -64,13 +67,13 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "100",
+                            "stringValue": "15-06-05",
                             "value": {
-                                "@value": "100",
+                                "@value": "15-06-05",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "Boolean value \"100\" does not match either the true values \"['1', 'true']\" or false values \"['0', 'false']\". Boolean value is not converted to boolean, string value returned."
+                                "Invalid isoformat string 15-06-05. "
                             ],
                             "textDirection": "auto",
                             "ordered": false,
@@ -83,17 +86,17 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test186.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test191.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
             "transformations": [],
             "rdfs:comment": {
-                "@value": "Implementations MUST add a validation error to the errors annotation for the cell if the string being parsed."
+                "@value": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification."
             },
             "rdfs:label": {
-                "@value": "boolean format (not matching datatype)"
+                "@value": "date format (bad format string)"
             }
         }
     ]

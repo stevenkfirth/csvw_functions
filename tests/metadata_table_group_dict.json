@@ -1,68 +1,71 @@
 {
     "@context": "http://www.w3.org/ns/csvw",
     "rdfs:comment": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification.",
-    "rdfs:label": "date format (valid native combinations)",
-    "url": "test187.csv",
+    "rdfs:label": "date format (value not matching format)",
+    "url": "test192.csv",
     "tableSchema": {
         "columns": [
             {
-                "titles": "date",
+                "titles": "yyyy-MM-ddTHH:mm:ss",
                 "datatype": {
-                    "base": "date"
+                    "base": "dateTime",
+                    "format": "yyyy-MM-ddTHH:mm:ss"
                 }
             },
             {
-                "titles": "time",
+                "titles": "yyyy-MM-dd HH:mm:ss",
                 "datatype": {
-                    "base": "time"
+                    "base": "dateTime",
+                    "format": "yyyy-MM-dd HH:mm:ss"
                 }
             },
             {
-                "titles": "dateTime",
+                "titles": "yyyyMMdd HHmmss",
                 "datatype": {
-                    "base": "dateTime"
+                    "base": "dateTime",
+                    "format": "yyyyMMdd HHmmss"
                 }
             },
             {
-                "titles": "datetime",
+                "titles": "dd-MM-yyyy HH:mm",
                 "datatype": {
-                    "base": "datetime"
+                    "base": "dateTime",
+                    "format": "dd-MM-yyyy HH:mm"
                 }
             },
             {
-                "titles": "dateTimeStamp",
+                "titles": "d-M-yyyy HHmm",
                 "datatype": {
-                    "base": "dateTimeStamp"
+                    "base": "dateTime",
+                    "format": "d-M-yyyy HHmm"
                 }
             },
             {
-                "titles": "gDay",
+                "titles": "yyyy-MM-ddTHH:mm",
                 "datatype": {
-                    "base": "gDay"
+                    "base": "dateTime",
+                    "format": "yyyy-MM-ddTHH:mm"
                 }
             },
             {
-                "titles": "gMonth",
+                "titles": "d-M-yyyy HHmm X",
                 "datatype": {
-                    "base": "gMonth"
+                    "base": "dateTime",
+                    "format": "d-M-yyyy HHmm X"
                 }
             },
             {
-                "titles": "gMonthDay",
+                "titles": "yyyy-MM-ddTHH:mm:ssXXX",
                 "datatype": {
-                    "base": "gMonthDay"
+                    "base": "dateTime",
+                    "format": "yyyy-MM-ddTHH:mm:ssXXX"
                 }
             },
             {
-                "titles": "gYear",
+                "titles": "yyyy-MM-dd HH:mm:ss X",
                 "datatype": {
-                    "base": "gYear"
-                }
-            },
-            {
-                "titles": "gYearMonth",
-                "datatype": {
-                    "base": "gYearMonth"
+                    "base": "dateTimeStamp",
+                    "format": "yyyy-MM-dd HH:mm:ss X"
                 }
             }
         ]

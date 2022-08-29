@@ -6,120 +6,118 @@
                 "@value": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification."
             },
             "rdfs:label": {
-                "@value": "date format (valid native combinations)"
+                "@value": "date format (value not matching format)"
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test187.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test192.csv",
             "tableSchema": {
                 "columns": [
                     {
                         "titles": {
                             "und": [
-                                "date"
+                                "yyyy-MM-ddTHH:mm:ss"
                             ]
                         },
                         "datatype": {
-                            "base": "date"
+                            "base": "dateTime",
+                            "format": "yyyy-MM-ddTHH:mm:ss"
                         },
-                        "name": "date"
+                        "name": "yyyy-MM-ddTHH%3Amm%3Ass"
                     },
                     {
                         "titles": {
                             "und": [
-                                "time"
+                                "yyyy-MM-dd HH:mm:ss"
                             ]
                         },
                         "datatype": {
-                            "base": "time"
+                            "base": "dateTime",
+                            "format": "yyyy-MM-dd HH:mm:ss"
                         },
-                        "name": "time"
+                        "name": "yyyy-MM-dd%20HH%3Amm%3Ass"
                     },
                     {
                         "titles": {
                             "und": [
-                                "dateTime"
+                                "yyyyMMdd HHmmss"
                             ]
                         },
                         "datatype": {
-                            "base": "dateTime"
+                            "base": "dateTime",
+                            "format": "yyyyMMdd HHmmss"
                         },
-                        "name": "dateTime"
+                        "name": "yyyyMMdd%20HHmmss"
                     },
                     {
                         "titles": {
                             "und": [
-                                "datetime"
+                                "dd-MM-yyyy HH:mm"
                             ]
                         },
                         "datatype": {
-                            "base": "datetime"
+                            "base": "dateTime",
+                            "format": "dd-MM-yyyy HH:mm"
                         },
-                        "name": "datetime"
+                        "name": "dd-MM-yyyy%20HH%3Amm"
                     },
                     {
                         "titles": {
                             "und": [
-                                "dateTimeStamp"
+                                "d-M-yyyy HHmm"
                             ]
                         },
                         "datatype": {
-                            "base": "dateTimeStamp"
+                            "base": "dateTime",
+                            "format": "d-M-yyyy HHmm"
                         },
-                        "name": "dateTimeStamp"
+                        "name": "d-M-yyyy%20HHmm"
                     },
                     {
                         "titles": {
                             "und": [
-                                "gDay"
+                                "yyyy-MM-ddTHH:mm"
                             ]
                         },
                         "datatype": {
-                            "base": "gDay"
+                            "base": "dateTime",
+                            "format": "yyyy-MM-ddTHH:mm"
                         },
-                        "name": "gDay"
+                        "name": "yyyy-MM-ddTHH%3Amm"
                     },
                     {
                         "titles": {
                             "und": [
-                                "gMonth"
+                                "d-M-yyyy HHmm X"
                             ]
                         },
                         "datatype": {
-                            "base": "gMonth"
+                            "base": "dateTime",
+                            "format": "d-M-yyyy HHmm X"
                         },
-                        "name": "gMonth"
+                        "name": "d-M-yyyy%20HHmm%20X"
                     },
                     {
                         "titles": {
                             "und": [
-                                "gMonthDay"
+                                "yyyy-MM-ddTHH:mm:ssXXX"
                             ]
                         },
                         "datatype": {
-                            "base": "string"
+                            "base": "dateTime",
+                            "format": "yyyy-MM-ddTHH:mm:ssXXX"
                         },
-                        "name": "gMonthDay"
+                        "name": "yyyy-MM-ddTHH%3Amm%3AssXXX"
                     },
                     {
                         "titles": {
                             "und": [
-                                "gYear"
+                                "yyyy-MM-dd HH:mm:ss X"
                             ]
                         },
                         "datatype": {
-                            "base": "gYear"
+                            "base": "dateTimeStamp",
+                            "format": "yyyy-MM-dd HH:mm:ss X"
                         },
-                        "name": "gYear"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "gYearMonth"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "gYearMonth"
-                        },
-                        "name": "gYearMonth"
+                        "name": "yyyy-MM-dd%20HH%3Amm%3Ass%20X"
                     }
                 ]
             }

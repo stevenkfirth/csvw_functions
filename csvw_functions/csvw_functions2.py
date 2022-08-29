@@ -2212,7 +2212,6 @@ def parse_cells_in_annotated_column_dict(
     # datetimestamp
     elif datatype['base']=='dateTimeStamp':
         
-        raise NotImplementedError
         datatype_parse_function=\
             get_parse_datetimestamp_function(
                 datatype
@@ -3576,7 +3575,7 @@ def get_timezone_string(
         
             elif x[-6] in ['+','-']:
                 
-                return x[-5:]
+                return x[-6:]
             
             else:
                 
@@ -3613,7 +3612,7 @@ def get_timezone_string(
             
             if x[-6] in ['+','-']:
                 
-                return x[-5:]
+                return x[-6:]
             
             else:
                 
@@ -3636,7 +3635,7 @@ def parse_timezone_string(
     
     elif timezone_string=='Z':
         
-        return '+00:00'
+        return 'Z'
     
     elif len(timezone_string)==3:
         
@@ -3743,6 +3742,15 @@ def get_parse_date_function(
     print('-datatype',datatype)
     
     datatype_format=datatype.get('format')
+    
+    if not datatype_format is None and not isinstance(datatype_format,str):
+        
+        message='datatype format'
+        
+        warnings.warn(message)
+        
+        datatype_format=None
+    
     
     if not datatype_format is None:
         
@@ -3868,7 +3876,7 @@ def get_parse_date_function(
         #
         date_string=\
             string_value.removesuffix(
-                timezone_gap or ''
+                (timezone_gap or '')
                 +timezone_string
                 )
         
@@ -3968,7 +3976,22 @@ def get_parse_date_function(
         
         else:
             
-            x=datetime.date.fromisoformat(date_string)
+            try:
+            
+                x=datetime.date.fromisoformat(date_string)
+        
+            except ValueError:
+                
+                message=f'Invalid isoformat string {string_value}. '
+        
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return string_value, 'string', errors
+        
+        
+        
         
         #
         json_value=x.isoformat()+xsd_timezone_string
@@ -4113,7 +4136,7 @@ def get_parse_time_function(
         #
         time_string=\
             string_value.removesuffix(
-                timezone_gap or ''
+                (timezone_gap or '')
                 +timezone_string
                 )
         
@@ -4167,8 +4190,19 @@ def get_parse_time_function(
             
         else:
             
-            x=datetime.time.fromisoformat(time_string)
+            try:
+            
+                x=datetime.time.fromisoformat(time_string)
         
+            except ValueError:
+                
+                message=f'Invalid isoformat string {string_value}. '
+        
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return string_value, 'string', errors
         
         #
         json_value=x.isoformat()+xsd_timezone_string
@@ -4180,7 +4214,8 @@ def get_parse_time_function(
 
 
 def get_parse_datetime_function(
-        datatype
+        datatype,
+        timezone_required=False
         ):
     """
     """
@@ -4242,17 +4277,15 @@ def get_parse_datetime_function(
             
         #
         date_format,_,time_format=\
-            datetime_format.partition('T')
+            datetime_format.partition(separator)
             
     else:
         
         date_format=None
         time_format=None
+        separator=None
             
     
-    # separate date and time formats
-    date_format, time_format = datetime_format.split(separator)
-        
             
         
     print('-timezone_format',timezone_format)
@@ -4266,7 +4299,7 @@ def get_parse_datetime_function(
 
     def parse_datetime(
             string_value,
-            errors
+            errors,
             ):
         """
         """
@@ -4282,6 +4315,17 @@ def get_parse_datetime_function(
         print('-timezone_string',timezone_string)
         
         #
+        if timezone_required and timezone_string=='':
+            
+            message='timezone_required'
+            
+            errors.append(message)
+            
+            warnings.warn(message)
+            
+            return string_value, 'string', errors
+            
+        #
         xsd_timezone_string=\
             parse_timezone_string(
                 timezone_string
@@ -4291,7 +4335,7 @@ def get_parse_datetime_function(
         #
         datetime_string=\
             string_value.removesuffix(
-                timezone_gap or ''
+                (timezone_gap or '')
                 +timezone_string
                 )
         
@@ -4361,20 +4405,19 @@ def get_parse_datetime_function(
     return parse_datetime
     
 
-def parse_datetimestamp(
-        string_value,
-        datatype_base,
-        datatype_format,
-        errors
+def get_parse_datetimestamp_function(
+        datatype
         ):
     """
     """
-    return parse_datetime(
-            string_value,
-            datatype_base,
-            datatype_format,
-            errors
-            )
+    #...timezone is required
+    
+    return get_parse_datetime_function(
+        datatype,
+        timezone_required=True
+        )
+
+
 
     
 #%% 6.4.6 Formats for other types
@@ -9853,7 +9896,7 @@ def validate_and_normalize_derived_datatype(
                 metadata_datatype_dict, 
                 k,
                 expected_types=[str],
-                expected_values=datatypes,
+                expected_values=list(datatypes),
                 default_value='string'
                 )
             

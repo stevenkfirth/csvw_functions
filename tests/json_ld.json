@@ -1,16 +1,16 @@
 {
     "tables": [
         {
-            "url": "http://www.w3.org/2013/csvw/tests/test186.csv",
-            "rdfs:comment": "Implementations MUST add a validation error to the errors annotation for the cell if the string being parsed.",
-            "rdfs:label": "boolean format (not matching datatype)",
+            "url": "http://www.w3.org/2013/csvw/tests/test191.csv",
+            "rdfs:comment": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification.",
+            "rdfs:label": "date format (bad format string)",
             "row": [
                 {
                     "rownum": 1,
-                    "url": "http://www.w3.org/2013/csvw/tests/test186.csv#row=2",
+                    "url": "http://www.w3.org/2013/csvw/tests/test191.csv#row=2",
                     "describes": [
                         {
-                            "boolean": "100"
+                            "date": "15-06-05"
                         }
                     ]
                 }
