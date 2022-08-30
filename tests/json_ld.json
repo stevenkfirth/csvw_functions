@@ -1,21 +1,67 @@
 {
     "tables": [
         {
-            "url": "http://www.w3.org/2013/csvw/tests/test215.csv",
-            "rdfs:comment": "validate the value based on the length constraints described in section 4.6.1 Length Constraints, the value constraints described in section 4.6.2 Value Constraints and the datatype format annotation if one is specified, as described below. If there are any errors, add them to the list of errors for the cell",
-            "rdfs:label": "date value constraint not matching maxExclusive",
+            "url": "http://www.w3.org/2013/csvw/tests/test282.csv",
+            "rdfs:label": "valid number patterns",
+            "rdfs:comment": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`.",
             "row": [
                 {
                     "rownum": 1,
-                    "url": "http://www.w3.org/2013/csvw/tests/test215.csv#row=2",
+                    "url": "http://www.w3.org/2013/csvw/tests/test282.csv#row=2",
                     "describes": [
                         {
-                            "minimum": "2015-06-05",
-                            "maximum": "2015-06-05",
-                            "minInclusive": "2015-06-05",
-                            "maxInclusive": "2015-06-05",
-                            "minExclusive": "2015-06-06",
-                            "maxExclusive": "2015-06-05"
+                            "##0": 1,
+                            "#,#00": 12,
+                            "#,##,#00": 12,
+                            "#0.#": 1.0,
+                            "#0.0": 1.2,
+                            "#0.0#": 1.2,
+                            "#0.0#,#": 12.3
+                        }
+                    ]
+                },
+                {
+                    "rownum": 2,
+                    "url": "http://www.w3.org/2013/csvw/tests/test282.csv#row=3",
+                    "describes": [
+                        {
+                            "##0": 12,
+                            "#,#00": 123,
+                            "#,##,#00": 123,
+                            "#0.#": 1.2,
+                            "#0.0": 12.3,
+                            "#0.0#": 1.23,
+                            "#0.0#,#": 12.34
+                        }
+                    ]
+                },
+                {
+                    "rownum": 3,
+                    "url": "http://www.w3.org/2013/csvw/tests/test282.csv#row=4",
+                    "describes": [
+                        {
+                            "##0": 123,
+                            "#,#00": "1,234",
+                            "#,##,#00": "1,234",
+                            "#0.#": 1234.5,
+                            "#0.0": 1234.5,
+                            "#0.0#": 12.3,
+                            "#0.0#,#": "12.24,5"
+                        }
+                    ]
+                },
+                {
+                    "rownum": 4,
+                    "url": "http://www.w3.org/2013/csvw/tests/test282.csv#row=5",
+                    "describes": [
+                        {
+                            "##0": 1234,
+                            "#,#00": "1,234,567",
+                            "#,##,#00": "12,34,567",
+                            "#0.#": 1234.5,
+                            "#0.0": 1234.5,
+                            "#0.0#": 12.34,
+                            "#0.0#,#": "12.24,5"
                         }
                     ]
                 }

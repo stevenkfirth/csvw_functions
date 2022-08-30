@@ -2,28 +2,112 @@
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [
         {
-            "rdfs:comment": {
-                "@value": "Applications MUST raise an error if both minInclusive and maxInclusive are specified and maxInclusive is less than minInclusive, or if both minInclusive and maxExclusive are specified and maxExclusive is less than or equal to minInclusive."
-            },
             "rdfs:label": {
-                "@value": "maxExclusive = minInclusive"
+                "@value": "valid number patterns"
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test219.csv",
+            "rdfs:comment": {
+                "@value": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`."
+            },
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test282.csv",
             "tableSchema": {
                 "columns": [
                     {
                         "titles": {
                             "und": [
-                                "date"
+                                "##0"
                             ]
                         },
                         "datatype": {
-                            "base": "date",
-                            "maxExclusive": "2015-06-05",
-                            "minInclusive": "2015-06-05"
+                            "base": "integer",
+                            "format": {
+                                "pattern": "##0"
+                            }
                         },
-                        "null": "NULL",
-                        "name": "date"
+                        "name": "%23%230"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "#,#00"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "integer",
+                            "format": {
+                                "pattern": "#,#00"
+                            }
+                        },
+                        "name": "%23%2C%2300"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "#,##,#00"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "integer",
+                            "format": {
+                                "pattern": "#,##,#00"
+                            }
+                        },
+                        "name": "%23%2C%23%23%2C%2300"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "#0.#"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "decimal",
+                            "format": {
+                                "pattern": "#0.#"
+                            }
+                        },
+                        "name": "%230.%23"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "#0.0"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "decimal",
+                            "format": {
+                                "pattern": "#0.0"
+                            }
+                        },
+                        "name": "%230.0"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "#0.0#"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "decimal",
+                            "format": {
+                                "pattern": "#0.0#"
+                            }
+                        },
+                        "name": "%230.0%23"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "#0.0#,#"
+                            ]
+                        },
+                        "datatype": {
+                            "base": "decimal",
+                            "format": {
+                                "pattern": "#0.0#,#"
+                            }
+                        },
+                        "name": "%230.0%23%2C%23"
                     }
                 ]
             }

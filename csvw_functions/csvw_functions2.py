@@ -993,7 +993,8 @@ def locate_metadata(
         tabular_data_file_url,  
         tabular_data_file_headers,
         overriding_metadata_file_path_or_url,
-        _link_header
+        _link_header,
+        _well_known_text
         ):
     """
     """
@@ -1072,7 +1073,8 @@ def locate_metadata(
         metadata_document_dict, metadata_document_location=\
             get_metadata_from_default_or_site_wide_location(
                 tabular_data_file_url,
-                tabular_data_file_headers
+                tabular_data_file_headers,
+                _well_known_text
                 )
     # 4
     if metadata_document_dict is None:
@@ -1293,7 +1295,8 @@ def get_metadata_from_link_header(
 
 def get_metadata_from_default_or_site_wide_location(
         tabular_data_file_url,
-        tabular_data_file_headers
+        tabular_data_file_headers,
+        _well_known_text
         ):
     """
     """
@@ -1325,10 +1328,10 @@ def get_metadata_from_default_or_site_wide_location(
     #if tabular_data_file_headers is None:   # i.e. a local file
     
     well_known_path_url=urllib.parse.urljoin(
-        tabular_data_file_url,
-        '/.well-known/csvm'
-        )
-    
+            tabular_data_file_url,
+            '/.well-known/csvm'
+            )
+        
     print('-well_known_path_url',well_known_path_url)
     
     #
@@ -1352,10 +1355,15 @@ def get_metadata_from_default_or_site_wide_location(
         
         well_known_text='{+url}-metadata.json\ncsv-metadata.json'
     
+    #...for testing
+    if not _well_known_text is None:
+    
+        well_known_text=_well_known_text
     
     # Starting with the first such URI template, processors must:
         
-    locations=[x.strip() for x in well_known_text.split('\n')]
+    locations=[x.strip() for x in well_known_text.split('\n')
+               if len(x.strip())>0]
         
     for uri_template in locations:
         
@@ -1549,7 +1557,8 @@ def create_annotated_table_group(
         overriding_metadata_file_path_or_url=None,
         validate=False,
         parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
-        _link_header=None  # for testing link headers
+        _link_header=None,  # for testing link headers,
+        _well_known_text=None  # for testing well known paths
         ):
     """
     
@@ -1653,7 +1662,8 @@ def create_annotated_table_group(
                 tabular_data_file_url,
                 tabular_data_file_headers,
                 overriding_metadata_file_path_or_url,
-                _link_header
+                _link_header,
+                _well_known_text
                 )
         
         if metadata_document_dict is None:  # i.e. using embedded metadata
@@ -2014,8 +2024,6 @@ def create_annotated_table_group(
                 dialect_description_dict.get('trim',True)
                 )
     
-    
-
     #...generate URIs
                 
     for annotated_table_dict in annotated_table_group_dict['tables']:
@@ -2069,9 +2077,64 @@ def create_annotated_table_group(
          
                     #print(annotated_cell_dict['value'])
                     #print(annotated_cell_dict['valueURL'])
-             
+
+    #...annotate row titles
+    for annotated_table_dict,metadata_table_dict \
+        in zip(annotated_table_group_dict['tables'],
+               metadata_table_group_dict['tables']
+               ):
+            
+        if 'tableSchema' in metadata_table_dict:
+            
+            metadata_schema_dict=metadata_table_dict['tableSchema']
     
-             
+            if 'rowTitles' in metadata_schema_dict:
+                
+                # A column reference property that holds either a single reference 
+                # to a column description object or an array of references. 
+                # The value of this property determines the titles annotation for 
+                # each row within a table that uses this schema. 
+                # The titles annotation holds the list of the values of the cells 
+                # in that row that are in the referenced columns; if the value is 
+                # not a string or has no associated language, it is interpreted 
+                # as a string with an undefined language (und).
+                
+                row_titles=metadata_schema_dict['rowTitles']
+                
+                if not isinstance(row_titles,list):
+                    row_titles=[row_titles]
+                    
+                column_indexes=[]
+                
+                for row_titles_column_name in row_titles:
+                    
+                    for i,annotated_column_dict in enumerate(annotated_table_dict['columns']):
+                        
+                        if annotated_column_dict['name']==row_titles_column_name:
+                            
+                            column_indexes.append(i)
+                            
+                #            
+                for row in annotated_table_dict['rows']:
+                    
+                    for column_index in column_indexes:
+                        
+                        value=dict(**row['cells'][column_index]['value'])  # create a copy
+                        
+                        if value['@type']=='http://www.w3.org/2001/XMLSchema#string':
+                            
+                            if not '@language' in value:
+                                
+                                value['@language']='und'
+                                
+                        else:
+                            
+                            value['@type']=='http://www.w3.org/2001/XMLSchema#string'
+                            value['@language']='und'
+                        
+                        
+                        row['titles'].append(value)
+                
                 
     #... for testing
     
@@ -2941,10 +3004,13 @@ def parse_LDML_number_pattern(
             mode, # "integral" or "fractional"
             ):
         ""
+        #print('-pattern2',pattern2)
+        #print('-mode',mode)
+        
         zero_count=0
         hash_count=0
         
-        pattern2.replace(',','')
+        pattern2=pattern2.replace(',','')
         i=0
         end_of_zeros_flag=False
         
@@ -3066,6 +3132,9 @@ def parse_LDML_number_pattern(
                     integral_part,
                     mode='integral'
                     )
+            
+    # fractional grouping size
+    raise NotImplementedError
     
     
     # fractional zeros and hashes
@@ -4320,8 +4389,18 @@ def get_parse_time_function(
                 
                 else:
                 
-                    microsecond=int(fractional_time_string)
-                
+                    try:    
+                    
+                        microsecond=\
+                            int(float(f'0.{fractional_time_string}')*1000000)
+                            
+                    except ValueError:
+                        
+                        message='time conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
+                        
             else:
                 
                 microsecond=0
@@ -4345,7 +4424,16 @@ def get_parse_time_function(
                 return string_value, 'string', errors
         
         #
-        json_value=x.isoformat()+xsd_timezone_string
+        x=x.isoformat()
+        
+        #...format significant digits if needed
+        if fractional_time_format:
+            
+            x=x.split('.')
+            
+            x=x[0]+'.'+x[1][:len(fractional_time_format)]
+        
+        json_value=x+xsd_timezone_string
         
         return json_value, datatype['base'], errors
     
@@ -4613,6 +4701,10 @@ def get_parse_duration_function(
             
             re_compiled=None
             
+    else:
+        
+        re_compiled=None
+            
     print('-re_compiled', re_compiled)
     
     
@@ -4621,6 +4713,7 @@ def get_parse_duration_function(
             errors
             ):
         ""
+        print('-string_value',string_value)
 
         if not re_compiled is None:
             
@@ -4634,7 +4727,7 @@ def get_parse_duration_function(
         #...parsing -?PnYnMnDTnHnMnS
         x=string_value
         
-        if x[0]=='P':
+        if not x[0]=='P':
             
             message='duration conversion error'
             errors.append(message)
@@ -7990,7 +8083,21 @@ def validate_and_normalize_metadata_schema_dict(
         # rowTitles
         elif k=='rowTitles':
             
-            raise NotImplementedError
+            # A column reference property that holds either a single 
+            # reference to a column description object or an array of 
+            # references. 
+            # The value of this property determines the titles annotation 
+            # for each row within a table that uses this schema. 
+            # The titles annotation holds the list of the values of the 
+            # cells in that row that are in the referenced columns; 
+            # if the value is not a string or has no associated language, 
+            # it is interpreted as a string with an undefined language (und).
+            
+            validate_column_reference_property(
+                metadata_schema_dict,
+                k,
+                )
+    
             
         # @id
         elif k=='@id':
@@ -8104,7 +8211,7 @@ def annotate_schema_dict(
         # row titles
         elif k=='rowTitles':
             
-            raise NotImplementedError
+            pass  # need to do this later after all the colum names are set
             
         # inherited properties
         elif k in ['aboutUrl','datatype','default','lang','null','ordered',
@@ -8182,6 +8289,19 @@ def annotate_schema_dict(
     # primary key
     if 'primaryKey' in metadata_schema_dict:
         
+        # A column reference property that holds either a single reference 
+        # to a column description object or an array of references. 
+        # The value of this property becomes the primary key annotation for 
+        # each row within a table that uses this schema by creating a list 
+        # of the cells in that row that are in the referenced columns.
+
+        # As defined in [tabular-data-model], validators must check that 
+        # each row has a unique combination of values of cells in the 
+        # indicated columns. 
+        # For example, if primaryKey is set to ["familyName", "givenName"] 
+        # then every row must have a unique value for the combination of 
+        # values of cells in the familyName and givenName columns.
+        
         primary_key=metadata_schema_dict['primaryKey']
         
         if not isinstance(primary_key,list):
@@ -8189,11 +8309,11 @@ def annotate_schema_dict(
             
         column_indexes=[]
         
-        for x in primary_key:
+        for primary_key_column_name in primary_key:
             
             for i,annotated_column_dict in enumerate(annotated_table_dict['columns']):
                 
-                if x==annotated_column_dict['name']:
+                if annotated_column_dict['name']==primary_key_column_name:
                     
                     column_indexes.append(i)
                     
@@ -8204,6 +8324,7 @@ def annotate_schema_dict(
                 row['primaryKey'].append(row['cells'][column_index])
         
         
+    
     
 def get_referenced_table_and_columns_from_foreign_key_reference(
         foreign_key_reference,
@@ -10223,7 +10344,12 @@ def validate_and_normalize_derived_datatype(
         ):
     """
     """
+    #
+    if not 'base' in metadata_datatype_dict:
+        
+        metadata_datatype_dict['base']='string'
     
+    #
     for k in list(metadata_datatype_dict):
         
         # base
@@ -10550,7 +10676,8 @@ def validate_and_normalize_derived_datatype(
             
             # If included, @id is a link property that identifies the 
             # dialect described by this dialect description. 
-            # It must not start with _:.
+            # It must not start with _: and it must not be the URL of 
+            # a built-in datatype.
         
             validate_link_property(
                 metadata_datatype_dict,
@@ -10561,7 +10688,13 @@ def validate_and_normalize_derived_datatype(
                 
             if id_.startswith('_:'):
                 
-                message='Property "@id" must not start with "_:". '
+                message='Property "@id" must not start with "_:".'
+                
+                raise CSVWError(message)
+                
+            if id_ in list(datatypes.values()):
+                
+                message='Property "@id" must not be the URL of a built-in datatype.'
                 
                 raise CSVWError(message)
             
@@ -10744,7 +10877,7 @@ def validate_and_normalize_derived_datatype(
     if 'minInclusive' in metadata_datatype_dict \
         and 'maxExclusive' in metadata_datatype_dict:
             
-        if metadata_datatype_dict['maxExclusive']<metadata_datatype_dict['minInclusive']:
+        if metadata_datatype_dict['maxExclusive']<=metadata_datatype_dict['minInclusive']:
         
             message='derived datatype error'
                     
@@ -10767,7 +10900,7 @@ def validate_and_normalize_derived_datatype(
     if 'minExclusive' in metadata_datatype_dict \
         and 'maxInclusive' in metadata_datatype_dict:
             
-        if metadata_datatype_dict['maxInclusive']<metadata_datatype_dict['minExclusive']:
+        if metadata_datatype_dict['maxInclusive']<=metadata_datatype_dict['minExclusive']:
         
             message='derived datatype error'
                     
@@ -11515,7 +11648,13 @@ def get_standard_json_from_annotated_table_group(
                 
                 if not titles is None and len(titles)>0:
                     
-                    R['titles']=titles
+                    x=[interpret_datatype(x) for x in titles]
+                    
+                    if len(x)==1:
+                        
+                        x=x[0]
+                    
+                    R['titles']=x
 
                 # NOTE
                 # JSON has no native support for expressing language 

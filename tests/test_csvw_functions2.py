@@ -1819,7 +1819,10 @@ class TestCSVWTestCases(unittest.TestCase):
                 
             # Link Header
             _link_header=entry.get('httpLink')
-                 
+            
+            # well known text
+            _well_known_text='{+url}-metadata.json\ncsv-metadata.json\n{+url}.json\ncsvm.json'
+            
             # validate option
             validate=False
             
@@ -1834,7 +1837,8 @@ class TestCSVWTestCases(unittest.TestCase):
                             action_fp,
                             overriding_metadata_file_path_or_url,
                             validate=validate,
-                            _link_header=_link_header
+                            _link_header=_link_header,
+                            _well_known_text=_well_known_text
                             )
                 
             
@@ -1847,7 +1851,8 @@ class TestCSVWTestCases(unittest.TestCase):
                                 action_fp,
                                 overriding_metadata_file_path_or_url,
                                 validate=validate,
-                                _link_header=_link_header
+                                _link_header=_link_header,
+                                _well_known_text=_well_known_text
                                 )
                         
             elif entry['type']=='csvt:NegativeJsonTest':    

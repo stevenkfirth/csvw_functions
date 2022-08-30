@@ -5,12 +5,60 @@
             {
                 "titles": {
                     "und": [
-                        "date"
+                        "##0"
                     ]
                 },
-                "name": "date"
+                "name": "%23%230"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "#,#00"
+                    ]
+                },
+                "name": "%23%2C%2300"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "#,##,#00"
+                    ]
+                },
+                "name": "%23%2C%23%23%2C%2300"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "#0.#"
+                    ]
+                },
+                "name": "%230.%23"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "#0.0"
+                    ]
+                },
+                "name": "%230.0"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "#0.0#"
+                    ]
+                },
+                "name": "%230.0%23"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "#0.0#,#"
+                    ]
+                },
+                "name": "%230.0%23%2C%23"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test219.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test282.csv"
 }
