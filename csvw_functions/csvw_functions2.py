@@ -2698,7 +2698,7 @@ def get_parse_number_function(
             
             for x in pattern:
                 
-                if not x in ['0','#','.',',','E','+','%','‰']:
+                if not x in ['0','#','.',',','E','+','-','%','‰','\u2030']:
                 
                     message=f'Number format pattern with value "{pattern}" is invalid '
                     message+=f'as it contains the character "{x}". '
@@ -2758,13 +2758,26 @@ def get_parse_number_function(
             """
             #...deals with percent and permille
             modifier=1
-            if string_value.endswith('%'):
+            
+            if string_value.startswith('%'):
+                
+                string_value=string_value[1:]
+                
+                modifier=0.01
+            
+            elif string_value.endswith('%'):
                 
                 string_value=string_value[:-1]
                 
                 modifier=0.01
                 
-            elif string_value.endswith('‰'):
+            elif string_value.startswith('‰') or string_value.startswith('\u2030'):
+                
+                string_value=string_value[1:]
+                
+                modifier=0.001
+                
+            elif string_value.endswith('‰') or string_value.endswith('\u2030'):
                 
                 string_value=string_value[:-1]
                 
@@ -3022,10 +3035,15 @@ def parse_LDML_number_pattern(
         
         #
         if mode=='integral':
+            
             pattern2=pattern2[::-1]
+            
         elif mode=='fractional':
+            
             pass
+        
         else:
+            
             raise Exception
         
         #
@@ -3061,7 +3079,7 @@ def parse_LDML_number_pattern(
     print('-pattern',pattern)
     
     # prefix
-    if pattern[0] in ['+','-','%','‰']:
+    if pattern[0] in ['%','‰','\u2030']:
         
         prefix=pattern[0]
         pattern_no_prefix=pattern[1:]
@@ -3073,17 +3091,29 @@ def parse_LDML_number_pattern(
         
     #print('-prefix',prefix)
         
+    
+    # prefix_sign
+    if pattern_no_prefix[0] in ['+','-']:
+        
+        prefix_sign=pattern_no_prefix[0]
+        pattern_no_prefix_no_sign=pattern_no_prefix[1:]
+        
+    else:
+        
+        prefix_sign=''
+        pattern_no_prefix_no_sign=pattern_no_prefix
+    
         
     # suffix
-    if pattern_no_prefix[-1] in ['+','-','%','‰']:
+    if pattern_no_prefix_no_sign[-1] in ['+','-','%','‰','\u2030']:
         
-        suffix=pattern[-1]
-        pattern_no_prefix_and_suffix=pattern_no_prefix[:-1]
+        suffix=pattern_no_prefix_no_sign[-1]
+        pattern_no_prefix_and_suffix=pattern_no_prefix_no_sign[:-1]
         
     else:
         
         suffix=''
-        pattern_no_prefix_and_suffix=pattern_no_prefix
+        pattern_no_prefix_and_suffix=pattern_no_prefix_no_sign
         
     #print('-suffix',suffix)
     #print('-pattern_no_prefix_and_suffix',pattern_no_prefix_and_suffix)
@@ -3188,6 +3218,8 @@ def parse_LDML_number_pattern(
         pattern=pattern,
         prefix=\
             prefix,
+        prefix_sign=\
+            prefix_sign,
         suffix=\
             suffix,
         mantissa_part=\
@@ -3235,7 +3267,7 @@ def validate_LDML_number(
     """
     try:
         
-        prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix=\
+        prefix, integral_sign, integral_part, fractional_part, exponent_sign, exponent_part, suffix=\
             parse_LDML_number(
                 string_value,
                 errors,
@@ -3253,7 +3285,7 @@ def validate_LDML_number(
         
     
     # prefix
-    if prefix=='+' and not pattern_dict['prefix']=='+':
+    if not prefix==pattern_dict['prefix']:
             
         message='prefix'
         
@@ -3261,6 +3293,19 @@ def validate_LDML_number(
         
         return False
             
+    
+    # prefix sign
+    if pattern_dict['prefix_sign']:
+        
+        if not integral_sign==pattern_dict['prefix_sign']:
+            
+            message='prefix sign'
+            
+            warnings.warn(message)
+            
+            return False
+    
+    
     
     # integral_part
     if not group_char is None:
@@ -3310,7 +3355,7 @@ def validate_LDML_number(
     
     
     # exponent prefix
-    if exponent_prefix=='+':
+    if exponent_sign=='+':
         
         if not pattern_dict['exponent_prefix']=='+':
             
@@ -3351,10 +3396,20 @@ def parse_LDML_number(
         group_char
         ):
     """
+    
+    :returns: (prefix, 
+              integral_sign,
+            integral_part, 
+            fractional_part, 
+            exponent_prefix, 
+            exponent_part, 
+            suffix)
+    
+    
     """
     
     # prefix
-    if string_value[0] in ['+','-']:
+    if string_value[0] in ['%','‰','\u2030']:
         
         prefix=string_value[0]
         string_value_no_prefix=string_value[1:]
@@ -3364,23 +3419,39 @@ def parse_LDML_number(
         prefix=''
         string_value_no_prefix=string_value
         
+    #print('-prefix',prefix)
+    #print('-string_value_no_prefix',string_value_no_prefix)
+        
+        
+    # integral sign
+    if string_value_no_prefix[0] in ['+','-']:
+        
+        integral_sign=string_value_no_prefix[0]
+        string_value_no_prefix_no_sign=string_value_no_prefix[1:]
+        
+    else:
+        
+        integral_sign=''
+        string_value_no_prefix_no_sign=string_value_no_prefix
+    
         
     # suffix
-    if string_value_no_prefix[-1] in ['%','‰']:
+    if string_value_no_prefix_no_sign[-1] in ['%','‰','\u2030']:
         
-        suffix=string_value_no_prefix[-1]
-        string_value_no_prefix_and_suffix=string_value_no_prefix[:-1]
+        suffix=string_value_no_prefix_no_sign[-1]
+        string_value_no_prefix_no_sign_no_suffix=string_value_no_prefix_no_sign[:-1]
         
     else:
         
         suffix=''
-        string_value_no_prefix_and_suffix=string_value_no_prefix
+        string_value_no_prefix_no_sign_no_suffix=string_value_no_prefix_no_sign
     
+    print('-string_value_no_prefix_no_sign_no_suffix',string_value_no_prefix_no_sign_no_suffix)
     
     #...check start
-    if not string_value_no_prefix_and_suffix[0] in ['0','1','2','3','4','5','6','7','8','9']:
+    if not string_value_no_prefix_no_sign_no_suffix[0] in ['0','1','2','3','4','5','6','7','8','9']:
         
-        message='start does not contain a number'
+        message='start does not contain a number or sign'
             
         errors.append(message)
             
@@ -3388,7 +3459,7 @@ def parse_LDML_number(
         
         
     #...check end
-    if not string_value_no_prefix_and_suffix[-1] in ['0','1','2','3','4','5','6','7','8','9']:
+    if not string_value_no_prefix_no_sign_no_suffix[-1] in ['0','1','2','3','4','5','6','7','8','9']:
         
         message='end does not contain a number'
             
@@ -3398,27 +3469,27 @@ def parse_LDML_number(
     
     
     # mantissa and exponent in scientific notation
-    mantissa_part, _, exponent_part_with_prefix=\
-        string_value_no_prefix_and_suffix.partition('E')
+    mantissa_part, _, exponent_part=\
+        string_value_no_prefix_no_sign_no_suffix.partition('E')
     
     
     # integral and fractional parts
     integral_part, _, fractional_part=\
         mantissa_part.partition(decimal_char)
         
-    print('-integral_part',integral_part)
+    #print('-integral_part',integral_part)
         
         
-    # exponent prefix
-    if exponent_part_with_prefix and exponent_part_with_prefix[0] in ['+','-']:
+    # exponent sign
+    if exponent_part and exponent_part[0] in ['+','-']:
         
-        exponent_prefix=exponent_part_with_prefix[0]
-        exponent_part=exponent_part_with_prefix[1:]
+        exponent_sign=exponent_part[0]
+        exponent_part_no_sign=exponent_part[1:]
         
     else:
         
-        exponent_prefix=''
-        exponent_part=exponent_part_with_prefix
+        exponent_sign=''
+        exponent_part_no_sign=exponent_part
         
         
     #...check integral part
@@ -3446,7 +3517,7 @@ def parse_LDML_number(
         
         
     #...check exponent part
-    for x in exponent_part:
+    for x in exponent_part_no_sign:
         
         if not x in ['0','1','2','3','4','5','6','7','8','9']:
             
@@ -3459,9 +3530,10 @@ def parse_LDML_number(
     
     #
     return (prefix, 
+            integral_sign,
             integral_part, 
             fractional_part, 
-            exponent_prefix, 
+            exponent_sign, 
             exponent_part, 
             suffix)
     
@@ -5162,6 +5234,7 @@ def parse_tabular_data_from_text(
         source_row_number+=1
         
     # 7 Repeat the following the number of times indicated by header row count:
+        
     for _ in range(header_row_count):
         
         # 7.1 Read a row to provide the row content.
@@ -5228,14 +5301,15 @@ def parse_tabular_data_from_text(
                     value
                     )
                 
-            # 7.4 Add 1 to the source row number.
-            source_row_number+=1
+        # 7.4 Add 1 to the source row number.
+        source_row_number+=1
+            
                 
     # 8 If header row count is zero, create an empty column description object 
     # in M.tableSchema.columns for each column in the current row after skip 
     # columns.
     
-    if header_row_count==0:
+    if header_row_count==0 or len(metadata_table_dict['tableSchema']['columns'])==0:
         
         original_character_index=character_index
         
@@ -5269,6 +5343,7 @@ def parse_tabular_data_from_text(
             
         character_index=original_character_index
             
+        
                 
     # 9 Set row number to 1.
     row_number=1

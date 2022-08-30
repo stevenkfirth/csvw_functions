@@ -3,111 +3,27 @@
     "tables": [
         {
             "rdfs:label": {
-                "@value": "valid number patterns (signs and percent/permille)"
+                "@value": "invalid #,#00 1234"
             },
             "rdfs:comment": {
                 "@value": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`."
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test283.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test289.csv",
             "tableSchema": {
                 "columns": [
                     {
                         "titles": {
                             "und": [
-                                "+0"
+                                "#,#00"
                             ]
                         },
                         "datatype": {
-                            "base": "decimal",
+                            "base": "integer",
                             "format": {
-                                "pattern": "+0"
+                                "pattern": "#,#00"
                             }
                         },
-                        "name": "%2B0"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "-0"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "-0"
-                            }
-                        },
-                        "name": "-0"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "%000"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "%000"
-                            }
-                        },
-                        "name": "%25000"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "\u2030000"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "\u2030000"
-                            }
-                        },
-                        "name": "%E2%80%B0000"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "000%"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "000%"
-                            }
-                        },
-                        "name": "000%25"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "000\u2030"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "000\u2030"
-                            }
-                        },
-                        "name": "000%E2%80%B0"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "000.0%"
-                            ]
-                        },
-                        "datatype": {
-                            "base": "decimal",
-                            "format": {
-                                "pattern": "000.0%"
-                            }
-                        },
-                        "name": "000.0%25"
+                        "name": "%23%2C%2300"
                     }
                 ]
             }
