@@ -5,76 +5,12 @@
             {
                 "titles": {
                     "und": [
-                        "yyyy-MM-ddTHH:mm:ss"
+                        "date"
                     ]
                 },
-                "name": "yyyy-MM-ddTHH%3Amm%3Ass"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "yyyy-MM-dd HH:mm:ss"
-                    ]
-                },
-                "name": "yyyy-MM-dd%20HH%3Amm%3Ass"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "yyyyMMdd HHmmss"
-                    ]
-                },
-                "name": "yyyyMMdd%20HHmmss"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "dd-MM-yyyy HH:mm"
-                    ]
-                },
-                "name": "dd-MM-yyyy%20HH%3Amm"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "d-M-yyyy HHmm"
-                    ]
-                },
-                "name": "d-M-yyyy%20HHmm"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "yyyy-MM-ddTHH:mm"
-                    ]
-                },
-                "name": "yyyy-MM-ddTHH%3Amm"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "d-M-yyyy HHmm X"
-                    ]
-                },
-                "name": "d-M-yyyy%20HHmm%20X"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "yyyy-MM-ddTHH:mm:ssXXX"
-                    ]
-                },
-                "name": "yyyy-MM-ddTHH%3Amm%3AssXXX"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "yyyy-MM-dd HH:mm:ss X"
-                    ]
-                },
-                "name": "yyyy-MM-dd%20HH%3Amm%3Ass%20X"
+                "name": "date"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test192.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test219.csv"
 }

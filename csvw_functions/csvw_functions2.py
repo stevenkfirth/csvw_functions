@@ -184,6 +184,8 @@ datatypes_numbers=['double','number','float']+datatypes_decimals
 
 datatypes_dates_and_times=['date','dateTime','datetime','dateTimeStamp','time']
 
+datatypes_durations=['duration','dayTimeDuration','yearMonthDuration']
+
 datatypes_binary=['base64Binary','binary','hexBinary']
 
 
@@ -840,6 +842,12 @@ def check_length_constraints(
     
     # If the value is a list, the constraint applies to each element of the list.
     
+    #
+    if length is None and minimum_length is None and maximum_length is None:
+        
+        return True
+    
+    #
     if value is None:
         
         value_length=0
@@ -851,6 +859,10 @@ def check_length_constraints(
     elif datatype_base in datatypes_binary:
         
         value_length=len(value.encode('utf-8'))  #??? needs checking
+        
+    else:
+        
+        raise Exception(datatype_base)
     
     
     if not length is None:
@@ -2220,9 +2232,8 @@ def parse_cells_in_annotated_column_dict(
     # durations
     elif datatype['base'] in ['duration','dayTimeDuration','yearMonthDuration']:
         
-        raise NotImplementedError
         datatype_parse_function=\
-            get_parse_durations_function(
+            get_parse_duration_function(
                 datatype
                 )
             
@@ -2511,8 +2522,8 @@ def parse_cell_steps_6_to_9(
             errors,
             datatype['base'],
             length=datatype.get('length'),
-            minimum_length=datatype.get('minimumLength'),
-            maximum_length=datatype.get('maximumLength')
+            minimum_length=datatype.get('minLength'),
+            maximum_length=datatype.get('maxLength')
             )
     
     if not result:
@@ -2525,10 +2536,10 @@ def parse_cell_steps_6_to_9(
             json_value,
             errors,
             datatype['base'],
-            minimum=datatype.get('minimum'),
-            maximum=datatype.get('maximum'),
-            minimum_exclusive=datatype.get('minimumExclusive'),
-            maximum_exclusive=datatype.get('maximumExclusive')
+            minimum=datatype.get('minimum') or datatype.get('minInclusive'),
+            maximum=datatype.get('maximum') or datatype.get('maxInclusive'),
+            minimum_exclusive=datatype.get('minExclusive'),
+            maximum_exclusive=datatype.get('maxExclusive')
             )
     
     if not result:
@@ -3549,7 +3560,7 @@ def get_timezone_string(
             
             else:
                 
-                raise Exception
+                raise ValueError
             
     
         elif timezone_format=='XX':
@@ -3564,7 +3575,7 @@ def get_timezone_string(
             
             else:
                 
-                raise Exception
+                raise ValueError
         
         
         elif timezone_format=='XXX':
@@ -3579,7 +3590,7 @@ def get_timezone_string(
             
             else:
                 
-                raise Exception
+                raise ValueError
                 
         
         elif timezone_format=='x':
@@ -3594,7 +3605,7 @@ def get_timezone_string(
             
             else:
                 
-                raise Exception
+                raise ValueError
                 
         
         elif timezone_format=='xx':
@@ -3605,7 +3616,7 @@ def get_timezone_string(
             
             else:
                 
-                raise Exception
+                raise ValueError
         
         
         elif timezone_format=='xxx':
@@ -3616,7 +3627,7 @@ def get_timezone_string(
             
             else:
                 
-                raise Exception
+                raise ValueError
         
         
         else:
@@ -3858,11 +3869,20 @@ def get_parse_date_function(
         print('-string_value',string_value)
         
         #
-        timezone_string=\
-            get_timezone_string(
-                string_value,
-                timezone_format
-                )
+        try:
+            
+            timezone_string=\
+                get_timezone_string(
+                    string_value,
+                    timezone_format
+                    )
+        
+        except ValueError:
+            
+            message='date conversion error'
+            errors.append(message)
+            warnings.warn(message)
+            return string_value,'string',errors
             
         print('-timezone_string',timezone_string)
         
@@ -3908,63 +3928,130 @@ def get_parse_date_function(
                 
                 if code=='yyyy':
                     
-                    year=int(date_substring)
-                    
                     if not len(date_substring)==4:
                         
-                        raise ValueError
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
+                    
+                    try:
+                        
+                        year=int(date_substring)
+                    
+                    except ValueError:
+                        
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                     
                 elif code=='MM':
                     
-                    month=int(date_substring)
-                    
                     if not len(date_substring)==2:
                         
-                        raise ValueError
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
+                    
+                    try:
+                    
+                        month=int(date_substring)
+                    
+                    except ValueError:
+                        
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                     
                     
                 elif code=='M':
                     
-                    month=int(date_substring)
+                    try:
+                    
+                        month=int(date_substring)
+                    
+                    except ValueError:
+                        
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                     
                     if month<10:
                         
                         if not len(date_substring)==1:
                             
-                            raise ValueError
+                            message='date conversion error'
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                         
                     else:
                         
                         if not len(date_substring)==2:
                             
-                            raise ValueError
+                            message='date conversion error'
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
+                    
+                    
                         
                 elif code=='dd':
                     
-                    day=int(date_substring)
-                    
                     if not len(date_substring)==2:
                         
-                        raise ValueError
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
+                    
+                    try:
+                    
+                        day=int(date_substring)
+                    
+                    except ValueError:
+                        
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                     
                     
                 elif code=='d':
                     
-                    day=int(date_substring)
+                    try:
+                    
+                        day=int(date_substring)
+                        
+                    except ValueError:
+                        
+                        message='date conversion error'
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                     
                     if day<10:
                         
                         if not len(date_substring)==1:
                             
-                            raise ValueError
+                            message='date conversion error'
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                         
                     else:
                         
                         if not len(date_substring)==2:
                             
-                            raise ValueError
+                            message='date conversion error'
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                         
-                    
                     
                 else:
                     
@@ -4118,12 +4205,21 @@ def get_parse_time_function(
         print('-string_value',string_value)
         
         #
-        timezone_string=\
-            get_timezone_string(
-                string_value,
-                timezone_format
-                )
+        try:
             
+            timezone_string=\
+                get_timezone_string(
+                    string_value,
+                    timezone_format
+                    )
+        
+        except ValueError:
+            
+            message='time conversion error'
+            errors.append(message)
+            warnings.warn(message)
+            return string_value,'string',errors
+                
         print('-timezone_string',timezone_string)
         
         #
@@ -4153,34 +4249,78 @@ def get_parse_time_function(
                 
             if main_time_format=='HH:mm:ss':
                 
-                hour,minute,second=[int(x) for x in main_time_string.split(':')]
+                try:
+                
+                    hour,minute,second=[int(x) for x in main_time_string.split(':')]
+                
+                except ValueError:
+                    
+                    message='time conversion error'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value,'string',errors
+                
+                
                 
             elif main_time_format=='HHmmss':
                 
-                hour=int(main_time_string[:2])
-                minute=int(main_time_string[2:4])
-                second=int(main_time_string[4:])
+                try:
+                
+                    hour=int(main_time_string[:2])
+                    minute=int(main_time_string[2:4])
+                    second=int(main_time_string[4:])
+                
+                except ValueError:
+                    
+                    message='time conversion error'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value,'string',errors
+                
                 
             elif main_time_format=='HH:mm':
                 
-                hour,minute=[int(x) for x in main_time_string.split(':')]
+                try:
+                
+                        hour,minute=[int(x) for x in main_time_string.split(':')]
+                
+                except ValueError:
+                
+                    message='time conversion error'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value,'string',errors
+                
                 second=0
                 
             elif main_time_format=='HHmm':
                 
-                hour=int(main_time_string[:2])
-                minute=int(main_time_string[2:4])
+                try:
+                    
+                    hour=int(main_time_string[:2])
+                    minute=int(main_time_string[2:4])
+                
+                except ValueError:
+                    
+                    message='time conversion error'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value,'string',errors
+                
                 second=0
                 
             if fractional_time_format:
                 
                 if len(fractional_time_string)>len(fractional_time_format):
                     
-                    message='fractional time string'
-                    
+                    message='time conversion error'
+                    errors.append(message)
                     warnings.warn(message)
+                    return string_value,'string',errors
                 
-                microsecond=int(fractional_time_string)
+                else:
+                
+                    microsecond=int(fractional_time_string)
                 
             else:
                 
@@ -4306,12 +4446,21 @@ def get_parse_datetime_function(
         print('-string_value',string_value)
         
         #
-        timezone_string=\
-            get_timezone_string(
-                string_value,
-                timezone_format
-                )
+        try:
             
+            timezone_string=\
+                get_timezone_string(
+                    string_value,
+                    timezone_format
+                    )
+        
+        except ValueError:
+            
+            message='datetime conversion error'
+            errors.append(message)
+            warnings.warn(message)
+            return string_value,'string',errors
+                
         print('-timezone_string',timezone_string)
         
         #
@@ -4344,9 +4493,6 @@ def get_parse_datetime_function(
         
         if not datetime_format is None:
             
-            
-            
-            
             date_string, _, time_string =\
                 datetime_string.partition(separator)
                 
@@ -4377,25 +4523,28 @@ def get_parse_datetime_function(
                       time_errors)
             
             #
+
+            try:
             
-            x=datetime.datetime.fromisoformat(
-                f'{date_json_value}T{time_json_value}'
-                )
+                x=datetime.datetime.fromisoformat(
+                    f'{date_json_value}T{time_json_value}'
+                    )
             
+            except ValueError:
+                
+                message='datetime conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value,'string',errors
+            
+            #
             errors.extend(date_errors)
             errors.extend(time_errors)
             
-            
         else:
-            
-            
-            
-            
             
             x=datetime.datetime.fromisoformat(datetime_string)
             
-        
-        
         #
         json_value=x.isoformat()+xsd_timezone_string
         
@@ -4416,6 +4565,204 @@ def get_parse_datetimestamp_function(
         datatype,
         timezone_required=True
         )
+
+
+#%% 6.4.5 Formats for durations
+
+def get_parse_duration_function(
+        datatype
+        ):
+    """
+    """
+    # Durations must be formatted and interpreted as defined in 
+    # [xmlschema11-2], using the [ISO8601] format -?PnYnMnDTnHnMnS. 
+    # For example, the duration P1Y1D is used for a year and a day; 
+    # the duration PT2H30M for 2 hours and 30 minutes.
+
+    # If the datatype base is a duration type, the datatype format 
+    # annotation provides a regular expression for the string values, 
+    # with syntax and processing defined by [ECMASCRIPT]. 
+    # If the supplied value is not a valid regular expression, 
+    # implementations must issue a warning and proceed as if no format 
+    # had been provided.
+    
+    # NOTE
+    # Authors are encouraged to be conservative in the regular expressions 
+    # that they use, sticking to the basic features of regular expressions 
+    # that are likely to be supported across implementations.
+    
+    # The cell value will be one or more durations extracted using the format.
+        
+    print('-datatype',datatype)
+    
+    datatype_format=datatype.get('format')
+    
+    if not datatype_format is None:
+    
+        try:
+            
+            re_compiled=re.compile(datatype['format'])
+            
+        except re.error:
+            
+            message='Property "format" with value "{datatype["format"]}" '
+            message+='is not a valid regular expression. '
+            message+='Property is removed. '
+            
+            warnings.warn(message)
+            
+            re_compiled=None
+            
+    print('-re_compiled', re_compiled)
+    
+    
+    def parse_duration(
+            string_value,
+            errors
+            ):
+        ""
+
+        if not re_compiled is None:
+            
+            if not re_compiled.search(string_value):
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+
+        #...parsing -?PnYnMnDTnHnMnS
+        x=string_value
+        
+        if x[0]=='P':
+            
+            message='duration conversion error'
+            errors.append(message)
+            warnings.warn(message)
+            return string_value, 'string', errors
+        
+        _,_,x=x.partition('P')
+        
+        
+        #Y
+        year_string,_,x=x.partition('Y')
+        
+        if year_string:
+            
+            try:
+                
+                int(year_string)
+                
+            except ValueError:
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+            
+            
+        #M
+        month_string,_,x=x.partition('M')
+        
+        if month_string:
+            
+            try:
+                
+                int(month_string)
+                
+            except ValueError:
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+        
+        
+        #D
+        day_string,_,x=x.partition('D')
+        
+        if day_string:
+            
+            try:
+                
+                int(day_string)
+                
+            except ValueError:
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+            
+        #T
+        if len(x)>0:
+            
+            if not x[0]=='T':
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+                
+        _,_,x=x.partition('T')
+        
+        
+        #H
+        hour_string,_,x=x.partition('H')
+        
+        if hour_string:
+            
+            try:
+                
+                int(hour_string)
+                
+            except ValueError:
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+        
+
+        #M
+        minute_string,_,x=x.partition('M')
+        
+        if minute_string:
+            
+            try:
+                
+                int(minute_string)
+                
+            except ValueError:
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+        
+
+        #S
+        second_string,_,x=x.partition('S')
+        
+        if second_string:
+            
+            try:
+                
+                int(second_string)
+                
+            except ValueError:
+                
+                message='duration conversion error'
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
+        
+        
+        #
+        return string_value, datatype['base'], errors
+
+
+    return parse_duration
 
 
 
@@ -9638,6 +9985,7 @@ def validate_and_normalize_metadata_dialect_dict(
                 )
             
             
+    #
     if is_referenced:
         
         metadata_dialect_dict.remove('@context')
@@ -9645,8 +9993,6 @@ def validate_and_normalize_metadata_dialect_dict(
         if not '@id' in metadata_dialect_dict:
             
             metadata_dialect_dict['@id']=metadata_document_location
-    
-    
     
 
 
@@ -10010,13 +10356,461 @@ def validate_and_normalize_derived_datatype(
                 metadata_datatype_dict, 
                 k, 
                 )
-        
             
+        # length
+        elif k=='length': 
+        
+            # A numeric atomic property that contains a single integer that 
+            # is the exact length of the value. 
+            # The value of this property becomes the length annotation for 
+            # the described datatype. 
+            # See Length Constraints in [tabular-data-model] for details.
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int],
+                greater_than_or_equal_to=0
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+            
+        
+        # minLength
+        elif k=='minLength':
+            
+            # An atomic property that contains a single integer that is the 
+            # minimum length of the value. 
+            # The value of this property becomes the minimum length 
+            # annotation for the described datatype. 
+            # See Length Constraints in [tabular-data-model] for details.
+        
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int],
+                greater_than_or_equal_to=0
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+        
+        
+        # maxLength
+        elif k=='maxLength':
+            
+            # A numeric atomic property that contains a single integer 
+            # that is the maximum length of the value. 
+            # The value of this property becomes the maximum length 
+            # annotation for the described datatype. 
+            # See Length Constraints in [tabular-data-model] for details.
+        
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int],
+                greater_than_or_equal_to=0
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+        
+        # minimum
+        elif k=='minimum':
+        
+            # An atomic property that contains a single number or string 
+            # that is the minimum valid value (inclusive); 
+            # equivalent to minInclusive. 
+            # The value of this property becomes the minimum annotation 
+            # for the described datatype. 
+            # See Value Constraints in [tabular-data-model] for details.
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int,float,str],
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+            
+        
+        # maximum
+        elif k=='maximum':
+        
+            # An atomic property that contains a single number or string 
+            # that is the maximum valid value (inclusive); 
+            # equivalent to maxInclusive. 
+            # The value of this property becomes the maximum annotation 
+            # for the described datatype. 
+            # See Value Constraints in [tabular-data-model] for details.   
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int,float,str],
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+        
+        # minInclusive
+        elif k=='minInclusive':
+            
+            # An atomic property that contains a single number or string 
+            # that is the minimum valid value (inclusive). 
+            # The value of this property becomes the minimum annotation 
+            # for the described datatype. 
+            # See Value Constraints in [tabular-data-model] for details.
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int,float,str],
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+        
+        # maxInclusive
+        elif k=='maxInclusive':
+            
+            # An atomic property that contains a single number or string 
+            # that is the maximum valid value (inclusive). 
+            # The value of this property becomes the maximum annotation 
+            # for the described datatype. 
+            # See Value Constraints in [tabular-data-model] for details.
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int,float,str],
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+        
+        # minExclusive
+        elif k=='minExclusive':
+            
+            # An atomic property that contains a single number or string 
+            # that is the minimum valid value (exclusive). 
+            # The value of this property becomes the minimum exclusive 
+            # annotation for the described datatype. 
+            # See Value Constraints in [tabular-data-model] for details.
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int,float,str],
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+            
+        # maxExclusive
+        elif k=='maxExclusive':
+        
+            # An atomic property that contains a single number or string 
+            # that is the maximum valid value (exclusive). 
+            # The value of this property becomes the maximum exclusive 
+            # annotation for the described datatype. 
+            # See Value Constraints in [tabular-data-model] for details.   
+            
+            validate_atomic_property(
+                metadata_datatype_dict, 
+                k,
+                expected_types=[int,float,str],
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict, 
+                k, 
+                )
+        
+        # @id
+        elif k=='@id':
+            
+            # If included, @id is a link property that identifies the 
+            # dialect described by this dialect description. 
+            # It must not start with _:.
+        
+            validate_link_property(
+                metadata_datatype_dict,
+                k,
+                )
+            
+            id_=metadata_datatype_dict[k]
+                
+            if id_.startswith('_:'):
+                
+                message='Property "@id" must not start with "_:". '
+                
+                raise CSVWError(message)
+            
+            normalize_link_property(
+                metadata_datatype_dict,
+                k,
+                base_url
+                )
+            
+            
+        
+        # @type
+        elif k=='@type':
+            
+            # If included, @type is an atomic property that must be set 
+            # to "Dialect". 
+            # Publishers may include this to provide additional information 
+            # to JSON-LD based toolchains.
+        
+            validate_atomic_property(
+                metadata_datatype_dict,
+                k,
+                required_values=['Datatype']
+                )
+            
+            normalize_atomic_property(
+                metadata_datatype_dict,
+                k,
+                )
+    
+    
+        # common properties
+        else:
+            
+            # The description may contain any common properties to provide 
+            # extra metadata about the column as a whole, such as a full 
+            # description.
+            
+            validate_and_normalize_common_property(
+                metadata_datatype_dict,
+                k,
+                base_url,
+                default_language
+                )    
+    
+    
+    # Applications must raise an error if the @id property has the value 
+    # of a built-in datatype and any other property is specified. 
+    # In these cases, the other properties are ignored.
+    if '@id' in metadata_datatype_dict:
+        
+        if metadata_datatype_dict['@id'] in datatypes:
+            
+            if len(metadata_datatype_dict)>1:
+                
+                message='derived datatype error'
+                
+                raise CSVWError(message)
+                
+                
+    # Applications must raise an error if both length and minLength are 
+    # specified and length is less than minLength. 
+    if 'length' in metadata_datatype_dict and 'minLength' in metadata_datatype_dict:
+        
+        if metadata_datatype_dict['length']<metadata_datatype_dict['minLength']:
+            
+            message='derived datatype error'
+                
+            raise CSVWError(message)
+                
+            
+    # Similarly, applications must raise an error if both length and 
+    # maxLength are specified and length is greater than maxLength. 
+    if 'length' in metadata_datatype_dict and 'maxLength' in metadata_datatype_dict:
+        
+        if metadata_datatype_dict['length']>metadata_datatype_dict['maxLength']:
+            
+            message='derived datatype error'
+                
+            raise CSVWError(message)
+    
+    
+    # Applications must raise an error if minLength and maxLength are 
+    # both specified and minLength is greater than maxLength. 
+    if 'minLength' in metadata_datatype_dict and 'maxLength' in metadata_datatype_dict:
+        
+        if metadata_datatype_dict['minLength']>metadata_datatype_dict['maxLength']:
+            
+            message='derived datatype error'
+                
+            raise CSVWError(message)
+    
+    
+    # Applications must raise an error if length, maxLength, or minLength 
+    # are specified and the base datatype is neither string, a subtype of 
+    # string, nor a binary type.
+    if 'length' in metadata_datatype_dict or \
+        'minLength' in metadata_datatype_dict or \
+        'maxLength' in metadata_datatype_dict:
+        
+        base=metadata_datatype_dict.get('base')
+        
+        if base in datatypes_strings or \
+            base in datatypes_binary:
+                
+                pass
             
         else:
             
-            raise NotImplementedError(k)
+            message='derived datatype error'
+                
+            raise CSVWError(message)
     
+    
+    # In all ways, including the errors described below, the minimum 
+    # property is equivalent to the minInclusive property and the 
+    # maximum property is equivalent to the maxInclusive property. 
+    # Applications must raise an error if both minimum and minInclusive 
+    # are specified and they do not have the same value. 
+    if 'minimum' in metadata_datatype_dict and 'minLength' in metadata_datatype_dict:
+        
+        if metadata_datatype_dict['minimum']==metadata_datatype_dict['minLength']:
+            
+            pass
+        
+        else:
+            
+            message='derived datatype error'
+                
+            raise CSVWError(message)
+    
+    
+    # Similarly, applications must raise an error if both maximum and 
+    # maxInclusive are specified and they do not have the same value.
+    if 'maximum' in metadata_datatype_dict and 'maxLength' in metadata_datatype_dict:
+        
+        if metadata_datatype_dict['maximum']==metadata_datatype_dict['maxLength']:
+            
+            pass
+        
+        else:
+            
+            message='derived datatype error'
+                
+            raise CSVWError(message)
+    
+    
+    
+    # Applications must raise an error if both minInclusive and 
+    # minExclusive are specified, or if both maxInclusive and maxExclusive 
+    # are specified. 
+    if 'minInclusive' in metadata_datatype_dict \
+        and 'minExclusive' in metadata_datatype_dict:
+        
+        message='derived datatype error'
+                
+        raise CSVWError(message)
+    
+    if 'maxInclusive' in metadata_datatype_dict \
+        and 'maxExclusive' in metadata_datatype_dict:
+        
+        message='derived datatype error'
+                
+        raise CSVWError(message)
+    
+    
+    # Applications must raise an error if both minInclusive and 
+    # maxInclusive are specified and maxInclusive is less than 
+    # minInclusive, or if both minInclusive and maxExclusive are 
+    # specified and maxExclusive is less than or equal to minInclusive. 
+    if 'minInclusive' in metadata_datatype_dict \
+        and 'maxInclusive' in metadata_datatype_dict:
+            
+        if metadata_datatype_dict['maxInclusive']<metadata_datatype_dict['minInclusive']:
+        
+            message='derived datatype error'
+                    
+            raise CSVWError(message)
+    
+    if 'minInclusive' in metadata_datatype_dict \
+        and 'maxExclusive' in metadata_datatype_dict:
+            
+        if metadata_datatype_dict['maxExclusive']<metadata_datatype_dict['minInclusive']:
+        
+            message='derived datatype error'
+                    
+            raise CSVWError(message)
+    
+    
+    # Similarly, applications must raise an error if both minExclusive 
+    # and maxExclusive are specified and maxExclusive is less than 
+    # minExclusive, or if both minExclusive and maxInclusive are specified 
+    # and maxInclusive is less than or equal to minExclusive.
+    if 'minExclusive' in metadata_datatype_dict \
+        and 'maxExclusive' in metadata_datatype_dict:
+            
+        if metadata_datatype_dict['maxExclusive']<metadata_datatype_dict['minExclusive']:
+        
+            message='derived datatype error'
+                    
+            raise CSVWError(message)
+    
+    if 'minExclusive' in metadata_datatype_dict \
+        and 'maxInclusive' in metadata_datatype_dict:
+            
+        if metadata_datatype_dict['maxInclusive']<metadata_datatype_dict['minExclusive']:
+        
+            message='derived datatype error'
+                    
+            raise CSVWError(message)
+    
+    
+    # Applications must raise an error if minimum, minInclusive, maximum, 
+    # maxInclusive, minExclusive, or maxExclusive are specified and the base 
+    # datatype is not a numeric, date/time, or duration type.
+    if 'minimum' in metadata_datatype_dict or \
+        'minInclusive' in metadata_datatype_dict or \
+        'maximum' in metadata_datatype_dict or \
+        'maxInclusive' in metadata_datatype_dict or \
+        'minExclusive' in metadata_datatype_dict or \
+        'maxExclusive' in metadata_datatype_dict:
+            
+        base=metadata_datatype_dict.get('base')
+        
+        if base in datatypes_numbers or \
+            base in datatypes_dates_and_times or \
+            base in datatypes_durations:
+                
+            pass
+        
+        else:
+            
+            message='derived datatype error'
+                    
+            raise CSVWError(message)
+            
+    
+    
+    # Validation against these properties is as defined in [xmlschema11-2].
+    
+    # NOTE
+    # The format property is not used when interpreting values for the minimum, maximum, minInclusive, maxInclusive, minExclusive, or maxExclusive values. If these values are strings, they must be specified using a valid representation appropriate for the datatype base as defined in [xmlschema11-2]. For example:
+    
+    # {
+    #   "datatype": "date",
+    #   "format": "dd/MM/yyyy",
+    #   "minimum": "2000-01-01"
+    # }
+                
     
     
         

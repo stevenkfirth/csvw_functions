@@ -19,13 +19,12 @@
                     "suppressOutput": false,
                     "datatype": {
                         "base": "date",
-                        "format": {
-                            "pattern": "yy-MM-dd"
-                        }
+                        "maxExclusive": "2015-06-05",
+                        "minInclusive": "2015-06-05"
                     },
                     "default": "",
                     "lang": "und",
-                    "null": "",
+                    "null": "NULL",
                     "ordered": false,
                     "required": false,
                     "separator": null,
@@ -38,14 +37,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "15-06-05",
-                            "value": {
-                                "@value": "15-06-05",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "Invalid isoformat string 15-06-05. "
-                            ],
+                            "stringValue": "NULL",
+                            "value": null,
+                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -67,14 +61,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "15-06-05",
-                            "value": {
-                                "@value": "15-06-05",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "Invalid isoformat string 15-06-05. "
-                            ],
+                            "stringValue": "NULL",
+                            "value": null,
+                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -86,17 +75,17 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test191.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test219.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
             "transformations": [],
             "rdfs:comment": {
-                "@value": "The supported date and time formats listed here are expressed in terms of the date field symbols defined in [UAX35] and MUST be interpreted by implementations as defined in that specification."
+                "@value": "Applications MUST raise an error if both minInclusive and maxInclusive are specified and maxInclusive is less than minInclusive, or if both minInclusive and maxExclusive are specified and maxExclusive is less than or equal to minInclusive."
             },
             "rdfs:label": {
-                "@value": "date format (bad format string)"
+                "@value": "maxExclusive = minInclusive"
             }
         }
     ]
