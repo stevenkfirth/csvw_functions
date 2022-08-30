@@ -5,60 +5,60 @@
             {
                 "titles": {
                     "und": [
-                        "##0"
+                        "+0"
                     ]
                 },
-                "name": "%23%230"
+                "name": "%2B0"
             },
             {
                 "titles": {
                     "und": [
-                        "#,#00"
+                        "-0"
                     ]
                 },
-                "name": "%23%2C%2300"
+                "name": "-0"
             },
             {
                 "titles": {
                     "und": [
-                        "#,##,#00"
+                        "%000"
                     ]
                 },
-                "name": "%23%2C%23%23%2C%2300"
+                "name": "%25000"
             },
             {
                 "titles": {
                     "und": [
-                        "#0.#"
+                        "\u2030000"
                     ]
                 },
-                "name": "%230.%23"
+                "name": "%E2%80%B0000"
             },
             {
                 "titles": {
                     "und": [
-                        "#0.0"
+                        "000%"
                     ]
                 },
-                "name": "%230.0"
+                "name": "000%25"
             },
             {
                 "titles": {
                     "und": [
-                        "#0.0#"
+                        "000\u2030"
                     ]
                 },
-                "name": "%230.0%23"
+                "name": "000%E2%80%B0"
             },
             {
                 "titles": {
                     "und": [
-                        "#0.0#,#"
+                        "000.0%"
                     ]
                 },
-                "name": "%230.0%23%2C%23"
+                "name": "000.0%25"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test282.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test283.csv"
 }

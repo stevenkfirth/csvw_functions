@@ -2719,6 +2719,12 @@ def get_parse_number_function(
                     pattern
                     )
                 
+            #...sets a default group_char if present in the number pattern
+            if not pattern_dict['integral_part_primary_grouping_size'] is None \
+                or not pattern_dict['fractional_part_grouping_size'] is None:
+                
+                group_char=','
+                
     else:
         
         pattern=None
@@ -3052,10 +3058,12 @@ def parse_LDML_number_pattern(
                 
     #---
     
+    print('-pattern',pattern)
+    
     # prefix
-    if pattern.startswith('+'):
+    if pattern[0] in ['+','-','%','‰']:
         
-        prefix='+'
+        prefix=pattern[0]
         pattern_no_prefix=pattern[1:]
         
     else:
@@ -3063,23 +3071,22 @@ def parse_LDML_number_pattern(
         prefix=''
         pattern_no_prefix=pattern
         
+    #print('-prefix',prefix)
+        
         
     # suffix
-    if pattern_no_prefix.endswith('%'):
+    if pattern_no_prefix[-1] in ['+','-','%','‰']:
         
-        suffix='%'
-        pattern_no_prefix_and_suffix=pattern_no_prefix[:-1]
-        
-    elif pattern.endswith('‰'):
-        
-        suffix='‰'
+        suffix=pattern[-1]
         pattern_no_prefix_and_suffix=pattern_no_prefix[:-1]
         
     else:
         
         suffix=''
         pattern_no_prefix_and_suffix=pattern_no_prefix
-    
+        
+    #print('-suffix',suffix)
+    #print('-pattern_no_prefix_and_suffix',pattern_no_prefix_and_suffix)
     
     #...check no invalid prefixes or suffixes remain
     assert pattern_no_prefix_and_suffix[0] in ['#','0']
@@ -3117,13 +3124,22 @@ def parse_LDML_number_pattern(
                              in enumerate(reverse_integral_part) 
                              if x==',']
     
-    if len(positions_of_group_char)>0:
-        integral_part_primary_grouping_size=positions_of_group_char[0]
+    if len(positions_of_group_char)==0:
         
-    if len(positions_of_group_char)>1:
+        integral_part_primary_grouping_size=None
+        integral_part_secondary_grouping_size=None
+    
+    elif len(positions_of_group_char)==1:
+        
+        integral_part_primary_grouping_size=positions_of_group_char[0]
+        integral_part_secondary_grouping_size=None
+        
+    else:
+        
+        integral_part_primary_grouping_size=positions_of_group_char[0]
         integral_part_secondary_grouping_size=\
             positions_of_group_char[1]-positions_of_group_char[0]
-    
+                
     
     # integral zeros and hashes
     integral_part_zero_padding_count,\
@@ -3134,7 +3150,21 @@ def parse_LDML_number_pattern(
                     )
             
     # fractional grouping size
-    raise NotImplementedError
+    positions_of_group_char=[i for i, x 
+                             in enumerate(fractional_part) 
+                             if x==',']
+    
+    if len(positions_of_group_char)==0:
+        
+        fractional_part_grouping_size=None
+        
+    elif len(positions_of_group_char)==1:
+        
+        fractional_part_grouping_size=positions_of_group_char[0]
+        
+    else:
+        
+        raise Exception
     
     
     # fractional zeros and hashes
@@ -3174,6 +3204,8 @@ def parse_LDML_number_pattern(
             integral_part_hash_padding_count,
         fractional_part=\
             fractional_part,
+        fractional_part_grouping_size=\
+            fractional_part_grouping_size,
         fractional_part_zero_padding_count=\
             fractional_part_zero_padding_count,
         fractional_part_hash_padding_count=\
@@ -3207,7 +3239,8 @@ def validate_LDML_number(
             parse_LDML_number(
                 string_value,
                 errors,
-                decimal_char
+                decimal_char,
+                group_char
                 )
             
     except ValueError:
@@ -3249,7 +3282,15 @@ def validate_LDML_number(
         
     # fractional_part
     
-    if len(fractional_part)<pattern_dict['fractional_part_zero_padding_count']:
+    if not group_char is None:
+        
+        x=fractional_part.replace(group_char,'')
+        
+    else:
+    
+        x=fractional_part
+    
+    if len(x)<pattern_dict['fractional_part_zero_padding_count']:
         
         message='fractional part zero padding'
         
@@ -3257,7 +3298,7 @@ def validate_LDML_number(
         
         return False
         
-    if len(fractional_part)>\
+    if len(x)> \
         pattern_dict['fractional_part_zero_padding_count']\
             + pattern_dict['fractional_part_hash_padding_count']:
         
@@ -3306,10 +3347,12 @@ def validate_LDML_number(
 def parse_LDML_number(
         string_value,
         errors,
-        decimal_char
+        decimal_char,
+        group_char
         ):
     """
     """
+    
     # prefix
     if string_value[0] in ['+','-']:
         
@@ -3363,6 +3406,8 @@ def parse_LDML_number(
     integral_part, _, fractional_part=\
         mantissa_part.partition(decimal_char)
         
+    print('-integral_part',integral_part)
+        
         
     # exponent prefix
     if exponent_part_with_prefix and exponent_part_with_prefix[0] in ['+','-']:
@@ -3379,7 +3424,7 @@ def parse_LDML_number(
     #...check integral part
     for x in integral_part:
         
-        if not x in ['0','1','2','3','4','5','6','7','8','9']:
+        if not x in ['0','1','2','3','4','5','6','7','8','9',group_char]:
             
             message='error in integral part'
             
@@ -3391,7 +3436,7 @@ def parse_LDML_number(
     #...check fractional part
     for x in fractional_part:
         
-        if not x in ['0','1','2','3','4','5','6','7','8','9']:
+        if not x in ['0','1','2','3','4','5','6','7','8','9',group_char]:
             
             message='error in fractional part'
             

@@ -8,310 +8,10 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "%23%230",
+                    "name": "%2B0",
                     "titles": [
                         {
-                            "@value": "##0",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "integer",
-                        "format": {
-                            "pattern": "##0"
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1",
-                            "value": {
-                                "@value": 1,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12",
-                            "value": {
-                                "@value": 12,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "123",
-                            "value": {
-                                "@value": 123,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1234",
-                            "value": {
-                                "@value": 1234,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 2,
-                    "sourceNumber": 2,
-                    "name": "%23%2C%2300",
-                    "titles": [
-                        {
-                            "@value": "#,#00",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "integer",
-                        "format": {
-                            "pattern": "#,#00"
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12",
-                            "value": {
-                                "@value": 12,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "123",
-                            "value": {
-                                "@value": 123,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,234",
-                            "value": {
-                                "@value": "1,234",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"1,234\" is not in the format specified \"#,#00\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,234,567",
-                            "value": {
-                                "@value": "1,234,567",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"1,234,567\" is not in the format specified \"#,#00\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 3,
-                    "sourceNumber": 3,
-                    "name": "%23%2C%23%23%2C%2300",
-                    "titles": [
-                        {
-                            "@value": "#,##,#00",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "integer",
-                        "format": {
-                            "pattern": "#,##,#00"
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12",
-                            "value": {
-                                "@value": 12,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "123",
-                            "value": {
-                                "@value": 123,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,234",
-                            "value": {
-                                "@value": "1,234",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"1,234\" is not in the format specified \"#,##,#00\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12,34,567",
-                            "value": {
-                                "@value": "12,34,567",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"12,34,567\" is not in the format specified \"#,##,#00\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 4,
-                    "sourceNumber": 4,
-                    "name": "%230.%23",
-                    "titles": [
-                        {
-                            "@value": "#0.#",
+                            "@value": "+0",
                             "@language": "und"
                         }
                     ],
@@ -320,7 +20,7 @@
                     "datatype": {
                         "base": "decimal",
                         "format": {
-                            "pattern": "#0.#"
+                            "pattern": "+0"
                         }
                     },
                     "default": "",
@@ -338,7 +38,7 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1",
+                            "stringValue": "+1",
                             "value": {
                                 "@value": 1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
@@ -354,9 +54,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1.2",
+                            "stringValue": "+1",
                             "value": {
-                                "@value": 1.2,
+                                "@value": 1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -370,9 +70,57 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234.5",
+                            "stringValue": "+1",
                             "value": {
-                                "@value": 1234.5,
+                                "@value": 1.0,
+                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 2,
+                    "name": "-0",
+                    "titles": [
+                        {
+                            "@value": "-0",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "decimal",
+                        "format": {
+                            "pattern": "-0"
+                        }
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "-1",
+                            "value": {
+                                "@value": -1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -386,12 +134,206 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234.5",
+                            "stringValue": "-1",
                             "value": {
-                                "@value": 1234.5,
+                                "@value": -1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "-1",
+                            "value": {
+                                "@value": -1.0,
+                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 3,
+                    "name": "%25000",
+                    "titles": [
+                        {
+                            "@value": "%000",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "decimal",
+                        "format": {
+                            "pattern": "%000"
+                        }
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "%123",
+                            "value": {
+                                "@value": "%123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"%123\" is not in the format specified \"%000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "%+123",
+                            "value": {
+                                "@value": "%+123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"%+123\" is not in the format specified \"%000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "%-123",
+                            "value": {
+                                "@value": "%-123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"%-123\" is not in the format specified \"%000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 4,
+                    "sourceNumber": 4,
+                    "name": "%E2%80%B0000",
+                    "titles": [
+                        {
+                            "@value": "\u2030000",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "decimal",
+                        "format": {
+                            "pattern": "\u2030000"
+                        }
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "\u2030123",
+                            "value": {
+                                "@value": "\u2030123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"\u2030123\" is not in the format specified \"\u2030000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "\u2030+123",
+                            "value": {
+                                "@value": "\u2030+123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"\u2030+123\" is not in the format specified \"\u2030000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "\u2030-123",
+                            "value": {
+                                "@value": "\u2030-123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"\u2030-123\" is not in the format specified \"\u2030000\". Cell value is not converted to a number. "
+                            ],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -404,10 +346,10 @@
                     "table": "__recursion__",
                     "number": 5,
                     "sourceNumber": 5,
-                    "name": "%230.0",
+                    "name": "000%25",
                     "titles": [
                         {
-                            "@value": "#0.0",
+                            "@value": "000%",
                             "@language": "und"
                         }
                     ],
@@ -416,7 +358,7 @@
                     "datatype": {
                         "base": "decimal",
                         "format": {
-                            "pattern": "#0.0"
+                            "pattern": "000%"
                         }
                     },
                     "default": "",
@@ -434,119 +376,7 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1.2",
-                            "value": {
-                                "@value": 1.2,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12.3",
-                            "value": {
-                                "@value": 12.3,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1234.5",
-                            "value": {
-                                "@value": 1234.5,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1234.5",
-                            "value": {
-                                "@value": 1234.5,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ]
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 6,
-                    "sourceNumber": 6,
-                    "name": "%230.0%23",
-                    "titles": [
-                        {
-                            "@value": "#0.0#",
-                            "@language": "und"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "decimal",
-                        "format": {
-                            "pattern": "#0.0#"
-                        }
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1.2",
-                            "value": {
-                                "@value": 1.2,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1.23",
+                            "stringValue": "123%",
                             "value": {
                                 "@value": 1.23,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
@@ -562,12 +392,14 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.3",
+                            "stringValue": "+123%",
                             "value": {
-                                "@value": 12.3,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                                "@value": "+123%",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
-                            "errors": [],
+                            "errors": [
+                                "Cell value \"+123%\" is not in the format specified \"000%\". Cell value is not converted to a number. "
+                            ],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -578,9 +410,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.34",
+                            "stringValue": "-123%",
                             "value": {
-                                "@value": 12.34,
+                                "@value": -1.23,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -594,12 +426,12 @@
                 },
                 {
                     "table": "__recursion__",
-                    "number": 7,
-                    "sourceNumber": 7,
-                    "name": "%230.0%23%2C%23",
+                    "number": 6,
+                    "sourceNumber": 6,
+                    "name": "000%E2%80%B0",
                     "titles": [
                         {
-                            "@value": "#0.0#,#",
+                            "@value": "000\u2030",
                             "@language": "und"
                         }
                     ],
@@ -608,7 +440,7 @@
                     "datatype": {
                         "base": "decimal",
                         "format": {
-                            "pattern": "#0.0#,#"
+                            "pattern": "000\u2030"
                         }
                     },
                     "default": "",
@@ -626,9 +458,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.3",
+                            "stringValue": "123\u2030",
                             "value": {
-                                "@value": 12.3,
+                                "@value": 0.123,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -642,9 +474,75 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.34",
+                            "stringValue": "+123\u2030",
                             "value": {
-                                "@value": 12.34,
+                                "@value": "+123\u2030",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "Cell value \"+123\u2030\" is not in the format specified \"000\u2030\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "-123\u2030",
+                            "value": {
+                                "@value": -0.123,
+                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 7,
+                    "sourceNumber": 7,
+                    "name": "000.0%25",
+                    "titles": [
+                        {
+                            "@value": "000.0%",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "decimal",
+                        "format": {
+                            "pattern": "000.0%"
+                        }
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": null,
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "123.4%",
+                            "value": {
+                                "@value": 1.234,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -658,14 +556,13 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.24,5",
+                            "stringValue": "+123.4%",
                             "value": {
-                                "@value": "12.24,5",
+                                "@value": "+123.4%",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "error in fractional part",
-                                "Cell value \"12.24,5\" is not in the format specified \"#0.0#,#\". Cell value is not converted to a number. "
+                                "Cell value \"+123.4%\" is not in the format specified \"000.0%\". Cell value is not converted to a number. "
                             ],
                             "textDirection": "auto",
                             "ordered": false,
@@ -677,15 +574,12 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.24,5",
+                            "stringValue": "-123.4%",
                             "value": {
-                                "@value": "12.24,5",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                                "@value": -1.234,
+                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
-                            "errors": [
-                                "error in fractional part",
-                                "Cell value \"12.24,5\" is not in the format specified \"#0.0#,#\". Cell value is not converted to a number. "
-                            ],
+                            "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -707,55 +601,7 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1",
-                            "value": {
-                                "@value": 1,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12",
-                            "value": {
-                                "@value": 12,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12",
-                            "value": {
-                                "@value": 12,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1",
+                            "stringValue": "+1",
                             "value": {
                                 "@value": 1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
@@ -771,9 +617,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1.2",
+                            "stringValue": "-1",
                             "value": {
-                                "@value": 1.2,
+                                "@value": -1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -787,9 +633,47 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1.2",
+                            "stringValue": "%123",
                             "value": {
-                                "@value": 1.2,
+                                "@value": "%123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"%123\" is not in the format specified \"%000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "\u2030123",
+                            "value": {
+                                "@value": "\u2030123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"\u2030123\" is not in the format specified \"\u2030000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "123%",
+                            "value": {
+                                "@value": 1.23,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -803,9 +687,25 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.3",
+                            "stringValue": "123\u2030",
                             "value": {
-                                "@value": 12.3,
+                                "@value": 0.123,
+                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "123.4%",
+                            "value": {
+                                "@value": 1.234,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -829,57 +729,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12",
+                            "stringValue": "+1",
                             "value": {
-                                "@value": 12,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "123",
-                            "value": {
-                                "@value": 123,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "123",
-                            "value": {
-                                "@value": 123,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1.2",
-                            "value": {
-                                "@value": 1.2,
+                                "@value": 1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -893,9 +745,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.3",
+                            "stringValue": "-1",
                             "value": {
-                                "@value": 12.3,
+                                "@value": -1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -909,12 +761,15 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1.23",
+                            "stringValue": "%+123",
                             "value": {
-                                "@value": 1.23,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                                "@value": "%+123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
-                            "errors": [],
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"%+123\" is not in the format specified \"%000\". Cell value is not converted to a number. "
+                            ],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -925,12 +780,69 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.34",
+                            "stringValue": "\u2030+123",
                             "value": {
-                                "@value": 12.34,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                                "@value": "\u2030+123",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
-                            "errors": [],
+                            "errors": [
+                                "start does not contain a number",
+                                "Cell value \"\u2030+123\" is not in the format specified \"\u2030000\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "+123%",
+                            "value": {
+                                "@value": "+123%",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "Cell value \"+123%\" is not in the format specified \"000%\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "+123\u2030",
+                            "value": {
+                                "@value": "+123\u2030",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "Cell value \"+123\u2030\" is not in the format specified \"000\u2030\". Cell value is not converted to a number. "
+                            ],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": null,
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "+123.4%",
+                            "value": {
+                                "@value": "+123.4%",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string"
+                            },
+                            "errors": [
+                                "Cell value \"+123.4%\" is not in the format specified \"000.0%\". Cell value is not converted to a number. "
+                            ],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -951,63 +863,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "123",
+                            "stringValue": "+1",
                             "value": {
-                                "@value": 123,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,234",
-                            "value": {
-                                "@value": "1,234",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"1,234\" is not in the format specified \"#,#00\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,234",
-                            "value": {
-                                "@value": "1,234",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"1,234\" is not in the format specified \"#,##,#00\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1234.5",
-                            "value": {
-                                "@value": 1234.5,
+                                "@value": 1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -1021,9 +879,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234.5",
+                            "stringValue": "-1",
                             "value": {
-                                "@value": 1234.5,
+                                "@value": -1.0,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -1037,75 +895,14 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.3",
+                            "stringValue": "%-123",
                             "value": {
-                                "@value": 12.3,
-                                "@type": "http://www.w3.org/2001/XMLSchema#decimal"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12.24,5",
-                            "value": {
-                                "@value": "12.24,5",
+                                "@value": "%-123",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "error in fractional part",
-                                "Cell value \"12.24,5\" is not in the format specified \"#0.0#,#\". Cell value is not converted to a number. "
-                            ],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
-                    "titles": []
-                },
-                {
-                    "table": "__recursion__",
-                    "number": 4,
-                    "sourceNumber": 5,
-                    "primaryKey": "__recursion__",
-                    "referencedRows": "__recursion__",
-                    "cells": [
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1234",
-                            "value": {
-                                "@value": 1234,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "1,234,567",
-                            "value": {
-                                "@value": "1,234,567",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in integral part",
-                                "Cell value \"1,234,567\" is not in the format specified \"#,#00\". Cell value is not converted to a number. "
+                                "start does not contain a number",
+                                "Cell value \"%-123\" is not in the format specified \"%000\". Cell value is not converted to a number. "
                             ],
                             "textDirection": "auto",
                             "ordered": false,
@@ -1117,14 +914,14 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12,34,567",
+                            "stringValue": "\u2030-123",
                             "value": {
-                                "@value": "12,34,567",
+                                "@value": "\u2030-123",
                                 "@type": "http://www.w3.org/2001/XMLSchema#string"
                             },
                             "errors": [
-                                "error in integral part",
-                                "Cell value \"12,34,567\" is not in the format specified \"#,##,#00\". Cell value is not converted to a number. "
+                                "start does not contain a number",
+                                "Cell value \"\u2030-123\" is not in the format specified \"\u2030000\". Cell value is not converted to a number. "
                             ],
                             "textDirection": "auto",
                             "ordered": false,
@@ -1136,9 +933,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234.5",
+                            "stringValue": "-123%",
                             "value": {
-                                "@value": 1234.5,
+                                "@value": -1.23,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -1152,9 +949,9 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234.5",
+                            "stringValue": "-123\u2030",
                             "value": {
-                                "@value": 1234.5,
+                                "@value": -0.123,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
@@ -1168,31 +965,12 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "12.34",
+                            "stringValue": "-123.4%",
                             "value": {
-                                "@value": 12.34,
+                                "@value": -1.234,
                                 "@type": "http://www.w3.org/2001/XMLSchema#decimal"
                             },
                             "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": "__recursion__",
-                            "column": "__recursion__",
-                            "row": "__recursion__",
-                            "stringValue": "12.24,5",
-                            "value": {
-                                "@value": "12.24,5",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string"
-                            },
-                            "errors": [
-                                "error in fractional part",
-                                "Cell value \"12.24,5\" is not in the format specified \"#0.0#,#\". Cell value is not converted to a number. "
-                            ],
                             "textDirection": "auto",
                             "ordered": false,
                             "aboutURL": null,
@@ -1204,14 +982,14 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test282.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test283.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
             "transformations": [],
             "rdfs:label": {
-                "@value": "valid number patterns"
+                "@value": "valid number patterns (signs and percent/permille)"
             },
             "rdfs:comment": {
                 "@value": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`."
