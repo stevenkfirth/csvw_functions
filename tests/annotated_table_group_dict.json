@@ -8,46 +8,172 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "%23%2C%2300",
+                    "name": "col1",
                     "titles": [
                         {
-                            "@value": "#,#00",
+                            "@value": "col1",
                             "@language": "und"
                         }
                     ],
                     "virtual": false,
                     "suppressOutput": false,
                     "datatype": {
-                        "base": "integer",
-                        "format": {
-                            "pattern": "#,#00"
-                        }
+                        "base": "string"
                     },
                     "default": "",
                     "lang": "und",
                     "null": "",
-                    "ordered": false,
+                    "ordered": true,
                     "required": false,
-                    "separator": null,
+                    "separator": ";",
                     "textDirection": "auto",
-                    "aboutURL": null,
-                    "propertyURL": null,
+                    "aboutURL": "#about",
+                    "propertyURL": "#value",
                     "valueURL": null,
                     "cells": [
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234",
-                            "value": {
-                                "@value": 1234,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
+                            "stringValue": "1;2;3",
+                            "value": [
+                                {
+                                    "@value": "1",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "2",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "3",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "a;b;c",
+                            "value": [
+                                {
+                                    "@value": "a",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "b",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "c",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "valueURL": null
+                        }
+                    ]
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 2,
+                    "name": "col2",
+                    "titles": [
+                        {
+                            "@value": "col2",
+                            "@language": "und"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": ";",
+                    "textDirection": "auto",
+                    "aboutURL": "#about",
+                    "propertyURL": "#value",
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "4;5;6",
+                            "value": [
+                                {
+                                    "@value": "4",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "5",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "6",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "d;e;f",
+                            "value": [
+                                {
+                                    "@value": "d",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "e",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "f",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         }
                     ]
@@ -65,16 +191,126 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1234",
-                            "value": {
-                                "@value": 1234,
-                                "@type": "http://www.w3.org/2001/XMLSchema#integer"
-                            },
+                            "stringValue": "1;2;3",
+                            "value": [
+                                {
+                                    "@value": "1",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "2",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "3",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "4;5;6",
+                            "value": [
+                                {
+                                    "@value": "4",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "5",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "6",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": null,
-                            "propertyURL": null,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "valueURL": null
+                        }
+                    ],
+                    "titles": []
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 2,
+                    "sourceNumber": 3,
+                    "primaryKey": "__recursion__",
+                    "referencedRows": "__recursion__",
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "a;b;c",
+                            "value": [
+                                {
+                                    "@value": "a",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "b",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "c",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "d;e;f",
+                            "value": [
+                                {
+                                    "@value": "d",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "e",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "f",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         }
                     ],
@@ -82,17 +318,17 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test289.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
             "transformations": [],
             "rdfs:label": {
-                "@value": "invalid #,#00 1234"
+                "@value": "multiple values with same subject and property (ordered and unordered)"
             },
             "rdfs:comment": {
-                "@value": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`."
+                "@value": "Values in separate columns using the same propertyUrl are kept in proper relative order."
             }
         }
     ]

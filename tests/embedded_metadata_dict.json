@@ -5,12 +5,20 @@
             {
                 "titles": {
                     "und": [
-                        "#,#00"
+                        "col1"
                     ]
                 },
-                "name": "%23%2C%2300"
+                "name": "col1"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "col2"
+                    ]
+                },
+                "name": "col2"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test289.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
 }

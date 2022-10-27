@@ -3,27 +3,33 @@
     "tables": [
         {
             "rdfs:label": {
-                "@value": "invalid #,#00 1234"
+                "@value": "multiple values with same subject and property (ordered and unordered)"
             },
             "rdfs:comment": {
-                "@value": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`."
+                "@value": "Values in separate columns using the same propertyUrl are kept in proper relative order."
             },
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test289.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv",
+            "separator": ";",
+            "aboutUrl": "#about",
+            "propertyUrl": "#value",
             "tableSchema": {
                 "columns": [
                     {
                         "titles": {
                             "und": [
-                                "#,#00"
+                                "col1"
                             ]
                         },
-                        "datatype": {
-                            "base": "integer",
-                            "format": {
-                                "pattern": "#,#00"
-                            }
+                        "ordered": true,
+                        "name": "col1"
+                    },
+                    {
+                        "titles": {
+                            "und": [
+                                "col2"
+                            ]
                         },
-                        "name": "%23%2C%2300"
+                        "name": "col2"
                     }
                 ]
             }

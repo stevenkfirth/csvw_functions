@@ -1296,7 +1296,8 @@ def get_metadata_from_link_header(
 def get_metadata_from_default_or_site_wide_location(
         tabular_data_file_url,
         tabular_data_file_headers,
-        _well_known_text
+        _well_known_text,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -1332,7 +1333,7 @@ def get_metadata_from_default_or_site_wide_location(
             '/.well-known/csvm'
             )
         
-    print('-well_known_path_url',well_known_path_url)
+    if _print_intermediate_outputs: print('-well_known_path_url',well_known_path_url)
     
     #
     try:
@@ -1393,7 +1394,7 @@ def get_metadata_from_default_or_site_wide_location(
                 tabular_data_file_url,
                 expanded_url
                 )
-        print('-metadata_url',metadata_url)
+        if _print_intermediate_outputs: print('-metadata_url',metadata_url)
         
         
         # 3. Attempt to retrieve a metadata document at that URL.
@@ -1558,7 +1559,9 @@ def create_annotated_table_group(
         validate=False,
         parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
         _link_header=None,  # for testing link headers,
-        _well_known_text=None  # for testing well known paths
+        _well_known_text=None,  # for testing well known paths
+        _save_intermediate_and_final_outputs_to_file=False,  # for testing, to see metadata objects etc.
+        _print_intermediate_outputs=False  # for testing, to see intermediate outputs as the code is running
         ):
     """
     
@@ -1576,7 +1579,7 @@ def create_annotated_table_group(
     
     """
     
-    print('---create_annotated_table_group---')
+    if _print_intermediate_outputs: print('---create_annotated_table_group---')
     
     # After locating metadata, metadata is normalized and coerced into a 
     # single table group description. 
@@ -1638,9 +1641,9 @@ def create_annotated_table_group(
                     )
             tabular_data_file_headers=requests.head(tabular_data_file_url).headers
             
-        print('-tabular_data_file_url',tabular_data_file_url)     
+        if _print_intermediate_outputs: print('-tabular_data_file_url',tabular_data_file_url)     
             
-        print('-tabular_data_file_headers',tabular_data_file_headers)
+        if _print_intermediate_outputs: print('-tabular_data_file_headers',tabular_data_file_headers)
 
         # 2. Retrieve the first metadata file (FM) as described in 
         #    section 5. Locating Metadata:
@@ -1723,23 +1726,25 @@ def create_annotated_table_group(
         
         
     #...for testing
-    with open('metadata_table_group_dict.json','w') as f:
-        
-        if use_embedded_metadata_flag:
+    if _save_intermediate_and_final_outputs_to_file:
+    
+        with open('metadata_table_group_dict.json','w') as f:
             
-            json.dump(
-                {},
-                f,
-                indent=4
-                )
-            
-        else:
-            
-            json.dump(
-                metadata_document_dict,
-                f,
-                indent=4
-                )
+            if use_embedded_metadata_flag:
+                
+                json.dump(
+                    {},
+                    f,
+                    indent=4
+                    )
+                
+            else:
+                
+                json.dump(
+                    metadata_document_dict,
+                    f,
+                    indent=4
+                    )
         
         
     # 2. Normalize UM using the process defined in Normalization 
@@ -1929,13 +1934,14 @@ def create_annotated_table_group(
         annotated_table_group_dict['tables'].append(annotated_table_dict)
             
         #...for testing
-        with open('embedded_metadata_dict.json','w') as f:
-            
-            json.dump(
-                embedded_metadata_dict,
-                f,
-                indent=4
-                )
+        if _save_intermediate_and_final_outputs_to_file:
+            with open('embedded_metadata_dict.json','w') as f:
+                
+                json.dump(
+                    embedded_metadata_dict,
+                    f,
+                    indent=4
+                    )
         
         
         #...if using embedded metadata
@@ -1950,13 +1956,14 @@ def create_annotated_table_group(
         #print('-metadata_table_group_dict_NORMALIZED',metadata_table_group_dict)
         
         #...for testing
-        with open('metadata_table_group_dict_NORMALIZED.json','w') as f:
-            
-            json.dump(
-                metadata_table_group_dict,
-                f,
-                indent=4
-                )
+        if _save_intermediate_and_final_outputs_to_file:
+            with open('metadata_table_group_dict_NORMALIZED.json','w') as f:
+                
+                json.dump(
+                    metadata_table_group_dict,
+                    f,
+                    indent=4
+                    )
         
         
         
@@ -2158,14 +2165,14 @@ def create_annotated_table_group(
             
             return value
 
-    
-    with open('annotated_table_group_dict.json','w') as f:
-        
-        json.dump(
-            remove_recursion(annotated_table_group_dict),
-            f,
-            indent=4
-            )
+    if _save_intermediate_and_final_outputs_to_file:
+        with open('annotated_table_group_dict.json','w') as f:
+            
+            json.dump(
+                remove_recursion(annotated_table_group_dict),
+                f,
+                indent=4
+                )
         
     #    
     return annotated_table_group_dict
@@ -2199,7 +2206,8 @@ def normalize_url(
 
 def parse_cells_in_annotated_column_dict(
         annotated_column_dict,
-        trim
+        trim,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -2326,7 +2334,7 @@ def parse_cells_in_annotated_column_dict(
                 trim,
                 )
             
-        print(cell_value,errors)
+        if _print_intermediate_outputs: print(cell_value,errors)
             
         annotated_cell_dict['value']=cell_value
         annotated_cell_dict['errors'].extend(errors)
@@ -2616,7 +2624,8 @@ def parse_cell_steps_6_to_9(
 
 
 def get_parse_number_function(
-        datatype
+        datatype,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -2704,7 +2713,7 @@ def get_parse_number_function(
                     message+=f'as it contains the character "{x}". '
                     message+='Pattern is set to None.'
                     
-                    print(message)
+                    if _print_intermediate_outputs: print(message)
                     
                     warnings.warn(message)
                     
@@ -2724,6 +2733,8 @@ def get_parse_number_function(
                 or not pattern_dict['fractional_part_grouping_size'] is None:
                 
                 group_char=','
+                
+            print(pattern_dict)
                 
     else:
         
@@ -3008,7 +3019,8 @@ def get_parse_number_function(
 
 def parse_LDML_number_pattern(
         pattern,
-        p=False
+        p=False,
+        _print_intermediate_outputs=False
         ):
     """Breaks down a number pattern into constituent components.
     
@@ -3076,7 +3088,7 @@ def parse_LDML_number_pattern(
                 
     #---
     
-    print('-pattern',pattern)
+    if _print_intermediate_outputs: print('-pattern',pattern)
     
     # prefix
     if pattern[0] in ['%','‰','\u2030']:
@@ -3162,13 +3174,13 @@ def parse_LDML_number_pattern(
     elif len(positions_of_group_char)==1:
         
         integral_part_primary_grouping_size=positions_of_group_char[0]
-        integral_part_secondary_grouping_size=None
+        integral_part_secondary_grouping_size=integral_part_primary_grouping_size 
         
     else:
         
         integral_part_primary_grouping_size=positions_of_group_char[0]
         integral_part_secondary_grouping_size=\
-            positions_of_group_char[1]-positions_of_group_char[0]
+            positions_of_group_char[1]-positions_of_group_char[0]-1
                 
     
     # integral zeros and hashes
@@ -3277,9 +3289,11 @@ def validate_LDML_number(
             
     except ValueError:
         
+        print('TEST')
+        
         return False
         
-    #print((prefix, integral_part, fractional_part, exponent_prefix, exponent_part, suffix))
+    #print((prefix, integral_sign, integral_part, fractional_part, exponent_sign, exponent_part, suffix))
     
     #print(pattern_dict)
         
@@ -3323,6 +3337,94 @@ def validate_LDML_number(
         warnings.warn(message)
         
         return False
+    
+    # integral part group sizes
+    
+    #print(pattern_dict['integral_part_primary_grouping_size'])
+    #print(pattern_dict['integral_part_secondary_grouping_size'])
+    
+    x=integral_part[::-1]
+    
+    # positions_of_group_char=[i for i, y 
+    #                          in enumerate(x) 
+    #                          if y==(group_char or ',')]
+    
+    # print(positions_of_group_char)
+    
+    i=0
+    gs1=pattern_dict['integral_part_primary_grouping_size']
+    gs2=pattern_dict['integral_part_secondary_grouping_size']
+    
+    while i<len(x):
+        
+        #print('i',i, 'x[i]', x[i], 'gs1', gs1, 'gs2', gs2, '(i-gs1)%(gs2+1)', (i-gs1)%(gs2+1) if gs1 else '')
+        
+        if not gs1 is None and i==gs1:
+            
+            if not x[i]==(group_char or ','):
+                
+                message='integral part primary grouping size #1'
+                
+                #print(message)
+                            
+                warnings.warn(message)
+                
+                return False
+        
+        elif not gs1 is None and not gs2 is None and i>gs1 and \
+            (i-gs1)%(gs2+1)==0:  # changed from (gs1-i)%gs2==0:
+                
+            if not x[i]==(group_char or ','):
+                
+                #print('x',x)
+                
+                message='integral part primary grouping size #2'
+                
+                #print(message)
+                            
+                warnings.warn(message)
+                
+                return False
+            
+        elif x[i]==(group_char or ','):
+    
+            message='integral part primary grouping size #3'
+            
+            #print(message)
+                        
+            warnings.warn(message)
+            
+            return False
+    
+        i+=1
+    
+    
+    # if not pattern_dict['integral_part_primary_grouping_size'] is None:
+        
+    #     try:
+            
+    #         if not x[pattern_dict['integral_part_primary_grouping_size']]\
+    #             ==(group_char or ','):
+                
+    #             message='integral part primary grouping size'
+                
+    #             warnings.warn(message)
+                
+    #             return False
+    
+    #     except IndexError:
+            
+    #         pass
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
         
     # fractional_part
@@ -3393,7 +3495,8 @@ def parse_LDML_number(
         string_value,
         errors,
         decimal_char,
-        group_char
+        group_char,
+        _print_intermediate_outputs=False
         ):
     """
     
@@ -3446,7 +3549,7 @@ def parse_LDML_number(
         suffix=''
         string_value_no_prefix_no_sign_no_suffix=string_value_no_prefix_no_sign
     
-    print('-string_value_no_prefix_no_sign_no_suffix',string_value_no_prefix_no_sign_no_suffix)
+    if _print_intermediate_outputs: print('-string_value_no_prefix_no_sign_no_suffix',string_value_no_prefix_no_sign_no_suffix)
     
     #...check start
     if not string_value_no_prefix_no_sign_no_suffix[0] in ['0','1','2','3','4','5','6','7','8','9']:
@@ -3873,7 +3976,8 @@ def parse_timezone_string(
 
 
 def get_parse_date_function(
-        datatype
+        datatype,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -3936,7 +4040,7 @@ def get_parse_date_function(
     # with the string datatype, for dates and times that use a format other 
     # than that specified here.
     
-    print('-datatype',datatype)
+    if _print_intermediate_outputs: print('-datatype',datatype)
     
     datatype_format=datatype.get('format')
     
@@ -4039,11 +4143,11 @@ def get_parse_date_function(
         separated_codes=None
     
         
-    print('-timezone_format',timezone_format)
-    print('-timezone_gap',timezone_gap)
-    print('-date_format',date_format)
-    print('-separator',separator)
-    print('-separated_codes',separated_codes)
+    if _print_intermediate_outputs: print('-timezone_format',timezone_format)
+    if _print_intermediate_outputs: print('-timezone_gap',timezone_gap)
+    if _print_intermediate_outputs: print('-date_format',date_format)
+    if _print_intermediate_outputs: print('-separator',separator)
+    if _print_intermediate_outputs: print('-separated_codes',separated_codes)
     
     
     def parse_date(
@@ -4052,7 +4156,7 @@ def get_parse_date_function(
             ):
         """
         """
-        print('-string_value',string_value)
+        if _print_intermediate_outputs: print('-string_value',string_value)
         
         #
         try:
@@ -4070,14 +4174,14 @@ def get_parse_date_function(
             warnings.warn(message)
             return string_value,'string',errors
             
-        print('-timezone_string',timezone_string)
+        if _print_intermediate_outputs: print('-timezone_string',timezone_string)
         
         #
         xsd_timezone_string=\
             parse_timezone_string(
                 timezone_string
                 )
-        print('-xsd_timezone_string',xsd_timezone_string)
+        if _print_intermediate_outputs: print('-xsd_timezone_string',xsd_timezone_string)
             
         #
         date_string=\
@@ -4086,7 +4190,7 @@ def get_parse_date_function(
                 +timezone_string
                 )
         
-        print('-date_string',date_string)
+        if _print_intermediate_outputs: print('-date_string',date_string)
         
         if not date_format is None:
             
@@ -4104,7 +4208,7 @@ def get_parse_date_function(
                 
                 separated_date_string=date_string.split(separator)
                 
-            print('-separated_date_string',separated_date_string)
+            if _print_intermediate_outputs: print('-separated_date_string',separated_date_string)
                 
             #
             for code, date_substring in zip(
@@ -4243,7 +4347,7 @@ def get_parse_date_function(
                     
                     raise Exception
                     
-            print('-year,month,day',year,month,day)
+            if _print_intermediate_outputs: print('-year,month,day',year,month,day)
             
             x=datetime.date(year,month,day)
         
@@ -4277,7 +4381,8 @@ def get_parse_date_function(
 
     
 def get_parse_time_function(
-        datatype
+        datatype,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -4297,7 +4402,7 @@ def get_parse_time_function(
     # invalid or not recognised and proceed as if no date format 
     # pattern had been provided.
     
-    print('-datatype',datatype)
+    if _print_intermediate_outputs: print('-datatype',datatype)
     
     datatype_format=datatype.get('format')
     
@@ -4375,11 +4480,11 @@ def get_parse_time_function(
         fractional_time_format=None
         
     
-    print('-timezone_format',timezone_format)
-    print('-timezone_gap',timezone_gap)
-    print('-time_format',time_format)
-    print('-main_time_format',main_time_format)
-    print('-fractional_time_format',fractional_time_format)
+    if _print_intermediate_outputs: print('-timezone_format',timezone_format)
+    if _print_intermediate_outputs: print('-timezone_gap',timezone_gap)
+    if _print_intermediate_outputs: print('-time_format',time_format)
+    if _print_intermediate_outputs: print('-main_time_format',main_time_format)
+    if _print_intermediate_outputs: print('-fractional_time_format',fractional_time_format)
     
     
     def parse_time(
@@ -4388,7 +4493,7 @@ def get_parse_time_function(
             ):
         """
         """
-        print('-string_value',string_value)
+        if _print_intermediate_outputs: print('-string_value',string_value)
         
         #
         try:
@@ -4406,14 +4511,14 @@ def get_parse_time_function(
             warnings.warn(message)
             return string_value,'string',errors
                 
-        print('-timezone_string',timezone_string)
+        if _print_intermediate_outputs: print('-timezone_string',timezone_string)
         
         #
         xsd_timezone_string=\
             parse_timezone_string(
                 timezone_string
                 )
-        print('-xsd_timezone_string',xsd_timezone_string)
+        if _print_intermediate_outputs: print('-xsd_timezone_string',xsd_timezone_string)
             
         #
         time_string=\
@@ -4422,7 +4527,7 @@ def get_parse_time_function(
                 +timezone_string
                 )
         
-        print('-time_string',time_string)
+        if _print_intermediate_outputs: print('-time_string',time_string)
         
         
         #
@@ -4560,7 +4665,8 @@ def get_parse_time_function(
 
 def get_parse_datetime_function(
         datatype,
-        timezone_required=False
+        timezone_required=False,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -4580,7 +4686,7 @@ def get_parse_datetime_function(
     # invalid or not recognised and proceed as if no date format 
     # pattern had been provided.
     
-    print('-datatype',datatype)
+    if _print_intermediate_outputs: print('-datatype',datatype)
     
     datatype_format=datatype.get('format')
     
@@ -4633,12 +4739,12 @@ def get_parse_datetime_function(
     
             
         
-    print('-timezone_format',timezone_format)
-    print('-timezone_gap',timezone_gap)
-    print('-datetime_format',datetime_format)
-    print('-separator',separator)
-    print('-date_format',date_format)
-    print('-time_format',time_format)
+    if _print_intermediate_outputs: print('-timezone_format',timezone_format)
+    if _print_intermediate_outputs: print('-timezone_gap',timezone_gap)
+    if _print_intermediate_outputs: print('-datetime_format',datetime_format)
+    if _print_intermediate_outputs: print('-separator',separator)
+    if _print_intermediate_outputs: print('-date_format',date_format)
+    if _print_intermediate_outputs: print('-time_format',time_format)
     
     
 
@@ -4648,7 +4754,7 @@ def get_parse_datetime_function(
             ):
         """
         """
-        print('-string_value',string_value)
+        if _print_intermediate_outputs: print('-string_value',string_value)
         
         #
         try:
@@ -4666,7 +4772,7 @@ def get_parse_datetime_function(
             warnings.warn(message)
             return string_value,'string',errors
                 
-        print('-timezone_string',timezone_string)
+        if _print_intermediate_outputs: print('-timezone_string',timezone_string)
         
         #
         if timezone_required and timezone_string=='':
@@ -4684,7 +4790,7 @@ def get_parse_datetime_function(
             parse_timezone_string(
                 timezone_string
                 )
-        print('-xsd_timezone_string',xsd_timezone_string)
+        if _print_intermediate_outputs: print('-xsd_timezone_string',xsd_timezone_string)
             
         #
         datetime_string=\
@@ -4693,7 +4799,7 @@ def get_parse_datetime_function(
                 +timezone_string
                 )
         
-        print('-datetime_string',datetime_string)
+        if _print_intermediate_outputs: print('-datetime_string',datetime_string)
         
         
         if not datetime_format is None:
@@ -4775,7 +4881,8 @@ def get_parse_datetimestamp_function(
 #%% 6.4.5 Formats for durations
 
 def get_parse_duration_function(
-        datatype
+        datatype,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -4798,7 +4905,7 @@ def get_parse_duration_function(
     
     # The cell value will be one or more durations extracted using the format.
         
-    print('-datatype',datatype)
+    if _print_intermediate_outputs: print('-datatype',datatype)
     
     datatype_format=datatype.get('format')
     
@@ -4822,7 +4929,7 @@ def get_parse_duration_function(
         
         re_compiled=None
             
-    print('-re_compiled', re_compiled)
+    if _print_intermediate_outputs: print('-re_compiled', re_compiled)
     
     
     def parse_duration(
@@ -4830,7 +4937,7 @@ def get_parse_duration_function(
             errors
             ):
         ""
-        print('-string_value',string_value)
+        if _print_intermediate_outputs: print('-string_value',string_value)
 
         if not re_compiled is None:
             
@@ -5091,7 +5198,8 @@ def get_parse_other_types_function(
 
 def parse_tabular_data_from_text(
         tabular_data_file_url,
-        dialect_description_dict
+        dialect_description_dict,
+        _print_intermediate_outputs=False
         ):
     """
     """
@@ -5187,7 +5295,7 @@ def parse_tabular_data_from_text(
     
     tabular_data_file_text=response.read().decode(encoding)
     
-    print('-tabular_data_file_text',tabular_data_file_text)
+    if _print_intermediate_outputs: print('-tabular_data_file_text',tabular_data_file_text)
     
             
     #...
@@ -5197,6 +5305,9 @@ def parse_tabular_data_from_text(
     # 6. Repeat the following the number of times indicated by skip rows:
     
     for _ in range(skip_rows): 
+        
+        #...for testing
+        #print('-source_row_number',source_row_number)
         
         #print(_)
         
@@ -5236,6 +5347,9 @@ def parse_tabular_data_from_text(
     # 7 Repeat the following the number of times indicated by header row count:
         
     for _ in range(header_row_count):
+        
+        #...for testing
+        #print('-source_row_number',source_row_number)
         
         # 7.1 Read a row to provide the row content.
         character_index, row_content=\
@@ -5351,6 +5465,11 @@ def parse_tabular_data_from_text(
     # 10 While it is possible to read another row, do the following:
     
     while True:
+        
+        #...for testing
+        #if row_number%1000==0:
+        #print('-row_number',row_number)
+        
         
         if character_index>len(tabular_data_file_text)-1:
             break
@@ -5563,76 +5682,115 @@ def get_row_content(
     # 2 Read initial characters and process as follows:
         
     while True:
+        
+        #print(i, end=' ')
+        
+        #print('-line_terminators',line_terminators)
+        
+        #...placing this first...
+        # 3 If there are no more characters to read, return the row content.
+        if i>len(tabular_data_text)-1:
+            break
+        
     
         # 2.1 If the string starts with the escape character followed by the 
         # quote character, append both strings to the row content, and move on 
         # to process the string following the quote character.
         if tabular_data_text[i]==escape_character \
             and tabular_data_text[i+1]==quote_character:
+                
             row_content+=escape_character+quote_character
+            
             i+=2
+            
+            continue
+            
+        
         
         # 2.2 Otherwise, if the string starts with the escape character and the 
         # escape character is not the same as the quote character, append the 
         # escape character and the single character following it to the row 
         # content and move on to process the string following that character.
-        elif tabular_data_text[i]==escape_character \
-           and escape_character!=quote_character:
-           row_content+=tabular_data_text[i:i+2]
-           i+=2
+        if tabular_data_text[i]==escape_character \
+            and escape_character!=quote_character:
+                
+            row_content+=tabular_data_text[i:i+2]
+            
+            i+=2
+            
+            continue
         
         # 2.3 Otherwise, if the string starts with the quote character, append 
         # the quoted value obtained by reading a quoted value to the row content 
         # and move on to process the string following the quoted value.
-        elif tabular_data_text[i]==quote_character:
-            j, quoted_value=get_quoted_value(
-                tabular_data_text[i:],
+        if tabular_data_text[i]==quote_character:
+            
+            i, quoted_value=get_quoted_value(
+                tabular_data_text,
+                i,
                 escape_character,
                 quote_character
                 )
+            
             row_content+=quoted_value
-            i+=j
+            
+            # TO BE DELETED
+            # j, quoted_value=get_quoted_value(
+            #     tabular_data_text[i:],
+            #     escape_character,
+            #     quote_character
+            #     )
+            
+            # row_content+=quoted_value
+            
+            # i+=j
+            
+            continue
             
         # 2.4 Otherwise, if the string starts with one of the line terminators, 
         # return the row content.
-        elif any([tabular_data_text[i:].startswith(x) 
-                  for x in line_terminators]):
         
-            for x in line_terminators:
-                if tabular_data_text[i:].startswith(x):
-                    break
+        line_terminator_flag=False
+        
+        for x in line_terminators:
             
-            i+=len(x)
+            #print('-x',x)
+            #print(tabular_data_text[i:i+len(x)-1])
+        
+            if tabular_data_text[i:i+len(x)]==x:
+                
+                #print('TEST')
+                
+                i+=len(x)
+                
+                line_terminator_flag=True
+                
+                break
+            
+        if line_terminator_flag:
+            
             break
             
         # 2.5 Otherwise, append the first character to the row content and move 
         # on to process the string following that character.
-        else:
-            row_content+=tabular_data_text[i]
-            i+=1
+        row_content+=tabular_data_text[i]
+        
+        i+=1
     
-        # 3 If there are no more characters to read, return the row content.
-        if i>len(tabular_data_text)-1:
-            break
-    
+        
     #print(i, row_content)
     
     return i, row_content
     
     
 def get_quoted_value(
-        characters,
+        tabular_data_text,
+        i,
         escape_character,
         quote_character,
         ):
     """
     """
-    logging=False
-    
-    if logging: logging.info('    FUNCTION: get_quoted_value')
-    if logging: logging.debug(f'        ARGUMENT: characters: {characters}')
-    if logging: logging.debug(f'        ARGUMENT: escape_character: {escape_character}')
-    if logging: logging.debug(f'        ARGUMENT: quote_character: {quote_character}')
     
     # To read a quoted value to provide a quoted value, perform the following steps:
         
@@ -5640,18 +5798,23 @@ def get_quoted_value(
     quoted_value=''
     
     # 2 Read the initial quote character and add a quote character to the quoted value.
-    initial_quote_character=characters[0]
+    initial_quote_character=tabular_data_text[i]
     quoted_value+=initial_quote_character
     
     # 3 Read initial characters and process as follows:
-    i=1
+    
+    i+=1
     
     while True:    
         
-        current_character=characters[i]
+        current_character=tabular_data_text[i]
+        
         try:
-            next_character=characters[i+1]
+            
+            next_character=tabular_data_text[i+1]
+            
         except IndexError:
+            
             next_character=None
     
         # 3.1 If the string starts with the escape character followed by the quote 
@@ -5659,7 +5822,9 @@ def get_quoted_value(
         # process the string following the quote character.
         if (current_character==escape_character 
             and next_character==quote_character):
+            
             quoted_value+=escape_character+quote_character
+            
             i+=2
         
         # 3.2 Otherwise, if string starts with the escape character and the escape 
@@ -5668,25 +5833,114 @@ def get_quoted_value(
         # on to process the string following that character.
         elif (current_character==escape_character 
               and escape_character!=quote_character):
+            
             quoted_value+=escape_character+next_character
+            
             i+=2
         
         # 3.3 Otherwise, if the string starts with the quote character, return 
         # the quoted value.
         elif current_character==quote_character:
             quoted_value+=quote_character
+            
             i+=1
+            
             break
         
         # 3.4 Otherwise, append the first character to the quoted value and move 
         # on to process the string following that character.
         else:
+            
             quoted_value+=current_character
+            
             i+=1
             
-    if logging: logging.debug(f'        RETURN VALUE: i, quoted_value: {i}, {quoted_value}')
             
     return i, quoted_value
+    
+    
+# TO BE DELETED
+# def get_quoted_value(
+#         characters,
+#         escape_character,
+#         quote_character,
+#         ):
+#     """
+#     """
+    
+    
+#     logging=False
+    
+#     if logging: logging.info('    FUNCTION: get_quoted_value')
+#     if logging: logging.debug(f'        ARGUMENT: characters: {characters}')
+#     if logging: logging.debug(f'        ARGUMENT: escape_character: {escape_character}')
+#     if logging: logging.debug(f'        ARGUMENT: quote_character: {quote_character}')
+    
+#     # To read a quoted value to provide a quoted value, perform the following steps:
+        
+#     # 1 Set the quoted value to an empty string.
+#     quoted_value=''
+    
+#     # 2 Read the initial quote character and add a quote character to the quoted value.
+#     initial_quote_character=characters[0]
+#     quoted_value+=initial_quote_character
+    
+#     # 3 Read initial characters and process as follows:
+#     i=1
+    
+#     while True:    
+        
+#         current_character=characters[i]
+        
+#         try:
+            
+#             next_character=characters[i+1]
+            
+#         except IndexError:
+            
+#             next_character=None
+    
+#         # 3.1 If the string starts with the escape character followed by the quote 
+#         # character, append both strings to the quoted value, and move on to 
+#         # process the string following the quote character.
+#         if (current_character==escape_character 
+#             and next_character==quote_character):
+            
+#             quoted_value+=escape_character+quote_character
+            
+#             i+=2
+        
+#         # 3.2 Otherwise, if string starts with the escape character and the escape 
+#         # character is not the same as the quote character, append the escape 
+#         # character and the character following it to the quoted value and move 
+#         # on to process the string following that character.
+#         elif (current_character==escape_character 
+#               and escape_character!=quote_character):
+            
+#             quoted_value+=escape_character+next_character
+            
+#             i+=2
+        
+#         # 3.3 Otherwise, if the string starts with the quote character, return 
+#         # the quoted value.
+#         elif current_character==quote_character:
+#             quoted_value+=quote_character
+            
+#             i+=1
+            
+#             break
+        
+#         # 3.4 Otherwise, append the first character to the quoted value and move 
+#         # on to process the string following that character.
+#         else:
+            
+#             quoted_value+=current_character
+            
+#             i+=1
+            
+#     if logging: logging.debug(f'        RETURN VALUE: i, quoted_value: {i}, {quoted_value}')
+            
+#     return i, quoted_value
 
     
 def get_list_of_cell_values(

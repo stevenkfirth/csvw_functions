@@ -1838,7 +1838,9 @@ class TestCSVWTestCases(unittest.TestCase):
                             overriding_metadata_file_path_or_url,
                             validate=validate,
                             _link_header=_link_header,
-                            _well_known_text=_well_known_text
+                            _well_known_text=_well_known_text,
+                            _save_intermediate_and_final_outputs_to_file=True,
+                            _print_intermediate_outputs=True
                             )
                 
             
@@ -1852,7 +1854,9 @@ class TestCSVWTestCases(unittest.TestCase):
                                 overriding_metadata_file_path_or_url,
                                 validate=validate,
                                 _link_header=_link_header,
-                                _well_known_text=_well_known_text
+                                _well_known_text=_well_known_text,
+                                _save_intermediate_and_final_outputs_to_file=True,
+                                _print_intermediate_outputs=True
                                 )
                         
             elif entry['type']=='csvt:NegativeJsonTest':    
@@ -1864,7 +1868,9 @@ class TestCSVWTestCases(unittest.TestCase):
                                 action_fp,
                                 overriding_metadata_file_path_or_url,
                                 validate=validate,
-                                _link_header=_link_header
+                                _link_header=_link_header,
+                                _save_intermediate_and_final_outputs_to_file=True,
+                                _print_intermediate_outputs=True
                                 )
                         
                         

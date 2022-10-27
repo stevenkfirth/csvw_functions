@@ -1,16 +1,41 @@
 {
     "tables": [
         {
-            "url": "http://www.w3.org/2013/csvw/tests/test288.csv",
-            "rdfs:label": "invalid #,#00 1",
-            "rdfs:comment": "A number format pattern as defined in [UAX35]. Implementations MUST recognise number format patterns containing the symbols `0`, `#`, the specified decimalChar (or `.` if unspecified), the specified groupChar (or `,` if unspecified), `E`, `+`, `%` and `&permil;`.",
+            "url": "http://www.w3.org/2013/csvw/tests/test307.csv",
+            "rdfs:label": "multiple values with same subject and property (ordered and unordered)",
+            "rdfs:comment": "Values in separate columns using the same propertyUrl are kept in proper relative order.",
             "row": [
                 {
                     "rownum": 1,
-                    "url": "http://www.w3.org/2013/csvw/tests/test288.csv#row=2",
+                    "url": "http://www.w3.org/2013/csvw/tests/test307.csv#row=2",
                     "describes": [
                         {
-                            "#,#00": "1"
+                            "@id": "http://www.w3.org/2013/csvw/tests/test307.csv#about",
+                            "http://www.w3.org/2013/csvw/tests/test307.csv#value": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "rownum": 2,
+                    "url": "http://www.w3.org/2013/csvw/tests/test307.csv#row=3",
+                    "describes": [
+                        {
+                            "@id": "http://www.w3.org/2013/csvw/tests/test307.csv#about",
+                            "http://www.w3.org/2013/csvw/tests/test307.csv#value": [
+                                "a",
+                                "b",
+                                "c",
+                                "d",
+                                "e",
+                                "f"
+                            ]
                         }
                     ]
                 }
