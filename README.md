@@ -1,6 +1,8 @@
 # csvw_functions
 Python implementation of the CSVW standards
 
+**UNDER DEVELOPMENT - NOT YET FULLY RELEASED**
+
 ## About
 
 This is a Python package which implements the following W3C standards:
@@ -19,7 +21,6 @@ Further information on CSVW is available from:
 - [www.stevenfirth.com/tag/csvw/](https://www.stevenfirth.com/tag/csvw/)
 
 
-
 ## Installation
 
 Source code available on GitHub here: https://github.com/stevenkfirth/csvw_functions
@@ -27,6 +28,7 @@ Source code available on GitHub here: https://github.com/stevenkfirth/csvw_funct
 Available on PyPi here: https://pypi.org/project/csvw_functions (LINK NOT YET ACTIVE)
 
 Install from PyPi using command: `pip install csvw_functions`
+
 
 ## Issues, Questions?
 
@@ -37,7 +39,180 @@ Email the author: s.k.firth@lboro.ac.uk
 
 ## Quick Start
 
+### Access embedded metadata from CSV file
 
+Let's say we have a CSV file with the contents...
+
+```
+# countries.csv
+"country","country group","name (en)","name (fr)","name (de)","latitude","longitude"
+"at","eu","Austria","Autriche","Österreich","47.6965545","13.34598005"
+"be","eu","Belgium","Belgique","Belgien","50.501045","4.47667405"
+"bg","eu","Bulgaria","Bulgarie","Bulgarien","42.72567375","25.4823218"
+```
+
+...and we'd like to extract information from the column headers as a Python dictionary in the form of a CSVW metadata JSON file:
+
+```python
+>>> import csvw_functions
+>>> embedded_metadata = csvw_functions.get_embedded_metadata('countries.csv')
+>>> print(embedded_metadata)
+```
+```json
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "countries.csv"
+  "tableSchema": {
+    "columns": [{
+      "titles": "country"
+    },{
+      "titles": "country group"
+    },{
+      "titles": "name (en)"
+    },{
+      "titles": "name (fr)"
+    },{
+      "titles": "name (de)"
+    },{
+      "titles": "latitude"
+    },{
+      "titles": "longitude"
+    }]
+  }
+}
+```
+
+(This example is taken from Section 1.3 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#column-info) 
+
+
+### Convert CSVW files to JSON-LD
+
+Let's say we have a CSVW metadata JSON file whichh references the countries.csv file...
+
+```json
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "countries.csv",
+  "tableSchema": {
+    "columns": [{
+      "titles": "country"
+    },{
+      "titles": "country group"
+    },{
+      "titles": "name (en)",
+      "lang": "en"
+    },{
+      "titles": "name (fr)",
+      "lang": "fr"
+    },{
+      "titles": "name (de)",
+      "lang": "de"
+    },{
+      "titles": "latitude",
+      "datatype": "number"
+    },{
+      "titles": "longitude",
+      "datatype": "number"
+    }]
+  }
+}
+
+```
+
+... and we'd like to convert this to JSON-LD data:
+
+```python
+>>> import csvw_functions
+>>> annotated_table_group_dict=csvw_functions2.create_annotated_table_group(
+        input_file_path_or_url='example-metadata.json'
+        )
+>>> json_ld=csvw_functions2.create_json_ld(
+        annotated_table_group_dict,
+        mode='minimal'
+        )
+>>> print(json_ld)
+```
+```json
+[{
+  "country": "at",
+  "country group": "eu",
+  "name (en)": "Austria",
+  "name (fr)": "Autriche",
+  "name (de)": "Österreich",
+  "latitude": 47.6965545,
+  "longitude": 13.34598005
+},{
+  "country": "be",
+  "country group": "eu",
+  "name (en)": "Belgium",
+  "name (fr)": "Belgique",
+  "name (de)": "Belgien",
+  "latitude": 50.501045,
+  "longitude": 4.47667405
+},{
+  "country": "bg",
+  "country group": "eu",
+  "name (en)": "Bulgaria",
+  "name (fr)": "Bulgarie",
+  "name (de)": "Bulgarien",
+  "latitude": 42.72567375,
+  "longitude": 25.4823218
+}]
+```
+
+(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values)
+
+### Convert CSVW files to RDF
+
+Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data:
+
+```python
+>>> import csvw_functions
+>>> annotated_table_group_dict=csvw_functions2.create_annotated_table_group(
+        input_file_path_or_url='example-metadata.json'
+        )
+>>> rdf_text=csvw_functions2.create_rdf(
+        annotated_table_group_dict,
+        mode='standard'
+        )
+>>> print(rdf)
+```
+```
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[
+  <#country> "at";
+  <#country%20group> "eu";
+  <#latitude> 4.76965545e1;
+  <#longitude> 1.334598005e1;
+  <#name%20%28de%29> "Österreich"@de;
+  <#name%20%28en%29> "Austria"@en;
+  <#name%20%28fr%29> "Autriche"@fr
+] .
+
+[
+  <#country> "be";
+  <#country%20group> "eu";
+  <#latitude> 5.0501045e1;
+  <#longitude> 4.47667405e0;
+  <#name%20%28de%29> "Belgien"@de;
+  <#name%20%28en%29> "Belgium"@en;
+  <#name%20%28fr%29> "Belgique"@fr
+] .
+
+[
+  <#country> "bg";
+  <#country%20group> "eu";
+  <#latitude> 4.272567375e1;
+  <#longitude> 2.54823218e1;
+  <#name%20%28de%29> "Bulgarien"@de;
+  <#name%20%28en%29> "Bulgaria"@en;
+  <#name%20%28fr%29> "Bulgarie"@fr
+] .
+```
+
+(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values)
 
 ## API
 
@@ -48,4 +223,3 @@ Email the author: s.k.firth@lboro.ac.uk
 
 
 
-UNDER DEVELOPMENT
