@@ -3,6 +3,10 @@ Python implementation of the CSVW standards
 
 **UNDER DEVELOPMENT - NOT YET FULLY RELEASED**
 
+## Contents
+
+[About](#about)
+
 ## About
 
 This is a Python package which implements the following W3C standards:
@@ -119,12 +123,12 @@ Let's say we have a CSVW metadata JSON file whichh references the countries.csv 
 
 ```
 
-... and we'd like to convert this to JSON-LD data:
+... and we'd like to convert this to a dictionary in the form of JSON-LD data:
 
 ```python
 >>> import csvw_functions
 >>> annotated_table_group_dict=csvw_functions2.create_annotated_table_group(
-        input_file_path_or_url='example-metadata.json'
+        input_file_path_or_url='countries-metadata.json'
         )
 >>> json_ld=csvw_functions2.create_json_ld(
         annotated_table_group_dict,
@@ -164,18 +168,18 @@ Let's say we have a CSVW metadata JSON file whichh references the countries.csv 
 
 ### Convert CSVW files to RDF
 
-Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data:
+Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data in Turtle notation:
 
 ```python
 >>> import csvw_functions
 >>> annotated_table_group_dict=csvw_functions2.create_annotated_table_group(
-        input_file_path_or_url='example-metadata.json'
+        input_file_path_or_url='countries-metadata.json'
         )
->>> rdf_text=csvw_functions2.create_rdf(
+>>> rdf_text=csvw_functions2.create_rdf(  ... CHECK
         annotated_table_group_dict,
-        mode='standard'
+        mode='minimal'
         )
->>> print(rdf)
+>>> print(rdf)  ... TO DO ... need to use rdflib
 ```
 ```
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
