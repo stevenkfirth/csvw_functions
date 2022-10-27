@@ -6,6 +6,13 @@ Python implementation of the CSVW standards
 ## Contents
 
 [About](#about)
+[Installation](#installation)
+[Issues, Questions?](#issues-questions)
+[Quick Start](#quick-start)
+[- Access embedded metadata from CSV file](#access-embedded-metadata-from-csv-file)
+[- Convert CSVW file to JSON-LD](#convert-csvw-file-to-json-ld)
+[- Convert CSVW file to RDF](#convert-csvw-file-to-rdf)
+[API](#api)
 
 ## About
 
@@ -89,7 +96,7 @@ Let's say we have a CSV file with the contents...
 (This example is taken from Section 1.3 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#column-info) 
 
 
-### Convert CSVW files to JSON-LD
+### Convert CSVW file to JSON-LD
 
 Let's say we have a CSVW metadata JSON file whichh references the countries.csv file...
 
@@ -166,7 +173,7 @@ Let's say we have a CSVW metadata JSON file whichh references the countries.csv 
 
 (This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values)
 
-### Convert CSVW files to RDF
+### Convert CSVW file to RDF
 
 Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data in Turtle notation:
 
