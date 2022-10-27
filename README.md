@@ -38,6 +38,7 @@ Further information on CSVW is available from:
 - [csvw.org](https://csvw.org/)
 - [www.stevenfirth.com/tag/csvw/](https://www.stevenfirth.com/tag/csvw/)
 
+The package is written as pure Python and passes all the test in the [CSVW Test Suite](https://w3c.github.io/csvw/tests/).
 
 ## Installation
 
@@ -233,6 +234,45 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 (This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values)
 
 ## API
+
+### get_embedded_metadata
+
+csvw_functions.get_embedded_metadata(
+
+
+
+)
+
+### create_annotated_table_group
+
+Function call:
+
+```python
+def create_annotated_table_group(
+        input_file_path_or_url,
+        overriding_metadata_file_path_or_url=None,
+        validate=False,
+        parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
+        _link_header=None,  # for testing link headers,
+        _well_known_text=None,  # for testing well known paths
+        _save_intermediate_and_final_outputs_to_file=False,  # for testing, to see metadata objects etc.
+        _print_intermediate_outputs=False  # for testing, to see intermediate outputs as the code is running
+        ):
+```
+Description: 
+
+
+Arguments:
+
+
+Returns:
+
+Return type: Python dictionary
+
+
+### create_json_ld
+
+### create_rdf
 
 
 
