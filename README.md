@@ -288,10 +288,10 @@ csvw_functions.get_embedded_metadata(
 
 Arguments:
 
-- input_file_path_or_url (str): This argument is passed to the `create_annotated_table_group` function (see below).
-- relative_path (bool): If True, then any absolute file paths in the returned dictionary are replaced by local file paths. Only applicable if the CSV file is an file path (not a url).
-- nrows (int or None): This argument is passed to the `create_annotated_table_group` function (see below).
-- parse_tabular_data_function (Python function): This argument is passed to the `create_annotated_table_group` function (see below).
+- **input_file_path_or_url** *(str)*: This argument is passed to the `create_annotated_table_group` function (see below).
+- **relative_path** *(bool)*: If True, then any absolute file paths in the returned dictionary are replaced by local file paths. Only applicable if the CSV file is an file path (not a url).
+- **nrows** *(int or None)*: This argument is passed to the `create_annotated_table_group` function (see below).
+- **parse_tabular_data_function** *(Python function)*: This argument is passed to the `create_annotated_table_group` function (see below).
 
 
 Returns: The embedded metadata of a CSV file in the form of a CSVW metadata JSON object.
