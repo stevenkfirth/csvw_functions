@@ -74,7 +74,10 @@ Let's say we have a CSV file with the contents...
 
 ```python
 >>> import csvw_functions
->>> embedded_metadata = csvw_functions.get_embedded_metadata('countries.csv')
+>>> embedded_metadata = csvw_functions.get_embedded_metadata(
+        'countries.csv',
+        relative_path=True  # this means that the `url` property will contain a relative file path
+        )
 >>> print(embedded_metadata)
 ```
 ```json
