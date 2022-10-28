@@ -59,7 +59,7 @@ Let's say we have a CSV file with the contents...
 "bg","eu","Bulgaria","Bulgarie","Bulgarien","42.72567375","25.4823218"
 ```
 
-...and we'd like to extract information from the column headers in the form of a CSVW metadata JSON object. We would use the [get_embedded_metadata](#get_embedded_metadata) function:
+...and we'd like to extract information from the column headers in the form of a CSVW metadata JSON object. We would use the [`get_embedded_metadata`](#get_embedded_metadata) function:
 
 ```python
 >>> import csvw_functions
