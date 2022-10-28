@@ -273,6 +273,10 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 
 ### get_embedded_metadata
 
+Description: This function reads a CSV file and returns any embedded metadata extracted from the CSV file. This is a useful thing to do if you only have a CSV file and want to create an initial version of its CSVW metadata JSON object. The standard approach to extracting metadata is described in [Section 8. Parsing Tabular Data](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#parsing) of the *Model for Tabular Data and Metadata on the Web* standard.
+
+Call signature:
+
 ```python
 csvw_functions.get_embedded_metadata(
         input_file_path_or_url,
@@ -281,8 +285,6 @@ csvw_functions.get_embedded_metadata(
         parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
         )
 ```
-
-Description: This function reads a CSV file and returns any embedded metadata extracted from the CSV file. This is a useful thing to do if you only have a CSV file and want to create an initial version of its CSVW metadata JSON object. The standard approach to extracting metadata is described in [Section 8. Parsing Tabular Data](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#parsing) of the *Model for Tabular Data and Metadata on the Web* standard.
 
 Arguments:
 
