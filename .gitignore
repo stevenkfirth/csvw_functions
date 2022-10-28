@@ -1,6 +1,7 @@
 # USER IGNORES
 _dev/
 _github_w3c_csvw_tests/
+_old/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

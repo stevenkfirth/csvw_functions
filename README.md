@@ -38,7 +38,7 @@ Further information on CSVW is available from:
 - [csvw.org](https://csvw.org/)
 - [www.stevenfirth.com/tag/csvw/](https://www.stevenfirth.com/tag/csvw/)
 
-The package is written as pure Python and passes all the test in the [CSVW Test Suite](https://w3c.github.io/csvw/tests/).
+The package is written as pure Python and passes all the tests in the [CSVW Test Suite](https://w3c.github.io/csvw/tests/).
 
 ## Installation
 
@@ -79,29 +79,72 @@ Let's say we have a CSV file with the contents...
 ```
 ```json
 {
-  "@context": "http://www.w3.org/ns/csvw",
-  "url": "countries.csv"
-  "tableSchema": {
-    "columns": [{
-      "titles": "country"
-    },{
-      "titles": "country group"
-    },{
-      "titles": "name (en)"
-    },{
-      "titles": "name (fr)"
-    },{
-      "titles": "name (de)"
-    },{
-      "titles": "latitude"
-    },{
-      "titles": "longitude"
-    }]
-  }
+    "@context": "http://www.w3.org/ns/csvw",
+    "tableSchema": {
+        "columns": [
+            {
+                "titles": {
+                    "und": [
+                        "country"
+                    ]
+                },
+                "name": "country"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "country group"
+                    ]
+                },
+                "name": "country%20group"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "name (en)"
+                    ]
+                },
+                "name": "name%20%28en%29"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "name (fr)"
+                    ]
+                },
+                "name": "name%20%28fr%29"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "name (de)"
+                    ]
+                },
+                "name": "name%20%28de%29"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "latitude"
+                    ]
+                },
+                "name": "latitude"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "longitude"
+                    ]
+                },
+                "name": "longitude"
+            }
+        ]
+    },
+    "url": "countries.csv"
 }
 ```
 
-(This example is taken from Section 1.3 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#column-info) 
+(This example is taken from Section 1.3 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#column-info. Note the differences here including the addition of the `name` property and the `titles` property given as a list of undefined ('und') language strings.) 
 
 
 ### Convert CSVW file to JSON-LD
@@ -245,7 +288,7 @@ csvw_functions.get_embedded_metadata(
 
 ### create_annotated_table_group
 
-Function call:
+Function signature:
 
 ```python
 def create_annotated_table_group(

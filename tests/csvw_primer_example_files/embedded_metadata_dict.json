@@ -1,0 +1,64 @@
+{
+    "@context": "http://www.w3.org/ns/csvw",
+    "tableSchema": {
+        "columns": [
+            {
+                "titles": {
+                    "und": [
+                        "country"
+                    ]
+                },
+                "name": "country"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "country group"
+                    ]
+                },
+                "name": "country%20group"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "name (en)"
+                    ]
+                },
+                "name": "name%20%28en%29"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "name (fr)"
+                    ]
+                },
+                "name": "name%20%28fr%29"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "name (de)"
+                    ]
+                },
+                "name": "name%20%28de%29"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "latitude"
+                    ]
+                },
+                "name": "latitude"
+            },
+            {
+                "titles": {
+                    "und": [
+                        "longitude"
+                    ]
+                },
+                "name": "longitude"
+            }
+        ]
+    },
+    "url": "countries.csv"
+}
