@@ -9,7 +9,8 @@ Python implementation of the CSVW standards
 [Installation](#installation) | 
 [Issues, Questions?](#issues-questions) | 
 [Quick Start](#quick-start) | 
-[API](#api)
+[API - Functions](#api---functions) |
+[API - Exception Classes](#api---exception-classes)
 
 ## About
 
@@ -173,7 +174,7 @@ Let's say we have a CSVW metadata JSON file which references the countries.csv f
 
 ```
 
-... and we'd like to convert this to a dictionary in the form of JSON-LD data. Here we would use the [create_annotated_table_group](#create_annotated_table_group) and [create_json_ld](#create_json_ld) functions:
+... and we'd like to convert this to a dictionary in the form of JSON-LD data. Here we would use the [`create_annotated_table_group`](#create_annotated_table_group) and [`create_json_ld`](#create_json_ld) functions:
 
 ```python
 >>> import csvw_functions
@@ -222,7 +223,7 @@ Let's say we have a CSVW metadata JSON file which references the countries.csv f
 
 ### Convert CSVW file to RDF
 
-Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data in Turtle notation. Now we would use the [create_annotated_table_group](#create_annotated_table_group) and [create_rdf](#create_rdf) functions:
+Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data in Turtle notation. Now we would use the [`create_annotated_table_group`](#create_annotated_table_group) and [`create_rdf`](#create_rdf) functions:
 
 ```python
 >>> import csvw_functions
@@ -269,7 +270,7 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 
 (This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values. Note here that 'http://example.org' is used as a sample namespace for the predicates.)
 
-## API
+## API - Functions
 
 ### get_embedded_metadata
 
@@ -326,6 +327,10 @@ Return type: dict
 
 ### create_json_ld
 
+Description: This function converts an annotated table group object to JSON-LD format. This follow the approach as given in the [Generating JSON from Tabular Data on the Web](https://www.w3.org/TR/2015/REC-csv2json-20151217/) standard.
+
+Call signature:
+
 ```python
 csvw_functions.create_json_ld(
         annotated_table_group_dict,
@@ -333,13 +338,12 @@ csvw_functions.create_json_ld(
         _replace_strings=None  # used to replace urls for testing purposes, can use a variable {table_name}
         )
 ```
-Description: This function converts an annotated table group object to JSON-LD format. This follow the approach as given in the [Generating JSON from Tabular Data on the Web](https://www.w3.org/TR/2015/REC-csv2json-20151217/) standard.
 
 Arguments:
 
-- annotated_table_group_dict (dict): This is the output of the `create_annotated_table_group` function above.
-- mode (str): If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2json-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised.
-- replace_strings (list):
+- **annotated_table_group_dict** *(dict)*: This is the output of the `create_annotated_table_group` function above.
+- **mode** *(str)*: If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2json-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised.
+- **replace_strings** *(list)*:
 
 Returns: The result of the conversion to the JSON-LD format. This is a dictionary and can be saved to a file using the [json](https://docs.python.org/3/library/json.html) library.
 
@@ -347,6 +351,10 @@ Return type: dict
 
 
 ### create_rdf
+
+Description: This function converts an annotated table group object to JSON-LD format. This follow the approach as given in the [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/) standard.
+
+Call signature:
 
 ```python
 csvw_functions.create_rdf(
@@ -356,20 +364,19 @@ csvw_functions.create_rdf(
         convert_local_path_to_example_dot_org=False
         )
 ```
-Description: This function converts an annotated table group object to JSON-LD format. This follow the approach as given in the [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/) standard.
 
 Arguments:
 
-- annotated_table_group_dict (dict): This is the output of the `create_annotated_table_group` function above.
-- mode (str): If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised. 
-- convert_any_uri_to_iri
-- convert_local_path_to_example_dot_org (bool): If True then any local file paths are converted to the string 'http://example.org'. This is useful for testing purposes.
+- **annotated_table_group_dict** *(dict)*: This is the output of the `create_annotated_table_group` function above.
+- **mode** *(str)*: If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised. 
+- **convert_any_uri_to_iri**
+- **convert_local_path_to_example_dot_org** *(bool)*: If True then any local file paths are converted to the string 'http://example.org'. This is useful for testing purposes.
 
 Returns: The result of the conversion to the RDF format. This is a string of RDF [N-Triples](https://www.w3.org/TR/n-triples/). This string can be saved to a file as needed. To convert the N-Triples to another format (such as [Turtle](https://www.w3.org/TR/turtle/)) this can be done using a dedicated RDF package such as [RDFLib](https://rdflib.readthedocs.io/en/stable/). 
 
 Return type: str
 
-
+## API - Exception Classes
 
 
 
