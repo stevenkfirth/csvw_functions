@@ -5,20 +5,10 @@ Python implementation of the CSVW standards
 
 ## Contents
 
-[About](#about)
-
-[Installation](#installation)
-
-[Issues, Questions?](#issues-questions)
-
-[Quick Start](#quick-start)
-
-[- Access embedded metadata from CSV file](#access-embedded-metadata-from-csv-file)
-
-[- Convert CSVW file to JSON-LD](#convert-csvw-file-to-json-ld)
-
-[- Convert CSVW file to RDF](#convert-csvw-file-to-rdf)
-
+[About](#about) | 
+[Installation](#installation) | 
+[Issues, Questions?](#issues-questions) | 
+[Quick Start](#quick-start) | 
 [API](#api)
 
 ## About

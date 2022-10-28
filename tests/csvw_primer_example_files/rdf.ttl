@@ -1,14 +1,6 @@
 @prefix ns1: <http://example.org/countries.csv#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-[] ns1:country "bg"^^xsd:string ;
-    ns1:country%20group "eu"^^xsd:string ;
-    ns1:latitude 4.272567e+01 ;
-    ns1:longitude 2.548232e+01 ;
-    ns1:name%20%28de%29 "Bulgarien"@de ;
-    ns1:name%20%28en%29 "Bulgaria"@en ;
-    ns1:name%20%28fr%29 "Bulgarie"@fr .
-
 [] ns1:country "be"^^xsd:string ;
     ns1:country%20group "eu"^^xsd:string ;
     ns1:latitude 5.050104e+01 ;
@@ -24,4 +16,12 @@
     ns1:name%20%28de%29 "Österreich"@de ;
     ns1:name%20%28en%29 "Austria"@en ;
     ns1:name%20%28fr%29 "Autriche"@fr .
+
+[] ns1:country "bg"^^xsd:string ;
+    ns1:country%20group "eu"^^xsd:string ;
+    ns1:latitude 4.272567e+01 ;
+    ns1:longitude 2.548232e+01 ;
+    ns1:name%20%28de%29 "Bulgarien"@de ;
+    ns1:name%20%28en%29 "Bulgaria"@en ;
+    ns1:name%20%28fr%29 "Bulgarie"@fr .
 
