@@ -1,0 +1,29 @@
+[
+    {
+        "country": "at",
+        "country group": "eu",
+        "name (en)": "Austria",
+        "name (fr)": "Autriche",
+        "name (de)": "\u00d6sterreich",
+        "latitude": 47.6965545,
+        "longitude": 13.34598005
+    },
+    {
+        "country": "be",
+        "country group": "eu",
+        "name (en)": "Belgium",
+        "name (fr)": "Belgique",
+        "name (de)": "Belgien",
+        "latitude": 50.501045,
+        "longitude": 4.47667405
+    },
+    {
+        "country": "bg",
+        "country group": "eu",
+        "name (en)": "Bulgaria",
+        "name (fr)": "Bulgarie",
+        "name (de)": "Bulgarien",
+        "latitude": 42.72567375,
+        "longitude": 25.4823218
+    }
+]

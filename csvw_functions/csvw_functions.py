@@ -34,6 +34,7 @@ import uritemplate
 import langcodes
 import datetime
 import re
+from uuid import uuid4
 
 
 #%% ---Module Level Variables---
@@ -1556,14 +1557,18 @@ def parse_tabular_data_from_text_non_normative_definition(
 
 def get_embedded_metadata(
         input_file_path_or_url,
-        relative_path=False
+        relative_path=False,
+        nrows=None,
+        parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
         ):
     """
     """
     embedded_metadata_dict=\
         create_annotated_table_group(
             input_file_path_or_url,
-            _return_embedded_metadata=True
+            _return_embedded_metadata=True,
+            nrows=nrows,
+            parse_tabular_data_function=parse_tabular_data_function
             )
         
     if relative_path:
@@ -12716,11 +12721,26 @@ def get_json_from_json_ld(
     
 def create_rdf(
         annotated_table_group_dict,
-        standard_mode=True,
-        convert_any_uri_to_iri=None
+        mode='standard',
+        convert_any_uri_to_iri=None,
+        convert_local_path_to_example_dot_org=False
         ):
     """
     """
+    
+    if mode=='standard':
+        
+        standard_mode=True
+        
+    elif mode=='minimal':
+        
+        standard_mode=False
+        
+    else:
+        
+        raise Exception
+    
+    
         
     if convert_any_uri_to_iri is None:
         convert_any_uri_to_iri=[]
@@ -13144,6 +13164,15 @@ def create_rdf(
     
     output+=' .'
     
+    
+    #
+    if convert_local_path_to_example_dot_org:
+        
+        output=output.replace(
+            'file:///'+os.getcwd().replace('\\','/')+'/',
+            'http://example.org/'
+            )
+      
     return output
     
     

@@ -152,7 +152,7 @@ Let's say we have a CSV file with the contents...
 
 ### Convert CSVW file to JSON-LD
 
-Let's say we have a CSVW metadata JSON file whichh references the countries.csv file...
+Let's say we have a CSVW metadata JSON file which references the countries.csv file...
 
 ```json
 {
@@ -188,44 +188,48 @@ Let's say we have a CSVW metadata JSON file whichh references the countries.csv 
 
 ```python
 >>> import csvw_functions
->>> annotated_table_group_dict=csvw_functions2.create_annotated_table_group(
-        input_file_path_or_url='countries-metadata.json'
+>>> annotated_table_group_dict = csvw_functions.create_annotated_table_group(
+        input_file_path_or_url = 'countries-metadata.json'
         )
->>> json_ld=csvw_functions2.create_json_ld(
+>>> json_ld = csvw_functions.create_json_ld(
         annotated_table_group_dict,
         mode='minimal'
         )
 >>> print(json_ld)
 ```
 ```json
-[{
-  "country": "at",
-  "country group": "eu",
-  "name (en)": "Austria",
-  "name (fr)": "Autriche",
-  "name (de)": "Österreich",
-  "latitude": 47.6965545,
-  "longitude": 13.34598005
-},{
-  "country": "be",
-  "country group": "eu",
-  "name (en)": "Belgium",
-  "name (fr)": "Belgique",
-  "name (de)": "Belgien",
-  "latitude": 50.501045,
-  "longitude": 4.47667405
-},{
-  "country": "bg",
-  "country group": "eu",
-  "name (en)": "Bulgaria",
-  "name (fr)": "Bulgarie",
-  "name (de)": "Bulgarien",
-  "latitude": 42.72567375,
-  "longitude": 25.4823218
-}]
+[
+    {
+        "country": "at",
+        "country group": "eu",
+        "name (en)": "Austria",
+        "name (fr)": "Autriche",
+        "name (de)": "\u00d6sterreich",
+        "latitude": 47.6965545,
+        "longitude": 13.34598005
+    },
+    {
+        "country": "be",
+        "country group": "eu",
+        "name (en)": "Belgium",
+        "name (fr)": "Belgique",
+        "name (de)": "Belgien",
+        "latitude": 50.501045,
+        "longitude": 4.47667405
+    },
+    {
+        "country": "bg",
+        "country group": "eu",
+        "name (en)": "Bulgaria",
+        "name (fr)": "Bulgarie",
+        "name (de)": "Bulgarien",
+        "latitude": 42.72567375,
+        "longitude": 25.4823218
+    }
+]
 ```
 
-(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values)
+(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values. Note here that the 'Ö' character is replaced by it's Unicode equivalent.)
 
 ### Convert CSVW file to RDF
 
@@ -233,51 +237,48 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 
 ```python
 >>> import csvw_functions
->>> annotated_table_group_dict=csvw_functions2.create_annotated_table_group(
-        input_file_path_or_url='countries-metadata.json'
+>>> from rdflib import Graph
+>>> annotated_table_group_dict = csvw_functions.create_annotated_table_group(
+        input_file_path_or_url = 'countries-metadata.json'
         )
->>> rdf_text=csvw_functions2.create_rdf(  ... CHECK
+>>> rdf_ntriples = csvw_functions.create_rdf(  ... CHECK
         annotated_table_group_dict,
-        mode='minimal'
+        mode = 'minimal',
+        convert_local_path_to_example_dot_org = True  # uses 'http://example.org' in place of the local file path.
         )
->>> print(rdf)  ... TO DO ... need to use rdflib
+>>> rdf_ttl = Graph().parse(data = rdf_ntriples, format='ntriples').serialize(format = "ttl")
+>>> print(rdf_ttl)  
 ```
 ```
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ns1: <http://example.org/countries.csv#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-[
-  <#country> "at";
-  <#country%20group> "eu";
-  <#latitude> 4.76965545e1;
-  <#longitude> 1.334598005e1;
-  <#name%20%28de%29> "Österreich"@de;
-  <#name%20%28en%29> "Austria"@en;
-  <#name%20%28fr%29> "Autriche"@fr
-] .
+[] ns1:country "bg"^^xsd:string ;
+    ns1:country%20group "eu"^^xsd:string ;
+    ns1:latitude 4.272567e+01 ;
+    ns1:longitude 2.548232e+01 ;
+    ns1:name%20%28de%29 "Bulgarien"@de ;
+    ns1:name%20%28en%29 "Bulgaria"@en ;
+    ns1:name%20%28fr%29 "Bulgarie"@fr .
 
-[
-  <#country> "be";
-  <#country%20group> "eu";
-  <#latitude> 5.0501045e1;
-  <#longitude> 4.47667405e0;
-  <#name%20%28de%29> "Belgien"@de;
-  <#name%20%28en%29> "Belgium"@en;
-  <#name%20%28fr%29> "Belgique"@fr
-] .
+[] ns1:country "be"^^xsd:string ;
+    ns1:country%20group "eu"^^xsd:string ;
+    ns1:latitude 5.050104e+01 ;
+    ns1:longitude 4.476674e+00 ;
+    ns1:name%20%28de%29 "Belgien"@de ;
+    ns1:name%20%28en%29 "Belgium"@en ;
+    ns1:name%20%28fr%29 "Belgique"@fr .
 
-[
-  <#country> "bg";
-  <#country%20group> "eu";
-  <#latitude> 4.272567375e1;
-  <#longitude> 2.54823218e1;
-  <#name%20%28de%29> "Bulgarien"@de;
-  <#name%20%28en%29> "Bulgaria"@en;
-  <#name%20%28fr%29> "Bulgarie"@fr
-] .
+[] ns1:country "at"^^xsd:string ;
+    ns1:country%20group "eu"^^xsd:string ;
+    ns1:latitude 4.769655e+01 ;
+    ns1:longitude 1.334598e+01 ;
+    ns1:name%20%28de%29 "Österreich"@de ;
+    ns1:name%20%28en%29 "Austria"@en ;
+    ns1:name%20%28fr%29 "Autriche"@fr .
 ```
 
-(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values)
+(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values. Note here that 'http://example.org' is used as a sample namespace for the predicates.)
 
 ## API
 
