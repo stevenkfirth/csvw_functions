@@ -231,7 +231,7 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 >>> annotated_table_group_dict = csvw_functions.create_annotated_table_group(
         input_file_path_or_url = 'countries-metadata.json'
         )
->>> rdf_ntriples = csvw_functions.create_rdf(  ... CHECK
+>>> rdf_ntriples = csvw_functions.create_rdf( 
         annotated_table_group_dict,
         mode = 'minimal',
         convert_local_path_to_example_dot_org = True  # uses 'http://example.org' in place of the local file path.
