@@ -229,7 +229,7 @@ Let's say we have a CSVW metadata JSON file which references the countries.csv f
 ]
 ```
 
-(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values. Note here that the 'Ö' character is replaced by it's Unicode equivalent.)
+(This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values. Note here that the 'Ö' character is replaced by its Unicode equivalent.)
 
 ### Convert CSVW file to RDF
 
@@ -284,43 +284,99 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 
 ### get_embedded_metadata
 
+```python
 csvw_functions.get_embedded_metadata(
+        input_file_path_or_url,
+        relative_path=False,
+        nrows=None,
+        parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
+        )
+```
+
+Description: This function reads a CSV file and returns any embedded metadata extracted from the CSV file. This is a useful thing to do if you only have a CSV file and want to create an initial version of its CSVW metadata JSON object. The standard approach to extracting metadata is described in [Section 8. Parsing Tabular Data](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#parsing) of the *Model for Tabular Data and Metadata on the Web* standard.
+
+Arguments:
+
+- input_file_path_or_url (str): This argument is passed to the `create_annotated_table_group` function (see below).
+- relative_path (bool): If True, then any absolute file paths in the returned dictionary are replaced by local file paths. Only applicable if the CSV file is an file path (not a url).
+- nrows (int or None): This argument is passed to the `create_annotated_table_group` function (see below).
+- parse_tabular_data_function (Python function): This argument is passed to the `create_annotated_table_group` function (see below).
 
 
+Returns: The embedded metadata of a CSV file in the form of a CSVW metadata JSON object.
 
-)
+Return type: dict
+
 
 ### create_annotated_table_group
 
-Function signature:
-
 ```python
-def create_annotated_table_group(
+csvw_functions.create_annotated_table_group(
         input_file_path_or_url,
         overriding_metadata_file_path_or_url=None,
         validate=False,
         parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
-        _link_header=None,  # for testing link headers,
-        _well_known_text=None,  # for testing well known paths
-        _save_intermediate_and_final_outputs_to_file=False,  # for testing, to see metadata objects etc.
-        _print_intermediate_outputs=False  # for testing, to see intermediate outputs as the code is running
-        ):
+        _link_header=None,  
+        _well_known_text=None,  
+        _save_intermediate_and_final_outputs_to_file=False,  
+        _print_intermediate_outputs=False  
+        )
 ```
 Description: 
 
-
 Arguments:
 
+- 
 
 Returns:
 
-Return type: Python dictionary
+Return type: dict
 
 
 ### create_json_ld
 
+```python
+csvw_functions.create_json_ld(
+        annotated_table_group_dict,
+        mode='standard',
+        _replace_strings=None  # used to replace urls for testing purposes, can use a variable {table_name}
+        )
+```
+Description: This function converts an annotated table group object to JSON-LD format. This follow the approach as given in the [Generating JSON from Tabular Data on the Web](https://www.w3.org/TR/2015/REC-csv2json-20151217/) standard.
+
+Arguments:
+
+- annotated_table_group_dict (dict): This is the output of the `create_annotated_table_group` function above.
+- mode (str): If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2json-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised.
+- replace_strings (list):
+
+Returns: The result of the conversion to the JSON-LD format. This is a dictionary and can be saved to a file using the [json](https://docs.python.org/3/library/json.html) library.
+
+Return type: dict
+
+
 ### create_rdf
 
+```python
+csvw_functions.create_rdf(
+        annotated_table_group_dict,
+        mode='standard',
+        convert_any_uri_to_iri=None,
+        convert_local_path_to_example_dot_org=False
+        )
+```
+Description: This function converts an annotated table group object to JSON-LD format. This follow the approach as given in the [Generating RDF from Tabular Data on the Web](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/) standard.
+
+Arguments:
+
+- annotated_table_group_dict (dict): This is the output of the `create_annotated_table_group` function above.
+- mode (str): If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised. 
+- convert_any_uri_to_iri
+- convert_local_path_to_example_dot_org (bool): If True then any local file paths are converted to the string 'http://example.org'. This is useful for testing purposes.
+
+Returns: The result of the conversion to the RDF format. This is a string of RDF [N-Triples](https://www.w3.org/TR/n-triples/). This string can be saved to a file as needed. To convert the N-Triples to another format (such as [Turtle](https://www.w3.org/TR/turtle/)) this can be done using a dedicated RDF package such as [RDFLib](https://rdflib.readthedocs.io/en/stable/). 
+
+Return type: str
 
 
 
