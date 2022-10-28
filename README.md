@@ -36,14 +36,13 @@ Source code available on GitHub here: https://github.com/stevenkfirth/csvw_funct
 
 Available on PyPi here: https://pypi.org/project/csvw_functions (LINK NOT YET ACTIVE)
 
-Install from PyPi using command: `pip install csvw_functions`
-
+Install from PyPi using command: `pip install csvw_functions` (NOT ACTIVE YET)
 
 ## Issues, Questions?
 
 Raise an issue on GitHub: https://github.com/stevenkfirth/csvw_functions/issues
 
-Email the author: s.k.firth@lboro.ac.uk
+Email the author: [Steven Firth](https://www.lboro.ac.uk/departments/abce/staff/steven-firth/), s.k.firth@lboro.ac.uk
 
 
 ## Quick Start
@@ -60,7 +59,7 @@ Let's say we have a CSV file with the contents...
 "bg","eu","Bulgaria","Bulgarie","Bulgarien","42.72567375","25.4823218"
 ```
 
-...and we'd like to extract information from the column headers as a Python dictionary in the form of a CSVW metadata JSON file:
+...and we'd like to extract information from the column headers in the form of a CSVW metadata JSON object. We would use the [get_embedded_metadata](#get_embedded_metadata) function:
 
 ```python
 >>> import csvw_functions
@@ -174,7 +173,7 @@ Let's say we have a CSVW metadata JSON file which references the countries.csv f
 
 ```
 
-... and we'd like to convert this to a dictionary in the form of JSON-LD data:
+... and we'd like to convert this to a dictionary in the form of JSON-LD data. Here we would use the [create_annotated_table_group](#create_annotated_table_group) and [create_json_ld](#create_json_ld) functions:
 
 ```python
 >>> import csvw_functions
@@ -223,7 +222,7 @@ Let's say we have a CSVW metadata JSON file which references the countries.csv f
 
 ### Convert CSVW file to RDF
 
-Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data in Turtle notation:
+Let's say we have the CSVW metadata JSON file and CSV file from the previous example, and we'd like to convert these to RDF data in Turtle notation. Now we would use the [create_annotated_table_group](#create_annotated_table_group) and [create_rdf](#create_rdf) functions:
 
 ```python
 >>> import csvw_functions
