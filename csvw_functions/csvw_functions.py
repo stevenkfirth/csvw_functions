@@ -22,6 +22,7 @@ Created on Sun Aug 14 17:32:29 2022
 # are implemented as a series of Python functions.
 #
 
+
 #%% ---Package imports---
 
 import requests
@@ -1151,9 +1152,9 @@ def get_overriding_metadata(
                 )
         
     
-    metadata_response=urllib.request.urlopen(metadata_document_location)
+    with urllib.request.urlopen(metadata_document_location) as metadata_response:
     
-    metadata_text=metadata_response.read().decode()
+        metadata_text=metadata_response.read().decode()
     
     metadata_document_dict=json.loads(metadata_text)
     
@@ -1226,13 +1227,13 @@ def get_metadata_from_link_header(
         
         try:
         
-            metadata_response=urllib.request.urlopen(metadata_document_location)
+            with urllib.request.urlopen(metadata_document_location) as metadata_response:
+                
+                metadata_text=metadata_response.read().decode()
         
         except urllib.error.URLError:
             
             continue
-        
-        metadata_text=metadata_response.read().decode()
         
         metadata_document_dict=json.loads(metadata_text)
         
@@ -1338,23 +1339,19 @@ def get_metadata_from_default_or_site_wide_location(
     #
     try:
     
-        well_known_path_response=\
-            urllib.request.urlopen(
-                well_known_path_url
-                )
+        with urllib.request.urlopen(well_known_path_url) as well_known_path_response:
+            
+            well_known_text=well_known_path_response.read().decode()
     
     except urllib.error.URLError:
         
-        well_known_path_response=None
-    
-    #
-    if not well_known_path_response is None:
-        
-        well_known_text=well_known_path_response.read().decode()
-        
-    else:
-        
         well_known_text='{+url}-metadata.json\ncsv-metadata.json'
+    
+    
+    
+    #print('well_known_path_response',well_known_path_response)
+    #print(dir(well_known_path_response))
+    
     
     #...for testing
     if not _well_known_text is None:
@@ -1401,21 +1398,16 @@ def get_metadata_from_default_or_site_wide_location(
         
         try:
         
-            metadata_response=urllib.request.urlopen(metadata_url)
+            with urllib.request.urlopen(metadata_url) as metadata_response:
+                
+                metadata_text=metadata_response.read().decode()
+                metadata_document_dict=json.loads(metadata_text)
         
         except urllib.error.URLError:
         
-            metadata_response=None
-            
-        #
-        if not metadata_response is None:
-            
-            metadata_text=metadata_response.read().decode()
-            metadata_document_dict=json.loads(metadata_text)
-            
-        else:
-            
             metadata_document_dict=None
+            
+       
         
         
         # 4. If no metadata document is found at that location, or if the 
@@ -1477,6 +1469,8 @@ def get_metadata_from_default_or_site_wide_location(
                     table_url
                     )
                 
+            table_url_resolved=table_url_resolved.replace('\\','/')
+                
             #print('table_url_resolved',table_url_resolved)
             
             if table_url_resolved==tabular_data_file_url:
@@ -1484,6 +1478,9 @@ def get_metadata_from_default_or_site_wide_location(
                 return metadata_document_dict,metadata_url
             
             else:
+                
+                #print('table_url_resolved',table_url_resolved)
+                #print('tabular_data_file_url',tabular_data_file_url)
                 
                 message='Metadata file found does not explicitly '
                 message+='include a reference to the requested tabular data file. '
@@ -1559,6 +1556,8 @@ def get_embedded_metadata(
         input_file_path_or_url,
         relative_path=False,
         nrows=None,
+        encoding=None,
+        skip_rows=None,
         parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
         ):
     """
@@ -1568,6 +1567,8 @@ def get_embedded_metadata(
             input_file_path_or_url,
             _return_embedded_metadata=True,
             nrows=nrows,
+            encoding=encoding,
+            skip_rows=skip_rows,
             parse_tabular_data_function=parse_tabular_data_function
             )
         
@@ -1587,6 +1588,8 @@ def create_annotated_table_group(
         overriding_metadata_file_path_or_url=None,
         nrows=None,
         validate=False,
+        encoding=None,
+        skip_rows=None,
         parse_tabular_data_function=parse_tabular_data_from_text_non_normative_definition,
         _return_embedded_metadata=False,  # returns only the embedded metadata
         _link_header=None,  # for testing link headers,
@@ -1744,9 +1747,9 @@ def create_annotated_table_group(
                     )
         
         #...get metadata document
-        metadata_response=urllib.request.urlopen(metadata_document_location)
+        with urllib.request.urlopen(metadata_document_location) as metadata_response:
         
-        metadata_text=metadata_response.read().decode()
+            metadata_text=metadata_response.read().decode()
         
         metadata_document_dict=json.loads(metadata_text)
         
@@ -1921,14 +1924,14 @@ def create_annotated_table_group(
                 )
         
         
-        # 3.2 If using the default dialect description, override default values 
-        #     in DD based on HTTP headers found when retrieving the tabular data file:
-        #     - If the media type from the Content-Type header is text/tab-separated-values, 
-        #       set delimiter to TAB in DD.
-        #     - If the Content-Type header includes the header parameter with a 
-        #       value of absent, set header to false in DD.
-        #     - If the Content-Type header includes the charset parameter, set 
-        #       encoding to this value in DD.
+            # 3.2 If using the default dialect description, override default values 
+            #     in DD based on HTTP headers found when retrieving the tabular data file:
+            #     - If the media type from the Content-Type header is text/tab-separated-values, 
+            #       set delimiter to TAB in DD.
+            #     - If the Content-Type header includes the header parameter with a 
+            #       value of absent, set header to false in DD.
+            #     - If the Content-Type header includes the charset parameter, set 
+            #       encoding to this value in DD.
             
             if not tabular_data_file_headers is None:
         
@@ -1950,6 +1953,15 @@ def create_annotated_table_group(
                             content_type.split('charset')[1].split(';')[0].strip()[1:]  # NEEDS TESTING
                         
                         dialect_description_dict['encoding']=charset_value
+            
+            
+            #... additional overrides from function arguments
+            
+            if not encoding is None:
+                dialect_description_dict['encoding']=encoding
+            
+            if not skip_rows is None:
+                dialect_description_dict['skipRows']=skip_rows
             
         
         # 3.3 Parse the tabular data file, using DD as a guide, to create a 
@@ -2182,25 +2194,7 @@ def create_annotated_table_group(
                 
     #... for testing
     
-    def remove_recursion(
-            value,
-            ):
-        ""
-        if isinstance(value,dict):
-            
-            return {k:remove_recursion(v) if not k in 
-                    ['table','column','row',
-                      'referencedRows','primaryKey','foreignKeys'] else '__recursion__'
-                    for k,v in value.items()
-                    }
-        
-        elif isinstance(value,list):
-            
-            return [remove_recursion(x) for x in value]
-
-        else:
-            
-            return value
+    
 
     if _save_intermediate_and_final_outputs_to_file:
         with open('annotated_table_group_dict.json','w') as f:
@@ -2213,9 +2207,34 @@ def create_annotated_table_group(
         
     #    
     return annotated_table_group_dict
-     
+
+
+def display_annotated_table_group_dict(
+        annotated_table_group_dict
+        ):
+    ""
+    return remove_recursion(annotated_table_group_dict)
+
+
+def remove_recursion(
+        value,
+        ):
+    ""
+    if isinstance(value,dict):
         
+        return {k:remove_recursion(v) if not k in 
+                ['table','column','row',
+                  'referencedRows','primaryKey','foreignKeys'] else '__recursion__'
+                for k,v in value.items()
+                }
+    
+    elif isinstance(value,list):
         
+        return [remove_recursion(x) for x in value]
+
+    else:
+        
+        return value
 
 
     
@@ -2616,6 +2635,11 @@ def parse_cell_steps_6_to_9(
             string_value,
             errors,
             )
+        
+    # if error occurs as value not converted
+    if value_type=='string':
+        language=lang
+    
     
     # 9. validate the value based on the length constraints described in 
     #    section 4.6.1 Length Constraints, the value constraints described 
@@ -2771,7 +2795,7 @@ def get_parse_number_function(
                 
                 group_char=','
                 
-            print(pattern_dict)
+            #print(pattern_dict)
                 
     else:
         
@@ -2948,7 +2972,7 @@ def get_parse_number_function(
                 
                 message=f'Cell string value "{string_value}" is not in a format '
                 message+='which can be converted to a number '
-                message+='of type "{datatype_base}". '
+                message+=f'of type "{datatype_base}". '
                 message+='Cell value is not converted to a number. '
                 
                 warnings.warn(message)
@@ -3325,8 +3349,6 @@ def validate_LDML_number(
                 )
             
     except ValueError:
-        
-        print('TEST')
         
         return False
         
@@ -4396,7 +4418,7 @@ def get_parse_date_function(
         
             except ValueError:
                 
-                message=f'Invalid isoformat string {string_value}. '
+                message=f'Invalid isoformat string {string_value} for "date" datatype. '
         
                 errors.append(message)
                 
@@ -5326,11 +5348,10 @@ def parse_tabular_data_from_text(
     url=urllib.parse.urljoin(tabular_data_file_url, 
                          urllib.parse.urlparse(tabular_data_file_url).path)
     
-    response=urllib.request.urlopen(
-        url
-        )
+    with urllib.request.urlopen(url) as response:
     
-    tabular_data_file_text=response.read().decode(encoding)
+        tabular_data_file_text=response.read().decode(encoding)
+    
     
     if _print_intermediate_outputs: print('-tabular_data_file_text',tabular_data_file_text)
     
@@ -6883,7 +6904,7 @@ def validate_atomic_property(
         if not type(property_value) in expected_types:
             
             message=f'Property "{property_name}" with value '
-            message+=f'"{property_value}property_value=metadata_obj_dict[property_name]" ({type(property_value).__name__}) is not valid.'
+            message+=f'"{property_value}" ({type(property_value).__name__}) is not valid.'
             message+=f' One of these types expected: "{expected_types}". '
             
             if use_default_value:
@@ -11555,9 +11576,9 @@ def normalize_object_property(
         
         #...load metadata document
         
-        metadata_response=urllib.request.urlopen(metadata_document_location)
+        with urllib.request.urlopen(metadata_document_location) as metadata_response:
         
-        metadata_text=metadata_response.read().decode()
+            metadata_text=metadata_response.read().decode()
         
         referenced_metadata_obj_dict=json.loads(metadata_text)
         
@@ -11711,6 +11732,7 @@ def replace_string(
 def create_json_ld(
         annotated_table_group_dict,
         mode='standard',
+        convert_local_path_to_example_dot_org=False,
         _replace_strings=None  # used to replace urls for testing purposes, can use a variable {table_name}
         ):
     """
@@ -11737,6 +11759,16 @@ def create_json_ld(
     
     # replace strings
     
+    if _replace_strings is None:
+        
+        _replace_strings=[]    
+    
+    if convert_local_path_to_example_dot_org:
+    
+        _replace_strings.append(
+            ('file:///'+os.getcwd().replace('\\','/')+'/',
+             'http://example.org/')
+            )
     
     #    
     if not _replace_strings is None:
@@ -11749,76 +11781,22 @@ def create_json_ld(
                     value,
                     replace_value
                     )
+     
+    # can save the json_ld result if needed    
+    if False:
+        with open('json_ld.json','w') as f:
             
-    with open('json_ld.json','w') as f:
-        
-        json.dump(
-            json_ld,
-            f,
-            indent=4
-            )
+            json.dump(
+                json_ld,
+                f,
+                indent=4
+                )
     
-    
-    # json_string=json.dumps(json_ld)
-    
-    # #print(json_string)
-    
-    # json_string=json_string.replace(
-    #     'C:\\\\Users\\\\cvskf\\\\OneDrive - Loughborough University\\\\_Git\\\\stevenkfirth\\\\csvw_functions\\\\tests\\\\_github_w3c_csvw_tests\\\\',
-    #     'http://www.w3.org/2013/csvw/tests/'
-        
-    #     )
-    
-    # json_string=json_string.replace(
-    #     'c:\\\\Users\\\\cvskf\\\\OneDrive - Loughborough University\\\\_Git\\\\stevenkfirth\\\\csvw_functions\\\\tests\\\\_github_w3c_csvw_tests\\\\',
-    #     'http://www.w3.org/2013/csvw/tests/'
-        
-    #     )
-    
-    # json_string=json_string.replace(
-    #     '\\\\',
-    #     '/'
-    #     )
-    
-    # json_ld=json.loads(json_string)
     
     return json_ld
     
     
-    # replace url string
-    if not _replace_url_string is None:
-        
-        json_string=json.dumps(json_ld)
-        
-        if mode=='minimal':
-            
-            json_ld_standard=get_standard_json_from_annotated_table_group(
-                    annotated_table_group_dict
-                    )
-            
-        else:
-            
-            json_ld_standard=json_ld
-        
-        
-        for x in json_ld_standard['tables']:
-        
-            url=x['url']
-            table_name=os.path.basename(url).split('.')[0]
-            #print('table_name',table_name)
-            
-            _replace_url_string_expanded=_replace_url_string.replace('{table_name}',table_name)
-            #print('_replace_url_string_expanded',_replace_url_string_expanded)
-            
-            json_string=json_string.replace(url.replace('\\','\\\\'),  # not 100% sure why this is needed - will this work for urls rather than file paths?
-                                            _replace_url_string_expanded)
-            
-        json_ld=json.loads(json_string)
-    
-    
-    return json_ld
 
-    
     
     
 
@@ -12722,7 +12700,7 @@ def get_json_from_json_ld(
 def create_rdf(
         annotated_table_group_dict,
         mode='standard',
-        convert_any_uri_to_iri=None,
+        #convert_any_uri_to_iri=None,
         convert_local_path_to_example_dot_org=False
         ):
     """
@@ -12742,8 +12720,8 @@ def create_rdf(
     
     
         
-    if convert_any_uri_to_iri is None:
-        convert_any_uri_to_iri=[]
+    #if convert_any_uri_to_iri is None:
+    #    convert_any_uri_to_iri=[]
     
     output=[]
     
@@ -12999,6 +12977,13 @@ def create_rdf(
                             
                             url=annotated_table_dict['url']
                             
+                            #... percent-encoding url incase it contains spaces
+                            url=urllib.parse.quote(
+                                url.encode('utf8'),
+                                safe=':/'
+                                )
+                            
+                            
                             P_iri=f'<{url}#{name}>'
                         
                         # 4.6.8.4 If the value URL for the current cell is not 
@@ -13055,7 +13040,7 @@ def create_rdf(
                                     get_rdf_lexical_form_from_cell_value(
                                         v,
                                         datatype,
-                                        convert_any_uri_to_iri
+                                        #convert_any_uri_to_iri
                                         )
                             
                                 output.append(
@@ -13107,7 +13092,7 @@ def create_rdf(
                                     get_rdf_lexical_form_from_cell_value(
                                         v,
                                         datatype,
-                                        convert_any_uri_to_iri
+                                        #convert_any_uri_to_iri
                                         )
                             
                                 output.append(
@@ -13133,7 +13118,7 @@ def create_rdf(
                                 get_rdf_lexical_form_from_cell_value(
                                     value,
                                     datatype,
-                                    convert_any_uri_to_iri
+                                    #convert_any_uri_to_iri
                                     )
                                 
                             output.append(
@@ -13168,10 +13153,24 @@ def create_rdf(
     #
     if convert_local_path_to_example_dot_org:
         
+        local_path='file:///'+os.getcwd().replace('\\','/')+'/'
+        #print('local_path',local_path)
+        
         output=output.replace(
-            'file:///'+os.getcwd().replace('\\','/')+'/',
+            local_path,
             'http://example.org/'
             )
+        
+        #... and again for a % quoted version
+        
+        local_path_quoted=urllib.parse.quote(local_path).replace('%3A',':')
+        #print('local_path_quoted',local_path_quoted)
+        
+        output=output.replace(
+            local_path_quoted,
+            'http://example.org/'
+            )
+        
       
     return output
     
@@ -13182,7 +13181,7 @@ def create_rdf(
 def get_rdf_lexical_form_from_cell_value(
         value,
         datatype,
-        convert_any_uri_to_iri
+        #convert_any_uri_to_iri
         ):
     """
     """
@@ -13228,6 +13227,9 @@ def get_rdf_lexical_form_from_cell_value(
     
     lexical_form=value['@value']
     
+    #...escaping any double quotes in the value
+    lexical_form=lexical_form.replace('"','\\"')
+    
     if rdf_datatype_iri=='<http://www.w3.org/2001/XMLSchema#string>':
         
         language=value['@language']
@@ -13242,11 +13244,11 @@ def get_rdf_lexical_form_from_cell_value(
         
     elif rdf_datatype_iri=='<http://www.w3.org/2001/XMLSchema#anyURI>':
         
-        for x in convert_any_uri_to_iri:
+        #for x in convert_any_uri_to_iri:
             
-            if lexical_form.startswith(x):
+        #    if lexical_form.startswith(x):
                 
-                return f'<{lexical_form}>'
+        #        return f'<{lexical_form}>'
                 
         rdf_literal=f'"{lexical_form}"^^{rdf_datatype_iri}'
             
@@ -13256,8 +13258,37 @@ def get_rdf_lexical_form_from_cell_value(
         
     return rdf_literal
     
+#%%---EXTRA---
+
+def get_errors(
+        annotated_table_group_dict
+        ):
+    ""
+    result=[]
     
+    for column in annotated_table_group_dict['tables'][0]['columns']:
         
+        for cell in column['cells']:
+            
+            errors=cell['errors']
+            
+            if len(errors)>0:
+                
+                result.append(
+                    {
+                        'column_name':column['name'],
+                        'row_number':cell['row']['number'],
+                        'errors':errors
+                        }
+                    )
+                
+    return result
+
+
+
+
+
+
         
         
         

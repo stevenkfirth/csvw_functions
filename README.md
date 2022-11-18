@@ -335,7 +335,8 @@ Call signature:
 csvw_functions.create_json_ld(
         annotated_table_group_dict,
         mode='standard',
-        _replace_strings=None  # used to replace urls for testing purposes, can use a variable {table_name}
+        convert_local_path_to_example_dot_org=False
+        _replace_strings=None  
         )
 ```
 
@@ -343,7 +344,8 @@ Arguments:
 
 - **annotated_table_group_dict** *(dict)*: This is the output of the `create_annotated_table_group` function above.
 - **mode** *(str)*: If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2json-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised.
-- **replace_strings** *(list)*:
+- **convert_local_path_to_example_dot_org** *(bool)*: If True then any local file paths are converted to the string 'http://example.org'. This is useful for testing purposes.
+- **_replace_strings** *(list)*: for testing purposes, a list of 2-item tuples of string replacements for the output json object.
 
 Returns: The result of the conversion to the JSON-LD format. This is a dictionary and can be saved to a file using the [json](https://docs.python.org/3/library/json.html) library.
 

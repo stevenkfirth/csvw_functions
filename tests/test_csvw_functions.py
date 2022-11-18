@@ -16,129 +16,27 @@ from rdflib import Graph, Literal, URIRef, XSD
 import csv
 import time
 import warnings
+import rdflib.compare
 
 test_dir='_github_w3c_csvw_tests'
 
 
-def compare_json(self,json1,json2):
-    ""
-    if isinstance(json1,dict):
-        
-        self.assertIsInstance(
-            json2,
-            dict,
-            msg='not of type <dict>'
-            )
-        
-        self.assertEqual(
-            set(list(json1)),
-            set(list(json2)),
-            msg='dict keys are not the same'
-            )
-        
-        for k in json1:
-            
-            compare_json(
-                self,
-                json1[k],
-                json2[k]
-                )
-        
-    elif isinstance(json1,list):
-        
-        self.assertIsInstance(
-            json2,
-            list,
-            msg='not of type <list>'
-            )
-        
-        # self.assertEqual(
-        #     len(json1),
-        #     len(json2),
-        #     msg=f'lists are not of the same length {json1} {json2}'
-        #     )
-        
-        for i in range(len(json1)):
-            
-            compare_json(
-                self,
-                json1[i],
-                json2[i]
-                )
-        
-    else:
-        
-        self.assertEqual(json1,json2)
-        
-        self.assertEqual(type(json1),type(json2))
-
-
-# def remove_recursion(
-#         value
-#         ):
-#     ""
-#     if isinstance(value,dict):
-        
-#         return {k:remove_recursion(v) for k,v in value.items()
-#                 if not k in ['table','column','row']}
-    
-#     elif isinstance(value,list):
-        
-#         return [remove_recursion(x) for x in value]
-
-#     else:
-        
-#         return value
-    
     
 
-
-def rdf_test(
-        self,
-        test
-        ):
-    """
-    """
-    
-    
-    
-class TestSection_6_4_2_Formats_for_numeric_type(unittest.TestCase):
-    ""
-    
-    
-        
-    def xtest_parse_LDML_number_pattern(self):
-        ""
-        
-        result=csvw_functions.parse_LDML_number_pattern(
-            pattern='0%',
-            p=True
-            )
-        
-        print(result)
-        
-        
-        # result=csvw_functions.parse_LDML_number_pattern(
-        #     pattern='#',
-        #     p=True
-        #     )
-        
-        # print(result)
-    
-    
-
-#%% TESTS - Generating JSON from Tabular Data on the Web
+#%% ---TESTCASE - Generating JSON from Tabular Data on the Web---
 
 
-class TestASection6(unittest.TestCase):
+class Test_JSON_Section_6(unittest.TestCase):
     ""
     
     def test_section_6_1_simple_example(self):
         ""
         
-        fp=r'generating_json_from_tabular_data_example_files/countries.csv'
+        fp=r'generating_json_from_tabular_data_example_files/example_6_1/countries.csv'
         annotated_table_group_dict=\
-            csvw_functions.create_annotated_table_group(fp)
+            csvw_functions.create_annotated_table_group(
+                fp
+                )
             
         annotated_table_dict=annotated_table_group_dict['tables'][0]
         annotated_columns_list=annotated_table_dict['columns']
@@ -293,17 +191,18 @@ class TestASection6(unittest.TestCase):
                 
         # standard mode
         
-        x=os.path.join(os.getcwd(),'generating_json_from_tabular_data_example_files').replace('\\','/')
-        _replace_strings=[
-            (r'file:///'+x+'/',
-             'http://example.org/')
-            ]
+        # x=os.path.join(os.getcwd(),'generating_json_from_tabular_data_example_files').replace('\\','/')
+        # _replace_strings=[
+        #     (r'file:///'+x+'/',
+        #      'http://example.org/')
+        #     ]
         
         json_ld=\
             csvw_functions.create_json_ld(
                     annotated_table_group_dict,
                     mode='standard',
-                    _replace_strings=_replace_strings
+                    convert_local_path_to_example_dot_org=True
+                    #_replace_strings=_replace_strings
                     )
         #print(json_ld)
         
@@ -312,10 +211,10 @@ class TestASection6(unittest.TestCase):
         self.assertEqual(
             json_ld,
             {'tables': [
-                {'url': 'http://example.org/countries.csv', 
+                {'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv', 
                  'row': [
                      {'rownum': 1, 
-                      'url': 'http://example.org/countries.csv#row=2', 
+                      'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv#row=2', 
                       'describes': [
                           {'countryCode': 'AD', 
                            'latitude': '42.5', 
@@ -325,7 +224,7 @@ class TestASection6(unittest.TestCase):
                           ]
                       }, 
                      {'rownum': 2, 
-                      'url': 'http://example.org/countries.csv#row=3', 
+                      'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv#row=3', 
                       'describes': [
                             {'countryCode': 'AE', 
                              'latitude': '23.4', 
@@ -335,7 +234,7 @@ class TestASection6(unittest.TestCase):
                             ]
                         }, 
                     {'rownum': 3, 
-                     'url': 'http://example.org/countries.csv#row=4', 
+                     'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv#row=4', 
                      'describes': [
                          {'countryCode': 'AF', 
                           'latitude': '33.9', 
@@ -1784,13 +1683,421 @@ class TestASection6(unittest.TestCase):
       
 
 
+#%% ---TESTCASE - Generating RDF from Tabular Data on the Web---
 
-
-class TestCSVWTestCases(unittest.TestCase):
+class Test_RDF_Section_7(unittest.TestCase):
     ""
     
-    def test_json(self):
+    def test_section_7_1_simple_example(self):
         ""
+        
+        
+        fp=r'generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_table_group(
+                fp
+                )
+        
+        # minimal mode
+        
+        rdf_ntriples=\
+            csvw_functions.create_rdf(
+                annotated_table_group_dict,
+                mode='minimal',
+                convert_local_path_to_example_dot_org = True
+                )
+            
+        rdf_ntriples=rdf_ntriples.replace(
+            r'generating_rdf_from_tabular_data_example_files/example_7_1/',
+            ''
+            )
+            
+        #print(rdf_ntriples)
+            
+        g1 = Graph().parse(data=rdf_ntriples, format='ntriples')
+        
+        #print(g1.serialize(format='ttl'))
+        
+        g_solution=Graph().parse(
+            r'generating_rdf_from_tabular_data_example_files/example_7_1/countries-minimal.ttl',
+            format='ttl'
+            )
+        g2=Graph()
+        for s,p,o in g_solution:
+            g2.add((s,p,o if not o.datatype is None else Literal(o,datatype=XSD.string)))
+        
+        compare_rdf(self,g1,g2)
+        
+        
+        # standard mode
+        
+        
+        
+        return
+        
+        
+        
+        
+        
+        # check Andorra node
+        n=Literal('Andorra',datatype=URIRef(XSD.string))
+        bnode=list(g.subjects(object=n))[0]
+        po=list(g.predicate_objects(subject=bnode))
+        x=sorted([(p.n3(),o.value) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#countryCode>', 'AD'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#latitude>', '42.5'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#longitude>', '1.6'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#name>', 'Andorra')
+             ]
+            )
+        
+        # check United Arab Emirates node
+        n=Literal('United Arab Emirates',datatype=URIRef(XSD.string))
+        bnode=list(g.subjects(object=n))[0]
+        po=list(g.predicate_objects(subject=bnode))
+        x=sorted([(p.n3(),o.value) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#countryCode>', 'AE'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#latitude>', '23.4'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#longitude>', '53.8'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#name>', 'United Arab Emirates')
+             ]
+            )
+        
+        # check Afghanistan node
+        n=Literal('Afghanistan',datatype=URIRef(XSD.string))
+        bnode=list(g.subjects(object=n))[0]
+        po=list(g.predicate_objects(subject=bnode))
+        x=sorted([(p.n3(),o.value) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#countryCode>', 'AF'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#latitude>', '33.9'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#longitude>', '67.7'), 
+             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#name>', 'Afghanistan')
+             ]
+            )
+        
+    
+    def test_section_7_2_Example_with_single_table_and_rich_annotations(self):
+        ""
+        
+        fp=r'generating_rdf_from_tabular_data_example_files/tree-ops-ext.csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.create_annotated_table_group(
+                fp
+                )
+            
+            
+        
+            
+        
+        rdf_ntriples=\
+            csvw_functions.create_rdf(
+                annotated_table_group_dict=annotated_table_group_dict,
+                mode='minimal',
+                convert_local_path_to_example_dot_org = True
+                )
+            
+        print(rdf_ntriples)
+            
+        #rdf_ntriples=rdf_ntriples.replace(
+        #    annotated_table_group_dict['tables'][0]['url'],
+        #    'http://example.org/tree-ops-ext.csv'
+        #    )
+        g = Graph().parse(data=rdf_ntriples, format='ntriples')
+        
+        # check gid-1 node
+        n=URIRef('http://example.org/tree-ops-ext#gid-1')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/tree-ops-ext.csv#dbh>', '"11"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/tree-ops-ext.csv#inventory_date>', '"2010-10-18"^^<http://www.w3.org/2001/XMLSchema#date>'), 
+             ('<http://example.org/tree-ops-ext.csv#kml>', '"<Point><coordinates>-122.156485,37.440963</coordinates></Point>"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral>'), 
+             ('<http://example.org/tree-ops-ext.csv#on_street>', '"ADDISON AV"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#protected>', '"false"^^<http://www.w3.org/2001/XMLSchema#boolean>'), 
+             ('<http://example.org/tree-ops-ext.csv#species>', '"Celtis australis"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#trim_cycle>', '"Large Tree Routine Prune"@en')
+             ]
+            )
+        
+        # check gid-2 node
+        n=URIRef('http://example.org/tree-ops-ext#gid-2')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/tree-ops-ext.csv#dbh>', '"11"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/tree-ops-ext.csv#inventory_date>', '"2010-06-02"^^<http://www.w3.org/2001/XMLSchema#date>'), 
+             ('<http://example.org/tree-ops-ext.csv#kml>', '"<Point><coordinates>-122.156749,37.440958</coordinates></Point>"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral>'), 
+             ('<http://example.org/tree-ops-ext.csv#on_street>', '"EMERSON ST"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#protected>', '"false"^^<http://www.w3.org/2001/XMLSchema#boolean>'), 
+             ('<http://example.org/tree-ops-ext.csv#species>', '"Liquidambar styraciflua"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#trim_cycle>', '"Large Tree Routine Prune"@en')
+             ]
+            )
+        
+        # check gid-6 node
+        n=URIRef('http://example.org/tree-ops-ext#gid-6')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/tree-ops-ext.csv#comments>', '"beware of BEES"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"cavity or decay"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"codominant leaders"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"included bark"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"large leader or limb decay"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"previous failure root damage"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"root decay"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#comments>', '"trunk decay"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#dbh>', '"29"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/tree-ops-ext.csv#inventory_date>', '"2010-06-01"^^<http://www.w3.org/2001/XMLSchema#date>'), 
+             ('<http://example.org/tree-ops-ext.csv#kml>', '"<Point><coordinates>-122.156299,37.441151</coordinates></Point>"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral>'), 
+             ('<http://example.org/tree-ops-ext.csv#on_street>', '"ADDISON AV"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#protected>', '"true"^^<http://www.w3.org/2001/XMLSchema#boolean>'), 
+             ('<http://example.org/tree-ops-ext.csv#species>', '"Robinia pseudoacacia"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/tree-ops-ext.csv#trim_cycle>', '"Large Tree Routine Prune"@en')
+             ]
+            )
+        
+        
+    def test_section_7_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row(self):
+        ""
+        
+        fp=r'generating_rdf_from_tabular_data_example_files/events-listing.csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(fp)
+        
+        rdf_ntriples=csvw_functions.get_rdf_from_annotated_table_group(
+                annotated_table_group_dict=annotated_table_group_dict,
+                mode='minimal'
+                )
+        rdf_ntriples=rdf_ntriples.replace(
+            annotated_table_group_dict['tables'][0]['url'],
+            'http://example.org/events-listing.csv'
+            )
+        g = Graph().parse(data=rdf_ntriples, format='ntriples')
+        #print(g.serialize(format='ttl'))
+        
+        # check event-1 node
+        n=URIRef('http://example.org/events-listing.csv#event-1')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://schema.org/location>', '<http://example.org/events-listing.csv#place-1>'), 
+             ('<http://schema.org/name>', '"B.B. King"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://schema.org/offers>', '<http://example.org/events-listing.csv#offer-1>'), 
+             ('<http://schema.org/startDate>', '"2014-04-12T19:30:00"^^<http://www.w3.org/2001/XMLSchema#dateTime>'), 
+             ('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<http://schema.org/MusicEvent>')
+             ]
+            )
+        
+        # check place-1 node
+        n=URIRef('http://example.org/events-listing.csv#place-1')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://schema.org/address>', '"79 Washington St., Providence, RI"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://schema.org/name>', '"Lupoâ€™s Heartbreak Hotel"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<http://schema.org/Place>')
+             ]
+            )
+        
+        # check offer-1 node
+        n=URIRef('http://example.org/events-listing.csv#offer-1')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://schema.org/url>', '"https://www.etix.com/ticket/1771656"^^<http://www.w3.org/2001/XMLSchema#anyURI>'), 
+             ('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<http://schema.org/Offer>')]
+            )
+        
+        # check event-2 node
+        n=URIRef('http://example.org/events-listing.csv#event-2')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://schema.org/location>', '<http://example.org/events-listing.csv#place-2>'), 
+             ('<http://schema.org/name>', '"B.B. King"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://schema.org/offers>', '<http://example.org/events-listing.csv#offer-2>'), 
+             ('<http://schema.org/startDate>', '"2014-04-13T20:00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime>'), 
+             ('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<http://schema.org/MusicEvent>')
+             ]
+            )
+        
+        # check place-2 node
+        n=URIRef('http://example.org/events-listing.csv#place-2')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://schema.org/address>', '"Lynn, MA, 01901"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://schema.org/name>', '"Lynn Auditorium"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<http://schema.org/Place>')
+             ]
+            )
+        
+        # check offer-2 node
+        n=URIRef('http://example.org/events-listing.csv#offer-2')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://schema.org/url>', '"http://frontgatetickets.com/venue.php?id=11766"^^<http://www.w3.org/2001/XMLSchema#anyURI>'), 
+             ('<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>', '<http://schema.org/Offer>')
+             ]
+            )
+        
+        
+    def test_section_7_4_Example_with_table_group_comprising_four_interrelated_tables(self):
+        ""
+        
+        fp=r'generating_rdf_from_tabular_data_example_files/csv-metadata.json'
+        annotated_table_group_dict=\
+            csvw_functions.get_annotated_table_group_from_metadata(fp)
+        
+        rdf_ntriples=csvw_functions.get_rdf_from_annotated_table_group(
+                annotated_table_group_dict=annotated_table_group_dict,
+                mode='minimal'
+                )
+        #print(os.path.dirname(annotated_table_group_dict['tables'][2]['url']))
+        rdf_ntriples=rdf_ntriples.replace(
+            os.path.dirname(annotated_table_group_dict['tables'][2]['url']),
+            'http://example.org'
+            )
+        g = Graph().parse(data=rdf_ntriples, format='ntriples')
+        #print(g.serialize(format='ttl'))
+        
+        # check <http://example.org/organization/hefce.ac.uk/post/90115> node
+        n=URIRef('http://example.org/organization/hefce.ac.uk/post/90115')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/gov.uk/def/grade>', '"SCS1A"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/job>', '"Deputy Chief Executive"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/profession>', '"Finance"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://purl.org/dc/terms/identifier>', '"90115"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://www.w3.org/ns/org#heldBy>', '<http://example.org/organization/hefce.ac.uk/person/1>'), 
+             ('<http://www.w3.org/ns/org#postIn>', '<http://example.org/organization/hefce.ac.uk>'), 
+             ('<http://www.w3.org/ns/org#reportsTo>', '<http://example.org/organization/hefce.ac.uk/post/90334>')
+             ]
+            )
+        
+        # check <http://example.org/organization/hefce.ac.uk/person/1> node
+        n=URIRef('http://example.org/organization/hefce.ac.uk/person/1')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://xmlns.com/foaf/0.1/name>', '"Steve Egan"^^<http://www.w3.org/2001/XMLSchema#string>')]
+            )
+        
+        # check <http://example.org/organization/hefce.ac.uk/post/90334> node
+        n=URIRef('http://example.org/organization/hefce.ac.uk/post/90334')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/gov.uk/def/grade>', '"SCS4"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/job>', '"Chief Executive"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/profession>', '"Policy"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://purl.org/dc/terms/identifier>', '"90334"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://www.w3.org/ns/org#heldBy>', '<http://example.org/organization/hefce.ac.uk/person/2>'), 
+             ('<http://www.w3.org/ns/org#postIn>', '<http://example.org/organization/hefce.ac.uk>')
+             ]
+            )
+        
+        # check <http://example.org/organization/hefce.ac.uk/person/2> node
+        n=URIRef('http://example.org/organization/hefce.ac.uk/person/2')
+        po=list(g.predicate_objects(subject=n))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://xmlns.com/foaf/0.1/name>', '"Sir Alan Langlands"^^<http://www.w3.org/2001/XMLSchema#string>')]
+            )
+        
+        # check grade 4 node
+        n=Literal('4',datatype=URIRef(XSD.string))
+        bnode=list(g.subjects(object=n))[0]
+        po=list(g.predicate_objects(subject=bnode))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/gov.uk/def/grade>', '"4"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/job>', '"Administrator"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/max_pay>', '"20002"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/gov.uk/def/min_pay>', '"17426"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/gov.uk/def/number_of_posts>', '"8.67"^^<http://www.w3.org/2001/XMLSchema#double>'), 
+             ('<http://example.org/gov.uk/def/profession>', '"Operational Delivery"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://www.w3.org/ns/org#postIn>', '<http://example.org/organization/hefce.ac.uk>'), 
+             ('<http://www.w3.org/ns/org#reportsTo>', '<http://example.org/organization/hefce.ac.uk/post/90115>')
+             ]
+            )
+        
+        # check grade 5 node
+        n=Literal('5',datatype=URIRef(XSD.string))
+        bnode=list(g.subjects(object=n))[0]
+        po=list(g.predicate_objects(subject=bnode))
+        x=sorted([(p.n3(),o.n3()) for p,o in po])
+        #print(x)
+        self.assertEqual(
+            x,
+            [('<http://example.org/gov.uk/def/grade>', '"5"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/job>', '"Administrator"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://example.org/gov.uk/def/max_pay>', '"22478"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/gov.uk/def/min_pay>', '"19546"^^<http://www.w3.org/2001/XMLSchema#integer>'), 
+             ('<http://example.org/gov.uk/def/number_of_posts>', '"0.5"^^<http://www.w3.org/2001/XMLSchema#double>'), 
+             ('<http://example.org/gov.uk/def/profession>', '"Operational Delivery"^^<http://www.w3.org/2001/XMLSchema#string>'), 
+             ('<http://www.w3.org/ns/org#postIn>', '<http://example.org/organization/hefce.ac.uk>'), 
+             ('<http://www.w3.org/ns/org#reportsTo>', '<http://example.org/organization/hefce.ac.uk/post/90115>')
+             ]
+            )
+        
+
+
+
+#%% ---TESTCASE - W3C CSVW Test Suite---
+
+# This section runs the tests described in the W3C CSVW Test Cases 
+# as provided here: https://w3c.github.io/csvw/tests/
+
+class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
+    ""
+    
+    def test_W3C_CSVW_JSON_test_cases(self):
+        ""
+        
+        warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
+        
+        p=False
         
         with open(os.path.join(test_dir,'manifest-json.jsonld')) as f:
             
@@ -1801,9 +2108,9 @@ class TestCSVWTestCases(unittest.TestCase):
             
             #if not i==23: continue
             
-            print(i)
+            if p: print(i)
             
-            print('-manifest-entry',entry)
+            if p: print('-manifest-entry',entry)
             
             
             action_fp=os.path.join(test_dir,entry['action'])
@@ -1841,7 +2148,7 @@ class TestCSVWTestCases(unittest.TestCase):
                             _link_header=_link_header,
                             _well_known_text=_well_known_text,
                             _save_intermediate_and_final_outputs_to_file=True,
-                            _print_intermediate_outputs=True
+                            _print_intermediate_outputs=p
                             )
                 
             
@@ -1857,7 +2164,7 @@ class TestCSVWTestCases(unittest.TestCase):
                                 _link_header=_link_header,
                                 _well_known_text=_well_known_text,
                                 _save_intermediate_and_final_outputs_to_file=True,
-                                _print_intermediate_outputs=True
+                                _print_intermediate_outputs=p
                                 )
                         
             elif entry['type']=='csvt:NegativeJsonTest':    
@@ -1871,7 +2178,7 @@ class TestCSVWTestCases(unittest.TestCase):
                                 validate=validate,
                                 _link_header=_link_header,
                                 _save_intermediate_and_final_outputs_to_file=True,
-                                _print_intermediate_outputs=True
+                                _print_intermediate_outputs=p
                                 )
                         
                         
@@ -1894,7 +2201,7 @@ class TestCSVWTestCases(unittest.TestCase):
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['name'])
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['propertyURL'])
             try:
-                print(annotated_table_group_dict['tables'][0]['columns'][3]['cells'][0]['value'])
+                if p: print(annotated_table_group_dict['tables'][0]['columns'][3]['cells'][0]['value'])
             except Exception:
                 pass
             
@@ -1939,33 +2246,149 @@ class TestCSVWTestCases(unittest.TestCase):
                 json_ld_result
                 )
             
-            print('---------------------------')
+            if p: print('---------------------------')
             #break
             
             #import time
             #time.sleep(.1)
+            
+        warnings.filterwarnings("always",category=UserWarning)  # warnings always printed out
         
             
+#%% ---Useful comparison functions---          
+        
+def compare_json(self,json1,json2):
+    """Campares two JSON objects.
+    
+    Tests that all parts of the JSON objects are equal.
+    
+    Useful to see which part of two JSON objects are not the same.
+    
+    """
+    if isinstance(json1,dict):
+        
+        self.assertIsInstance(
+            json2,
+            dict,
+            msg='not of type <dict>'
+            )
+        
+        self.assertEqual(
+            set(list(json1)),
+            set(list(json2)),
+            msg='dict keys are not the same'
+            )
+        
+        for k in json1:
+            
+            compare_json(
+                self,
+                json1[k],
+                json2[k]
+                )
+        
+    elif isinstance(json1,list):
+        
+        self.assertIsInstance(
+            json2,
+            list,
+            msg='not of type <list>'
+            )
+        
+        # self.assertEqual(
+        #     len(json1),
+        #     len(json2),
+        #     msg=f'lists are not of the same length {json1} {json2}'
+        #     )
+        
+        for i in range(len(json1)):
+            
+            compare_json(
+                self,
+                json1[i],
+                json2[i]
+                )
+        
+    else:
+        
+        self.assertEqual(json1,json2)
+        
+        self.assertEqual(type(json1),type(json2))
+
+
+
+
+def compare_rdf(
+        self,
+        g1,  # rdflib graph
+        g2, # rdflib graph
+        ):
+    """
+    """
+    iso1 = rdflib.compare.to_isomorphic(g1)
+    iso2 = rdflib.compare.to_isomorphic(g2)
+    
+    if not iso1==iso2:
+        
+        def dump_nt_sorted(g):
+            for l in sorted(g.serialize(format='nt').splitlines()):
+                if l: print(l)
                 
+        in_both, in_first, in_second = rdflib.compare.graph_diff(iso1, iso2)
+        print('--- iso1 == iso2 ---')
+        print(iso1 == iso2)
+        print('---in both---')
+        dump_nt_sorted(in_both)
+        print('---in first---')
+        dump_nt_sorted(in_first)
+        print('---in second---')
+        dump_nt_sorted(in_second)
         
-        
-        
-        
-        
+    self.assertEqual(
+        iso1,
+        iso2
+        )
+    
+    
+    
+    
 
 
 
 
-
-
-
-
+#%% ---unittest main call---
 
 if __name__=='__main__':
     
-    unittest.main(TestCSVWTestCases())
+    warnings.filterwarnings("always",category=UserWarning)  # warnings always printed out
     
-    #unittest.main(TestSection_6_4_2_Formats_for_numeric_type())
-
-
-
+    
+    def run_single_test(test_kls,test_name):
+        ""
+        suite = unittest.TestSuite()
+        suite.addTest(test_kls(test_name))
+        runner = unittest.TextTestRunner()
+        runner.run(suite)
+        
+    # TESTCASE - Generating JSON from Tabular Data on the Web
+    unittest.main(Test_JSON_Section_6())
+    #run_single_test(Test_JSON_Section_6,'test_section_6_1_simple_example')
+    #run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
+    #run_single_test(Test_JSON_Section_6,'test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
+    #run_single_test(Test_JSON_Section_6,'test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
+    
+    # TESTCASE - Generating RDF from Tabular Data on the Web
+    #unittest.main(Test_RDF_Section_7())
+    run_single_test(Test_RDF_Section_7,'test_section_7_1_simple_example')
+    #run_single_test(Test_RDF_Section_7,'test_section_7_2_Example_with_single_table_and_rich_annotations')
+    #run_single_test(Test_RDF_Section_7,'test_section_7_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
+    #run_single_test(Test_RDF_Section_7,'test_section_7_4_Example_with_table_group_comprising_four_interrelated_tables')
+    
+    # TESTCASE - W3C CSVW Test Suite
+    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
+    
+    
+    #unittest.main()
+    
+    
+    
