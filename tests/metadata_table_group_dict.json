@@ -1,20 +1,71 @@
 {
-    "@context": "http://www.w3.org/ns/csvw",
-    "rdfs:label": "multiple values with same subject and property (ordered and unordered)",
-    "rdfs:comment": "Values in separate columns using the same propertyUrl are kept in proper relative order.",
-    "url": "test307.csv",
-    "separator": ";",
-    "aboutUrl": "#about",
-    "propertyUrl": "#value",
+    "@context": [
+        "http://www.w3.org/ns/csvw",
+        {
+            "@language": "en"
+        }
+    ],
+    "url": "tree-ops.csv",
+    "dc:title": "Tree Operations",
+    "dcat:keyword": [
+        "tree",
+        "street",
+        "maintenance"
+    ],
+    "dc:publisher": {
+        "schema:name": "Example Municipality",
+        "schema:url": {
+            "@id": "http://example.org"
+        }
+    },
+    "dc:license": {
+        "@id": "http://opendefinition.org/licenses/cc-by/"
+    },
+    "dc:modified": {
+        "@value": "2010-12-31",
+        "@type": "xsd:date"
+    },
     "tableSchema": {
         "columns": [
             {
-                "titles": "col1",
-                "ordered": true
+                "name": "GID",
+                "titles": [
+                    "GID",
+                    "Generic Identifier"
+                ],
+                "dc:description": "An identifier for the operation on a tree.",
+                "datatype": "string",
+                "required": true
             },
             {
-                "titles": "col2"
+                "name": "on_street",
+                "titles": "On Street",
+                "dc:description": "The street that the tree is on.",
+                "datatype": "string"
+            },
+            {
+                "name": "species",
+                "titles": "Species",
+                "dc:description": "The species of the tree.",
+                "datatype": "string"
+            },
+            {
+                "name": "trim_cycle",
+                "titles": "Trim Cycle",
+                "dc:description": "The operation performed on the tree.",
+                "datatype": "string"
+            },
+            {
+                "name": "inventory_date",
+                "titles": "Inventory Date",
+                "dc:description": "The date of the operation that was performed.",
+                "datatype": {
+                    "base": "date",
+                    "format": "M/d/yyyy"
+                }
             }
-        ]
+        ],
+        "primaryKey": "GID",
+        "aboutUrl": "#gid-{GID}"
     }
 }

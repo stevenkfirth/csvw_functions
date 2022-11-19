@@ -8,11 +8,15 @@
                     "table": "__recursion__",
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "col1",
+                    "name": "GID",
                     "titles": [
                         {
-                            "@value": "col1",
-                            "@language": "und"
+                            "@value": "GID",
+                            "@language": "en"
+                        },
+                        {
+                            "@value": "Generic Identifier",
+                            "@language": "en"
                         }
                     ],
                     "virtual": false,
@@ -23,83 +27,63 @@
                     "default": "",
                     "lang": "und",
                     "null": "",
-                    "ordered": true,
-                    "required": false,
-                    "separator": ";",
+                    "ordered": false,
+                    "required": true,
+                    "separator": null,
                     "textDirection": "auto",
-                    "aboutURL": "#about",
-                    "propertyURL": "#value",
+                    "aboutURL": "#gid-{GID}",
+                    "propertyURL": null,
                     "valueURL": null,
                     "cells": [
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1;2;3",
-                            "value": [
-                                {
-                                    "@value": "1",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "2",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "3",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "1",
+                            "value": {
+                                "@value": "1",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": true,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
                             "valueURL": null
                         },
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "a;b;c",
-                            "value": [
-                                {
-                                    "@value": "a",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "b",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "c",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "2",
+                            "value": {
+                                "@value": "2",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": true,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
                             "valueURL": null
                         }
-                    ]
+                    ],
+                    "dc:description": {
+                        "@value": "An identifier for the operation on a tree.",
+                        "@language": "en"
+                    }
                 },
                 {
                     "table": "__recursion__",
                     "number": 2,
                     "sourceNumber": 2,
-                    "name": "col2",
+                    "name": "on_street",
                     "titles": [
                         {
-                            "@value": "col2",
-                            "@language": "und"
+                            "@value": "On Street",
+                            "@language": "en"
                         }
                     ],
                     "virtual": false,
@@ -112,71 +96,251 @@
                     "null": "",
                     "ordered": false,
                     "required": false,
-                    "separator": ";",
+                    "separator": null,
                     "textDirection": "auto",
-                    "aboutURL": "#about",
-                    "propertyURL": "#value",
+                    "aboutURL": "#gid-{GID}",
+                    "propertyURL": null,
                     "valueURL": null,
                     "cells": [
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "4;5;6",
-                            "value": [
-                                {
-                                    "@value": "4",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "5",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "6",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "ADDISON AV",
+                            "value": {
+                                "@value": "ADDISON AV",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
                             "valueURL": null
                         },
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "d;e;f",
-                            "value": [
-                                {
-                                    "@value": "d",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "e",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "f",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "EMERSON ST",
+                            "value": {
+                                "@value": "EMERSON ST",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
                             "valueURL": null
                         }
-                    ]
+                    ],
+                    "dc:description": {
+                        "@value": "The street that the tree is on.",
+                        "@language": "en"
+                    }
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 3,
+                    "sourceNumber": 3,
+                    "name": "species",
+                    "titles": [
+                        {
+                            "@value": "Species",
+                            "@language": "en"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "#gid-{GID}",
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Celtis australis",
+                            "value": {
+                                "@value": "Celtis australis",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Liquidambar styraciflua",
+                            "value": {
+                                "@value": "Liquidambar styraciflua",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "dc:description": {
+                        "@value": "The species of the tree.",
+                        "@language": "en"
+                    }
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 4,
+                    "sourceNumber": 4,
+                    "name": "trim_cycle",
+                    "titles": [
+                        {
+                            "@value": "Trim Cycle",
+                            "@language": "en"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "string"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "#gid-{GID}",
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "dc:description": {
+                        "@value": "The operation performed on the tree.",
+                        "@language": "en"
+                    }
+                },
+                {
+                    "table": "__recursion__",
+                    "number": 5,
+                    "sourceNumber": 5,
+                    "name": "inventory_date",
+                    "titles": [
+                        {
+                            "@value": "Inventory Date",
+                            "@language": "en"
+                        }
+                    ],
+                    "virtual": false,
+                    "suppressOutput": false,
+                    "datatype": {
+                        "base": "date",
+                        "format": "M/d/yyyy"
+                    },
+                    "default": "",
+                    "lang": "und",
+                    "null": "",
+                    "ordered": false,
+                    "required": false,
+                    "separator": null,
+                    "textDirection": "auto",
+                    "aboutURL": "#gid-{GID}",
+                    "propertyURL": null,
+                    "valueURL": null,
+                    "cells": [
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "10/18/2010",
+                            "value": {
+                                "@value": "2010-10-18",
+                                "@type": "http://www.w3.org/2001/XMLSchema#date"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "6/2/2010",
+                            "value": {
+                                "@value": "2010-06-02",
+                                "@type": "http://www.w3.org/2001/XMLSchema#date"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
+                            "valueURL": null
+                        }
+                    ],
+                    "dc:description": {
+                        "@value": "The date of the operation that was performed.",
+                        "@language": "en"
+                    }
                 }
             ],
             "rows": [
@@ -191,58 +355,84 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "1;2;3",
-                            "value": [
-                                {
-                                    "@value": "1",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "2",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "3",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "1",
+                            "value": {
+                                "@value": "1",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": true,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
                             "valueURL": null
                         },
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "4;5;6",
-                            "value": [
-                                {
-                                    "@value": "4",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "5",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "6",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "ADDISON AV",
+                            "value": {
+                                "@value": "ADDISON AV",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Celtis australis",
+                            "value": {
+                                "@value": "Celtis australis",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "10/18/2010",
+                            "value": {
+                                "@value": "2010-10-18",
+                                "@type": "http://www.w3.org/2001/XMLSchema#date"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-1",
+                            "propertyURL": null,
                             "valueURL": null
                         }
                     ],
@@ -259,58 +449,84 @@
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "a;b;c",
-                            "value": [
-                                {
-                                    "@value": "a",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "b",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "c",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "2",
+                            "value": {
+                                "@value": "2",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": true,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
                             "valueURL": null
                         },
                         {
                             "table": "__recursion__",
                             "column": "__recursion__",
                             "row": "__recursion__",
-                            "stringValue": "d;e;f",
-                            "value": [
-                                {
-                                    "@value": "d",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "e",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                },
-                                {
-                                    "@value": "f",
-                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                    "@language": "und"
-                                }
-                            ],
+                            "stringValue": "EMERSON ST",
+                            "value": {
+                                "@value": "EMERSON ST",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
-                            "propertyURL": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Liquidambar styraciflua",
+                            "value": {
+                                "@value": "Liquidambar styraciflua",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "Large Tree Routine Prune",
+                            "value": {
+                                "@value": "Large Tree Routine Prune",
+                                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                "@language": "und"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
+                            "valueURL": null
+                        },
+                        {
+                            "table": "__recursion__",
+                            "column": "__recursion__",
+                            "row": "__recursion__",
+                            "stringValue": "6/2/2010",
+                            "value": {
+                                "@value": "2010-06-02",
+                                "@type": "http://www.w3.org/2001/XMLSchema#date"
+                            },
+                            "errors": [],
+                            "textDirection": "auto",
+                            "ordered": false,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv%23gid-2",
+                            "propertyURL": null,
                             "valueURL": null
                         }
                     ],
@@ -318,17 +534,45 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": "__recursion__",
             "transformations": [],
-            "rdfs:label": {
-                "@value": "multiple values with same subject and property (ordered and unordered)"
+            "dc:title": {
+                "@value": "Tree Operations",
+                "@language": "en"
             },
-            "rdfs:comment": {
-                "@value": "Values in separate columns using the same propertyUrl are kept in proper relative order."
+            "dcat:keyword": [
+                {
+                    "@value": "tree",
+                    "@language": "en"
+                },
+                {
+                    "@value": "street",
+                    "@language": "en"
+                },
+                {
+                    "@value": "maintenance",
+                    "@language": "en"
+                }
+            ],
+            "dc:publisher": {
+                "schema:name": {
+                    "@value": "Example Municipality",
+                    "@language": "en"
+                },
+                "schema:url": {
+                    "@id": "http://example.org"
+                }
+            },
+            "dc:license": {
+                "@id": "http://opendefinition.org/licenses/cc-by/"
+            },
+            "dc:modified": {
+                "@value": "2010-12-31",
+                "@type": "xsd:date"
             }
         }
     ]
