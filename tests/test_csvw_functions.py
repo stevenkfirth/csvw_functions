@@ -1711,78 +1711,58 @@ class Test_RDF_Section_7(unittest.TestCase):
             r'generating_rdf_from_tabular_data_example_files/example_7_1/',
             ''
             )
-            
         #print(rdf_ntriples)
             
         g1 = Graph().parse(data=rdf_ntriples, format='ntriples')
-        
         #print(g1.serialize(format='ttl'))
         
+        g2=Graph()
         g_solution=Graph().parse(
             r'generating_rdf_from_tabular_data_example_files/example_7_1/countries-minimal.ttl',
             format='ttl'
             )
-        g2=Graph()
         for s,p,o in g_solution:
-            g2.add((s,p,o if not o.datatype is None else Literal(o,datatype=XSD.string)))
+            if isinstance(o,Literal) and o.datatype is None:
+                o2=Literal(o,datatype=XSD.string)
+            else:
+                o2=o
+            g2.add((s,p,o2))    
         
         compare_rdf(self,g1,g2)
         
         
         # standard mode
         
-        
-        
-        return
-        
-        
-        
-        
-        
-        # check Andorra node
-        n=Literal('Andorra',datatype=URIRef(XSD.string))
-        bnode=list(g.subjects(object=n))[0]
-        po=list(g.predicate_objects(subject=bnode))
-        x=sorted([(p.n3(),o.value) for p,o in po])
-        #print(x)
-        self.assertEqual(
-            x,
-            [('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#countryCode>', 'AD'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#latitude>', '42.5'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#longitude>', '1.6'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#name>', 'Andorra')
-             ]
+        rdf_ntriples=\
+            csvw_functions.create_rdf(
+                annotated_table_group_dict,
+                mode='standard',
+                convert_local_path_to_example_dot_org = True
+                )
+        rdf_ntriples=rdf_ntriples.replace(
+            r'generating_rdf_from_tabular_data_example_files/example_7_1/',
+            ''
             )
+        #print(rdf_ntriples)
         
-        # check United Arab Emirates node
-        n=Literal('United Arab Emirates',datatype=URIRef(XSD.string))
-        bnode=list(g.subjects(object=n))[0]
-        po=list(g.predicate_objects(subject=bnode))
-        x=sorted([(p.n3(),o.value) for p,o in po])
-        #print(x)
-        self.assertEqual(
-            x,
-            [('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#countryCode>', 'AE'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#latitude>', '23.4'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#longitude>', '53.8'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#name>', 'United Arab Emirates')
-             ]
-            )
+        g1 = Graph().parse(data=rdf_ntriples, format='ntriples')
+        #print(g1.serialize(format='ttl'))
         
-        # check Afghanistan node
-        n=Literal('Afghanistan',datatype=URIRef(XSD.string))
-        bnode=list(g.subjects(object=n))[0]
-        po=list(g.predicate_objects(subject=bnode))
-        x=sorted([(p.n3(),o.value) for p,o in po])
-        #print(x)
-        self.assertEqual(
-            x,
-            [('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#countryCode>', 'AF'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#latitude>', '33.9'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#longitude>', '67.7'), 
-             ('<http://example.org/generating_rdf_from_tabular_data_example_files/example_7_1/countries.csv#name>', 'Afghanistan')
-             ]
+        g2=Graph()
+        g_solution=Graph().parse(
+            r'generating_rdf_from_tabular_data_example_files/example_7_1/countries-standard.ttl',
+            format='ttl'
             )
+        for s,p,o in g_solution:
+            if isinstance(o,Literal) and o.datatype is None:
+                o2=Literal(o,datatype=XSD.string)
+            else:
+                o2=o
+            g2.add((s,p,o2))    
+        #print(g2.serialize(format='ttl'))
+        
+        compare_rdf(self,g1,g2)
+        
         
     
     def test_section_7_2_Example_with_single_table_and_rich_annotations(self):
@@ -2371,7 +2351,7 @@ if __name__=='__main__':
         runner.run(suite)
         
     # TESTCASE - Generating JSON from Tabular Data on the Web
-    unittest.main(Test_JSON_Section_6())
+    #unittest.main(Test_JSON_Section_6())
     #run_single_test(Test_JSON_Section_6,'test_section_6_1_simple_example')
     #run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_JSON_Section_6,'test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
@@ -2385,7 +2365,7 @@ if __name__=='__main__':
     #run_single_test(Test_RDF_Section_7,'test_section_7_4_Example_with_table_group_comprising_four_interrelated_tables')
     
     # TESTCASE - W3C CSVW Test Suite
-    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
+    #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
     
     
     #unittest.main()

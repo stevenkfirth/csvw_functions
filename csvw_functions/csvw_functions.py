@@ -98,6 +98,121 @@ prefixes=\
     "role": "http://www.w3.org/1999/xhtml/vocab#role"
   }
 
+#%% CSVW Namespace Terms
+
+# see https://www.w3.org/ns/csvw#term-definitions
+
+csvw_terms={
+    "as": "https://www.w3.org/ns/activitystreams#",
+    "cc": "http://creativecommons.org/ns#",
+    "csvw": "http://www.w3.org/ns/csvw#",
+    "ctag": "http://commontag.org/ns#",
+    "dc": "http://purl.org/dc/terms/",
+    "dc11": "http://purl.org/dc/elements/1.1/",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "dctypes": "http://purl.org/dc/dcmitype/",
+    "dqv": "http://www.w3.org/ns/dqv#",
+    "duv": "https://www.w3.org/TR/vocab-duv#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "gr": "http://purl.org/goodrelations/v1#",
+    "grddl": "http://www.w3.org/2003/g/data-view#",
+    "ical": "http://www.w3.org/2002/12/cal/icaltzd#",
+    "ldp": "http://www.w3.org/ns/ldp#",
+    "ma": "http://www.w3.org/ns/ma-ont#",
+    "oa": "http://www.w3.org/ns/oa#",
+    "og": "http://ogp.me/ns#",
+    "org": "http://www.w3.org/ns/org#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "qb": "http://purl.org/linked-data/cube#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfa": "http://www.w3.org/ns/rdfa#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rev": "http://purl.org/stuff/rev#",
+    "rif": "http://www.w3.org/2007/rif#",
+    "rr": "http://www.w3.org/ns/r2rml#",
+    "schema": "http://schema.org/",
+    "sd": "http://www.w3.org/ns/sparql-service-description#",
+    "sioc": "http://rdfs.org/sioc/ns#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "skosxl": "http://www.w3.org/2008/05/skos-xl#",
+    "v": "http://rdf.data-vocabulary.org/#",
+    "vcard": "http://www.w3.org/2006/vcard/ns#",
+    "void": "http://rdfs.org/ns/void#",
+    "wdr": "http://www.w3.org/2007/05/powder#",
+    "wrds": "http://www.w3.org/2007/05/powder-s#",
+    "xhv": "http://www.w3.org/1999/xhtml/vocab#",
+    "xml": "rdf:XMLLiteral",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "json": "csvw:JSON",
+    "any": "xsd:anyAtomicType",
+    "anyAtomicType": "xsd:anyAtomicType",
+    "binary": "xsd:base64Binary",
+    "datetime": "xsd:dateTime",
+    "describedby": "wrds:describedby",
+    "html": "rdf:HTML",
+    "license": "xhv:license",
+    "maximum": "csvw:maxInclusive",
+    "minimum": "csvw:minInclusive",
+    "number": "xsd:double",
+    "role": "xhv:role",
+    "anyURI": "xsd:anyURI",
+    "base64Binary": "xsd:base64Binary",
+    "boolean": "xsd:boolean",
+    "byte": "xsd:byte",
+    "date": "xsd:date",
+    "dateTime": "xsd:dateTime",
+    "dayTimeDuration": "xsd:dayTimeDuration",
+    "dateTimeStamp": "xsd:dateTimeStamp",
+    "decimal": "xsd:decimal",
+    "double": "xsd:double",
+    "duration": "xsd:duration",
+    "float": "xsd:float",
+    "gDay": "xsd:gDay",
+    "gMonth": "xsd:gMonth",
+    "gMonthDay": "xsd:gMonthDay",
+    "gYear": "xsd:gYear",
+    "gYearMonth": "xsd:gYearMonth",
+    "hexBinary": "xsd:hexBinary",
+    "int": "xsd:int",
+    "integer": "xsd:integer",
+    "language": "xsd:language",
+    "long": "xsd:long",
+    "Name": "xsd:Name",
+    "NCName": "xsd:NCName",
+    "NMTOKEN": "xsd:NMTOKEN",
+    "negativeInteger": "xsd:negativeInteger",
+    "nonNegativeInteger": "xsd:nonNegativeInteger",
+    "nonPositiveInteger": "xsd:nonPositiveInteger",
+    "normalizedString": "xsd:normalizedString",
+    "positiveInteger": "xsd:positiveInteger",
+    "QName": "xsd:QName",
+    "short": "xsd:short",
+    "string": "xsd:string",
+    "time": "xsd:time",
+    "token": "xsd:token",
+    "unsignedByte": "xsd:unsignedByte",
+    "unsignedInt": "xsd:unsignedInt",
+    "unsignedLong": "xsd:unsignedLong",
+    "unsignedShort": "xsd:unsignedShort",
+    "yearMonthDuration": "xsd:yearMonthDuration",
+    "Cell": "csvw:Cell",
+    "Column": "csvw:Column",
+    "Datatype": "csvw:Datatype",
+    "Dialect": "csvw:Dialect",
+    "Direction": "csvw:Direction",
+    "ForeignKey": "csvw:ForeignKey",
+    "NumericFormat": "csvw:NumericFormat",
+    "Row": "csvw:Row",
+    "Schema": "csvw:Schema",
+    "Table": "csvw:Table",
+    "TableGroup": "csvw:TableGroup",
+    "TableReference": "csvw:TableReference",
+    "Transformation": "csvw:Transformation"
+    }
+
+
 
 #%% Datatypes - Metadata Section 5.11.1
 
@@ -1835,7 +1950,7 @@ def create_annotated_table_group(
     #...initial annotated table group object    
     annotated_table_group_dict={
         'id':None,
-        'notes':False,
+        'notes':[],   # changed from False
         'tables':[]
         }
     
@@ -12758,16 +12873,33 @@ def create_rdf(
     
     if standard_mode:
         
-        raise NotImplementedError
+        table_group_id=annotated_table_group_dict.get('id')
+        
+        if not table_group_id is None:
+            
+            G_iri=f'<{table_group_id}>'
+            
+        else:
+            
+            G_blank_node_label=str(uuid4())
+            
+            G_iri=f'_:{G_blank_node_label}'
+        
 
     # 2 In standard mode only, specify the type of node G as csvw:TableGroup; emit the following triple:
     #   - subject node G
     #   - predicate rdf:type
     #   - object csvw:TableGroup
     
+    
+    
     if standard_mode:
         
-        raise NotImplementedError
+        output.append([
+            G_iri,
+            '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>',
+            '<http://www.w3.org/ns/csvw#TableGroup>'
+            ])
     
     # 3 In standard mode only, emit the triples generated by running the 
     # algorithm specified in section 6. JSON-LD to RDF over any notes and 
@@ -12777,7 +12909,18 @@ def create_rdf(
     
     if standard_mode:
         
-        raise NotImplementedError
+        for k,v in annotated_table_group_dict.items():
+            
+            if not k in ['id','tables']:
+                
+                output=\
+                    json_ld_to_rdf(
+                        output,  
+                        G_iri,
+                        k,
+                        v
+                        )
+        
         
     # 4 For each table where the suppress output annotation is false:
     
@@ -12793,7 +12936,15 @@ def create_rdf(
     
             if standard_mode:
                 
-                raise NotImplementedError
+                table_id=annotated_table_dict.get('id')
+                
+                if not table_id is None:
+                    
+                    T_iri=f'<{table_id}>'
+                    
+                else:
+                    
+                    T_iri=f'_:{str(uuid4())}'
                 
             # 4.2 In standard mode only, relate the table to the group of 
             #     tables; emit the following triple:
@@ -12803,7 +12954,11 @@ def create_rdf(
             
             if standard_mode:
                 
-                raise NotImplementedError
+                output.append([
+                    G_iri,
+                    '<http://www.w3.org/ns/csvw#table>',
+                    T_iri
+                    ])
             
             # 4.3 In standard mode only, specify the type of node T as 
             #     csvw:Table; emit the following triple:
@@ -12813,7 +12968,11 @@ def create_rdf(
             
             if standard_mode:
                 
-                raise NotImplementedError
+                output.append([
+                    T_iri,
+                    '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>',
+                    '<http://www.w3.org/ns/csvw#Table>'
+                    ])
             
             # 4.4 In standard mode only, specify the source tabular data 
             #     file URL for the current table based on the url annotation; 
@@ -12824,7 +12983,11 @@ def create_rdf(
     
             if standard_mode:
                 
-                raise NotImplementedError
+                output.append([
+                    T_iri,
+                    '<http://www.w3.org/ns/csvw#url>',
+                    f'<{annotated_table_dict["url"]}>'
+                    ])
     
             # 4.5 In standard mode only, emit the triples generated by running 
             #     the algorithm specified in section 6. JSON-LD to RDF over 
@@ -12836,6 +12999,22 @@ def create_rdf(
             #     during the conversion; including information about table 
             #     schemas and their columns, foreign keys, table direction, 
             #     transformations, etc.
+            if standard_mode:
+                
+                for k,v in annotated_table_dict.items():
+                    
+                    if not k in ['columns','tableDirection','foreignKeys','id',
+                                 'rows','schema','suppressOutput',
+                                 'transformations','url']:
+                    
+                        output=\
+                            json_ld_to_rdf(
+                                output,  
+                                G_iri,
+                                k,
+                                v
+                                )
+            
             
             # 4.6 For each row in the current table:
                 
@@ -12846,7 +13025,7 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    R_iri=f'_:{str(uuid4())}'
                 
                 # 4.6.2 In standard mode only, relate the row to the table; 
                 #       emit the following triple:
@@ -12856,7 +13035,11 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    output.append([
+                        T_iri,
+                        '<http://www.w3.org/ns/csvw#row>',
+                        R_iri
+                        ])
                 
                 # 4.6.3 In standard mode only, specify the type of node R 
                 #       as csvw:Row; emit the following triple:
@@ -12866,7 +13049,11 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    output.append([
+                        R_iri,
+                        '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>',
+                        '<http://www.w3.org/ns/csvw#Row>'
+                        ])
                 
                 # 4.6.4 In standard mode only, specify the row number n for 
                 #       the row; emit the following triple:
@@ -12876,7 +13063,11 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    output.append([
+                        R_iri,
+                        '<http://www.w3.org/ns/csvw#rownum>',
+                        f'"{annotated_row_dict["number"]}"^^<http://www.w3.org/2001/XMLSchema#integer>'
+                        ])
                 
                 # 4.6.5 In standard mode only, specify the row source number 
                 #       nsource for the row within the source tabular data 
@@ -12889,7 +13080,11 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    output.append([
+                        R_iri,
+                        '<http://www.w3.org/ns/csvw#url>',
+                        f'<{annotated_table_dict["url"]}#row={annotated_row_dict["sourceNumber"]}>'
+                        ])
                 
                 # 4.6.6 In standard mode only, if row titles is not null, 
                 #       insert any titles specified for the row. 
@@ -12903,7 +13098,50 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    titles=annotated_row_dict.get('titles')
+                    
+                    if not titles is None:
+                        
+                        if isinstance(titles,list):
+                            
+                            for item in titles:
+                                
+                                output.append([
+                                    R_iri,
+                                    '<http://www.w3.org/ns/csvw#title>',
+                                    'f"{title}"^^<http://www.w3.org/2001/XMLSchema#string>'
+                                    ])
+                                
+                        elif isinstance(titles,dict):
+                            
+                            for lang,v1 in titles.items():
+                                
+                                if isinstance(v1,list):
+                                    
+                                    for item in v1:
+                                        
+                                        output.append([
+                                            R_iri,
+                                            '<http://www.w3.org/ns/csvw#title>',
+                                            'f"{item}"@{lang}'
+                                            ])
+                                
+                                else:
+                                    
+                                    output.append([
+                                        R_iri,
+                                        '<http://www.w3.org/ns/csvw#title>',
+                                        'f"{v1}"@{lang}'
+                                        ])
+                            
+                        else:
+                            
+                            output.append([
+                                R_iri,
+                                '<http://www.w3.org/ns/csvw#title>',
+                                'f"{titles}"^^<http://www.w3.org/2001/XMLSchema#string>'
+                                ])
+                            
                 
                 # 4.6.7 In standard mode only, emit the triples generated by 
                 #       running the algorithm specified in section 6. 
@@ -12914,8 +13152,20 @@ def create_rdf(
                 
                 if standard_mode:
                     
-                    raise NotImplementedError
+                    for k,v in annotated_row_dict.items():
+                        
+                        if not k in ['cells','number','primaryKey','titles',
+                                     'referencedRows','sourceNumber','table']:
+                        
+                            output=\
+                                json_ld_to_rdf(
+                                    output,  
+                                    R_iri,
+                                    k,
+                                    v
+                                    )
                 
+        
                 # 4.6.8 Establish a new blank node Sdef to be used as the 
                 #       default subject for cells where about URL is undefined.
                 
@@ -12955,7 +13205,11 @@ def create_rdf(
                         
                         if standard_mode:
                             
-                            raise NotImplementedError
+                            output.append([
+                                R_iri,
+                                '<http://www.w3.org/ns/csvw#describes>',
+                                S_iri
+                                ])
                             
                         # 4.6.8.3 If the value of property URL for the cell 
                         #         is not null, then predicate P takes the 
@@ -13258,6 +13512,243 @@ def get_rdf_lexical_form_from_cell_value(
         
     return rdf_literal
     
+
+#%% 6 JSON-LD to RDF
+
+def json_ld_to_rdf(
+        output,  # output list will be modified by this function
+        subject,  # an iri <>
+        k,  # key
+        v  # value
+        ):
+    ""
+    
+    # This section defines a mechanism for transforming the [json-ld] 
+    # dialect used for non-core annotations and notes originating from 
+    # the processing of metadata (as defined in [tabular-metadata]) into 
+    # RDF in a manner consistent with the Deserialize JSON-LD to RDF 
+    # Algorithm defined in [json-ld-api]. 
+    # Converters may use any algorithm which results in equivalent triples.
+    
+    # NOTE
+    # Conversion applications may have other means to create annotated 
+    # tables, e.g. through some application specific APIs. 
+    # In such cases the exact format for non-core annotations or notes 
+    # may be different. 
+    # Specifications for such annotation processes should specify 
+    # how these annotations are converted into RDF.
+
+    # Given a subject, property and value in normalized form:
+
+    # 1 Property is a term defined in the [csvw-context], a prefixed name, 
+    #   or an absolute URL; expand to an absolute URL by replacing a term 
+    #   with the URI from the term definition in [csvw-context] or a 
+    #   prefixed name as described in Names of Common Properties in 
+    #   [tabular-metadata].
+    
+    def expand(v):
+        ""
+        
+        if v in csvw_terms:
+        
+            v=csvw_terms[v]
+        
+        if ':' in v:
+            
+            x=v.split(':')
+
+        else:
+
+            x=v.split('%3A')  # this is the percent encoded version
+            
+        if len(x)==2:
+
+            if x[0] in prefixes:
+
+                expanded_url=prefixes[x[0]]+x[1]
+
+            else:
+
+                expanded_url=v
+            
+        else:
+            expanded_url=v
+        
+        return expanded_url
+    
+    
+    #...expand key (property)
+    #... not sure how this applies to csvw 'terms'...
+    expanded_url=expand(k)
+    
+    p_iri=f'<{expanded_url}>'
+    
+    
+    # 2 If value is an array, generate RDF by running this algorithm using 
+    #   subject, property using each array member as value.
+    
+    if isinstance(v,list):
+        
+        for item in v:
+            
+            output=\
+                json_ld_to_rdf(
+                    output, 
+                    subject,
+                    expanded_url,  
+                    item  
+                    )
+    
+    
+    # 3 If value is an object containing @value, create an RDF Literal lit 
+    # using the string value of @value and language from @language, or 
+    # datatype from @type if present, expanding @type as necessary using 
+    # the procedure outlined for property, and emit the following triple:
+    # - subject node subject
+    # - predicate property
+    # - object literal node lit
+
+    # NOTE
+    # If neither @language nor @type is present, the literal lit has the datatype xsd:string.
+
+    elif isinstance(v,dict) and '@value' in v:
+        
+        if '@type' in v:
+            
+            type_=expand(v['type'])
+            
+            lit=f'"{v["@value"]}"^^<{type_}>' 
+            
+        elif '@language' in v:
+            
+            lit=f'"{v["@value"]}"@{v["@language"]}'
+        
+        else:
+            
+            lit=f'"{v["@value"]}"^^<http://www.w3.org/2001/XMLSchema#string>'
+
+        output.append((subject, p_iri, lit))
+
+   
+    
+    # 4 Else, if value is an object:
+        
+    elif isinstance(v,dict):
+    
+        # 4.1 Establish a new node S that is identified with the value of 
+        # @id if defined, or else as a blank node, and emit the 
+        # following triple:
+        # - subject node subject
+        # - predicate node property
+        # - object node S
+        
+        if '@id' in v:
+            
+            S_iri=f'<{v["@id"]}>'
+            
+        else:
+            
+            S_iri=f'<{str(uuid4())}>'
+            
+        output.append((subject, p_iri, S_iri))
+        
+        # 4.2 For every value of @type, either a term defined in the 
+        # [csvw-context], a prefixed name, or an absolute URL; 
+        # establish a new node Ti by expanding the value to an absolute 
+        # URL by replacing a term with the URI from the term definition 
+        # in [csvw-context] or a prefixed name with its expanded value. 
+        # For each Ti, emit the following triple:
+        # - subject node S
+        # - predicate rdf:type
+        # - object node Ti
+        
+        if '@type' in v:
+            
+            type_=v['@type']
+            
+            if not isinstance(type_,list):
+                
+                type_=[type_]
+                
+            for item in type_:
+                
+                Ti=expand(type_)
+                
+                output.append([
+                    S_iri, 
+                    '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>',
+                    f'<{Ti}>'
+                    ])
+        
+        # 4.3 For every key and val from value that does not start 
+        # with @ (U+0040) generate RDF by running this algorithm using S 
+        # for subject, key for property and val for value.
+        
+        for k1,v1 in v.items():
+        
+            if not k1.startswith('@'):
+                
+                output=\
+                    json_ld_to_rdf(
+                        output, 
+                        S_iri,
+                        k1,  
+                        v1  
+                        )
+        
+        
+    # 5 Else, establish lit as an RDF Literal as follows:
+        
+    else:
+        
+        # 5.1 If value is true or false, create an RDF Literal lit using 
+        # the strings "true" or "false", accordingly with datatype xsd:boolean.
+        
+        if isinstance(v,bool):
+            
+            if v:
+                
+                lit='"true"^^<http://www.w3.org/2001/XMLSchema#boolean>'
+                
+            else:
+                
+                lit='"false"^^<http://www.w3.org/2001/XMLSchema#boolean>'
+    
+        # 5.2 Else, if value is a JSON number with a non-zero fractional 
+        # part, create an RDF Literal lit using the canonical representation 
+        # for value with datatype xsd:double.
+        
+        elif isinstance(v,float):
+            
+            lit=f'"{v}"^^<http://www.w3.org/2001/XMLSchema#double>'
+    
+        # 5.3 Else, if value is a JSON number with no non-zero fractional 
+        # part, create an RDF Literal lit using the canonical 
+        # representation for value with datatype xsd:integer.
+        
+        elif isinstance(v,int):
+            
+            lit=f'"{v}"^^<http://www.w3.org/2001/XMLSchema#integer>'
+    
+        # 5.4 Otherwise, create an RDF Literal lit using the canonical 
+        # representation for value with datatype xsd:string.
+        
+        else:
+            
+            lit=f'"{v}"^^<http://www.w3.org/2001/XMLSchema#string>'
+    
+        # Emit the following triple:
+        # - subject node subject
+        # - predicate property
+        # - object literal node lit
+        
+        output.append((subject, p_iri, lit))
+
+
+    return output
+
+
+
 #%%---EXTRA---
 
 def get_errors(
