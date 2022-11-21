@@ -36,6 +36,8 @@ import langcodes
 import datetime
 import re
 from uuid import uuid4
+import base64
+import dateutil.parser
 
 
 #%% ---Module Level Variables---
@@ -234,7 +236,7 @@ datatypes={
     'positiveInteger':'http://www.w3.org/2001/XMLSchema#positiveInteger',
     'unsignedLong':'http://www.w3.org/2001/XMLSchema#unsignedLong',
     'unsignedInt':'http://www.w3.org/2001/XMLSchema#unsignedInt',
-    'unsignedShort':'http://www.w3.org/2001/XMLSchema#UnsignedShort',
+    'unsignedShort':'http://www.w3.org/2001/XMLSchema#unsignedShort',
     'unsignedByte':'http://www.w3.org/2001/XMLSchema#unsignedByte',
     'nonPositiveInteger':'http://www.w3.org/2001/XMLSchema#nonPositiveInteger',
     'negativeInteger':'http://www.w3.org/2001/XMLSchema#negativeInteger',
@@ -245,12 +247,13 @@ datatypes={
     'float':'http://www.w3.org/2001/XMLSchema#float',
     'gDay':'http://www.w3.org/2001/XMLSchema#gDay',
     'gMonth':'http://www.w3.org/2001/XMLSchema#gMonth',
+    'gMonthDay':'http://www.w3.org/2001/XMLSchema#gMonthDay',
     'gYear':'http://www.w3.org/2001/XMLSchema#gYear',
     'gYearMonth':'http://www.w3.org/2001/XMLSchema#gYearMonth',
     'hexBinary':'http://www.w3.org/2001/XMLSchema#hexBinary',
     'QName':'http://www.w3.org/2001/XMLSchema#QName',
     'string':'http://www.w3.org/2001/XMLSchema#string',
-    'normalizedString':'http://www.w3.org/2001/XMLSchema#normalisedString',
+    'normalizedString':'http://www.w3.org/2001/XMLSchema#normalizedString',
     'token':'http://www.w3.org/2001/XMLSchema#token',
     'language':'http://www.w3.org/2001/XMLSchema#language',
     'Name':'http://www.w3.org/2001/XMLSchema#Name',
@@ -972,9 +975,17 @@ def check_length_constraints(
         
         value_length=len(value)
         
-    elif datatype_base in datatypes_binary:
-        
-        value_length=len(value.encode('utf-8'))  #??? needs checking
+    elif datatype_base=='base64Binary':
+            
+        value_length=len(base64.b64decode(value))
+            
+    elif datatype_base=='binary':
+            
+        value_length=len(value)  #??? a guess, needs testing...
+            
+    elif datatype_base=='hexBinary':
+            
+        value_length=len(value)/2
         
     else:
         
@@ -1256,6 +1267,7 @@ def get_overriding_metadata(
         x=os.path.abspath(overriding_metadata_file_path_or_url)
         x=x.replace('\\','/')
         x=r'file:///'+x
+        x=urllib.parse.quote(x,safe=':/#?')
         
         metadata_document_location=normalize_url(x)
             
@@ -1777,6 +1789,7 @@ def create_annotated_table_group(
             x=os.path.abspath(input_file_path_or_url)
             x=x.replace('\\','/')
             x=r'file:///'+x
+            x=urllib.parse.quote(x,safe=':/#?')
             
             tabular_data_file_url=normalize_url(x)
                 
@@ -1791,9 +1804,9 @@ def create_annotated_table_group(
             tabular_data_file_headers=requests.head(tabular_data_file_url).headers
             
         if _print_intermediate_outputs: print('-tabular_data_file_url',tabular_data_file_url)     
-            
         if _print_intermediate_outputs: print('-tabular_data_file_headers',tabular_data_file_headers)
 
+        
         # 2. Retrieve the first metadata file (FM) as described in 
         #    section 5. Locating Metadata:
         
@@ -1851,6 +1864,7 @@ def create_annotated_table_group(
             x=os.path.abspath(input_file_path_or_url)
             x=x.replace('\\','/')
             x=r'file:///'+x
+            x=urllib.parse.quote(x,safe=':/#?')
             
             metadata_document_location=normalize_url(x)
             
@@ -1873,6 +1887,10 @@ def create_annotated_table_group(
         
         use_embedded_metadata_flag=False
         
+        
+    
+    if _print_intermediate_outputs: print('-metadata_document_location',metadata_document_location)
+    
         
     #...for testing
     if _save_intermediate_and_final_outputs_to_file:
@@ -1968,6 +1986,7 @@ def create_annotated_table_group(
             x=os.path.abspath(url)
             x=x.replace('\\','/')
             x=r'file:///'+x
+            x=urllib.parse.quote(x,safe=':/#?')
             
             tabular_data_file_url=normalize_url(x)
                 
@@ -2775,6 +2794,8 @@ def parse_cell_steps_6_to_9(
     
     if not result:
         
+        language=lang
+        
         return string_value, language, 'string', errors
     
     #
@@ -2790,6 +2811,8 @@ def parse_cell_steps_6_to_9(
             )
     
     if not result:
+        
+        language=lang
         
         return string_value, language, 'string', errors
     
@@ -4941,7 +4964,7 @@ def get_parse_datetime_function(
         
         except ValueError:
             
-            message='datetime conversion error'
+            message='datetime conversion error 1'
             errors.append(message)
             warnings.warn(message)
             return string_value,'string',errors
@@ -4993,6 +5016,8 @@ def get_parse_datetime_function(
                     date_datatype
                     )(date_string,
                       date_errors)
+                      
+            errors.extend(date_errors)
             
             #
             time_datatype=\
@@ -5007,32 +5032,41 @@ def get_parse_datetime_function(
                     )(time_string,
                       time_errors)
             
+            errors.extend(time_errors)
+                      
+            if len(date_errors)>0 or len(time_errors)>0:
+                
+                return string_value,'string',errors
+                      
             #
 
             try:
             
-                x=datetime.datetime.fromisoformat(
+                x=dateutil.parser.isoparse(
                     f'{date_json_value}T{time_json_value}'
                     )
             
             except ValueError:
                 
-                message='datetime conversion error'
+                message='datetime conversion error 2' + ' -- ' + f'{date_json_value}T{time_json_value}'
+                #print(message)
                 errors.append(message)
                 warnings.warn(message)
                 return string_value,'string',errors
             
             #
-            errors.extend(date_errors)
-            errors.extend(time_errors)
+            json_value=f'{date_json_value}T{time_json_value}'+xsd_timezone_string
+            
             
         else:
             
-            x=datetime.datetime.fromisoformat(datetime_string)
+            x=dateutil.parser.isoparse(datetime_string)
+            
+            json_value=x.isoformat()+xsd_timezone_string
+            
             
         #
-        json_value=x.isoformat()+xsd_timezone_string
-        
+        #print('json_value',json_value)
         return json_value, datatype['base'], errors
         
         
@@ -5117,7 +5151,7 @@ def get_parse_duration_function(
             
             if not re_compiled.search(string_value):
                 
-                message='duration conversion error'
+                message=f'duration conversion error 1 - string value ="{string_value}"'
                 errors.append(message)
                 warnings.warn(message)
                 return string_value, 'string', errors
@@ -5125,20 +5159,27 @@ def get_parse_duration_function(
         #...parsing -?PnYnMnDTnHnMnS
         x=string_value
         
+        # minus sign
+        
+        if x[0]=='-':
+            
+            x=x.removeprefix('-')
+        
+        #P
+        
         if not x[0]=='P':
             
-            message='duration conversion error'
+            message=f'duration conversion error 2 - string value ="{string_value}"'
             errors.append(message)
             warnings.warn(message)
             return string_value, 'string', errors
         
-        _,_,x=x.partition('P')
-        
+        x=x.removeprefix('P')
         
         #Y
-        year_string,_,x=x.partition('Y')
-        
-        if year_string:
+        if 'Y' in x:
+            
+            year_string,_,x=x.partition('Y')
             
             try:
                 
@@ -5146,108 +5187,120 @@ def get_parse_duration_function(
                 
             except ValueError:
                 
-                message='duration conversion error'
+                message=f'duration conversion error 3 - string value ="{string_value}"' + f'"{year_string}"'
                 errors.append(message)
                 warnings.warn(message)
                 return string_value, 'string', errors
             
             
         #M
-        month_string,_,x=x.partition('M')
+        if 'M' in x.split('T')[0]:
         
-        if month_string:
+            month_string,_,x=x.partition('M')
             
-            try:
+            if month_string:
                 
-                int(month_string)
-                
-            except ValueError:
-                
-                message='duration conversion error'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
+                try:
+                    
+                    int(month_string)
+                    
+                except ValueError:
+                    
+                    message=f'duration conversion error 4 - string value ="{string_value}"'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
         
         
         #D
-        day_string,_,x=x.partition('D')
+        if 'D' in x:
         
-        if day_string:
+            day_string,_,x=x.partition('D')
             
-            try:
+            if day_string:
                 
-                int(day_string)
+                try:
+                    
+                    int(day_string)
+                    
+                except ValueError:
+                    
+                    message=f'duration conversion error 5 - string value ="{string_value}"'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
                 
-            except ValueError:
-                
-                message='duration conversion error'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
-            
         #T
         if len(x)>0:
             
             if not x[0]=='T':
                 
-                message='duration conversion error'
+                message=f'duration conversion error 6 - string value ="{string_value}"' + ' -- ' + x
                 errors.append(message)
                 warnings.warn(message)
                 return string_value, 'string', errors
                 
-        _,_,x=x.partition('T')
+        x=x.removeprefix('T')
         
         
         #H
-        hour_string,_,x=x.partition('H')
         
-        if hour_string:
+        if 'H' in x:
+        
+            hour_string,_,x=x.partition('H')
             
-            try:
+            if hour_string:
                 
-                int(hour_string)
-                
-            except ValueError:
-                
-                message='duration conversion error'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
+                try:
+                    
+                    int(hour_string)
+                    
+                except ValueError:
+                    
+                    message=f'duration conversion error 7 - string value ="{string_value}"'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
         
 
         #M
-        minute_string,_,x=x.partition('M')
+        if 'M' in x:
         
-        if minute_string:
+            minute_string,_,x=x.partition('M')
             
-            try:
+            if minute_string:
                 
-                int(minute_string)
-                
-            except ValueError:
-                
-                message='duration conversion error'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
+                try:
+                    
+                    int(minute_string)
+                    
+                except ValueError:
+                    
+                    message=f'duration conversion error 8 - string value ="{string_value}"'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
         
 
         #S
-        second_string,_,x=x.partition('S')
         
-        if second_string:
+        if 'S' in x:
             
-            try:
+            second_string,_,x=x.partition('S')
+            
+            if second_string:
                 
-                int(second_string)
-                
-            except ValueError:
-                
-                message='duration conversion error'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
-        
+                try:
+                    
+                    int(second_string)
+                    
+                except ValueError:
+                    
+                    message=f'duration conversion error 9 - string value ="{string_value}"'
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
+            
         
         #
         return string_value, datatype['base'], errors
@@ -6599,7 +6652,7 @@ def get_URI_from_URI_template(
     #... percent encoding any spaces
     url=urllib.parse.quote(
         url.encode('utf8'),
-        safe='/:#'
+        safe='/:#%='
         )
         
     #print('-url',url)
@@ -7723,7 +7776,11 @@ def validate_and_normalize_metadata_table_group_dict(
                     
                             x=metadata_column_dict['titles'][default_language][0]
                         
-                            name=urllib.parse.quote(x.encode('utf8'))
+                            name=urllib.parse.quote(
+                                x.encode('utf8'),
+                                safe=''  # does not include "/" in safe, so that "dd/MM/yyyy" is quoted to "dd%2DMM%2Dyyyy"
+                                )
+                            name=name.replace('-','%2D')  # required by rdf test 188
                         
                             metadata_column_dict['name']=name
 
@@ -11888,7 +11945,7 @@ def create_json_ld(
     if not local_path_replacement_url is None:
         
         local_path='file:///'+os.getcwd().replace('\\','/')+'/'
-        local_path_quoted=urllib.parse.quote(local_path,safe=':/')
+        local_path_quoted=urllib.parse.quote(local_path,safe=':/#?')
     
         _replace_strings.append(
             (local_path,
@@ -12997,10 +13054,7 @@ def create_rdf(
     
             if standard_mode:
                 
-                url=urllib.parse.quote(
-                    annotated_table_dict['url'].encode('utf8'),
-                    safe=':/'
-                    )
+                url=annotated_table_dict['url']
                 
                 output.append([
                     T_iri,
@@ -13119,47 +13173,60 @@ def create_rdf(
                     
                     titles=annotated_row_dict.get('titles')
                     
-                    if not titles is None:
+                    # if not titles is None:  # TO BE DELETED
                         
-                        if isinstance(titles,list):
+                    #     if isinstance(titles,list):  # TO BE DELETED
                             
-                            for item in titles:
-                                
-                                output.append([
-                                    R_iri,
-                                    '<http://www.w3.org/ns/csvw#title>',
-                                    'f"{title}"^^<http://www.w3.org/2001/XMLSchema#string>'
-                                    ])
-                                
-                        elif isinstance(titles,dict):
+                    for item in titles:
+                        
+                        if item['@language']=='und':
                             
-                            for lang,v1 in titles.items():
-                                
-                                if isinstance(v1,list):
-                                    
-                                    for item in v1:
-                                        
-                                        output.append([
-                                            R_iri,
-                                            '<http://www.w3.org/ns/csvw#title>',
-                                            'f"{item}"@{lang}'
-                                            ])
-                                
-                                else:
-                                    
-                                    output.append([
-                                        R_iri,
-                                        '<http://www.w3.org/ns/csvw#title>',
-                                        'f"{v1}"@{lang}'
-                                        ])
+                            output.append([
+                                R_iri,
+                                '<http://www.w3.org/ns/csvw#title>',
+                                f'"{item["@value"]}"^^<{item["@type"]}>'
+                                ])
                             
                         else:
                             
                             output.append([
                                 R_iri,
                                 '<http://www.w3.org/ns/csvw#title>',
-                                'f"{titles}"^^<http://www.w3.org/2001/XMLSchema#string>'
+                                f'"{item["@value"]}"^^<{item["@type"]}>'
                                 ])
+                                
+                            
+                        # TO BE DELETED
+                        
+                        # elif isinstance(titles,dict):
+                            
+                        #     for lang,v1 in titles.items():
+                                
+                        #         if isinstance(v1,list):
+                                    
+                        #             for item in v1:
+                                        
+                        #                 output.append([
+                        #                     R_iri,
+                        #                     '<http://www.w3.org/ns/csvw#title>',
+                        #                     'f"{item}"@{lang}'
+                        #                     ])
+                                
+                        #         else:
+                                    
+                        #             output.append([
+                        #                 R_iri,
+                        #                 '<http://www.w3.org/ns/csvw#title>',
+                        #                 'f"{v1}"@{lang}'
+                        #                 ])
+                            
+                        # else:
+                            
+                        #     output.append([
+                        #         R_iri,
+                        #         '<http://www.w3.org/ns/csvw#title>',
+                        #         'f"{titles}"^^<http://www.w3.org/2001/XMLSchema#string>'
+                        #         ])
                             
                 
                 # 4.6.7 In standard mode only, emit the triples generated by 
@@ -13250,13 +13317,6 @@ def create_rdf(
                             
                             url=annotated_table_dict['url']
                             
-                            #... percent-encoding url incase it contains spaces
-                            url=urllib.parse.quote(
-                                url.encode('utf8'),
-                                safe=':/'
-                                )
-                            
-                            
                             P_iri=f'<{url}#{name}>'
                         
                         # 4.6.8.4 If the value URL for the current cell is not 
@@ -13323,7 +13383,7 @@ def create_rdf(
                                      ]
                                     )
                                 
-                                if i==len(value):
+                                if i==len(value)-1:
                                     
                                     output.append(
                                         [Vlist_iri,
@@ -13436,7 +13496,7 @@ def create_rdf(
         
         #... and again for a % quoted version
         
-        local_path_quoted=urllib.parse.quote(local_path,safe=':/')
+        local_path_quoted=urllib.parse.quote(local_path,safe=':/#?')
         #print('local_path_quoted',local_path_quoted)
         
         output=output.replace(
@@ -13458,6 +13518,7 @@ def get_rdf_lexical_form_from_cell_value(
         ):
     """
     """
+    
     # Cell values are expressed in the RDF output according to the cell 
     # value's datatype. 
     # The relationship between the value of the cell value's datatype and 
@@ -13520,7 +13581,13 @@ def get_rdf_lexical_form_from_cell_value(
 
     elif isinstance(lexical_form,float):
         
-        lexical_form=str(lexical_form)
+        if int(lexical_form)==lexical_form:
+            
+            lexical_form=str(int(lexical_form))
+            
+        else:
+        
+            lexical_form=str(lexical_form)
 
     else:
         

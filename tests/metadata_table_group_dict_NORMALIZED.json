@@ -1,130 +1,37 @@
 {
-    "@context": [
-        "http://www.w3.org/ns/csvw",
-        {
-            "@language": "en"
-        }
-    ],
+    "@context": "http://www.w3.org/ns/csvw",
     "tables": [
         {
-            "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv",
-            "dc:title": {
-                "@value": "Tree Operations",
-                "@language": "en"
+            "rdfs:label": {
+                "@value": "multiple values with same subject and property (ordered and unordered)"
             },
-            "dcat:keyword": [
-                {
-                    "@value": "tree",
-                    "@language": "en"
-                },
-                {
-                    "@value": "street",
-                    "@language": "en"
-                },
-                {
-                    "@value": "maintenance",
-                    "@language": "en"
-                }
-            ],
-            "dc:publisher": {
-                "schema:name": {
-                    "@value": "Example Municipality",
-                    "@language": "en"
-                },
-                "schema:url": {
-                    "@id": "http://example.org"
-                }
+            "rdfs:comment": {
+                "@value": "Values in separate columns using the same propertyUrl are kept in proper relative order."
             },
-            "dc:license": {
-                "@id": "http://opendefinition.org/licenses/cc-by/"
-            },
-            "dc:modified": {
-                "@value": "2010-12-31",
-                "@type": "xsd:date"
-            },
+            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv",
+            "separator": ";",
+            "aboutUrl": "#about",
+            "propertyUrl": "#value",
             "tableSchema": {
                 "columns": [
                     {
-                        "name": "GID",
                         "titles": {
-                            "en": [
-                                "GID",
-                                "Generic Identifier"
+                            "und": [
+                                "col1"
                             ]
                         },
-                        "dc:description": {
-                            "@value": "An identifier for the operation on a tree.",
-                            "@language": "en"
-                        },
-                        "datatype": {
-                            "base": "string"
-                        },
-                        "required": true
+                        "ordered": true,
+                        "name": "col1"
                     },
                     {
-                        "name": "on_street",
                         "titles": {
-                            "en": [
-                                "On Street"
+                            "und": [
+                                "col2"
                             ]
                         },
-                        "dc:description": {
-                            "@value": "The street that the tree is on.",
-                            "@language": "en"
-                        },
-                        "datatype": {
-                            "base": "string"
-                        }
-                    },
-                    {
-                        "name": "species",
-                        "titles": {
-                            "en": [
-                                "Species"
-                            ]
-                        },
-                        "dc:description": {
-                            "@value": "The species of the tree.",
-                            "@language": "en"
-                        },
-                        "datatype": {
-                            "base": "string"
-                        }
-                    },
-                    {
-                        "name": "trim_cycle",
-                        "titles": {
-                            "en": [
-                                "Trim Cycle"
-                            ]
-                        },
-                        "dc:description": {
-                            "@value": "The operation performed on the tree.",
-                            "@language": "en"
-                        },
-                        "datatype": {
-                            "base": "string"
-                        }
-                    },
-                    {
-                        "name": "inventory_date",
-                        "titles": {
-                            "en": [
-                                "Inventory Date"
-                            ]
-                        },
-                        "dc:description": {
-                            "@value": "The date of the operation that was performed.",
-                            "@language": "en"
-                        },
-                        "datatype": {
-                            "base": "date",
-                            "format": "M/d/yyyy"
-                        }
+                        "name": "col2"
                     }
-                ],
-                "primaryKey": "GID",
-                "aboutUrl": "#gid-{GID}"
+                ]
             }
         }
     ]

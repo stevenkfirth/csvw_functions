@@ -583,205 +583,11 @@ class Test_JSON_Section_6(unittest.TestCase):
             )
         
         
-        
-        return
-        
-        
-        # minimal mode
-        json_ld=\
-            csvw_functions.create_json_ld(
-                    annotated_table_group_dict,
-                    mode='minimal'
-                    )
-            
-        #print(json_ld)
-
-        self.assertEqual(
-            json_ld,
-            [{'@id': 'http://example.org/tree-ops-ext#gid-1', 
-              'on_street': 'ADDISON AV', 
-              'species': 'Celtis australis', 
-              'trim_cycle': 'Large Tree Routine Prune', 
-              'dbh': 11, 
-              'inventory_date': '2010-10-18', 
-              'protected': False, 
-              'kml': '<Point><coordinates>-122.156485,37.440963</coordinates></Point>'}, 
-             {'@id': 'http://example.org/tree-ops-ext#gid-2', 
-              'on_street': 'EMERSON ST', 
-              'species': 'Liquidambar styraciflua', 
-              'trim_cycle': 'Large Tree Routine Prune', 
-              'dbh': 11, 
-              'inventory_date': '2010-06-02', 
-              'protected': False, 
-              'kml': '<Point><coordinates>-122.156749,37.440958</coordinates></Point>'}, 
-             {'@id': 'http://example.org/tree-ops-ext#gid-6', 
-              'on_street': 'ADDISON AV', 
-              'species': 'Robinia pseudoacacia', 
-              'trim_cycle': 'Large Tree Routine Prune', 
-              'dbh': 29, 
-              'inventory_date': '2010-06-01', 
-              'comments': [
-                  'cavity or decay', 
-                  'trunk decay', 
-                  'codominant leaders', 
-                  'included bark', 
-                  'large leader or limb decay', 
-                  'previous failure root damage', 
-                  'root decay', 
-                  'beware of BEES'
-                  ], 
-              'protected': True, 
-              'kml': '<Point><coordinates>-122.156299,37.441151</coordinates></Point>'}
-             ]
-            )
-
-        # standard mode
-        
-        x=os.path.join(os.getcwd(),'generating_json_from_tabular_data_example_files').replace('\\','/')
-        _replace_strings=[
-            (r'file:///'+x+'/',
-             'http://example.org/')
-            ]
-        
-        json_ld=\
-            csvw_functions.create_json_ld(
-                    annotated_table_group_dict,
-                    mode='standard',
-                    local_path_replacement_url='http://example.org/'
-                    #_replace_strings=_replace_strings
-                    )
-        #print(json_ld)
-        
-        # table properties
-        # @id
-        self.assertEqual(
-            json_ld['tables'][0]['@id'],
-            'http://example.org/tree-ops-ext'
-            )
-        # url
-        self.assertEqual(
-            json_ld['tables'][0]['url'],
-            'http://example.org/tree-ops-ext.csv'
-            )
-        # dc:title
-        self.assertEqual(
-            json_ld['tables'][0]['dc:title'],
-            'Tree Operations'
-            )
-        # dcat:keyword
-        self.assertEqual(
-            json_ld['tables'][0]['dcat:keyword'],
-            [ "tree", "street", "maintenance" ]
-            )
-        # dc:publisher
-        self.assertEqual(
-            json_ld['tables'][0]['dc:publisher'],
-            [
-                {"schema:name": "Example Municipality",
-                 "schema:url": "http://example.org"}
-            ]
-            )
-        # dc:license
-        self.assertEqual(
-            json_ld['tables'][0]['dc:license'],
-            'http://opendefinition.org/licenses/cc-by/'
-            )
-        # dc:modified
-        self.assertEqual(
-            json_ld['tables'][0]['dc:modified'],
-            '2010-12-31'
-            )
-        # notes
-        self.assertEqual(
-            json_ld['tables'][0]['notes'],
-            [{
-              "@type": "oa:Annotation",
-              "oa:hasTarget": "http://example.org/tree-ops-ext",
-              "oa:hasBody": {
-                "@type": "oa:EmbeddedContent",
-                "rdf:value": "This is a very interesting comment about the table; it's a table!",
-                "dc:format": "text/plain"
-                }
-            }]
-            )
-        
-        # first row
-        self.assertEqual(
-            json_ld['tables'][0]['row'][0],
-            {
-              "url": "http://example.org/tree-ops-ext.csv#row=2",
-              "rownum": 1,
-              "describes": [{ 
-                "@id": "http://example.org/tree-ops-ext#gid-1",
-                "on_street": "ADDISON AV",
-                "species": "Celtis australis",
-                "trim_cycle": "Large Tree Routine Prune",
-                "dbh": 11,
-                "inventory_date": "2010-10-18",
-                "protected": False,
-                "kml": "<Point><coordinates>-122.156485,37.440963</coordinates></Point>"
-              }]
-            }
-            )
-        
-        
-        # second row
-        self.assertEqual(
-            json_ld['tables'][0]['row'][1],
-            {
-              "url": "http://example.org/tree-ops-ext.csv#row=3",
-              "rownum": 2,
-              "describes": [{ 
-                "@id": "http://example.org/tree-ops-ext#gid-2",
-                "on_street": "EMERSON ST",
-                "species": "Liquidambar styraciflua",
-                "trim_cycle": "Large Tree Routine Prune",
-                "dbh": 11,
-                "inventory_date": "2010-06-02",
-                "protected": False,
-                "kml": "<Point><coordinates>-122.156749,37.440958</coordinates></Point>"
-              }]
-            }
-            )
-        
-        # third row
-        self.assertEqual(
-            json_ld['tables'][0]['row'][2],
-            {
-              "url": "http://example.org/tree-ops-ext.csv#row=4",
-              "rownum": 3,
-              "describes": [{  
-                "@id": "http://example.org/tree-ops-ext#gid-6",
-                "on_street": "ADDISON AV",
-                "species": "Robinia pseudoacacia",
-                "trim_cycle": "Large Tree Routine Prune",
-                "dbh": 29,
-                "inventory_date": "2010-06-01",
-                "comments": [ "cavity or decay", 
-                  "trunk decay", 
-                  "codominant leaders", 
-                  "included bark",
-                  "large leader or limb decay", 
-                  "previous failure root damage", 
-                  "root decay", 
-                  "beware of BEES" ],
-                "protected": True,
-                "kml": "<Point><coordinates>-122.156299,37.441151</coordinates></Point>"
-              }]
-            }
-            )
-        
 
     def test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row(self):
         ""
         
-        fp=r'generating_json_from_tabular_data_example_files/events-listing.csv-metadata.json'
-        
-        x=os.path.join(os.getcwd(),'generating_json_from_tabular_data_example_files').replace('\\','/')
-        _replace_strings=[
-            (r'file:///'+x+'/',
-             'http://example.org/')
-            ]
+        fp=r'generating_json_from_tabular_data_example_files/section_6_3/events-listing.csv-metadata.json'
         
         annotated_table_group_dict=\
             csvw_functions.create_annotated_table_group(fp)
@@ -994,12 +800,17 @@ class Test_JSON_Section_6(unittest.TestCase):
              'http://schema.org/offers']
             )
         # value url
-        # print([os.path.basename(cell['valueURL']) 
-        #        if (not cell['valueURL'] is None and cell['valueURL'].startswith('C:'))
+        #print([cell['valueURL'] for cell in annotated_cells_list])
+        x=os.path.join(os.getcwd(),
+                       'generating_json_from_tabular_data_example_files/section_6_3')
+        x=x.replace('\\','/').replace(' ','%20')
+        x='file:///'+x
+        # print([cell['valueURL'].replace(x,'http://example.org')
+        #        if (not cell['valueURL'] is None and cell['valueURL'].startswith('file'))
         #        else cell['valueURL']
         #        for cell in annotated_cells_list])
         self.assertEqual(
-            [cell['valueURL'].replace(*_replace_strings[0])
+            [cell['valueURL'].replace(x,'http://example.org')
                    if (not cell['valueURL'] is None and cell['valueURL'].startswith('file'))
                    else cell['valueURL']
                    for cell in annotated_cells_list],
@@ -1026,179 +837,100 @@ class Test_JSON_Section_6(unittest.TestCase):
              ]
             )
         
-        # minimal mode
+        
+        # ---minimal mode---
+        
         json_ld=\
             csvw_functions.create_json_ld(
                     annotated_table_group_dict,
-                    mode='minimal'
+                    mode='minimal',
+                    local_path_replacement_url='http://example.org/'
                     )
+        json_ld=csvw_functions.csvw_functions.replace_string(
+            json_ld, 
+            r'generating_json_from_tabular_data_example_files/section_6_3/', 
+            ''
+            )
         #print(json_ld)
         
-        #--check first item--
-        # keys of object
-        #print(list(json_ld[0].keys()))
-        self.assertEqual(
-            list(json_ld[0].keys()),
-            ['@id', 
-             'schema:name', 
-             'schema:startDate', 
-             '@type', 
-             'schema:location', 
-             'schema:offers']
+        fp=r'generating_json_from_tabular_data_example_files/section_6_3/events-listing-minimal.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        # fix errors...
+        #... type
+        json_ld_solution=csvw_functions.csvw_functions.replace_string(
+            json_ld_solution, 
+            'schema:offer', 
+            'schema:offers'
             )
-        # @id
-        #print(os.path.basename(json_ld[0]['@id']))
-        self.assertEqual(
-            os.path.basename(json_ld[0]['@id']),
-            'events-listing.csv#event-1'
+        #...issue with apostrophe
+        json_ld_solution=csvw_functions.csvw_functions.replace_string(
+            json_ld_solution, 
+            'â€™', 
+            "’"
             )
-        # @type
-        #print(json_ld[0]['@type'])
-        self.assertEqual(
-            json_ld[0]['@type'],
-            'schema:MusicEvent'
-            )
-        # schema:name
-        #print(json_ld[0]['schema:name'])
-        self.assertEqual(
-            json_ld[0]['schema:name'],
-            'B.B. King'
-            )
-        # schema:startDate
-        #print(json_ld[0]['schema:startDate'])
-        self.assertEqual(
-            json_ld[0]['schema:startDate'],
-            '2014-04-12T19:30:00'
+        #...dict key has wrong name
+        for x in json_ld_solution:
+            x['schema:offers']['schema:url']=x['schema:offers'].pop('schema:offers')
+        #print(json_ld_solution)
+            
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
             )
         
-        # schema:location[@id]
-        #print(os.path.basename(json_ld[0]['schema:location']['@id']))
         self.assertEqual(
-            os.path.basename(json_ld[0]['schema:location']['@id']),
-            'events-listing.csv#place-1'
+            json_ld,
+            json_ld_solution
             )
-        # schema:location[schema:name]
-        #print(json_ld[0]['schema:location']['schema:name'])
-        self.assertEqual(
-            json_ld[0]['schema:location']['schema:name'],
-            'Lupo’s Heartbreak Hotel'
+            
+        
+        # --- standard mode ---
+        
+        json_ld=\
+            csvw_functions.create_json_ld(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    local_path_replacement_url='http://example.org/'
+                    #convert_local_path_to_example_dot_org=True
+                    #_replace_strings=_replace_strings
+                    )
+        json_ld=csvw_functions.csvw_functions.replace_string(
+            json_ld, 
+            r'generating_json_from_tabular_data_example_files/section_6_3/', 
+            ''
             )
-        # schema:location[schema:address]
-        #print(json_ld[0]['schema:location']['schema:address'])
-        self.assertEqual(
-            json_ld[0]['schema:location']['schema:address'],
-            '79 Washington St., Providence, RI'
+        #print(json_ld)
+        
+        fp=r'generating_json_from_tabular_data_example_files/section_6_3/events-listing-standard.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        # fix errors...
+        #...issue with apostrophe
+        json_ld_solution=csvw_functions.csvw_functions.replace_string(
+            json_ld_solution, 
+            'â€™', 
+            "’"
             )
-        # schema:location[@type]
-        #print(json_ld[0]['schema:location']['@type'])
-        self.assertEqual(
-            json_ld[0]['schema:location']['@type'],
-            'schema:Place'
-            )
-        # schema:offers[@id]
-        #print(os.path.basename(json_ld[0]['schema:offers']['@id']))
-        self.assertEqual(
-            os.path.basename(json_ld[0]['schema:offers']['@id']),
-            'events-listing.csv#offer-1'
-            )
-        # schema:offers[schema:url]   # NOTE: DIFFERENT FROM EXAMPLE SOLUTION
-        #print(json_ld[0]['schema:offers']['schema:url'])
-        self.assertEqual(
-            json_ld[0]['schema:offers']['schema:url'],
-            'https://www.etix.com/ticket/1771656'
-            )
-        # schema:offers[@type]
-        #print(json_ld[0]['schema:offers']['@type'])
-        self.assertEqual(
-            json_ld[0]['schema:offers']['@type'],
-            'schema:Offer'
+        #print(json_ld_solution)
+        
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
             )
         
-        #--check second item--
-        # keys of object
-        #print(list(json_ld[1].keys()))
         self.assertEqual(
-            list(json_ld[1].keys()),
-            ['@id', 
-             'schema:name', 
-             'schema:startDate', 
-             '@type', 
-             'schema:location', 
-             'schema:offers']
-            )
-        # @id
-        #print(os.path.basename(json_ld[1]['@id']))
-        self.assertEqual(
-            os.path.basename(json_ld[1]['@id']),
-            'events-listing.csv#event-2'
-            )
-        # @type
-        #print(json_ld[1]['@type'])
-        self.assertEqual(
-            json_ld[1]['@type'],
-            'schema:MusicEvent'
-            )
-        # schema:name
-        #print(json_ld[1]['schema:name'])
-        self.assertEqual(
-            json_ld[1]['schema:name'],
-            'B.B. King'
-            )
-        # schema:startDate
-        #print(json_ld[1]['schema:startDate'])
-        self.assertEqual(
-            json_ld[1]['schema:startDate'],
-            '2014-04-13T20:00:00'
-            )
-        
-        # schema:location[@id]
-        #print(os.path.basename(json_ld[1]['schema:location']['@id']))
-        self.assertEqual(
-            os.path.basename(json_ld[1]['schema:location']['@id']),
-            'events-listing.csv#place-2'
-            )
-        # schema:location[schema:name]
-        #print(json_ld[1]['schema:location']['schema:name'])
-        self.assertEqual(
-            json_ld[1]['schema:location']['schema:name'],
-            'Lynn Auditorium'
-            )
-        # schema:location[schema:address]
-        #print(json_ld[1]['schema:location']['schema:address'])
-        self.assertEqual(
-            json_ld[1]['schema:location']['schema:address'],
-            'Lynn, MA, 01901'
-            )
-        # schema:location[@type]
-        #print(json_ld[1]['schema:location']['@type'])
-        self.assertEqual(
-            json_ld[1]['schema:location']['@type'],
-            'schema:Place'
-            )
-        # schema:offers[@id]
-        #print(os.path.basename(json_ld[1]['schema:offers']['@id']))
-        self.assertEqual(
-            os.path.basename(json_ld[1]['schema:offers']['@id']),
-            'events-listing.csv#offer-2'
-            )
-        # schema:offers[schema:url]   # NOTE: DIFFERENT FROM EXAMPLE SOLUTION
-        #print(json_ld[1]['schema:offers']['schema:url'])
-        self.assertEqual(
-            json_ld[1]['schema:offers']['schema:url'],
-            'http://frontgatetickets.com/venue.php?id=11766'
-            )
-        # schema:offers[@type]
-        #print(json_ld[1]['schema:offers']['@type'])
-        self.assertEqual(
-            json_ld[1]['schema:offers']['@type'],
-            'schema:Offer'
+            json_ld,
+            json_ld_solution
             )
         
         
     def test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables(self):
         ""
         
-        fp=r'generating_json_from_tabular_data_example_files/csv-metadata.json'
+        fp=r'generating_json_from_tabular_data_example_files/section_6_4/csv-metadata.json'
         annotated_table_group_dict=\
             csvw_functions.create_annotated_table_group(fp)
             
@@ -1660,7 +1392,9 @@ class Test_JSON_Section_6(unittest.TestCase):
              ]
             )
         
-        # minimal mode
+        
+        # ---minimal mode---
+        
         json_ld=\
             csvw_functions.create_json_ld(
                     annotated_table_group_dict,
@@ -1668,68 +1402,57 @@ class Test_JSON_Section_6(unittest.TestCase):
                     )
         #print(json_ld)
         
-        #print(json_ld[0])
-        self.assertEqual(
-            json_ld[0],
-            {'@id': 'http://example.org/organization/hefce.ac.uk/post/90115', 
-             'dc:identifier': '90115', 
-             'http://example.org/gov.uk/def/grade': 'SCS1A', 
-             'http://example.org/gov.uk/def/job': 'Deputy Chief Executive', 
-             'org:reportsTo': 'http://example.org/organization/hefce.ac.uk/post/90334', 
-             'http://example.org/gov.uk/def/profession': 'Finance', 
-             'org:postIn': 'http://example.org/organization/hefce.ac.uk', 
-             'org:heldBy': {
-                 '@id': 'http://example.org/organization/hefce.ac.uk/person/1', 
-                 'foaf:name': 'Steve Egan'
-                 }
-             }
+        fp=r'generating_json_from_tabular_data_example_files/section_6_4/public-sector-roles-and-salaries-minimal.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        #print(json_ld_solution)
+            
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
             )
         
-        #print(json_ld[1])
         self.assertEqual(
-            json_ld[1],
-            {'@id': 'http://example.org/organization/hefce.ac.uk/post/90334', 
-             'dc:identifier': '90334', 
-             'http://example.org/gov.uk/def/grade': 'SCS4', 
-             'http://example.org/gov.uk/def/job': 'Chief Executive', 
-             'http://example.org/gov.uk/def/profession': 'Policy', 
-             'org:postIn': 'http://example.org/organization/hefce.ac.uk', 
-             'org:heldBy': {
-                 '@id': 'http://example.org/organization/hefce.ac.uk/person/2', 
-                 'foaf:name': 'Sir Alan Langlands'
-                 }
-             }
+            json_ld,
+            json_ld_solution
+            )
+            
+                
+        # --- standard mode ---
+        
+        json_ld=\
+            csvw_functions.create_json_ld(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    local_path_replacement_url='http://example.org/'
+                    #convert_local_path_to_example_dot_org=True
+                    #_replace_strings=_replace_strings
+                    )
+        json_ld=csvw_functions.csvw_functions.replace_string(
+            json_ld, 
+            r'generating_json_from_tabular_data_example_files/section_6_4/', 
+            ''
+            )
+        #print(json_ld)
+        
+        fp=r'generating_json_from_tabular_data_example_files/section_6_4/public-sector-roles-and-salaries-standard.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        #print(json_ld_solution)
+        
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
             )
         
-        #print(json_ld[2])
         self.assertEqual(
-            json_ld[2],
-            {'org:reportsTo': 'http://example.org/organization/hefce.ac.uk/post/90115', 
-             'http://example.org/gov.uk/def/grade': '4', 
-             'http://example.org/gov.uk/def/min_pay': 17426, 
-             'http://example.org/gov.uk/def/max_pay': 20002, 
-             'http://example.org/gov.uk/def/job': 'Administrator', 
-             'http://example.org/gov.uk/def/number_of_posts': 8.67, 
-             'http://example.org/gov.uk/def/profession': 'Operational Delivery', 
-             'org:postIn': 'http://example.org/organization/hefce.ac.uk'
-             }
+            json_ld,
+            json_ld_solution
             )
         
-        #print(json_ld[3])
-        self.assertEqual(
-            json_ld[3],
-            {'org:reportsTo': 'http://example.org/organization/hefce.ac.uk/post/90115', 
-             'http://example.org/gov.uk/def/grade': '5', 
-             'http://example.org/gov.uk/def/min_pay': 19546, 
-             'http://example.org/gov.uk/def/max_pay': 22478, 
-             'http://example.org/gov.uk/def/job': 'Administrator', 
-             'http://example.org/gov.uk/def/number_of_posts': 0.5, 
-             'http://example.org/gov.uk/def/profession': 'Operational Delivery', 
-             'org:postIn': 'http://example.org/organization/hefce.ac.uk'
-             }
-            )
-      
-
+        
 
 #%% ---TESTCASE - Generating RDF from Tabular Data on the Web---
 
@@ -1745,6 +1468,7 @@ class Test_RDF_Section_7(unittest.TestCase):
             csvw_functions.create_annotated_table_group(
                 fp
                 )
+        #print(csvw_functions.display_annotated_table_group_dict(annotated_table_group_dict))
         
         # minimal mode
         
@@ -2058,7 +1782,10 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
     def test_W3C_CSVW_RDF_test_cases(self):
         ""
         
-        p=True
+        warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
+        
+        #p=True
+        p=False
     
         with open(os.path.join(test_dir,'manifest-rdf.jsonld')) as f:
             
@@ -2069,9 +1796,9 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
             
             #if not i==23: continue
             
-            if p: print(i)
+            #if p: print(i)
             
-            if p: print('-manifest-entry',entry)
+            #if p: print('-manifest-entry',entry)
             
             
             action_fp=os.path.join(test_dir,entry['action'])
@@ -2109,7 +1836,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                             _link_header=_link_header,
                             _well_known_text=_well_known_text,
                             _save_intermediate_and_final_outputs_to_file=True,
-                            _print_intermediate_outputs=p
+                            #_print_intermediate_outputs=p
                             )
                     
             elif entry['type']=='csvt:ToRdfTestWithWarnings':    
@@ -2124,7 +1851,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                                 _link_header=_link_header,
                                 _well_known_text=_well_known_text,
                                 _save_intermediate_and_final_outputs_to_file=True,
-                                _print_intermediate_outputs=p
+                                #_print_intermediate_outputs=p
                                 )
                         
             elif entry['type']=='csvt:NegativeRdfTest':    
@@ -2138,7 +1865,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                                 validate=validate,
                                 _link_header=_link_header,
                                 _save_intermediate_and_final_outputs_to_file=True,
-                                _print_intermediate_outputs=p
+                                #_print_intermediate_outputs=p
                                 )
                         
             else:
@@ -2160,28 +1887,44 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                     annotated_table_group_dict,
                     mode=mode,
                     )
-            print(rdf_ntriples)
+            #print(rdf_ntriples)
                 
             g1 = Graph().parse(data=rdf_ntriples, format='ntriples')
             #print(g1.serialize(format='ttl'))
+            #g1.serialize('g1.ttl',format='ttl')
             
+            # fix error where property full uris are in the solution file
+            #if entry['id'] in ['manifest-rdf#test100','manifest-rdf#test263']:
+                
+            with open(result_fp) as f:
+                result_text=f.read()
+            if 'http://www.w3.org/2013/csvw/tests/' in result_text:
+                result_text=result_text.replace('http://www.w3.org/2013/csvw/tests/','')
+                result_fp=f'{os.path.splitext(result_fp)[0]}_TEMP_SKF.ttl'
+                #print(result_fp_temp)
+                with open(result_fp,'w') as f:
+                    f.write(result_text)
+                
             g2=Graph()
             g_solution=Graph().parse(
                 result_fp,
                 format='ttl'
                 )
             for s,p,o in g_solution:
-                if isinstance(o,Literal) and o.datatype is None:
+                if isinstance(o,Literal) and o.datatype is None and o.language is None:
                     o2=Literal(o,datatype=XSD.string)
                 else:
                     o2=o
                 g2.add((s,p,o2))   
             #print(g2.serialize(format='ttl'))
+            #g2.serialize('g2.ttl',format='ttl')
             
             compare_rdf(self,g1,g2)
                 
         
             #break
+        
+        warnings.filterwarnings("always",category=UserWarning)  # warnings always printed out
         
     
     
@@ -2191,6 +1934,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
         
         p=False
+        #p=True
         
         with open(os.path.join(test_dir,'manifest-json.jsonld')) as f:
             
@@ -2293,10 +2037,10 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
             # print('---')
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['name'])
             # print(annotated_table_group_dict['tables'][0]['columns'][1]['propertyURL'])
-            try:
-                if p: print(annotated_table_group_dict['tables'][0]['columns'][3]['cells'][0]['value'])
-            except Exception:
-                pass
+            # try:
+            #     if p: print(annotated_table_group_dict['tables'][0]['columns'][3]['cells'][0]['value'])
+            # except Exception:
+            #     pass
             
             #return
                 
@@ -2307,6 +2051,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                 mode='standard'
                 
             x=os.path.join(os.getcwd(),'_github_w3c_csvw_tests').replace('\\','/')
+            x=x.replace(' ','%20')
             _replace_strings=[
                 (r'file:///'+x+'/',
                  'http://www.w3.org/2013/csvw/tests/')
@@ -2464,21 +2209,21 @@ if __name__=='__main__':
         runner.run(suite)
         
     # TESTCASE - Generating JSON from Tabular Data on the Web
-    #unittest.main(Test_JSON_Section_6())
+    unittest.main(Test_JSON_Section_6())
     #run_single_test(Test_JSON_Section_6,'test_section_6_1_simple_example')
-    run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
+    #run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_JSON_Section_6,'test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
     #run_single_test(Test_JSON_Section_6,'test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
     
     # TESTCASE - Generating RDF from Tabular Data on the Web
-    #unittest.main(Test_RDF_Section_7())
+    unittest.main(Test_RDF_Section_7())
     #run_single_test(Test_RDF_Section_7,'test_section_7_1_simple_example')
     #run_single_test(Test_RDF_Section_7,'test_section_7_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_RDF_Section_7,'test_section_7_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
     #run_single_test(Test_RDF_Section_7,'test_section_7_4_Example_with_table_group_comprising_four_interrelated_tables')
     
     # TESTCASE - W3C CSVW Test Suite
-    #unittest.main(Test_W3C_CSVW_Test_Cases())
+    unittest.main(Test_W3C_CSVW_Test_Cases())
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
     

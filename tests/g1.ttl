@@ -1,0 +1,29 @@
+@prefix ns1: <http://www.w3.org/ns/csvw#> .
+@prefix ns2: <file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns2:about ns2:value ( "a"^^xsd:string "b"^^xsd:string "c"^^xsd:string ),
+        ( "1"^^xsd:string "2"^^xsd:string "3"^^xsd:string ),
+        "4"^^xsd:string,
+        "5"^^xsd:string,
+        "6"^^xsd:string,
+        "d"^^xsd:string,
+        "e"^^xsd:string,
+        "f"^^xsd:string .
+
+[] a ns1:TableGroup ;
+    ns1:table [ a ns1:Table ;
+            rdfs:label "multiple values with same subject and property (ordered and unordered)"^^xsd:string ;
+            rdfs:comment "Values in separate columns using the same propertyUrl are kept in proper relative order."^^xsd:string ;
+            ns1:row [ a ns1:Row ;
+                    ns1:describes ns2:about ;
+                    ns1:rownum 1 ;
+                    ns1:url <file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#row=2> ],
+                [ a ns1:Row ;
+                    ns1:describes ns2:about ;
+                    ns1:rownum 2 ;
+                    ns1:url <file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#row=3> ] ;
+            ns1:url <file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv> ] .
+

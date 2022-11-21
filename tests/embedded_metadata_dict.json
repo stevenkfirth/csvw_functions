@@ -5,44 +5,20 @@
             {
                 "titles": {
                     "und": [
-                        "GID"
+                        "col1"
                     ]
                 },
-                "name": "GID"
+                "name": "col1"
             },
             {
                 "titles": {
                     "und": [
-                        "On Street"
+                        "col2"
                     ]
                 },
-                "name": "On%20Street"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "Species"
-                    ]
-                },
-                "name": "Species"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "Trim Cycle"
-                    ]
-                },
-                "name": "Trim%20Cycle"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "Inventory Date"
-                    ]
-                },
-                "name": "Inventory%20Date"
+                "name": "col2"
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive - Loughborough University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
 }
