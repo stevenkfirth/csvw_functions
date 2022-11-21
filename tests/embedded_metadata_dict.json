@@ -3,22 +3,11 @@
     "tableSchema": {
         "columns": [
             {
-                "titles": {
-                    "und": [
-                        "col1"
-                    ]
-                },
-                "name": "col1"
-            },
-            {
-                "titles": {
-                    "und": [
-                        "col2"
-                    ]
-                },
-                "name": "col2"
+                "titles": [
+                    "string1"
+                ]
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test154.csv"
 }

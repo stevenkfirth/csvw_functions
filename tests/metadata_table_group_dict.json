@@ -1,19 +1,16 @@
 {
     "@context": "http://www.w3.org/ns/csvw",
-    "rdfs:label": "multiple values with same subject and property (ordered and unordered)",
-    "rdfs:comment": "Values in separate columns using the same propertyUrl are kept in proper relative order.",
-    "url": "test307.csv",
-    "separator": ";",
-    "aboutUrl": "#about",
-    "propertyUrl": "#value",
+    "rdfs:comment": "If the datatype base is not numeric, boolean, a date/time type, or a duration type, the datatype format annotation provides a regular expression for the string values.",
+    "rdfs:label": "string format (value not matching format)",
+    "url": "test154.csv",
     "tableSchema": {
         "columns": [
             {
-                "titles": "col1",
-                "ordered": true
-            },
-            {
-                "titles": "col2"
+                "titles": "string1",
+                "datatype": {
+                    "base": "string",
+                    "format": "[Bb]+"
+                }
             }
         ]
     }

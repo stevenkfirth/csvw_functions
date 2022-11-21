@@ -2,34 +2,26 @@
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [
         {
-            "rdfs:label": {
-                "@value": "multiple values with same subject and property (ordered and unordered)"
-            },
             "rdfs:comment": {
-                "@value": "Values in separate columns using the same propertyUrl are kept in proper relative order."
+                "@value": "If the datatype base is not numeric, boolean, a date/time type, or a duration type, the datatype format annotation provides a regular expression for the string values."
             },
-            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv",
-            "separator": ";",
-            "aboutUrl": "#about",
-            "propertyUrl": "#value",
+            "rdfs:label": {
+                "@value": "string format (value not matching format)"
+            },
+            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test154.csv",
             "tableSchema": {
                 "columns": [
                     {
                         "titles": {
                             "und": [
-                                "col1"
+                                "string1"
                             ]
                         },
-                        "ordered": true,
-                        "name": "col1"
-                    },
-                    {
-                        "titles": {
-                            "und": [
-                                "col2"
-                            ]
+                        "datatype": {
+                            "base": "string",
+                            "format": "[Bb]+"
                         },
-                        "name": "col2"
+                        "name": "string1"
                     }
                 ]
             }

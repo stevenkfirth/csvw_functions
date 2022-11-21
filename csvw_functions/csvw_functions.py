@@ -38,6 +38,7 @@ import re
 from uuid import uuid4
 import base64
 import dateutil.parser
+import copy
 
 
 #%% ---Module Level Variables---
@@ -1121,7 +1122,8 @@ def locate_metadata(
         tabular_data_file_headers,
         overriding_metadata_file_path_or_url,
         _link_header,
-        _well_known_text
+        _well_known_text,
+        validate
         ):
     """
     """
@@ -1190,7 +1192,8 @@ def locate_metadata(
             metadata_document_dict, metadata_document_location=\
                 get_metadata_from_link_header(
                     tabular_data_file_headers or _link_header,
-                    tabular_data_file_url
+                    tabular_data_file_url,
+                    validate
                     )
             
         
@@ -1292,7 +1295,8 @@ def get_overriding_metadata(
 
 def get_metadata_from_link_header(
         link_header,
-        tabular_data_file_url  # absolute_url
+        tabular_data_file_url,  # absolute_url
+        validate
         ):
     """
     """
@@ -1384,7 +1388,8 @@ def get_metadata_from_link_header(
         base_url, default_language=\
             validate_and_normalize_metadata_table_group_dict(
                 metadata_table_group_dict,
-                metadata_document_location
+                metadata_document_location,
+                validate
                 )     
             
         #print('-base_url',base_url)
@@ -1828,7 +1833,8 @@ def create_annotated_table_group(
                 tabular_data_file_headers,
                 overriding_metadata_file_path_or_url,
                 _link_header,
-                _well_known_text
+                _well_known_text,
+                validate
                 )
         
         if metadata_document_dict is None:  # i.e. using embedded metadata
@@ -1880,7 +1886,14 @@ def create_annotated_table_group(
         
             metadata_text=metadata_response.read().decode()
         
-        metadata_document_dict=json.loads(metadata_text)
+        
+        try:
+        
+            metadata_document_dict=json.loads(metadata_text)
+        
+        except json.decoder.JSONDecodeError as e: 
+            
+            raise CSVWError(str(e))
         
         #
         tabular_data_file_text=None
@@ -1959,7 +1972,8 @@ def create_annotated_table_group(
     base_url, default_language=\
         validate_and_normalize_metadata_table_group_dict(
             metadata_table_group_dict,
-            metadata_document_location
+            metadata_document_location,
+            validate
             )
         
         
@@ -2102,6 +2116,9 @@ def create_annotated_table_group(
         #     basic tabular data model (T) and extract embedded metadata (EM), 
         #     for example from the header line.
 
+        
+
+
         annotated_table_dict, embedded_metadata_dict=\
             parse_tabular_data_function(
                 tabular_data_file_url,
@@ -2130,7 +2147,13 @@ def create_annotated_table_group(
         #...if using embedded metadata
         if use_embedded_metadata_flag:
             
-            metadata_table_dict=embedded_metadata_dict
+            metadata_table_dict=copy.deepcopy(embedded_metadata_dict)
+            
+            validate_and_normalize_metadata_table_dict(
+                metadata_table_dict,
+                metadata_document_location=None,
+                metadata_table_group_dict=None
+                )
             
             metadata_table_dict.pop('@context')
             
@@ -2211,7 +2234,8 @@ def create_annotated_table_group(
             
             parse_cells_in_annotated_column_dict(
                 annotated_column_dict,
-                dialect_description_dict.get('trim',True)
+                dialect_description_dict.get('trim',True),
+                validate
                 )
     
     #...generate URIs
@@ -2325,7 +2349,89 @@ def create_annotated_table_group(
                         
                         row['titles'].append(value)
                 
+      
+    #... annotate referenced rows
+    #... done here as the cell values are needed.          
+      
+    for annotated_table_dict,metadata_table_dict \
+        in zip(annotated_table_group_dict['tables'],
+               metadata_table_group_dict['tables']
+               ):
+            
+        #print('-url',annotated_table_dict['url'])
+        
+        if 'tableSchema' in metadata_table_dict:
+            
+            metadata_schema_dict=metadata_table_dict['tableSchema']
+        
+            if 'foreignKeys' in metadata_schema_dict:
+            
+                #foreign_key_definitions=metadata_schema_dict['foreignKeys']
                 
+                for j in range(len(annotated_table_dict['rows'])):
+                    
+                    #print('j',j)
+                    
+                    for foreign_key_definition in annotated_table_dict['foreignKeys']:
+                        
+                        # get foreign key values in this row of this table
+                        
+                        foreign_key_definition_columns=foreign_key_definition[0]
+                        
+                        foreign_key_definition_values=\
+                            [x['cells'][j]['value'] 
+                             for x in foreign_key_definition_columns]
+                            
+                        #print('foreign_key_definition_values',foreign_key_definition_values)
+                            
+                        # get first row that matches in the reference table
+                        
+                        foreign_key_reference_columns=foreign_key_definition[1]
+                        foreign_key_reference_table=foreign_key_reference_columns[0]['table']
+                        
+                        first_row=None
+                        
+                        for k in range(len(foreign_key_reference_columns[0]['cells'])):
+                            
+                            #print('k',k)
+                            
+                            foreign_key_reference_values=\
+                                [x['cells'][k]['value'] 
+                                 for x in foreign_key_reference_columns]
+                                
+                            #print('foreign_key_reference_values',foreign_key_reference_values)
+                                
+                            if foreign_key_reference_values==foreign_key_definition_values:
+                                
+                                #print('-first_row', k)
+                                
+                                first_row=foreign_key_reference_table['rows'][k]
+                                
+                                break
+                                
+                        if validate:   
+                            
+                            #print('test')
+                            
+                            if first_row is None:
+                                
+                                message='Columns referenced by foreign key do not contain the value required.'
+                                
+                                raise CSVWError(message)
+                            
+                        # append pair to referencedRow property for this row
+                        
+                        #print(remove_recursion(foreign_key_definition))
+                        #print(remove_recursion(first_row,[]))
+                        
+                        annotated_table_dict['rows'][j]['referencedRows'].append(
+                            [foreign_key_definition,
+                             first_row]
+                            )
+                        
+                        #print(remove_recursion([foreign_key_definition,
+                        # first_row]))
+      
     #... for testing
     
     
@@ -2334,7 +2440,7 @@ def create_annotated_table_group(
         with open('annotated_table_group_dict.json','w') as f:
             
             json.dump(
-                remove_recursion(annotated_table_group_dict),
+                display_annotated_table_group_dict(annotated_table_group_dict),
                 f,
                 indent=4
                 )
@@ -2344,27 +2450,86 @@ def create_annotated_table_group(
 
 
 def display_annotated_table_group_dict(
-        annotated_table_group_dict
+        annotated_table_group_dict,
         ):
     ""
-    return remove_recursion(annotated_table_group_dict)
+    return remove_recursion(
+        annotated_table_group_dict,
+        []
+        )
 
 
 def remove_recursion(
         value,
+        ignore_list
         ):
     ""
     if isinstance(value,dict):
         
-        return {k:remove_recursion(v) if not k in 
-                ['table','column','row',
-                  'referencedRows','primaryKey','foreignKeys'] else '__recursion__'
-                for k,v in value.items()
-                }
+        d={}
+        for k,v in value.items():
+            
+            
+            if k in ignore_list:
+                
+                d[k]='__removed__'
+            
+            elif k=='table':
+                
+                d[k]={'__url__': v['url']}
+            
+            elif k=='column':
+                
+                d[k]={'__name__':v['name'],
+                      '__table_url__': v['table']['url']
+                      }
+            
+            elif k=='row':
+                
+                d[k]={'__number__':v['number'],
+                      '__table_url__': v['table']['url']
+                      }
+                
+            
+            elif k=='primaryKey':
+                
+                
+                d[k]=remove_recursion(v,ignore_list+['cells'])
+            
+            elif k=='foreignKeys':
+                
+                d[k]=remove_recursion(v,ignore_list+['cells'])
+            
+            elif k=='referencedRows':
+                
+                d[k]={'__len__':len(v)}
+                
+                d[k]=remove_recursion(v,ignore_list+['referencedRows','cells'])
+                
+                #pass
+                
+            else:
+                
+                d[k]=remove_recursion(v,ignore_list)
+                
+                
+                
+        #     elif 
+        
+        
+        # d={k:remove_recursion(v) if not k in 
+        #         ['table','column','row',
+        #           'referencedRows',
+        #           #'primaryKey',
+        #           'foreignKeys'] else '__recursion__'
+        #         for k,v in value.items()
+        #         }
+        
+        return d
     
     elif isinstance(value,list):
         
-        return [remove_recursion(x) for x in value]
+        return [remove_recursion(x,ignore_list) for x in value]
 
     else:
         
@@ -2397,6 +2562,7 @@ def normalize_url(
 def parse_cells_in_annotated_column_dict(
         annotated_column_dict,
         trim,
+        validate,
         _print_intermediate_outputs=False
         ):
     """
@@ -2522,6 +2688,7 @@ def parse_cells_in_annotated_column_dict(
                 annotated_column_dict['separator'],
                 datatype_parse_function,
                 trim,
+                validate
                 )
             
         if _print_intermediate_outputs: print(cell_value,errors)
@@ -2539,7 +2706,8 @@ def parse_cell_steps_1_to_5(
         required,
         separator,
         datatype_parse_function,
-        trim
+        trim,
+        validate
         ):
     """
     
@@ -2652,7 +2820,8 @@ def parse_cell_steps_1_to_5(
                         null,
                         required,
                         separator,
-                        datatype_parse_function
+                        datatype_parse_function,
+                        validate
                         )
                 
                 #...needed for test036 ????????????????
@@ -2685,7 +2854,8 @@ def parse_cell_steps_1_to_5(
                 null,
                 required,
                 separator,
-                datatype_parse_function
+                datatype_parse_function,
+                validate
                 )
             
         if not json_value is None:
@@ -2712,7 +2882,8 @@ def parse_cell_steps_6_to_9(
         null,
         required,
         separator,
-        datatype_parse_function
+        datatype_parse_function,
+        validate
         ):
     """
     :returns: (json_value, language, value_type, errors)
@@ -2741,9 +2912,15 @@ def parse_cell_steps_6_to_9(
             # ADD ERROR
             message='column separator annotation is null and the column required annotation is true'
             
-            warnings.warn(message)
+            if validate:
+                
+                raise CSVWError(message)
             
-            errors.append(message)
+            else:
+            
+                warnings.warn(message)
+            
+                errors.append(message)
         
         return json_value, language, datatype['base'], errors  # returns None
     
@@ -5875,11 +6052,13 @@ def parse_tabular_data_from_text(
     
     # 12 Return the table T and the embedded metadata M.
         
-    validate_and_normalize_metadata_table_dict(
-        metadata_table_dict,
-        metadata_document_location=None,
-        metadata_table_group_dict=None
-        )
+    # validate_and_normalize_metadata_table_dict(
+    #     metadata_table_dict,
+    #     metadata_document_location=None,
+    #     metadata_table_group_dict=None
+    #     )
+    
+    
     
     return table_dict, metadata_table_dict
     
@@ -7306,7 +7485,8 @@ def validate_top_level_properties(
 
 def validate_and_normalize_metadata_table_group_dict(
         metadata_table_group_dict,
-        metadata_document_location
+        metadata_document_location,
+        validate
         ):
     """
     """
@@ -7760,31 +7940,55 @@ def validate_and_normalize_metadata_table_group_dict(
     # This annotation must be percent-encoded as necessary to 
     # conform to the syntactic requirements defined in [RFC3986].
     
+    lang=metadata_table_group_dict.get('lang',None)
+    
     for metadata_table_dict in metadata_table_group_dict.get('tables',[]):
+        
+        if 'lang' in metadata_table_dict:
+            lang=metadata_table_dict['lang']
         
         if 'tableSchema' in metadata_table_dict:
             
             metadata_schema_dict=metadata_table_dict['tableSchema']
             
+            if 'lang' in metadata_schema_dict:
+                lang=metadata_schema_dict['lang']
+            
             for metadata_column_dict in metadata_schema_dict.get('columns',[]):
+                
+                if 'lang' in metadata_column_dict:
+                    lang=metadata_column_dict['lang']
     
                 if not 'name' in metadata_column_dict:
                     
                     if 'titles' in metadata_column_dict:
-                    
-                        if default_language in metadata_column_dict['titles']:    
-                    
-                            x=metadata_column_dict['titles'][default_language][0]
                         
-                            name=urllib.parse.quote(
-                                x.encode('utf8'),
-                                safe=''  # does not include "/" in safe, so that "dd/MM/yyyy" is quoted to "dd%2DMM%2Dyyyy"
-                                )
-                            name=name.replace('-','%2D')  # required by rdf test 188
+                        for k,v in metadata_column_dict['titles'].items():
+                            
+                            print(v,k, default_language)
+                            
+                            #if (k=='und' and lang is None) or k.startswith(lang):
+                                
+                            if k.startswith(default_language) \
+                                or (k=='und' and default_language=='und'):
+                                
+                        #if default_language in metadata_column_dict['titles']:    
+                    
+                            #x=metadata_column_dict['titles'][default_language][0]
                         
-                            metadata_column_dict['name']=name
+                                x=v[0]
+                        
+                                name=urllib.parse.quote(
+                                    x.encode('utf8'),
+                                    safe=''  # does not include "/" in safe, so that "dd/MM/yyyy" is quoted to "dd%2DMM%2Dyyyy"
+                                    )
+                                name=name.replace('-','%2D')  # required by rdf test 188
+                            
+                                metadata_column_dict['name']=name
+                                
+                                break
 
-                        else:
+                        if not 'name' in metadata_column_dict:
                             
                             message='No title exists with default language tag. '
                             message+=' Column name property is not set.'
@@ -7870,8 +8074,9 @@ def annotate_table_group_dict(
         
         
         
-    # do the foreign key annotations
+    #... do the foreign key annotations
     # - need to do this after all column name properties are set.
+    # - creates list of [list_of_coluns_in_the_table,list_of_columns_in_the_referenced_table]
     
     for i in range(len(metadata_table_group_dict.get('tables',[]))):
         
@@ -7911,51 +8116,67 @@ def annotate_table_group_dict(
                         [fkd_columns,foriegn_key_reference_columns]
                         )
     
-                # referenced rows
+    #             # referenced rows
                 
-                for j in range(len(annotated_table_dict['rows'])):
+    #             # -- NEEDS TO BE DONE LATER AS ALL 'VALUE's are None at present.
+                
+    #             for j in range(len(annotated_table_dict['rows'])):
                     
-                    for foreign_key_definition in annotated_table_dict['foreignKeys']:
+    #                 print('j',j)
+                    
+    #                 for foreign_key_definition in annotated_table_dict['foreignKeys']:
                         
-                        # get foreign key values in this row of this table
+    #                     # get foreign key values in this row of this table
                         
-                        foreign_key_definition_columns=foreign_key_definition[0]
+    #                     foreign_key_definition_columns=foreign_key_definition[0]
                         
-                        foreign_key_definition_values=\
-                            [x['cells'][j]['value'] 
-                             for x in foreign_key_definition_columns]
+    #                     foreign_key_definition_values=\
+    #                         [x['cells'][j]['value'] 
+    #                          for x in foreign_key_definition_columns]
                             
-                        # get first row that matches in the reference table
-                        
-                        foreign_key_reference_columns=foreign_key_definition[1]
-                        foreign_key_reference_table=foreign_key_reference_columns[0]['table']
-                        
-                        first_row=None
-                        
-                        for k in range(len(foreign_key_reference_columns[0]['cells'])):
+    #                     print('foreign_key_definition_values',foreign_key_definition_values)
                             
-                            foreign_key_reference_values=\
-                                [x['cells'][k]['value'] 
-                                 for x in foreign_key_reference_columns]
-                                
-                            if foreign_key_reference_values==foreign_key_definition_values:
-                                
-                                first_row=foreign_key_reference_table['rows'][k]
-                                
-                                break
-                                
-                        if validate:   
-                            
-                            if first_row is None:
-                                
-                                raise Exception
-                            
-                        # append pair to referencedRow property for this row
+    #                     # get first row that matches in the reference table
                         
-                        annotated_table_dict['rows'][j]['referencedRows'].append(
-                            [foreign_key_definition,
-                             first_row]
-                            )
+    #                     foreign_key_reference_columns=foreign_key_definition[1]
+    #                     foreign_key_reference_table=foreign_key_reference_columns[0]['table']
+                        
+    #                     first_row=None
+                        
+    #                     for k in range(len(foreign_key_reference_columns[0]['cells'])):
+                            
+    #                         print('k',k)
+                            
+    #                         foreign_key_reference_values=\
+    #                             [x['cells'][k]['value'] 
+    #                              for x in foreign_key_reference_columns]
+                                
+    #                         print('foreign_key_reference_values',foreign_key_reference_values)
+                                
+    #                         if foreign_key_reference_values==foreign_key_definition_values:
+                                
+    #                             first_row=foreign_key_reference_table['rows'][k]
+                                
+    #                             break
+                                
+    #                     if validate:   
+                            
+    #                         if first_row is None:
+                                
+    #                             raise Exception
+                            
+    #                     # append pair to referencedRow property for this row
+                        
+    #                     #print(remove_recursion(foreign_key_definition))
+    #                     #print(remove_recursion(first_row,[]))
+                        
+    #                     annotated_table_dict['rows'][j]['referencedRows'].append(
+    #                         [foreign_key_definition,
+    #                          first_row]
+    #                         )
+                        
+    #                     #print(remove_recursion([foreign_key_definition,
+    #                     # first_row]))
             
                     
     return annotated_table_group_dict
@@ -8450,9 +8671,12 @@ def compare_table_descriptions(
         
     if 'tableSchema' in TM and 'tableSchema' in EM:
         
+        lang=TM.get('lang','und')
+        
         compare_schema_descriptions(
             TM['tableSchema'],
             EM['tableSchema'],
+            lang,
             validate
             )
         
@@ -9045,10 +9269,13 @@ def get_referenced_table_and_columns_from_foreign_key_reference(
 def compare_schema_descriptions(
         TM_schema,
         EM_schema,
+        lang,
         validate
         ):
     """
     """
+    lang=TM_schema.get('lang',lang)
+    
     # Two schemas are compatible if they have the same number of non-virtual 
     # column descriptions, and the non-virtual column descriptions at the 
     # same index within each are compatible with each other. 
@@ -9089,6 +9316,11 @@ def compare_schema_descriptions(
         TM_column=TM_non_virtual_columns[i]
         EM_column=EM_non_virtual_columns[i]
         
+        lang=TM_column.get('lang',lang)
+        
+        #print('i',i)
+        #print(validate)
+        
         #
         if not 'name' in TM_column and not 'titles' in TM_column:
             
@@ -9097,6 +9329,8 @@ def compare_schema_descriptions(
         if not 'name' in EM_column and not 'titles' in EM_column:
             
             continue
+        
+        #print('test')
         
         #
         if 'name' in TM_column and 'name' in EM_column:
@@ -9108,13 +9342,42 @@ def compare_schema_descriptions(
         #
         intersection=False
         
-        for TM_lang_tag,TM_titles in TM_column.get('titles',{}).items():
+        TM_column_titles=TM_column.get('titles',{})
+        if isinstance(TM_column_titles,str):
+            TM_column_titles=[TM_column_titles]
+        if isinstance(TM_column_titles,list):
+            TM_column_titles={lang:TM_column_titles}
             
-            for EM_lang_tag,EM_titles in EM_column.get('titles',{}).items():
+        EM_column_titles=EM_column.get('titles',{})
+        if isinstance(EM_column_titles,str):
+            EM_column_titles=[EM_column_titles]
+        if isinstance(EM_column_titles,list):
+            EM_column_titles={lang:EM_column_titles}
+                
+        
+        
+        for TM_lang_tag,TM_titles in TM_column_titles.items():
+            
+            
+            
+            for EM_lang_tag,EM_titles in EM_column_titles.items():
+                
+                TM_lang_tag=langcodes.standardize_tag(TM_lang_tag)
+                EM_lang_tag=langcodes.standardize_tag(EM_lang_tag)
+                
+                if not EM_lang_tag=='und':
+                    if len(TM_lang_tag)<len(EM_lang_tag):
+                        EM_lang_tag=EM_lang_tag[:len(TM_lang_tag)]
+                if not TM_lang_tag=='und':
+                    if len(EM_lang_tag)<len(TM_lang_tag):
+                        TM_lang_tag=TM_lang_tag[:len(EM_lang_tag)]
+                        
+                #print('TM_lang_tag,TM_titles',TM_lang_tag,TM_titles)
+                #print('TM_lang_tag,TM_titles',TM_lang_tag,TM_titles)
+                
                 
                 if TM_lang_tag=='und' or EM_lang_tag=='und' \
-                    or langcodes.standardize_tag(TM_lang_tag)== \
-                        langcodes.standardize_tag(EM_lang_tag):
+                    or TM_lang_tag==EM_lang_tag:
                             
                     for title in TM_titles:
                         if title in EM_titles:
@@ -11798,6 +12061,14 @@ def normalize_natural_language_property(
         else:  # i.e. property value is an array
         
             property_value={default_language:property_value}
+            
+    else:
+        
+        for k,v in property_value.items():
+            
+            if not isinstance(v,list):
+                
+                property_value[k]=[v]
            
     metadata_obj_dict[property_name]=property_value
             

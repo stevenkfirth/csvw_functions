@@ -1779,6 +1779,108 @@ class Test_RDF_Section_7(unittest.TestCase):
 class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
     ""
     
+    def test_W3C_CSVW_Validation_test_cases(self):
+        ""
+        
+        #warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
+        
+        p=True
+        #p=False
+    
+        with open(os.path.join(test_dir,'manifest-validation.jsonld')) as f:
+            
+            manifest=json.load(f)
+            
+        # loop through json tests
+        for i,entry in enumerate(manifest['entries']):
+            
+            #if not i==23: continue
+            
+            if p: print(i)
+            
+            if p: print('-manifest-entry',entry)
+            
+            
+            action_fp=os.path.join(test_dir,entry['action'])
+            
+            if 'result' in entry:
+                result_fp=os.path.join(test_dir,entry['result'])
+            
+            # overriding metadata option
+            if 'metadata' in entry['option']:
+                overriding_metadata_file_path_or_url=\
+                    os.path.join(test_dir,entry['option']['metadata'])
+            else:
+                overriding_metadata_file_path_or_url=None
+                
+            # Link Header
+            _link_header=entry.get('httpLink')
+            
+            # well known text
+            _well_known_text='{+url}-metadata.json\ncsv-metadata.json\n{+url}.json\ncsvm.json'
+            
+            # validate option
+            validate=True
+            
+            #raise Exception
+            
+            #with warnings.catch_warnings() as w:
+                
+            #if i==126: entry['type']='csvt:WarningValidationTest'
+                
+                
+            if entry['type']=='csvt:PositiveValidationTest':
+                
+                annotated_table_group_dict=\
+                    csvw_functions.create_annotated_table_group(
+                            action_fp,
+                            overriding_metadata_file_path_or_url,
+                            validate=validate,
+                            _link_header=_link_header,
+                            _well_known_text=_well_known_text,
+                            _save_intermediate_and_final_outputs_to_file=True,
+                            #_print_intermediate_outputs=p
+                            )
+                    
+            elif entry['type']=='csvt:WarningValidationTest':    
+            
+                with self.assertWarns(UserWarning) as cm:
+            
+                    annotated_table_group_dict=\
+                        csvw_functions.create_annotated_table_group(
+                                action_fp,
+                                overriding_metadata_file_path_or_url,
+                                validate=validate,
+                                _link_header=_link_header,
+                                _well_known_text=_well_known_text,
+                                _save_intermediate_and_final_outputs_to_file=True,
+                                #_print_intermediate_outputs=p
+                                )
+                        
+                    #print([str(x) for x in cm.warnings])
+                        
+            elif entry['type']=='csvt:NegativeValidationTest':    
+            
+                with self.assertRaises(csvw_functions.CSVWError):
+            
+                    annotated_table_group_dict=\
+                        csvw_functions.create_annotated_table_group(
+                                action_fp,
+                                overriding_metadata_file_path_or_url,
+                                validate=validate,
+                                _link_header=_link_header,
+                                _save_intermediate_and_final_outputs_to_file=True,
+                                #_print_intermediate_outputs=p
+                                )
+                        
+            else:
+                
+                raise Exception(entry['type'])
+                    
+            #print(csvw_functions.display_annotated_table_group_dict(annotated_table_group_dict))
+        
+        warnings.filterwarnings("always",category=UserWarning)  # warnings always printed out
+    
     def test_W3C_CSVW_RDF_test_cases(self):
         ""
         
@@ -2209,24 +2311,24 @@ if __name__=='__main__':
         runner.run(suite)
         
     # TESTCASE - Generating JSON from Tabular Data on the Web
-    unittest.main(Test_JSON_Section_6())
+    #unittest.main(Test_JSON_Section_6())
     #run_single_test(Test_JSON_Section_6,'test_section_6_1_simple_example')
     #run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_JSON_Section_6,'test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
     #run_single_test(Test_JSON_Section_6,'test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
     
     # TESTCASE - Generating RDF from Tabular Data on the Web
-    unittest.main(Test_RDF_Section_7())
+    #unittest.main(Test_RDF_Section_7())
     #run_single_test(Test_RDF_Section_7,'test_section_7_1_simple_example')
     #run_single_test(Test_RDF_Section_7,'test_section_7_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_RDF_Section_7,'test_section_7_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
     #run_single_test(Test_RDF_Section_7,'test_section_7_4_Example_with_table_group_comprising_four_interrelated_tables')
     
     # TESTCASE - W3C CSVW Test Suite
-    unittest.main(Test_W3C_CSVW_Test_Cases())
+    #unittest.main(Test_W3C_CSVW_Test_Cases())
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
-    
+    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Validation_test_cases')
     
     #unittest.main()
     
