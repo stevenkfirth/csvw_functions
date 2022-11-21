@@ -43,7 +43,7 @@ class Test_JSON_Section_6(unittest.TestCase):
     def test_section_6_1_simple_example(self):
         ""
         
-        fp=r'generating_json_from_tabular_data_example_files/example_6_1/countries.csv'
+        fp=r'generating_json_from_tabular_data_example_files/section_6_1/countries.csv'
         annotated_table_group_dict=\
             csvw_functions.create_annotated_table_group(
                 fp
@@ -172,44 +172,33 @@ class Test_JSON_Section_6(unittest.TestCase):
             )
         
         
-        # minimal mode
+        # ---minimal mode---
         
         json_ld=\
             csvw_functions.create_json_ld(
                     annotated_table_group_dict,
                     mode='minimal'
                     )
-            
         #print(json_ld)
         
-        # TO DO - LOAD SOLUTION FILE
+        fp=r'generating_json_from_tabular_data_example_files/section_6_1/countries-minimal.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        #print(json_ld_solution)
+            
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
+            )
         
         self.assertEqual(
             json_ld,
-            [{ 
-              "countryCode": "AD", 
-              "latitude": "42.5", 
-              "longitude": "1.6", 
-              "name": "Andorra" 
-            }, { 
-              "countryCode": "AE", 
-              "latitude": "23.4", 
-              "longitude": "53.8", 
-              "name": "United Arab Emirates" 
-            }, { 
-              "countryCode": "AF", 
-              "latitude": "33.9", 
-              "longitude": "67.7", 
-              "name": "Afghanistan" 
-            }])
+            json_ld_solution
+            )
+            
                 
-        # standard mode
-        
-        # x=os.path.join(os.getcwd(),'generating_json_from_tabular_data_example_files').replace('\\','/')
-        # _replace_strings=[
-        #     (r'file:///'+x+'/',
-        #      'http://example.org/')
-        #     ]
+        # --- standard mode ---
         
         json_ld=\
             csvw_functions.create_json_ld(
@@ -219,56 +208,35 @@ class Test_JSON_Section_6(unittest.TestCase):
                     #convert_local_path_to_example_dot_org=True
                     #_replace_strings=_replace_strings
                     )
+        json_ld=csvw_functions.csvw_functions.replace_string(
+            json_ld, 
+            r'generating_json_from_tabular_data_example_files/section_6_1/', 
+            ''
+            )
         #print(json_ld)
         
-        self.maxDiff=None
+        fp=r'generating_json_from_tabular_data_example_files/section_6_1/countries-standard.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        #print(json_ld_solution)
+        
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
+            )
         
         self.assertEqual(
             json_ld,
-            {'tables': [
-                {'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv', 
-                 'row': [
-                     {'rownum': 1, 
-                      'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv#row=2', 
-                      'describes': [
-                          {'countryCode': 'AD', 
-                           'latitude': '42.5', 
-                           'longitude': '1.6', 
-                           'name': 'Andorra'
-                           }
-                          ]
-                      }, 
-                     {'rownum': 2, 
-                      'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv#row=3', 
-                      'describes': [
-                            {'countryCode': 'AE', 
-                             'latitude': '23.4', 
-                             'longitude': '53.8', 
-                             'name': 'United Arab Emirates'
-                             }
-                            ]
-                        }, 
-                    {'rownum': 3, 
-                     'url': 'http://example.org/generating_json_from_tabular_data_example_files/example_6_1/countries.csv#row=4', 
-                     'describes': [
-                         {'countryCode': 'AF', 
-                          'latitude': '33.9', 
-                          'longitude': '67.7', 
-                          'name': 'Afghanistan'}
-                         ]
-                     }
-                    ]
-                 }
-                ]
-                }
-            
+            json_ld_solution
             )
+        
         
         
     def test_section_6_2_Example_with_single_table_and_rich_annotations(self):
         ""
         
-        fp=r'generating_json_from_tabular_data_example_files/tree-ops-ext.csv-metadata.json'
+        fp=r'generating_json_from_tabular_data_example_files/section_6_2/tree-ops-ext.csv-metadata.json'
         annotated_table_group_dict=\
             csvw_functions.create_annotated_table_group(fp)
         
@@ -553,6 +521,70 @@ class Test_JSON_Section_6(unittest.TestCase):
              'http://example.org/tree-ops-ext#gid-6', 
              'http://example.org/tree-ops-ext#gid-6']
             )
+        
+        
+        # ---minimal mode---
+        
+        json_ld=\
+            csvw_functions.create_json_ld(
+                    annotated_table_group_dict,
+                    mode='minimal'
+                    )
+        #print(json_ld)
+        
+        fp=r'generating_json_from_tabular_data_example_files/section_6_2/tree-ops-ext-minimal.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        #print(json_ld_solution)
+            
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
+            )
+        
+        self.assertEqual(
+            json_ld,
+            json_ld_solution
+            )
+            
+                
+        # --- standard mode ---
+        
+        json_ld=\
+            csvw_functions.create_json_ld(
+                    annotated_table_group_dict,
+                    mode='standard',
+                    local_path_replacement_url='http://example.org/'
+                    #convert_local_path_to_example_dot_org=True
+                    #_replace_strings=_replace_strings
+                    )
+        json_ld=csvw_functions.csvw_functions.replace_string(
+            json_ld, 
+            r'generating_json_from_tabular_data_example_files/section_6_2/', 
+            ''
+            )
+        #print(json_ld)
+        
+        fp=r'generating_json_from_tabular_data_example_files/section_6_2/tree-ops-ext-standard.json'
+        with open(fp) as f:
+            json_ld_solution=json.load(f)
+        #print(json_ld_solution)
+        
+        compare_json(
+            self,
+            json_ld,
+            json_ld_solution
+            )
+        
+        self.assertEqual(
+            json_ld,
+            json_ld_solution
+            )
+        
+        
+        
+        return
         
         
         # minimal mode
@@ -2434,7 +2466,7 @@ if __name__=='__main__':
     # TESTCASE - Generating JSON from Tabular Data on the Web
     #unittest.main(Test_JSON_Section_6())
     #run_single_test(Test_JSON_Section_6,'test_section_6_1_simple_example')
-    #run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
+    run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_JSON_Section_6,'test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
     #run_single_test(Test_JSON_Section_6,'test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
     
