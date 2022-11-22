@@ -6,19 +6,15 @@
             "columns": [
                 {
                     "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                     },
                     "number": 1,
                     "sourceNumber": 1,
-                    "name": "GID",
+                    "name": "col1",
                     "titles": [
                         {
-                            "@value": "GID",
-                            "@language": "en"
-                        },
-                        {
-                            "@value": "Generic Identifier",
-                            "@language": "en"
+                            "@value": "col1",
+                            "@language": "und"
                         }
                     ],
                     "virtual": false,
@@ -29,81 +25,101 @@
                     "default": "",
                     "lang": "und",
                     "null": "",
-                    "ordered": false,
-                    "required": true,
-                    "separator": null,
+                    "ordered": true,
+                    "required": false,
+                    "separator": ";",
                     "textDirection": "auto",
-                    "aboutURL": "#gid-{GID}",
-                    "propertyURL": null,
+                    "aboutURL": "#about",
+                    "propertyURL": "#value",
                     "valueURL": null,
                     "cells": [
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "GID",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col1",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "1",
-                            "value": {
-                                "@value": "1",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "1;2;3",
+                            "value": [
+                                {
+                                    "@value": "1",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "2",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "3",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         },
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "GID",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col1",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "2",
-                            "value": {
-                                "@value": "2",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "a;b;c",
+                            "value": [
+                                {
+                                    "@value": "a",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "b",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "c",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         }
-                    ],
-                    "dc:description": {
-                        "@value": "An identifier for the operation on a tree.",
-                        "@language": "en"
-                    }
+                    ]
                 },
                 {
                     "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                     },
                     "number": 2,
                     "sourceNumber": 2,
-                    "name": "on_street",
+                    "name": "col2",
                     "titles": [
                         {
-                            "@value": "On Street",
-                            "@language": "en"
+                            "@value": "col2",
+                            "@language": "und"
                         }
                     ],
                     "virtual": false,
@@ -116,481 +132,171 @@
                     "null": "",
                     "ordered": false,
                     "required": false,
-                    "separator": null,
+                    "separator": ";",
                     "textDirection": "auto",
-                    "aboutURL": "#gid-{GID}",
-                    "propertyURL": null,
+                    "aboutURL": "#about",
+                    "propertyURL": "#value",
                     "valueURL": null,
                     "cells": [
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "on_street",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col2",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "ADDISON AV",
-                            "value": {
-                                "@value": "ADDISON AV",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "4;5;6",
+                            "value": [
+                                {
+                                    "@value": "4",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "5",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "6",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         },
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "on_street",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col2",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "EMERSON ST",
-                            "value": {
-                                "@value": "EMERSON ST",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "d;e;f",
+                            "value": [
+                                {
+                                    "@value": "d",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "e",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "f",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         }
-                    ],
-                    "dc:description": {
-                        "@value": "The street that the tree is on.",
-                        "@language": "en"
-                    }
-                },
-                {
-                    "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                    },
-                    "number": 3,
-                    "sourceNumber": 3,
-                    "name": "species",
-                    "titles": [
-                        {
-                            "@value": "Species",
-                            "@language": "en"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "string"
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": "#gid-{GID}",
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "species",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Celtis australis",
-                            "value": {
-                                "@value": "Celtis australis",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "species",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Liquidambar styraciflua",
-                            "value": {
-                                "@value": "Liquidambar styraciflua",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
-                    "dc:description": {
-                        "@value": "The species of the tree.",
-                        "@language": "en"
-                    }
-                },
-                {
-                    "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                    },
-                    "number": 4,
-                    "sourceNumber": 4,
-                    "name": "trim_cycle",
-                    "titles": [
-                        {
-                            "@value": "Trim Cycle",
-                            "@language": "en"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "string"
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": "#gid-{GID}",
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "trim_cycle",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Large Tree Routine Prune",
-                            "value": {
-                                "@value": "Large Tree Routine Prune",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "trim_cycle",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Large Tree Routine Prune",
-                            "value": {
-                                "@value": "Large Tree Routine Prune",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
-                    "dc:description": {
-                        "@value": "The operation performed on the tree.",
-                        "@language": "en"
-                    }
-                },
-                {
-                    "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                    },
-                    "number": 5,
-                    "sourceNumber": 5,
-                    "name": "inventory_date",
-                    "titles": [
-                        {
-                            "@value": "Inventory Date",
-                            "@language": "en"
-                        }
-                    ],
-                    "virtual": false,
-                    "suppressOutput": false,
-                    "datatype": {
-                        "base": "date",
-                        "format": "M/d/yyyy"
-                    },
-                    "default": "",
-                    "lang": "und",
-                    "null": "",
-                    "ordered": false,
-                    "required": false,
-                    "separator": null,
-                    "textDirection": "auto",
-                    "aboutURL": "#gid-{GID}",
-                    "propertyURL": null,
-                    "valueURL": null,
-                    "cells": [
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "inventory_date",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "10/18/2010",
-                            "value": {
-                                "@value": "2010-10-18",
-                                "@type": "http://www.w3.org/2001/XMLSchema#date"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "inventory_date",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "6/2/2010",
-                            "value": {
-                                "@value": "2010-06-02",
-                                "@type": "http://www.w3.org/2001/XMLSchema#date"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
-                    "dc:description": {
-                        "@value": "The date of the operation that was performed.",
-                        "@language": "en"
-                    }
+                    ]
                 }
             ],
             "rows": [
                 {
                     "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                     },
                     "number": 1,
                     "sourceNumber": 2,
-                    "primaryKey": [
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "GID",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "1",
-                            "value": {
-                                "@value": "1",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
+                    "primaryKey": [],
                     "referencedRows": [],
                     "cells": [
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "GID",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col1",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "1",
-                            "value": {
-                                "@value": "1",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "1;2;3",
+                            "value": [
+                                {
+                                    "@value": "1",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "2",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "3",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         },
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "on_street",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col2",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "ADDISON AV",
-                            "value": {
-                                "@value": "ADDISON AV",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "4;5;6",
+                            "value": [
+                                {
+                                    "@value": "4",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "5",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "6",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "species",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Celtis australis",
-                            "value": {
-                                "@value": "Celtis australis",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "trim_cycle",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Large Tree Routine Prune",
-                            "value": {
-                                "@value": "Large Tree Routine Prune",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "inventory_date",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 1,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "10/18/2010",
-                            "value": {
-                                "@value": "2010-10-18",
-                                "@type": "http://www.w3.org/2001/XMLSchema#date"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-1",
-                            "propertyURL": null,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         }
                     ],
@@ -598,161 +304,85 @@
                 },
                 {
                     "table": {
-                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                        "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                     },
                     "number": 2,
                     "sourceNumber": 3,
-                    "primaryKey": [
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "GID",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "2",
-                            "value": {
-                                "@value": "2",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        }
-                    ],
+                    "primaryKey": [],
                     "referencedRows": [],
                     "cells": [
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "GID",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col1",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "2",
-                            "value": {
-                                "@value": "2",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "a;b;c",
+                            "value": [
+                                {
+                                    "@value": "a",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "b",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "c",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
+                            "ordered": true,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         },
                         {
                             "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "column": {
-                                "__name__": "on_street",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__name__": "col2",
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
                             "row": {
                                 "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
+                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv"
                             },
-                            "stringValue": "EMERSON ST",
-                            "value": {
-                                "@value": "EMERSON ST",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
+                            "stringValue": "d;e;f",
+                            "value": [
+                                {
+                                    "@value": "d",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "e",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                },
+                                {
+                                    "@value": "f",
+                                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                                    "@language": "und"
+                                }
+                            ],
                             "errors": [],
                             "textDirection": "auto",
                             "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "species",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Liquidambar styraciflua",
-                            "value": {
-                                "@value": "Liquidambar styraciflua",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "trim_cycle",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "Large Tree Routine Prune",
-                            "value": {
-                                "@value": "Large Tree Routine Prune",
-                                "@type": "http://www.w3.org/2001/XMLSchema#string",
-                                "@language": "und"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
-                            "valueURL": null
-                        },
-                        {
-                            "table": {
-                                "__url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "column": {
-                                "__name__": "inventory_date",
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "row": {
-                                "__number__": 2,
-                                "__table_url__": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv"
-                            },
-                            "stringValue": "6/2/2010",
-                            "value": {
-                                "@value": "2010-06-02",
-                                "@type": "http://www.w3.org/2001/XMLSchema#date"
-                            },
-                            "errors": [],
-                            "textDirection": "auto",
-                            "ordered": false,
-                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv#gid-2",
-                            "propertyURL": null,
+                            "aboutURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#about",
+                            "propertyURL": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv#value",
                             "valueURL": null
                         }
                     ],
@@ -760,45 +390,17 @@
                 }
             ],
             "id": null,
-            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test011/tree-ops.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test307.csv",
             "tableDirection": "auto",
             "suppressOutput": false,
             "notes": [],
             "foreignKeys": [],
             "transformations": [],
-            "dc:title": {
-                "@value": "Tree Operations",
-                "@language": "en"
+            "rdfs:label": {
+                "@value": "multiple values with same subject and property (ordered and unordered)"
             },
-            "dcat:keyword": [
-                {
-                    "@value": "tree",
-                    "@language": "en"
-                },
-                {
-                    "@value": "street",
-                    "@language": "en"
-                },
-                {
-                    "@value": "maintenance",
-                    "@language": "en"
-                }
-            ],
-            "dc:publisher": {
-                "schema:name": {
-                    "@value": "Example Municipality",
-                    "@language": "en"
-                },
-                "schema:url": {
-                    "@id": "http://example.org"
-                }
-            },
-            "dc:license": {
-                "@id": "http://opendefinition.org/licenses/cc-by/"
-            },
-            "dc:modified": {
-                "@value": "2010-12-31",
-                "@type": "xsd:date"
+            "rdfs:comment": {
+                "@value": "Values in separate columns using the same propertyUrl are kept in proper relative order."
             }
         }
     ]

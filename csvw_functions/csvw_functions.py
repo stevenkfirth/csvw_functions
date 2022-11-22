@@ -1327,7 +1327,7 @@ def get_overriding_metadata(
         x=os.path.abspath(overriding_metadata_file_path_or_url)
         x=x.replace('\\','/')
         x=r'file:///'+x
-        x=urllib.parse.quote(x,safe=':/#?')
+        x=urllib.parse.quote(x,safe=':/#?%')
         
         metadata_document_location=normalize_url(x)
             
@@ -1453,19 +1453,17 @@ def get_metadata_from_link_header(
             
         table_url=metadata_table_group_dict['tables'][0]['url']  
         
-        #print('-table_url',table_url)
+        x={'url':table_url}
+        normalize_link_property(
+            x, 
+            'url', 
+            base_url)
+        table_url_normalized=x['url']
         
-        #...resolve table_url
-        table_url=\
-            urllib.parse.urljoin(
-                tabular_data_file_url,
-                table_url
-                )  
-            
-        #print('-table_url',table_url)
+        #print('-table_url_normalized',table_url_normalized
         #print('-tabular_data_file_url',tabular_data_file_url)
         
-        if table_url==tabular_data_file_url:
+        if table_url_normalized==tabular_data_file_url:
             
             return metadata_table_group_dict, metadata_document_location
             
@@ -1617,7 +1615,7 @@ def get_metadata_from_default_or_site_wide_location(
                     metadata_document_dict,
                     metadata_url
                     )       
-            print('base_url',base_url)
+            #print('base_url',base_url)
             
             if 'tables' in metadata_document_dict:
                 
@@ -1630,64 +1628,22 @@ def get_metadata_from_default_or_site_wide_location(
             else:
             
                 raise CSVWError
-            
-            table_url_split=table_url.split('?')[0]
-            
-            
             #print('-table_url',table_url)
             
-            #...set up the url
-            
-            base_url_dirname=os.path.dirname(base_url)
-            base_url_dirname=base_url_dirname.replace('file:///','').replace('%20',' ')
-            
-            
-            if os.path.isfile(table_url_split):
+            x={'url':table_url}
+            normalize_link_property(
+                x, 
+                'url', 
+                base_url)
+            table_url_normalized=x['url']
                 
-                table_url=\
-                    normalize_url(
-                        fr'file:///{os.path.abspath(table_url)}'
-                        )
-                    
-                table_url_resolved=table_url.replace('\\','/')
-                
-                table_url_resolved=urllib.parse.quote(
-                    table_url_resolved,
-                    safe=':/#?'
-                    )
-                
-            elif os.path.isfile(os.path.join(base_url_dirname,table_url_split)):
-                
-                table_url=\
-                    normalize_url(
-                        fr'file:///{os.path.join(base_url_dirname,table_url)}'
-                        )
-                
-                table_url_resolved=table_url.replace('\\','/')
-                
-                table_url_resolved=urllib.parse.quote(
-                    table_url_resolved,
-                    safe=':/#?'
-                    )
-                
-            else:
-                
-                table_url_resolved=table_url
-                
-                table_url_resolved=\
-                    normalize_url(
-                        table_url
-                        )
-                
-             
-                
-            #print('-table_url_resolved',table_url_resolved)
+            #print('-table_url_normalized',table_url_normalized)
             #print('-tabular_data_file_url',tabular_data_file_url)
-            #print(table_url_resolved==tabular_data_file_url)
+            #print(table_url_normalized==tabular_data_file_url)
             
-            if table_url_resolved==tabular_data_file_url:
+            if table_url_normalized==tabular_data_file_url:
                     
-                print('test')
+                #print('test')
                 
                 return metadata_document_dict,metadata_url
             
@@ -1864,7 +1820,9 @@ def create_annotated_table_group(
         #message='"input_file_path_or_url" must end with either ".json" or ".csv"/'    
     
         #raise CSVWError(message)
-        
+      
+    
+      
         
     # If processing starts with a tabular data file, implementations:
         
@@ -1873,7 +1831,6 @@ def create_annotated_table_group(
         # 1. Retrieve the tabular data file.
         
         #...set up the url
-        base_dir=os.getcwd()
         
         #... if it looks like a local file
         if not hyperlink.parse(input_file_path_or_url).absolute:  # only returns true if e.g. 'http://...'
@@ -1884,11 +1841,11 @@ def create_annotated_table_group(
             
             else:
                 
-                x=os.path.join(base_dir,input_file_path_or_url)
+                x=os.path.join(os.getcwd(),input_file_path_or_url)
             
             x=x.replace('\\','/')
             x=r'file:///'+x
-            x=urllib.parse.quote(x,safe=':/#?')
+            x=urllib.parse.quote(x,safe=':/#?%')
             x=normalize_url(x)
             
             tabular_data_file_url=x
@@ -1962,15 +1919,24 @@ def create_annotated_table_group(
         #    Metadata).
         
         #...set up the url
-        if os.path.isfile(input_file_path_or_url):
+        
+        if not hyperlink.parse(input_file_path_or_url).absolute:  # only returns true if e.g. 'http://...'
             
-            x=os.path.abspath(input_file_path_or_url)
+            if input_file_path_or_url==os.path.abspath(input_file_path_or_url):
+                
+                x=input_file_path_or_url
+            
+            else:
+                
+                x=os.path.join(os.getcwd(),input_file_path_or_url)
+            
             x=x.replace('\\','/')
             x=r'file:///'+x
-            x=urllib.parse.quote(x,safe=':/#?')
-            
-            metadata_document_location=normalize_url(x)
-            
+            x=urllib.parse.quote(x,safe=':/#?%')
+            x=normalize_url(x)
+        
+            metadata_document_location=x
+        
         else:
             
             metadata_document_location=\
@@ -2089,31 +2055,9 @@ def create_annotated_table_group(
             
         #...set up table url and headers
             
-        url=metadata_table_dict['url']
+        tabular_data_file_url=metadata_table_dict['url']
         
-        print('-url',url)
         
-        #...set up the url
-        if os.path.isfile(url):
-            
-            print('test2')
-            
-            x=os.path.abspath(url)
-            x=x.replace('\\','/')
-            x=r'file:///'+x
-            x=urllib.parse.quote(x,safe=':/#?')
-            
-            tabular_data_file_url=normalize_url(x)
-                
-            
-            
-        else:
-            
-            tabular_data_file_url=\
-                urllib.parse.urljoin(
-                    metadata_document_location,
-                    url
-                    )
                 
         if tabular_data_file_url.startswith('file'):
             
@@ -2670,6 +2614,12 @@ def normalize_url(
     'file:///c:/test 001.csv' -> 'file:///c:/test 001.csv'
     
     'file:///c:/test/../test001.csv' -> 'file:///c:/test001.csv'
+    
+    
+    see: https://hyperlink.readthedocs.io/en/latest/api.html?highlight=normalize#hyperlink.URL.normalize
+    
+    does not percent encode (except for stray percent characters in an already percent encoded url)
+    
     
     """
     
@@ -7265,7 +7215,7 @@ def get_URI_from_URI_template(
     #... percent encoding any spaces
     url=urllib.parse.quote(
         url.encode('utf8'),
-        safe='/:#%='
+        safe='/:#%=%'
         )
         
     #print('-url',url)
@@ -12517,9 +12467,9 @@ def normalize_link_property(
         property_value=\
             urllib.parse.urljoin(
                 base_url,
-                property_value
+                urllib.parse.quote(property_value,safe=':/#?%')
                 )  
-        
+            
         property_value=normalize_url(property_value)
         
         #print('-property_value2',property_value)

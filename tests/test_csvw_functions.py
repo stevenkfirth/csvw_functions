@@ -2006,7 +2006,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         # loop through json tests
         for i,entry in enumerate(manifest['entries']):
             
-            #if not i==23: continue
+            #if i==1: break
             
             if p: print(i)
             
@@ -2048,7 +2048,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                             _link_header=_link_header,
                             _well_known_text=_well_known_text,
                             _save_intermediate_and_final_outputs_to_file=True,
-                            #_print_intermediate_outputs=p
+                            _print_intermediate_outputs=p
                             )
                     
             elif entry['type']=='csvt:ToRdfTestWithWarnings':    
@@ -2063,7 +2063,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                                 _link_header=_link_header,
                                 _well_known_text=_well_known_text,
                                 _save_intermediate_and_final_outputs_to_file=True,
-                                #_print_intermediate_outputs=p
+                                _print_intermediate_outputs=p
                                 )
                         
             elif entry['type']=='csvt:NegativeRdfTest':    
@@ -2077,7 +2077,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                                 validate=validate,
                                 _link_header=_link_header,
                                 _save_intermediate_and_final_outputs_to_file=True,
-                                #_print_intermediate_outputs=p
+                                _print_intermediate_outputs=p
                                 )
                         
             else:
@@ -2122,12 +2122,12 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
                 result_fp,
                 format='ttl'
                 )
-            for s,p,o in g_solution:
+            for s,p1,o in g_solution:
                 if isinstance(o,Literal) and o.datatype is None and o.language is None:
                     o2=Literal(o,datatype=XSD.string)
                 else:
                     o2=o
-                g2.add((s,p,o2))   
+                g2.add((s,p1,o2))   
             #print(g2.serialize(format='ttl'))
             #g2.serialize('g2.ttl',format='ttl')
             
@@ -2145,8 +2145,8 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         
         warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
         
-        #p=False
-        p=True
+        p=False
+        #p=True
         
         with open(os.path.join(test_dir,'manifest-json.jsonld')) as f:
             
@@ -2155,7 +2155,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         # loop through json tests
         for i,entry in enumerate(manifest['entries']):
             
-            if i>7: break
+            #if i>0: break
             
             #if not i==23: continue
             
@@ -2439,8 +2439,8 @@ if __name__=='__main__':
     # TESTCASE - W3C CSVW Test Suite
     #unittest.main(Test_W3C_CSVW_Test_Cases())
     run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
-    #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
-    #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Validation_test_cases')
+    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
+    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Validation_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Non_Normative_test_cases')
     
     #unittest.main()
