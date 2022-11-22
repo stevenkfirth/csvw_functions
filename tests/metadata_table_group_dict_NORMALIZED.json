@@ -2,52 +2,27 @@
     "@context": "http://www.w3.org/ns/csvw",
     "tables": [
         {
-            "rdfs:comment": {
-                "@value": "Invalid datatype string value"
-            },
-            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv",
             "tableSchema": {
                 "columns": [
                     {
-                        "name": "GID",
-                        "datatype": {
-                            "base": "string"
-                        }
-                    },
-                    {
-                        "name": "on_street",
                         "titles": {
                             "und": [
-                                "On Street"
+                                "Surname"
                             ]
-                        }
+                        },
+                        "name": "Surname"
                     },
                     {
-                        "name": "species",
                         "titles": {
                             "und": [
-                                "Species"
+                                "FamilyName"
                             ]
-                        }
-                    },
-                    {
-                        "name": "trim_cycle",
-                        "titles": {
-                            "und": [
-                                "Trim Cycle"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "inventory_date",
-                        "titles": {
-                            "und": [
-                                "Inventory Date"
-                            ]
-                        }
+                        },
+                        "name": "FamilyName"
                     }
                 ]
-            }
+            },
+            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test003.csv"
         }
     ]
 }

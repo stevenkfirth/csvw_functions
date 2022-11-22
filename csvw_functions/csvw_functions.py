@@ -5979,11 +5979,31 @@ def parse_tabular_data_from_text(
     quote_character=dialect_description_dict.get('quoteCharacter','"')
     skip_blank_rows=dialect_description_dict.get('skipBlankRows',False)
     skip_columns=dialect_description_dict.get('skipColumns',0)
+    skipInitialSpace=dialect_description_dict.get('skipInitialSpace',False)
     skip_rows=dialect_description_dict.get('skipRows',0)
     trim=dialect_description_dict.get('trim',True)  # one of True, False, "true", "false", "start", "end"
+    
     #...skipInitialSpace is ignored as there is a contradiction here
     #...if the trim property has a default of True, then this always overrides
     #...the skipInitialSpace property
+    
+    # skipInitialSpace
+    # A boolean atomic property that, if true, sets the trim flag to "start" 
+    # and if false, to false. If the trim property is provided, the 
+    # skipInitialSpace property is ignored. The default is false.
+    # if trim is None:
+        
+    #     if skipInitialSpace:
+            
+    #         trim='start'
+            
+    #     else:
+            
+    #         trim=False
+            
+    # print('trim',trim)
+    
+    
                 
     #print('dialect_description_obj_dict',dialect_description_obj_dict)
     #print('header_row_count',header_row_count)

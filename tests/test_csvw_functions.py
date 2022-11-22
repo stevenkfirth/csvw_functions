@@ -1779,6 +1779,112 @@ class Test_RDF_Section_7(unittest.TestCase):
 class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
     ""
     
+    
+    def test_W3C_CSVW_Non_Normative_test_cases(self):
+        ""
+        
+        #warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
+        
+        p=True
+        #p=False
+    
+        with open(os.path.join(test_dir,'manifest-nonnorm.jsonld')) as f:
+            
+            manifest=json.load(f)
+            
+        # loop through json tests
+        for i,entry in enumerate(manifest['entries']):
+            
+            #if not i==23: continue
+            
+            if p: print(i)
+            
+            if p: print('-manifest-entry',entry)
+            
+            
+            action_fp=os.path.join(test_dir,entry['action'])
+            
+            if 'result' in entry:
+                result_fp=os.path.join(test_dir,entry['result'])
+            
+            # overriding metadata option
+            if 'metadata' in entry['option']:
+                overriding_metadata_file_path_or_url=\
+                    os.path.join(test_dir,entry['option']['metadata'])
+            else:
+                overriding_metadata_file_path_or_url=None
+                
+            # Link Header
+            _link_header=entry.get('httpLink')
+            
+            # well known text
+            _well_known_text='{+url}-metadata.json\ncsv-metadata.json\n{+url}.json\ncsvm.json'
+            
+            # validate option
+            validate=False
+    
+    
+            if entry['type']=='csvt:ToJsonTest':
+                
+                annotated_table_group_dict=\
+                    csvw_functions.create_annotated_table_group(
+                            action_fp,
+                            overriding_metadata_file_path_or_url,
+                            validate=validate,
+                            _link_header=_link_header,
+                            _well_known_text=_well_known_text,
+                            _save_intermediate_and_final_outputs_to_file=True,
+                            _print_intermediate_outputs=p
+                            )
+                    
+                # mode option
+                if entry['option'].get('minimal') is True:
+                    mode='minimal'
+                else:
+                    mode='standard'
+                    
+                x=os.path.join(os.getcwd(),'_github_w3c_csvw_tests').replace('\\','/')
+                x=x.replace(' ','%20')
+                _replace_strings=[
+                    (r'file:///'+x+'/',
+                     'http://www.w3.org/2013/csvw/tests/')
+                    ]
+                    
+                #
+                json_ld=\
+                    csvw_functions.create_json_ld(
+                            annotated_table_group_dict,
+                            mode=mode,
+                            _replace_strings=_replace_strings
+                            )    
+                            
+                #print('-json_ld',json_ld)
+                      
+                with open(result_fp,encoding='utf-8') as f:
+                    json_ld_result=json.load(f)
+                #print('-json_ld_result',json_ld_result)
+                
+                self.maxDiff=None
+                if not json_ld==json_ld_result:
+                    compare_json(
+                        self,
+                        json_ld,
+                        json_ld_result
+                        )
+                
+                self.assertEqual(
+                    json_ld,
+                    json_ld_result
+                    )
+                
+                if p: print('---------------------------')
+                    
+            else:
+                
+                raise Exception
+    
+    
+    
     def test_W3C_CSVW_Validation_test_cases(self):
         ""
         
@@ -2319,7 +2425,7 @@ if __name__=='__main__':
     #run_single_test(Test_JSON_Section_6,'test_section_6_1_simple_example')
     #run_single_test(Test_JSON_Section_6,'test_section_6_2_Example_with_single_table_and_rich_annotations')
     #run_single_test(Test_JSON_Section_6,'test_section_6_3_Example_with_single_table_and_using_virtual_columns_to_produce_multiple_subjects_per_row')
-    run_single_test(Test_JSON_Section_6,'test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
+    #run_single_test(Test_JSON_Section_6,'test_section_6_4_Example_with_table_group_comprising_four_interrelated_tables')
     
     # TESTCASE - Generating RDF from Tabular Data on the Web
     #unittest.main(Test_RDF_Section_7())
@@ -2333,6 +2439,7 @@ if __name__=='__main__':
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Validation_test_cases')
+    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Non_Normative_test_cases')
     
     #unittest.main()
     
