@@ -1631,36 +1631,59 @@ def get_metadata_from_default_or_site_wide_location(
             
                 raise CSVWError
             
+            table_url_split=table_url.split('?')[0]
+            
+            
             #print('-table_url',table_url)
             
             #...set up the url
-            if os.path.isfile(table_url):
+            
+            base_url_dirname=os.path.dirname(base_url)
+            base_url_dirname=base_url_dirname.replace('file:///','').replace('%20',' ')
+            
+            
+            if os.path.isfile(table_url_split):
                 
                 table_url=\
                     normalize_url(
                         fr'file:///{os.path.abspath(table_url)}'
                         )
+                    
+                table_url_resolved=table_url.replace('\\','/')
+                
+                table_url_resolved=urllib.parse.quote(
+                    table_url_resolved,
+                    safe=':/#?'
+                    )
+                
+            elif os.path.isfile(os.path.join(base_url_dirname,table_url_split)):
+                
+                table_url=\
+                    normalize_url(
+                        fr'file:///{os.path.join(base_url_dirname,table_url)}'
+                        )
+                
+                table_url_resolved=table_url.replace('\\','/')
+                
+                table_url_resolved=urllib.parse.quote(
+                    table_url_resolved,
+                    safe=':/#?'
+                    )
                 
             else:
                 
-                table_url=\
+                table_url_resolved=table_url
+                
+                table_url_resolved=\
                     normalize_url(
                         table_url
                         )
                 
-            #print('-table_url',table_url)
+             
                 
-            # resolve url
-            
-            table_url_resolved=\
-                urllib.parse.urljoin(
-                    base_url,
-                    table_url
-                    )
-                
-            table_url_resolved=table_url_resolved.replace('\\','/')
-                
-            #print('table_url_resolved',table_url_resolved)
+            #print('-table_url_resolved',table_url_resolved)
+            #print('-tabular_data_file_url',tabular_data_file_url)
+            #print(table_url_resolved==tabular_data_file_url)
             
             if table_url_resolved==tabular_data_file_url:
                     
@@ -1668,12 +1691,15 @@ def get_metadata_from_default_or_site_wide_location(
             
             else:
                 
-                #print('table_url_resolved',table_url_resolved)
-                #print('tabular_data_file_url',tabular_data_file_url)
+                #print('-table_url_resolved',table_url_resolved)
+                #print('-tabular_data_file_url',tabular_data_file_url)
                 
-                message='Metadata file found does not explicitly '
+                message='Metadata file found from default or site wide location '
+                message+='does not explicitly '
                 message+='include a reference to the requested tabular data file. '
                 message+='Metadata file is ignored. '
+                
+                #print(message)
                 
                 warnings.warn(message)
                 

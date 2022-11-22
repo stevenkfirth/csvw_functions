@@ -1780,7 +1780,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
     ""
     
     
-    def test_W3C_CSVW_Non_Normative_test_cases(self):
+    def xxtest_W3C_CSVW_Non_Normative_test_cases(self):
         ""
         
         #warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
@@ -2008,9 +2008,9 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
             
             #if not i==23: continue
             
-            #if p: print(i)
+            if p: print(i)
             
-            #if p: print('-manifest-entry',entry)
+            if p: print('-manifest-entry',entry)
             
             
             action_fp=os.path.join(test_dir,entry['action'])
@@ -2145,8 +2145,8 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         
         warnings.filterwarnings("ignore",category=UserWarning)  # warnings not printed out
         
-        p=False
-        #p=True
+        #p=False
+        p=True
         
         with open(os.path.join(test_dir,'manifest-json.jsonld')) as f:
             
@@ -2439,7 +2439,7 @@ if __name__=='__main__':
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Validation_test_cases')
-    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Non_Normative_test_cases')
+    #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Non_Normative_test_cases')
     
     #unittest.main()
     
