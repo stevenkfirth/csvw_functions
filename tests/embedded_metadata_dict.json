@@ -4,10 +4,30 @@
         "columns": [
             {
                 "titles": [
-                    "string1"
+                    "GID"
+                ]
+            },
+            {
+                "titles": [
+                    "On Street"
+                ]
+            },
+            {
+                "titles": [
+                    "Species"
+                ]
+            },
+            {
+                "titles": [
+                    "Trim Cycle"
+                ]
+            },
+            {
+                "titles": [
+                    "Inventory Date"
                 ]
             }
         ]
     },
-    "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test154.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv"
 }

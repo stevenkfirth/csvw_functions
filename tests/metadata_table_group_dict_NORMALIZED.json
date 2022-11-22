@@ -3,25 +3,48 @@
     "tables": [
         {
             "rdfs:comment": {
-                "@value": "If the datatype base is not numeric, boolean, a date/time type, or a duration type, the datatype format annotation provides a regular expression for the string values."
+                "@value": "Invalid datatype string value"
             },
-            "rdfs:label": {
-                "@value": "string format (value not matching format)"
-            },
-            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/test154.csv",
+            "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/_github_w3c_csvw_tests/tree-ops.csv",
             "tableSchema": {
                 "columns": [
                     {
+                        "name": "GID",
+                        "datatype": {
+                            "base": "string"
+                        }
+                    },
+                    {
+                        "name": "on_street",
                         "titles": {
                             "und": [
-                                "string1"
+                                "On Street"
                             ]
-                        },
-                        "datatype": {
-                            "base": "string",
-                            "format": "[Bb]+"
-                        },
-                        "name": "string1"
+                        }
+                    },
+                    {
+                        "name": "species",
+                        "titles": {
+                            "und": [
+                                "Species"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "trim_cycle",
+                        "titles": {
+                            "und": [
+                                "Trim Cycle"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "inventory_date",
+                        "titles": {
+                            "und": [
+                                "Inventory Date"
+                            ]
+                        }
                     }
                 ]
             }

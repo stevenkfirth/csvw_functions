@@ -1,16 +1,28 @@
 {
     "@context": "http://www.w3.org/ns/csvw",
-    "rdfs:comment": "If the datatype base is not numeric, boolean, a date/time type, or a duration type, the datatype format annotation provides a regular expression for the string values.",
-    "rdfs:label": "string format (value not matching format)",
-    "url": "test154.csv",
+    "rdfs:comment": "Invalid datatype string value",
+    "url": "tree-ops.csv",
     "tableSchema": {
         "columns": [
             {
-                "titles": "string1",
-                "datatype": {
-                    "base": "string",
-                    "format": "[Bb]+"
-                }
+                "name": "GID",
+                "datatype": "http://example.org/bad/datatype"
+            },
+            {
+                "name": "on_street",
+                "titles": "On Street"
+            },
+            {
+                "name": "species",
+                "titles": "Species"
+            },
+            {
+                "name": "trim_cycle",
+                "titles": "Trim Cycle"
+            },
+            {
+                "name": "inventory_date",
+                "titles": "Inventory Date"
             }
         ]
     }

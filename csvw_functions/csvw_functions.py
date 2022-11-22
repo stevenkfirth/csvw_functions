@@ -799,7 +799,8 @@ class CSVWWarning(Warning):
 def validate_value_for_datatype_base(
         value,
         errors,
-        datatype_base
+        datatype_base,
+        validate
         ):
     """
     
@@ -820,6 +821,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             minimum=-9223372036854775808,
             maximum=9223372036854775807
             )
@@ -830,6 +832,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             minimum=-2147483648,
             maximum=2147483647
             )
@@ -840,6 +843,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             minimum=-32768,
             maximum=32767
             )
@@ -850,6 +854,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             minimum=-128,
             maximum=127
             )
@@ -860,6 +865,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             minimum=0
             )
     
@@ -869,6 +875,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             minimum_exclusive=0
             )
     
@@ -878,6 +885,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             maximum=18446744073709551615,
             minimum=0
             )
@@ -888,6 +896,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             maximum=4294967295,
             minimum=0
             )
@@ -898,6 +907,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             maximum=65535,
             minimum=0
             )
@@ -908,6 +918,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             maximum=255,
             minimum=0
             )
@@ -918,6 +929,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             maximum=0
             )
     
@@ -927,6 +939,7 @@ def validate_value_for_datatype_base(
             value,
             errors,
             datatype_base,
+            validate,
             maximum_exclusive=0
             )
     
@@ -943,6 +956,7 @@ def check_length_constraints(
         value,
         errors,
         datatype_base,
+        validate,
         length=None,
         minimum_length=None,
         maximum_length=None
@@ -997,39 +1011,57 @@ def check_length_constraints(
     
         if not value_length==length:
             
-            message='length'
+            message=f'value {value} does not have length equal to {length}.'
+            
+            if validate:
                 
-            errors.append(message)
-            
-            warnings.warn(message)
-            
-            return False
+                raise CSVWError(message)
+                
+            else:
+                
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
         
         
     if not minimum_length is None:
         
         if value_length<minimum_length:
             
-            message='minimum_length'
+            message=f'value {value} does not have length less than {minimum_length}.'
+            
+            if validate:
                 
-            errors.append(message)
-            
-            warnings.warn(message)
-            
-            return False
+                raise CSVWError(message)
+                
+            else:
+                
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
         
         
     if not maximum_length is None:
         
         if value_length>maximum_length:
             
-            message='maximum_length'
+            message=f'value {value} does not have length greater than {maximum_length}.'
+            
+            if validate:
                 
-            errors.append(message)
-            
-            warnings.warn(message)
-            
-            return False
+                raise CSVWError(message)
+                
+            else:
+                
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
         
         
     return True
@@ -1041,6 +1073,7 @@ def check_value_constraints(
         value,
         errors,
         datatype_base,
+        validate,
         minimum=None,
         maximum=None,
         minimum_exclusive=None,
@@ -1065,52 +1098,76 @@ def check_value_constraints(
         
         if value<minimum:
             
-            message='minimum'
+            message=f'value {value} is less than the minimum {minimum}'
                 
-            errors.append(message)
+            if validate:
+                
+                raise CSVWError(message)
+                
+            else:
             
-            warnings.warn(message)
-            
-            return False
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
         
     
     if not maximum is None:
         
         if value>maximum:
-        
-            message='maximum'
+            
+            message=f'value {value} is greater than the maximum {maximum}'
+            
+            if validate:
                 
-            errors.append(message)
-            
-            warnings.warn(message)
-            
-            return False
+                raise CSVWError(message)
+                
+            else:
+                
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
     
         
     if not minimum_exclusive is None:
         
         if value<=minimum_exclusive:
         
-            message='minimum_exclusive'
+            message=f'value {value} is less than or equal to the minimum_exclusive {minimum_exclusive}'
                 
-            errors.append(message)
+            if validate:
+                
+                raise CSVWError(message)
+                
+            else:
             
-            warnings.warn(message)
-            
-            return False
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
     
     
     if not maximum_exclusive is None:
         
         if value>=maximum_exclusive:
         
-            message='maximum_exclusive'
+            message=f'value {value} is greater than or equal to the maximum_exclusive {maximum_exclusive}'
                 
-            errors.append(message)
+            if validate:
+                
+                raise CSVWError(message)
+                
+            else:
             
-            warnings.warn(message)
-            
-            return False
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return False
     
     
     return True
@@ -2384,12 +2441,12 @@ def create_annotated_table_group(
                             
                         #print('foreign_key_definition_values',foreign_key_definition_values)
                             
-                        # get first row that matches in the reference table
+                        # get rows that matches in the reference table
                         
                         foreign_key_reference_columns=foreign_key_definition[1]
                         foreign_key_reference_table=foreign_key_reference_columns[0]['table']
                         
-                        first_row=None
+                        row_indexes=[]
                         
                         for k in range(len(foreign_key_reference_columns[0]['cells'])):
                             
@@ -2403,36 +2460,52 @@ def create_annotated_table_group(
                                 
                             if foreign_key_reference_values==foreign_key_definition_values:
                                 
-                                #print('-first_row', k)
+                                row_indexes.append(k)
                                 
-                                first_row=foreign_key_reference_table['rows'][k]
-                                
-                                break
-                                
-                        if validate:   
+                              
+                         
                             
                             #print('test')
                             
-                            if first_row is None:
+                        if len(row_indexes)==0:
+                            
+                            message=f'Columns referenced by foreign key do not contain the value required: {foreign_key_definition_values}'
+                            
+                            if validate:  
+                            
+                                raise CSVWError(message)
                                 
-                                message='Columns referenced by foreign key do not contain the value required.'
+                            else:
+                                
+                                warnings.warn(message)
+                            
+                        elif len(row_indexes)==1:
+                            
+                            first_row=foreign_key_reference_table['rows'][row_indexes[0]]
+                            
+                            annotated_table_dict['rows'][j]['referencedRows'].append(
+                                [foreign_key_definition,
+                                 first_row]
+                                )
+                            
+                        else:
+                            
+                            message=f'Columns referenced by foreign key do not a unique row with the values required: {foreign_key_definition_values}'
+                            
+                            if validate:  
                                 
                                 raise CSVWError(message)
+                                
+                            else:
+                                
+                                warnings.warn(message)
                             
-                        # append pair to referencedRow property for this row
                         
-                        #print(remove_recursion(foreign_key_definition))
-                        #print(remove_recursion(first_row,[]))
-                        
-                        annotated_table_dict['rows'][j]['referencedRows'].append(
-                            [foreign_key_definition,
-                             first_row]
-                            )
-                        
-                        #print(remove_recursion([foreign_key_definition,
-                        # first_row]))
       
     #... for testing
+    
+    # Section 6.6 - Validating tables
+    
     
     
 
@@ -2945,6 +3018,7 @@ def parse_cell_steps_6_to_9(
         datatype_parse_function(
             string_value,
             errors,
+            validate
             )
         
     # if error occurs as value not converted
@@ -2964,6 +3038,7 @@ def parse_cell_steps_6_to_9(
             json_value,
             errors,
             datatype['base'],
+            validate,
             length=datatype.get('length'),
             minimum_length=datatype.get('minLength'),
             maximum_length=datatype.get('maxLength')
@@ -2981,6 +3056,7 @@ def parse_cell_steps_6_to_9(
             json_value,
             errors,
             datatype['base'],
+            validate,
             minimum=datatype.get('minimum') or datatype.get('minInclusive'),
             maximum=datatype.get('maximum') or datatype.get('maxInclusive'),
             minimum_exclusive=datatype.get('minExclusive'),
@@ -3124,7 +3200,8 @@ def get_parse_number_function(
     
     def parse_number(
             string_value,
-            errors
+            errors,
+            validate
             ):
         """
         """
@@ -3271,11 +3348,17 @@ def get_parse_number_function(
                 message+=f'specified "{pattern}". '
                 message+='Cell value is not converted to a number. '
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
                 
-                errors.append(message)
-                
-                return string_value, 'string', errors
+                    warnings.warn(message)
+                    
+                    errors.append(message)
+                    
+                    return string_value, 'string', errors
             
             
         # - otherwise, if the string
@@ -3290,11 +3373,17 @@ def get_parse_number_function(
                 message+=f'of type "{datatype_base}". '
                 message+='Cell value is not converted to a number. '
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
                 
-                errors.append(message)
-                
-                return string_value, 'string', errors
+                    warnings.warn(message)
+                    
+                    errors.append(message)
+                    
+                    return string_value, 'string', errors
                 
             else:
                 
@@ -3302,7 +3391,8 @@ def get_parse_number_function(
                     validate_value_for_datatype_base(
                         json_value,
                         errors,
-                        datatype_base
+                        datatype_base,
+                        validate
                         )
                     
                 if not result:
@@ -3319,11 +3409,17 @@ def get_parse_number_function(
                 message+='two consecutive groupChar strings. '
                 message+='Cell value is not converted to a number. '
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
                 
-                errors.append(message)
+                else:
                 
-                return string_value, 'string', errors
+                    warnings.warn(message)
+                    
+                    errors.append(message)
+                    
+                    return string_value, 'string', errors
             
 
         # - contains the decimalChar, if the datatype base is integer or one of 
@@ -3337,11 +3433,17 @@ def get_parse_number_function(
                 message+=f'contains the decimalChar character "{decimal_char}". '
                 message+='Cell value is not converted to a number. '
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
                 
-                errors.append(message)
+                else:
                 
-                return string_value, 'string', errors  
+                    warnings.warn(message)
+                    
+                    errors.append(message)
+                    
+                    return string_value, 'string', errors  
                 
             
         # - contains an exponent, if the datatype base is decimal or one of its 
@@ -3355,11 +3457,17 @@ def get_parse_number_function(
                 message+='contains an exponent. '
                 message+='Cell value is not converted to a number. '
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
                 
-                errors.append(message)
+                else:
                 
-                return string_value, 'string', errors  
+                    warnings.warn(message)
+                    
+                    errors.append(message)
+                    
+                    return string_value, 'string', errors  
                 
             
         # - is one of the special values NaN, INF, or -INF, if the datatype base 
@@ -3371,11 +3479,17 @@ def get_parse_number_function(
                 message+='datatype base is decimal or one of its sub-types. '
                 message+='Cell value is not converted to a number. '
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
                 
-                errors.append(message)  
+                else:
                 
-                return string_value, 'string', errors  
+                    warnings.warn(message)
+                    
+                    errors.append(message)  
+                    
+                    return string_value, 'string', errors  
         
         
         # Implementations must use the sign, exponent, percent, and per-mille signs 
@@ -4087,7 +4201,8 @@ def get_parse_boolean_function(
 
     def parse_boolean(
             string_value,
-            errors
+            errors,
+            validate
             ):
         """
         """
@@ -4106,11 +4221,17 @@ def get_parse_boolean_function(
             message+=f'or false values "{false_values}". '
             message+='Boolean value is not converted to boolean, string value returned.'
             
-            errors.append(message)
+            if validate:
+                
+                raise CSVWError(message)
             
-            warnings.warn(message)
+            else:
             
-            return string_value, 'string', errors
+                errors.append(message)
+                
+                warnings.warn(message)
+                
+                return string_value, 'string', errors
         
         
         #
@@ -4526,7 +4647,8 @@ def get_parse_date_function(
     
     def parse_date(
             string_value,
-            errors
+            errors,
+            validate
             ):
         """
         """
@@ -4544,9 +4666,16 @@ def get_parse_date_function(
         except ValueError:
             
             message='date conversion error'
-            errors.append(message)
-            warnings.warn(message)
-            return string_value,'string',errors
+            
+            if validate:
+                
+                raise CSVWError(message)
+                
+            else:
+            
+                errors.append(message)
+                warnings.warn(message)
+                return string_value,'string',errors
             
         if _print_intermediate_outputs: print('-timezone_string',timezone_string)
         
@@ -4595,9 +4724,16 @@ def get_parse_date_function(
                     if not len(date_substring)==4:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     try:
                         
@@ -4606,18 +4742,32 @@ def get_parse_date_function(
                     except ValueError:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                 elif code=='MM':
                     
                     if not len(date_substring)==2:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     try:
                     
@@ -4626,9 +4776,16 @@ def get_parse_date_function(
                     except ValueError:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     
                 elif code=='M':
@@ -4640,27 +4797,48 @@ def get_parse_date_function(
                     except ValueError:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     if month<10:
                         
                         if not len(date_substring)==1:
                             
                             message='date conversion error'
-                            errors.append(message)
-                            warnings.warn(message)
-                            return string_value,'string',errors
+                            
+                            if validate:
+                                
+                                raise CSVWError(message)
+                                
+                            else:
+                                
+                                errors.append(message)
+                                warnings.warn(message)
+                                return string_value,'string',errors
                         
                     else:
                         
                         if not len(date_substring)==2:
                             
                             message='date conversion error'
-                            errors.append(message)
-                            warnings.warn(message)
-                            return string_value,'string',errors
+                            
+                            if validate:
+                                
+                                raise CSVWError(message)
+                                
+                            else:
+                                
+                                errors.append(message)
+                                warnings.warn(message)
+                                return string_value,'string',errors
                     
                     
                         
@@ -4669,9 +4847,16 @@ def get_parse_date_function(
                     if not len(date_substring)==2:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     try:
                     
@@ -4680,9 +4865,16 @@ def get_parse_date_function(
                     except ValueError:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     
                 elif code=='d':
@@ -4694,27 +4886,48 @@ def get_parse_date_function(
                     except ValueError:
                         
                         message='date conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                            
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                     
                     if day<10:
                         
                         if not len(date_substring)==1:
                             
                             message='date conversion error'
-                            errors.append(message)
-                            warnings.warn(message)
-                            return string_value,'string',errors
+                            
+                            if validate:
+                                
+                                raise CSVWError(message)
+                                
+                            else:
+                                
+                                errors.append(message)
+                                warnings.warn(message)
+                                return string_value,'string',errors
                         
                     else:
                         
                         if not len(date_substring)==2:
                             
                             message='date conversion error'
-                            errors.append(message)
-                            warnings.warn(message)
-                            return string_value,'string',errors
+                            
+                            if validate:
+                                
+                                raise CSVWError(message)
+                                
+                            else:
+                                
+                                errors.append(message)
+                                warnings.warn(message)
+                                return string_value,'string',errors
                         
                     
                 else:
@@ -4735,15 +4948,17 @@ def get_parse_date_function(
                 
                 message=f'Invalid isoformat string {string_value} for "date" datatype. '
         
-                errors.append(message)
-                
-                warnings.warn(message)
-                
-                return string_value, 'string', errors
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
         
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
         
-        
-        
+    
         #
         json_value=x.isoformat()+xsd_timezone_string
         
@@ -4863,7 +5078,8 @@ def get_parse_time_function(
     
     def parse_time(
             string_value,
-            errors
+            errors,
+            validate
             ):
         """
         """
@@ -4881,9 +5097,16 @@ def get_parse_time_function(
         except ValueError:
             
             message='time conversion error'
-            errors.append(message)
-            warnings.warn(message)
-            return string_value,'string',errors
+            
+            if validate:
+                
+                raise CSVWError(message)
+            
+            else:
+                
+                errors.append(message)
+                warnings.warn(message)
+                return string_value,'string',errors
                 
         if _print_intermediate_outputs: print('-timezone_string',timezone_string)
         
@@ -4921,9 +5144,16 @@ def get_parse_time_function(
                 except ValueError:
                     
                     message='time conversion error'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value,'string',errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                    
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                 
                 
                 
@@ -4938,9 +5168,16 @@ def get_parse_time_function(
                 except ValueError:
                     
                     message='time conversion error'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value,'string',errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                    
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                 
                 
             elif main_time_format=='HH:mm':
@@ -4952,9 +5189,16 @@ def get_parse_time_function(
                 except ValueError:
                 
                     message='time conversion error'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value,'string',errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                    
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                 
                 second=0
                 
@@ -4968,9 +5212,16 @@ def get_parse_time_function(
                 except ValueError:
                     
                     message='time conversion error'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value,'string',errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                    
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                 
                 second=0
                 
@@ -4979,9 +5230,16 @@ def get_parse_time_function(
                 if len(fractional_time_string)>len(fractional_time_format):
                     
                     message='time conversion error'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value,'string',errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                    
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value,'string',errors
                 
                 else:
                 
@@ -4993,9 +5251,16 @@ def get_parse_time_function(
                     except ValueError:
                         
                         message='time conversion error'
-                        errors.append(message)
-                        warnings.warn(message)
-                        return string_value,'string',errors
+                        
+                        if validate:
+                            
+                            raise CSVWError(message)
+                        
+                        else:
+                            
+                            errors.append(message)
+                            warnings.warn(message)
+                            return string_value,'string',errors
                         
             else:
                 
@@ -5012,12 +5277,16 @@ def get_parse_time_function(
             except ValueError:
                 
                 message=f'Invalid isoformat string {string_value}. '
+                
+                if validate:
+                    
+                    raise CSVWError(message)
+                
+                else:
         
-                errors.append(message)
-                
-                warnings.warn(message)
-                
-                return string_value, 'string', errors
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
         
         #
         x=x.isoformat()
@@ -5125,6 +5394,7 @@ def get_parse_datetime_function(
     def parse_datetime(
             string_value,
             errors,
+            validate
             ):
         """
         """
@@ -5192,7 +5462,8 @@ def get_parse_datetime_function(
                 get_parse_date_function(
                     date_datatype
                     )(date_string,
-                      date_errors)
+                      date_errors,
+                      validate)
                       
             errors.extend(date_errors)
             
@@ -5207,7 +5478,8 @@ def get_parse_datetime_function(
                 get_parse_time_function(
                     time_datatype
                     )(time_string,
-                      time_errors)
+                      time_errors,
+                      validate)
             
             errors.extend(time_errors)
                       
@@ -5319,7 +5591,8 @@ def get_parse_duration_function(
     
     def parse_duration(
             string_value,
-            errors
+            errors,
+            validate
             ):
         ""
         if _print_intermediate_outputs: print('-string_value',string_value)
@@ -5329,9 +5602,16 @@ def get_parse_duration_function(
             if not re_compiled.search(string_value):
                 
                 message=f'duration conversion error 1 - string value ="{string_value}"'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
+                
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
+                    
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
 
         #...parsing -?PnYnMnDTnHnMnS
         x=string_value
@@ -5347,9 +5627,16 @@ def get_parse_duration_function(
         if not x[0]=='P':
             
             message=f'duration conversion error 2 - string value ="{string_value}"'
-            errors.append(message)
-            warnings.warn(message)
-            return string_value, 'string', errors
+            
+            if validate:
+                
+                raise CSVWError(message)
+                
+            else:
+                
+                errors.append(message)
+                warnings.warn(message)
+                return string_value, 'string', errors
         
         x=x.removeprefix('P')
         
@@ -5365,9 +5652,16 @@ def get_parse_duration_function(
             except ValueError:
                 
                 message=f'duration conversion error 3 - string value ="{string_value}"' + f'"{year_string}"'
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
+                
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
+                    
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
             
             
         #M
@@ -5384,9 +5678,16 @@ def get_parse_duration_function(
                 except ValueError:
                     
                     message=f'duration conversion error 4 - string value ="{string_value}"'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value, 'string', errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                        
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value, 'string', errors
         
         
         #D
@@ -5403,9 +5704,16 @@ def get_parse_duration_function(
                 except ValueError:
                     
                     message=f'duration conversion error 5 - string value ="{string_value}"'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value, 'string', errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                        
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value, 'string', errors
                 
         #T
         if len(x)>0:
@@ -5413,9 +5721,16 @@ def get_parse_duration_function(
             if not x[0]=='T':
                 
                 message=f'duration conversion error 6 - string value ="{string_value}"' + ' -- ' + x
-                errors.append(message)
-                warnings.warn(message)
-                return string_value, 'string', errors
+                
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
+                    
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
                 
         x=x.removeprefix('T')
         
@@ -5435,9 +5750,16 @@ def get_parse_duration_function(
                 except ValueError:
                     
                     message=f'duration conversion error 7 - string value ="{string_value}"'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value, 'string', errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                        
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value, 'string', errors
         
 
         #M
@@ -5454,9 +5776,16 @@ def get_parse_duration_function(
                 except ValueError:
                     
                     message=f'duration conversion error 8 - string value ="{string_value}"'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value, 'string', errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                        
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value, 'string', errors
         
 
         #S
@@ -5474,9 +5803,16 @@ def get_parse_duration_function(
                 except ValueError:
                     
                     message=f'duration conversion error 9 - string value ="{string_value}"'
-                    errors.append(message)
-                    warnings.warn(message)
-                    return string_value, 'string', errors
+                    
+                    if validate:
+                        
+                        raise CSVWError(message)
+                        
+                    else:
+                        
+                        errors.append(message)
+                        warnings.warn(message)
+                        return string_value, 'string', errors
             
         
         #
@@ -5545,7 +5881,8 @@ def get_parse_other_types_function(
     
     def parse_other_types(
             string_value,
-            errors
+            errors,
+            validate
             ):
         """
         """
@@ -5564,9 +5901,15 @@ def get_parse_other_types_function(
                 message=f'string_value "{string_value}" does not match '
                 message+=f'regular expression "{datatype["format"]}".'
                 
-                warnings.warn(message)
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
                 
-                errors.append(message)
+                    warnings.warn(message)
+                
+                    errors.append(message)
         
     
         return json_value,value_type,errors
@@ -5587,15 +5930,33 @@ def get_parse_other_types_function(
     # - if the table description is not compatible with the embedded 
     #   metadata extracted from the tabular data file, as defined in 
     #   Table Compatibility in [tabular-metadata].
+    
+    #... ALREADY DONE in compare_table_descriptions
+    
     # - if there is more than one row with the same primary key, that 
     #   is where the cells listed for the primary key for the row have 
     #   the same values as the cells listed for the primary key for another row,
+    
+    #... ALREADY DONE in annotate_schema_dict
+    
     # - for each row that does not have a unique referenced row for each 
     #   of the foreign keys on the table in which the row appears, or
+    
+    #... ALREADY DONE in create_annotated_table_group
+        
     # - for each error on each cell. 
+    
+    #... ALREADY DONE
+    
 
-    # TO DO
+def validate_annotated_table_dict(
+        annotated_table_dict,
+        embedded_metadata_dict
+        ):
+    """
+    """
 
+    
 
 
 #%% 8 - Parsing Tabular Data
@@ -7940,60 +8301,70 @@ def validate_and_normalize_metadata_table_group_dict(
     # This annotation must be percent-encoded as necessary to 
     # conform to the syntactic requirements defined in [RFC3986].
     
-    lang=metadata_table_group_dict.get('lang',None)
+    #lang=metadata_table_group_dict.get('lang',None)
     
     for metadata_table_dict in metadata_table_group_dict.get('tables',[]):
         
-        if 'lang' in metadata_table_dict:
-            lang=metadata_table_dict['lang']
+        #if 'lang' in metadata_table_dict:
+        #    lang=metadata_table_dict['lang']
         
         if 'tableSchema' in metadata_table_dict:
             
             metadata_schema_dict=metadata_table_dict['tableSchema']
             
-            if 'lang' in metadata_schema_dict:
-                lang=metadata_schema_dict['lang']
+            #if 'lang' in metadata_schema_dict:
+            #    lang=metadata_schema_dict['lang']
             
             for metadata_column_dict in metadata_schema_dict.get('columns',[]):
                 
-                if 'lang' in metadata_column_dict:
-                    lang=metadata_column_dict['lang']
+                #if 'lang' in metadata_column_dict:
+                #    lang=metadata_column_dict['lang']
     
                 if not 'name' in metadata_column_dict:
                     
-                    if 'titles' in metadata_column_dict:
-                        
-                        for k,v in metadata_column_dict['titles'].items():
-                            
-                            print(v,k, default_language)
-                            
-                            #if (k=='und' and lang is None) or k.startswith(lang):
-                                
-                            if k.startswith(default_language) \
-                                or (k=='und' and default_language=='und'):
-                                
-                        #if default_language in metadata_column_dict['titles']:    
+                    name=get_first_title_for_name_property(
+                            metadata_column_dict,
+                            default_language
+                            )
                     
-                            #x=metadata_column_dict['titles'][default_language][0]
+                    if not name is None:
                         
-                                x=v[0]
+                        metadata_column_dict['name']=name
+                    
+                    
+                    # if 'titles' in metadata_column_dict:
                         
-                                name=urllib.parse.quote(
-                                    x.encode('utf8'),
-                                    safe=''  # does not include "/" in safe, so that "dd/MM/yyyy" is quoted to "dd%2DMM%2Dyyyy"
-                                    )
-                                name=name.replace('-','%2D')  # required by rdf test 188
+                    #     for k,v in metadata_column_dict['titles'].items():
                             
-                                metadata_column_dict['name']=name
+                    #         #print(v,k, default_language)
+                            
+                    #         #if (k=='und' and lang is None) or k.startswith(lang):
                                 
-                                break
+                    #         if k.startswith(default_language) \
+                    #             or (k=='und' and default_language=='und'):
+                                
+                    #     #if default_language in metadata_column_dict['titles']:    
+                    
+                    #         #x=metadata_column_dict['titles'][default_language][0]
+                        
+                    #             x=v[0]
+                        
+                    #             name=urllib.parse.quote(
+                    #                 x.encode('utf8'),
+                    #                 safe=''  # does not include "/" in safe, so that "dd/MM/yyyy" is quoted to "dd%2DMM%2Dyyyy"
+                    #                 )
+                    #             name=name.replace('-','%2D')  # required by rdf test 188
+                            
+                    #             metadata_column_dict['name']=name
+                                
+                    #             break
 
-                        if not 'name' in metadata_column_dict:
+                    #     if not 'name' in metadata_column_dict:
                             
-                            message='No title exists with default language tag. '
-                            message+=' Column name property is not set.'
+                    #         message='No title exists with default language tag. '
+                    #         message+=' Column name property is not set.'
                             
-                            warnings.warn(message)
+                    #         warnings.warn(message)
                             
        
     
@@ -8518,6 +8889,8 @@ def validate_and_normalize_metadata_table_dict(
         raise CSVWError(message)
     
     
+    
+    
     #...Section 5.6
     # If there is no name property defined on this column, 
     # the first titles value having the same language tag as 
@@ -8536,16 +8909,28 @@ def validate_and_normalize_metadata_table_dict(
     
                 if not 'name' in metadata_column_dict:
                     
-                    if 'titles' in metadata_column_dict:
+                    name=get_first_title_for_name_property(
+                            metadata_column_dict,
+                            default_language
+                            )
                     
-                        x=metadata_column_dict['titles'][default_language][0]
-                        
-                        name=urllib.parse.quote(x.encode('utf8'))
+                    if not name is None:
                         
                         metadata_column_dict['name']=name
+                        
+                    
+                    # if 'titles' in metadata_column_dict:
+                    
+                    #     x=metadata_column_dict['titles'][default_language][0]
+                        
+                    #     name=urllib.parse.quote(x.encode('utf8'))
+                        
+                    #     metadata_column_dict['name']=name
+                        
+                        
+                        
     
-        
-    
+
 
 def annotate_table_dict(
         annotated_table_dict,
@@ -9152,12 +9537,31 @@ def annotate_schema_dict(
                     
                     column_indexes.append(i)
                     
-        for row in annotated_table_dict['rows']:
+        for annotated_row_dict in annotated_table_dict['rows']:
             
             for column_index in column_indexes:
                 
-                row['primaryKey'].append(row['cells'][column_index])
+                annotated_row_dict['primaryKey'].append(
+                    annotated_row_dict['cells'][column_index]
+                    )
         
+        if validate:
+            
+            cache=[]
+            
+            for annotated_row_dict in annotated_table_dict['rows']:
+            
+                pk=[x['stringValue'] for x in annotated_row_dict['primaryKey']]
+                
+                if pk in cache:
+                    
+                    message=f'Primary key does not have a unique comination of values: {pk}.'
+                
+                    raise CSVWError(message)
+                    
+                else:
+                    
+                    cache.append(pk)
         
     
     
@@ -9828,6 +10232,68 @@ def annotate_column_dict(
             annotated_column_dict['name']=f'_col.{column_number}'
     
     
+def get_first_title_for_name_property(
+        metadata_column_dict,
+        default_language
+        ):
+    """
+    """
+    #...Section 5.6
+    # If there is no name property defined on this column, 
+    # the first titles value having the same language tag as 
+    # default language, or und or if no default language is 
+    # specified, becomes the name annotation for the described column. 
+    # This annotation must be percent-encoded as necessary to 
+    # conform to the syntactic requirements defined in [RFC3986].
+    
+    name=None
+    
+    if 'titles' in metadata_column_dict:
+        
+        titles_dict=metadata_column_dict['titles']
+        
+        if default_language=='und':
+            
+            for langcode,title_list in titles_dict.items():
+                
+                if langcode=='und':
+                    
+                    if len(title_list)>0:
+                        
+                        name=title_list[0]
+                        
+                        break
+            
+        else:
+            
+            for langcode,title_list in titles_dict.items():
+                
+                if langcode.startswith(default_language) \
+                    or default_language.startwith(langcode):
+                    
+                    if len(title_list)>0:
+                        
+                        name=title_list[0]
+                        
+                        break
+        
+        
+    if not name is None:
+
+        name=urllib.parse.quote(
+            name.encode('utf8'),
+            safe=''  # does not include "/" in safe, so that "dd/MM/yyyy" is quoted to "dd%2DMM%2Dyyyy"
+            )
+        name=name.replace('-','%2D')  # required by rdf test 188
+
+    else:
+        
+        message='No title exists with default language tag. '
+        message+=' Column name property is not set.'
+        
+        warnings.warn(message)
+        
+    return name
     
 
     
