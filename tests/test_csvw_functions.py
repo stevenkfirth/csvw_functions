@@ -2155,6 +2155,8 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         # loop through json tests
         for i,entry in enumerate(manifest['entries']):
             
+            if i>7: break
+            
             #if not i==23: continue
             
             if p: print(i)
@@ -2436,7 +2438,7 @@ if __name__=='__main__':
     
     # TESTCASE - W3C CSVW Test Suite
     #unittest.main(Test_W3C_CSVW_Test_Cases())
-    #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
+    run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_JSON_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_RDF_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Validation_test_cases')
     #run_single_test(Test_W3C_CSVW_Test_Cases,'test_W3C_CSVW_Non_Normative_test_cases')

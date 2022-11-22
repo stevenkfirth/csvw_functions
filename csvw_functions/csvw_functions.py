@@ -1617,7 +1617,7 @@ def get_metadata_from_default_or_site_wide_location(
                     metadata_document_dict,
                     metadata_url
                     )       
-            #print('base_url',base_url)
+            print('base_url',base_url)
             
             if 'tables' in metadata_document_dict:
                 
@@ -1687,6 +1687,8 @@ def get_metadata_from_default_or_site_wide_location(
             
             if table_url_resolved==tabular_data_file_url:
                     
+                print('test')
+                
                 return metadata_document_dict,metadata_url
             
             else:
@@ -1871,24 +1873,36 @@ def create_annotated_table_group(
         # 1. Retrieve the tabular data file.
         
         #...set up the url
-        if os.path.isfile(input_file_path_or_url) or \
-            not hyperlink.parse(input_file_path_or_url).absolute:
+        base_dir=os.getcwd()
+        
+        #... if it looks like a local file
+        if not hyperlink.parse(input_file_path_or_url).absolute:  # only returns true if e.g. 'http://...'
             
-            x=os.path.abspath(input_file_path_or_url)
+            if input_file_path_or_url==os.path.abspath(input_file_path_or_url):
+                
+                x=input_file_path_or_url
+            
+            else:
+                
+                x=os.path.join(base_dir,input_file_path_or_url)
+            
             x=x.replace('\\','/')
             x=r'file:///'+x
             x=urllib.parse.quote(x,safe=':/#?')
+            x=normalize_url(x)
             
-            tabular_data_file_url=normalize_url(x)
+            tabular_data_file_url=x
                 
             tabular_data_file_headers=None
             
+        #... if it looks like a remote file
         else:
             
             tabular_data_file_url=\
                 normalize_url(
                     input_file_path_or_url
                     )
+                
             tabular_data_file_headers=requests.head(tabular_data_file_url).headers
             
         if _print_intermediate_outputs: print('-tabular_data_file_url',tabular_data_file_url)     
@@ -2077,8 +2091,12 @@ def create_annotated_table_group(
             
         url=metadata_table_dict['url']
         
+        print('-url',url)
+        
         #...set up the url
         if os.path.isfile(url):
+            
+            print('test2')
             
             x=os.path.abspath(url)
             x=x.replace('\\','/')
@@ -2644,6 +2662,15 @@ def normalize_url(
         url
         ):
     """
+    
+    'http://example.com/test001.csv' -> 'http://example.com/test001.csv' (same)
+    
+    'http://example.com/test/../test001.csv' -> 'http://example.com/test001.csv'
+    
+    'file:///c:/test 001.csv' -> 'file:///c:/test 001.csv'
+    
+    'file:///c:/test/../test001.csv' -> 'file:///c:/test001.csv'
+    
     """
     
     # Metadata Discovery and Compatibility involve comparing URLs. 
