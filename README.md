@@ -339,8 +339,38 @@ Return type: dict
 
 ### display_annotated_table_group_dict
 
+```python
+csvw_functions.display_annotated_table_group_dict(
+        annotated_table_group_dict
+        )
+```
+
+Description: This function returns a version of an annotated_table_group_dict dictionary which has the self-referring removed and can then be easily viewed and/or printed.
+
+Arguments:
+- **annotated_table_group_dict** *(dict)*: A dictionary returned by the *create_annotated_table_group* function above.
+
+Returns: See description.
+
+Return type: dict
 
 
+### get_errors
+
+```python
+csvw_functions.get_errors(
+        annotated_table_group_dict
+        )
+```
+
+Description: This function returns a list of the cell errors present in a annotated_table_group_dict dictionary.
+
+Arguments:
+- **annotated_table_group_dict** *(dict)*: A dictionary returned by the *create_annotated_table_group* function above.
+
+Returns: See description.
+
+Return type: list
 
 
 ### create_json_ld
