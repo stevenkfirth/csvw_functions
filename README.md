@@ -436,7 +436,7 @@ A warning, likely raised for a validation error if not running in validation mod
 
 - The package is written as a series of functions rather than classes to promote reuse and because the CSVW standards are largely about transferring files from one format to another.
 - The code is all contained in a single file 'csvw_functions.py'. This is a large file of 14,000+ lines so needs a suitable IDE to navigate it. I use Spyder (part of the Anaconda distribution) which provides an automated outline view (like a table of contents) to enable navigating between different sections of the code.
- - The tests are also in a single file 'test_csvw_functions.py'. To run the tests, the CSVW Test Suite will need to be downloaded separately. This isn't included on GitHub due to it's size.
+ - The tests are also in a single file 'test_csvw_functions.py'. To run the tests, the CSVW Test Suite will need to be downloaded separately. This isn't included on GitHub due to its size.
  
 
 
