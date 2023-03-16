@@ -1,6 +1,6 @@
 # csvw_functions
 
-Python implementation of the CSV on the web (CSVW) standards.
+Python implementation of the CSV on the Web (CSVW) standards.
 
 ## Contents
 
@@ -8,8 +8,8 @@ Python implementation of the CSV on the web (CSVW) standards.
 [Installation](#installation) | 
 [Issues, Questions?](#issues-questions) | 
 [Quick Start](#quick-start) | 
-[API - Functions](#api---functions) |
-[API - Exception Classes](#api---exception-classes)
+[API](#api) | 
+[Developer Notes](#developer-notes)
 
 ## About
 
@@ -278,7 +278,7 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 
 (This example is taken from Section 4.2 of the CSVW Primer: https://www.w3.org/TR/tabular-data-primer/#transformation-values. Note here that 'http://example.org' is used as a sample namespace for the predicates.)
 
-## API - Functions
+## API 
 
 ### get_embedded_metadata
 
@@ -299,8 +299,8 @@ Arguments:
 
 - **input_file_path_or_url** *(str)*: This argument is passed to the `create_annotated_table_group` function (see below).
 - **relative_path** *(bool)*: OPTIONAL. If `True`, then any absolute file paths in the returned dictionary are replaced by local file paths. Only applicable if the CSV file is a file path (not a url). Default is `False`.
-- **nrows** *(int or None)*: OPTIONAL. This argument is passed to the `create_annotated_table_group` function (see below).
-- **parse_tabular_data_function** *(Python function)*: OPTIONAL. This argument is passed to the `create_annotated_table_group` function (see below).
+- **nrows** *(int or None)*: OPTIONAL. This argument is passed to the [create_annotated_table_group](#create_annotated_table_group) function.
+- **parse_tabular_data_function** *(Python function)*: OPTIONAL. This argument is passed to the [create_annotated_table_group](#create_annotated_table_group) function.
 
 Returns: The embedded metadata of a CSV file in the form of a CSVW metadata JSON object.
 
@@ -333,7 +333,7 @@ Arguments:
 - **_save_intermediate_and_final_outputs_to_file** *(bool)*: USED FOR TESTING. Writes a number of files which are generated during the process, such as the embedded metadata file, the normalised metadata file etc.
 - **_print_intermediate_outputs** *(bool)*: USED FOR TESTING. Prints intermediate outputs which occur during the prodess.
 
-Returns: A Python dictionary containing the annotated table group with a structure following the definition in [Section 4. Tabular Data Models](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#model) of the the *Model for Tabular Data and Metadata on the Web* standard. Note that this dictionary can be difficult to view using standard methods, so please use the `display_annotated_table_group_dict` function as described below. The reason for this is that the annotated table group dictionary is self-referring and potentially recursive when viewed, because for example the 'table' item in a 'column' points back to the entire table which the column belongs to (which in turn contains the original column...). The use of self-referal in the output dictionary is useful when navigating 'up or down' the various items but makes it difficult to print out.
+Returns: A Python dictionary containing the annotated table group with a structure following the definition in [Section 4. Tabular Data Models](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#model) of the the *Model for Tabular Data and Metadata on the Web* standard. Note that this dictionary can be difficult to view using standard methods, so please use the [display_annotated_table_group_dict](#display_annotated_table_group_dict) function. The reason for this is that the annotated table group dictionary is self-referring and potentially recursive when viewed, because for example the 'table' item in a 'column' points back to the entire table which the column belongs to (which in turn contains the original column...). The use of self-referal in the output dictionary is useful when navigating 'up or down' the various items but makes it difficult to print out.
 
 Return type: dict
 
@@ -348,7 +348,7 @@ csvw_functions.display_annotated_table_group_dict(
 Description: This function returns a version of an annotated_table_group_dict dictionary which has the self-referring removed and can then be easily viewed and/or printed.
 
 Arguments:
-- **annotated_table_group_dict** *(dict)*: A dictionary returned by the *create_annotated_table_group* function above.
+- **annotated_table_group_dict** *(dict)*: A dictionary returned by the [create_annotated_table_group](#create_annotated_table_group) function.
 
 Returns: See description.
 
@@ -366,7 +366,7 @@ csvw_functions.get_errors(
 Description: This function returns a list of the cell errors present in a annotated_table_group_dict dictionary.
 
 Arguments:
-- **annotated_table_group_dict** *(dict)*: A dictionary returned by the *create_annotated_table_group* function above.
+- **annotated_table_group_dict** *(dict)*: A dictionary returned by the [create_annotated_table_group](#create_annotated_table_group) function.
 
 Returns: See description.
 
@@ -383,7 +383,7 @@ Call signature:
 csvw_functions.create_json_ld(
         annotated_table_group_dict,
         mode='standard',
-        convert_local_path_to_example_dot_org=False
+        local_path_replacement_url=None,
         _replace_strings=None  
         )
 ```
@@ -392,8 +392,8 @@ Arguments:
 
 - **annotated_table_group_dict** *(dict)*: This is the output of the `create_annotated_table_group` function above.
 - **mode** *(str)*: If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2json-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised.
-- **convert_local_path_to_example_dot_org** *(bool)*: If True then any local file paths are converted to the string 'http://example.org'. This is useful for testing purposes.
-- **_replace_strings** *(list)*: for testing purposes, a list of 2-item tuples of string replacements for the output json object.
+- **local_path_replacement_url** *(str or None)*: If not `None` then any local file paths are converted to the string provided. This is useful for testing purposes.
+- **_replace_strings** *(list)*: USED FOR TESTING. A list of 2-item tuples of string replacements for the output json object.
 
 Returns: The result of the conversion to the JSON-LD format. This is a dictionary and can be saved to a file using the [json](https://docs.python.org/3/library/json.html) library.
 
@@ -410,8 +410,7 @@ Call signature:
 csvw_functions.create_rdf(
         annotated_table_group_dict,
         mode='standard',
-        convert_any_uri_to_iri=None,
-        convert_local_path_to_example_dot_org=False
+        local_path_replacement_url=None
         )
 ```
 
@@ -419,16 +418,25 @@ Arguments:
 
 - **annotated_table_group_dict** *(dict)*: This is the output of the `create_annotated_table_group` function above.
 - **mode** *(str)*: If 'standard' then the conversion is run in standard mode. If 'minimal' then the conversion is run in minimal mode. See [here](https://www.w3.org/TR/2015/REC-csv2rdf-20151217/#intro) for details of standard vs. minimal mode. If neither 'standard' nor 'minimal' then an error is raised. 
-- **convert_any_uri_to_iri**
-- **convert_local_path_to_example_dot_org** *(bool)*: If True then any local file paths are converted to the string 'http://example.org'. This is useful for testing purposes.
+- **local_path_replacement_url** *(str or None)*: If not `None` then any local file paths are converted to the string provided. This is useful for testing purposes.
 
 Returns: The result of the conversion to the RDF format. This is a string of RDF [N-Triples](https://www.w3.org/TR/n-triples/). This string can be saved to a file as needed. To convert the N-Triples to another format (such as [Turtle](https://www.w3.org/TR/turtle/)) this can be done using a dedicated RDF package such as [RDFLib](https://rdflib.readthedocs.io/en/stable/). 
 
 Return type: str
 
-## API - Exception Classes
+### CVSWError
 
+An exception, likely raised for  major error or a validation error if running in validation mode.
 
+### CSVWWarning
 
+A warning, likely raised for a validation error if not running in validation mode.
+
+## Developer Notes
+
+- The package is written as a series of functions rather than classes to promote reuse and because the CSVW standards are largely about transferring files from one format to another.
+- The code is all contained in a single file 'csvw_functions.py'. This is a large file of 14,000+ lines so needs a suitable IDE to navigate it. I use Spyder (part of the Anaconda distribution) which provides an automated outline view (like a table of contents) to enable navigating between different sections of the code.
+ - The tests are also in a single file 'test_csvw_functions.py'. To run the tests, the CSVW Test Suite will need to be downloaded separately. This isn't included on GitHub due to it's size.
+ 
 
 
