@@ -26,7 +26,7 @@ class TestSection1(unittest.TestCase):
             relative_path=True
             )
         
-        #print(embedded_metadata_dict)
+        print(embedded_metadata_dict)
         
         with open('embedded_metadata_dict.json','w') as f:
             json.dump(embedded_metadata_dict,
@@ -63,10 +63,10 @@ class TestSection4(unittest.TestCase):
         rdf_ntriples=csvw_functions.create_rdf(
             annotated_table_group_dict,
             mode='minimal',
-            convert_local_path_to_example_dot_org=True
+            local_path_replacement_url='http://example.org'
             )
         
-        print(rdf_ntriples)
+        #print(rdf_ntriples)
         
         with open('rdf.ntriples','w') as f:
             f.write(rdf_ntriples)

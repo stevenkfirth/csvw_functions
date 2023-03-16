@@ -1,7 +1,6 @@
 # csvw_functions
-Python implementation of the CSVW standards
 
-**UNDER DEVELOPMENT - NOT YET FULLY RELEASED**
+Python implementation of the CSV on the web (CSVW) standards.
 
 ## Contents
 
@@ -29,17 +28,26 @@ Further information on CSVW is available from:
 - [csvw.org](https://csvw.org/)
 - [www.stevenfirth.com/tag/csvw/](https://www.stevenfirth.com/tag/csvw/)
 
-The package is written as pure Python and passes all the tests in the [CSVW Test Suite](https://w3c.github.io/csvw/tests/).
+The package is written as pure Python and passes all the required tests in the [CSVW Test Suite](https://w3c.github.io/csvw/tests/):
+
+- CSVW JSON tests: passes 270 / 270
+- CSVW RDF tests: passes 270 / 270
+- CSVW Validation tests: passes 282 / 282
 
 ## Installation
 
 Source code available on GitHub here: https://github.com/stevenkfirth/csvw_functions
 
-Available on PyPi here: https://pypi.org/project/csvw_functions (LINK NOT YET ACTIVE)
+Available for installation on PyPi here: https://pypi.org/project/csvw_functions 
 
-Install from PyPi using command: `pip install csvw_functions` (NOT ACTIVE YET)
+Install from PyPi using command: `pip install csvw_functions` 
+
+The csvw_functions package uses the following external packages: *requests, json, os, urllib, warnings, hyperlink, uritemplate, langcodes, datetime, re, uuid, base64, dateutil, copy, unittest & rdflib*. These packages are available as part of the Python standard library, part of the Anaconda distribution (recommended) or will need to be installed separately. 
 
 ## Issues, Questions?
+
+The CSVW standards represent a complex set of operations and there are likely to be a 
+number of situations where things don't work as expected. When this happens...
 
 Raise an issue on GitHub: https://github.com/stevenkfirth/csvw_functions/issues
 
@@ -234,7 +242,7 @@ Let's say we have the CSVW metadata JSON file and CSV file from the previous exa
 >>> rdf_ntriples = csvw_functions.create_rdf( 
         annotated_table_group_dict,
         mode = 'minimal',
-        convert_local_path_to_example_dot_org = True  # uses 'http://example.org' in place of the local file path.
+        local_path_replacement_url='http://example.org'  # use in place of the local file path.
         )
 >>> rdf_ttl = Graph().parse(data = rdf_ntriples, format='ntriples').serialize(format = "ttl")
 >>> print(rdf_ttl)  
@@ -290,10 +298,9 @@ csvw_functions.get_embedded_metadata(
 Arguments:
 
 - **input_file_path_or_url** *(str)*: This argument is passed to the `create_annotated_table_group` function (see below).
-- **relative_path** *(bool)*: If True, then any absolute file paths in the returned dictionary are replaced by local file paths. Only applicable if the CSV file is an file path (not a url).
-- **nrows** *(int or None)*: This argument is passed to the `create_annotated_table_group` function (see below).
-- **parse_tabular_data_function** *(Python function)*: This argument is passed to the `create_annotated_table_group` function (see below).
-
+- **relative_path** *(bool)*: OPTIONAL. If `True`, then any absolute file paths in the returned dictionary are replaced by local file paths. Only applicable if the CSV file is a file path (not a url). Default is `False`.
+- **nrows** *(int or None)*: OPTIONAL. This argument is passed to the `create_annotated_table_group` function (see below).
+- **parse_tabular_data_function** *(Python function)*: OPTIONAL. This argument is passed to the `create_annotated_table_group` function (see below).
 
 Returns: The embedded metadata of a CSV file in the form of a CSVW metadata JSON object.
 
@@ -314,15 +321,26 @@ csvw_functions.create_annotated_table_group(
         _print_intermediate_outputs=False  
         )
 ```
-Description: 
+Description: This function reads either a CSVW metadata file or a CSV file with no metadata and converts it to an Annotated Tablular Data Model as defined in [Section 4. Tabular Data Models](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#model) of the the *Model for Tabular Data and Metadata on the Web* standard. In essence this function combines the data from the CSVW metadata file and the CSV file into a single object (here as a Python dictionary) and checks for errors as this is done.
 
 Arguments:
+- **input_file_path_or_url** *(str)*: The relative file path, absolute file path or url to either a CSVW metadata document or a CSV file.
+- **overriding_metadata_file_path_or_url** *(str)*: OPTIONAL. The relative file path, absolute file path or url to a metadata.json file to be used as Overriding Metadata as described in  [Section 5.1: Overriding Metadata](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#overriding-metadata) of the *Model for Tabular Data and Metadata on the Web* standard.
+- **validate** *(bool)*: OPTIONAL. If `True` then the process is run as a [validator](https://www.w3.org/TR/2015/REC-tabular-metadata-20151217/#dfn-validator) and any validation errors will be raised. 
+- **parse_tabular_data_function** *(Python function)*: OPTIONAL. This is the Python function which is used to parse the CSV file. In the csvw_functions package, the method described in [Section 8. Parsing Tabular Data](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#parsing) is implemented as a Python function named *parse_tabular_data_from_text_non_normative_definition*. This is used as the default method. However users could create their own parsing functions, say for an unusually formed CSV file format, and pass this function in this keyword argument instead.
+- **_link_header** *(str)*: USED FOR TESTING. Provides link header text which would normally be provided through a HTTP request.
+- **_well_known_text** *(str)*: USED FOR TESTING. Provides well known text which would normally be provided through a HTTP request. 
+- **_save_intermediate_and_final_outputs_to_file** *(bool)*: USED FOR TESTING. Writes a number of files which are generated during the process, such as the embedded metadata file, the normalised metadata file etc.
+- **_print_intermediate_outputs** *(bool)*: USED FOR TESTING. Prints intermediate outputs which occur during the prodess.
 
-- 
-
-Returns:
+Returns: A Python dictionary containing the annotated table group with a structure following the definition in [Section 4. Tabular Data Models](https://www.w3.org/TR/2015/REC-tabular-data-model-20151217/#model) of the the *Model for Tabular Data and Metadata on the Web* standard. Note that this dictionary can be difficult to view using standard methods, so please use the `display_annotated_table_group_dict` function as described below. The reason for this is that the annotated table group dictionary is self-referring and potentially recursive when viewed, because for example the 'table' item in a 'column' points back to the entire table which the column belongs to (which in turn contains the original column...). The use of self-referal in the output dictionary is useful when navigating 'up or down' the various items but makes it difficult to print out.
 
 Return type: dict
+
+### display_annotated_table_group_dict
+
+
+
 
 
 ### create_json_ld

@@ -11,10 +11,7 @@ import csvw_functions
 import unittest
 import os
 import json
-import datetime
-from rdflib import Graph, Literal, URIRef, XSD
-import csv
-import time
+from rdflib import Graph, Literal, XSD
 import warnings
 import rdflib.compare
 

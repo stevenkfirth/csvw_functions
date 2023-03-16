@@ -1093,7 +1093,6 @@ def check_value_constraints(
     
     # If the value is a list, the constraint applies to each element of the list.
     
-    
     if not minimum is None:
         
         if value<minimum:
@@ -3054,23 +3053,27 @@ def parse_cell_steps_6_to_9(
         return string_value, language, 'string', errors
     
     #
-    result=\
-        check_value_constraints(
-            json_value,
-            errors,
-            datatype['base'],
-            validate,
-            minimum=datatype.get('minimum') or datatype.get('minInclusive'),
-            maximum=datatype.get('maximum') or datatype.get('maxInclusive'),
-            minimum_exclusive=datatype.get('minExclusive'),
-            maximum_exclusive=datatype.get('maxExclusive')
-            )
     
-    if not result:
+    if len(errors)==0:  # added 2023-03-01
+                        # to solve the issue that if say a string isn't converted to an integer (i.e. "100.0") then it should be checked against minimums and maximums etc.
+    
+        result=\
+            check_value_constraints(
+                json_value,
+                errors,
+                datatype['base'],
+                validate,
+                minimum=datatype.get('minimum') or datatype.get('minInclusive'),
+                maximum=datatype.get('maximum') or datatype.get('maxInclusive'),
+                minimum_exclusive=datatype.get('minExclusive'),
+                maximum_exclusive=datatype.get('maxExclusive')
+                )
         
-        language=lang
-        
-        return string_value, language, 'string', errors
+        if not result:
+            
+            language=lang
+            
+            return string_value, language, 'string', errors
     
     return json_value, language,value_type, errors
     
@@ -5146,7 +5149,7 @@ def get_parse_time_function(
                 
                 except ValueError:
                     
-                    message='time conversion error'
+                    message=f'time conversion error "{time_string}"'
                     
                     if validate:
                         
@@ -5899,7 +5902,7 @@ def get_parse_other_types_function(
             
             regexp = re.compile(datatype2['format'])
             
-            if not regexp.search(string_value):
+            if not regexp.fullmatch(string_value):
                 
                 message=f'string_value "{string_value}" does not match '
                 message+=f'regular expression "{datatype["format"]}".'

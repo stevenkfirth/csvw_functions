@@ -3,62 +3,41 @@
     "tableSchema": {
         "columns": [
             {
-                "titles": {
-                    "und": [
-                        "country"
-                    ]
-                },
-                "name": "country"
+                "titles": [
+                    "country"
+                ]
             },
             {
-                "titles": {
-                    "und": [
-                        "country group"
-                    ]
-                },
-                "name": "country%20group"
+                "titles": [
+                    "country group"
+                ]
             },
             {
-                "titles": {
-                    "und": [
-                        "name (en)"
-                    ]
-                },
-                "name": "name%20%28en%29"
+                "titles": [
+                    "name (en)"
+                ]
             },
             {
-                "titles": {
-                    "und": [
-                        "name (fr)"
-                    ]
-                },
-                "name": "name%20%28fr%29"
+                "titles": [
+                    "name (fr)"
+                ]
             },
             {
-                "titles": {
-                    "und": [
-                        "name (de)"
-                    ]
-                },
-                "name": "name%20%28de%29"
+                "titles": [
+                    "name (de)"
+                ]
             },
             {
-                "titles": {
-                    "und": [
-                        "latitude"
-                    ]
-                },
-                "name": "latitude"
+                "titles": [
+                    "latitude"
+                ]
             },
             {
-                "titles": {
-                    "und": [
-                        "longitude"
-                    ]
-                },
-                "name": "longitude"
+                "titles": [
+                    "longitude"
+                ]
             }
         ]
     },
-    "url": "countries.csv"
+    "url": "file:///C:/Users/cvskf/OneDrive%20-%20Loughborough%20University/_Git/stevenkfirth/csvw_functions/tests/csvw_primer_example_files/countries.csv"
 }
