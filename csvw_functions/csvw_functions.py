@@ -4942,7 +4942,25 @@ def get_parse_date_function(
                     
             if _print_intermediate_outputs: print('-year,month,day',year,month,day)
             
-            x=datetime.date(year,month,day)
+            
+            try:
+        
+                x=datetime.date(year,month,day)
+        
+            except ValueError:
+                
+                message='Invalid value in date string.'
+        
+                if validate:
+                    
+                    raise CSVWError(message)
+                    
+                else:
+        
+                    errors.append(message)
+                    warnings.warn(message)
+                    return string_value, 'string', errors
+        
         
         else:
             
@@ -7767,7 +7785,6 @@ def validate_top_level_properties(
     except KeyError:
         
         message='Property "@context" is a required property.'
-        
         raise CSVWError(message)
     
     # This is an array property, as defined in Section 8.7 of [JSON-LD]. 
@@ -7784,91 +7801,157 @@ def validate_top_level_properties(
     # string is http://www.w3.org/ns/csvw and the object represents a 
     # local context definition, which is restricted to contain either or 
     # both of the following members:
-    elif (isinstance(context,list) 
-          and len(context)==2
-          and context[0]=='http://www.w3.org/ns/csvw'
-          and isinstance(context[1],dict)
-          and len(context[1])>0
-          ):
+    elif isinstance(context,list):
         
-        # @base
-        # an atomic property that provides the base URL against which 
-        # other URLs within the metadata file are resolved. 
-        # If present, its value must be a string that is interpreted 
-        # as a URL which is resolved against the location of the 
-        # metadata document to provide the base URL for other URLs 
-        # in the metadata document; 
-        # if unspecified, the base URL used for interpreting relative 
-        # URLs within the metadata document is the location of the 
-        # metadata document itself.
-        
-        # NOTE
-        # Note that the @base property of the @context object provides the 
-        # base URL used for URLs within the metadata document, not the URLs 
-        # that appear as data within the group of tables or table it describes. 
-        # URI template properties are not resolved against this base URL: 
-        # they are resolved against the URL of the table.
-        
-        if '@base' in context[1]:
+        if not len(context)==2:
             
-            context_base_string=context[1]['@base']
+            message='If an array, property "@context" must of two items only.'
+            raise CSVWError(message)
             
-            base_url=urllib.parse.urljoin(
-                metadata_document_location,
-                context_base_string
-                )
+        elif not context[0]=='http://www.w3.org/ns/csvw':
+            
+            message='If an array, the first item of property "@context" must be '
+            message+='the string "http://www.w3.org/ns/csvw".'
+            raise CSVWError(message)
+            
+        elif not isinstance(context[1],dict):
+            
+            message='If an array, the second item of property "@context" must be '
+            message+='an object.'
+            raise CSVWError(message)
+            
+        elif not len(context[1])>0:
+            
+            message='If an array, the second item of property "@context" must be '
+            message+='an object with either or both of "@base" and "@language".'
+            raise CSVWError(message)
+            
+            
         else:
-            
-            base_url=metadata_document_location
-            
-            
-        # @language
-        # an atomic property that indicates the default language for the 
-        # values of natural language or string-valued common properties in 
-        # the metadata document; if present, its value must be a language 
-        # code [BCP47]. 
-        # The default is und.
         
-        # NOTE
-        # Note that the @language property of the @context object, which 
-        # gives the default language used within the metadata file, is 
-        # distinct from the lang property on a description object, which 
-        # gives the language used in the data within a group of tables, 
-        # table, or column.
-            
-        if '@language' in context[1]:
-            
-            default_language=context[1]['@language']
-            
-            if not langcodes.tag_is_valid(default_language):
+          
+          
+          
+          # and len(context)==2
+          # and context[0]=='http://www.w3.org/ns/csvw'
+          # and isinstance(context[1],dict)
+          # and len(context[1])>0
+          # ):
         
-                message=f'Property "@language" with value "{default_language}" ' 
-                message+='is not a valid language code.'        
-        
-                warnings.warn(message)
+            # @base
+            # an atomic property that provides the base URL against which 
+            # other URLs within the metadata file are resolved. 
+            # If present, its value must be a string that is interpreted 
+            # as a URL which is resolved against the location of the 
+            # metadata document to provide the base URL for other URLs 
+            # in the metadata document; 
+            # if unspecified, the base URL used for interpreting relative 
+            # URLs within the metadata document is the location of the 
+            # metadata document itself.
+            
+            # NOTE
+            # Note that the @base property of the @context object provides the 
+            # base URL used for URLs within the metadata document, not the URLs 
+            # that appear as data within the group of tables or table it describes. 
+            # URI template properties are not resolved against this base URL: 
+            # they are resolved against the URL of the table.
+            
+            if '@base' in context[1]:
+                
+                context_base_string=context[1]['@base']
+                
+                if not isinstance(context_base_string,str):
+                    
+                    message=f'"@base" property must be a string (not {type(context_base_string)}).'
+                    raise CSVWError(message)
+                
+                
+                
+                base_url=urllib.parse.urljoin(
+                    metadata_document_location,
+                    context_base_string
+                    )
+            else:
+                
+                base_url=metadata_document_location
+                
+                
+            # @language
+            # an atomic property that indicates the default language for the 
+            # values of natural language or string-valued common properties in 
+            # the metadata document; if present, its value must be a language 
+            # code [BCP47]. 
+            # The default is und.
+            
+            # NOTE
+            # Note that the @language property of the @context object, which 
+            # gives the default language used within the metadata file, is 
+            # distinct from the lang property on a description object, which 
+            # gives the language used in the data within a group of tables, 
+            # table, or column.
+                
+            if '@language' in context[1]:
+                
+                default_language=context[1]['@language']
+                
+                if not langcodes.tag_is_valid(default_language):
+            
+                    message=f'Property "@language" with value "{default_language}" ' 
+                    message+='is not a valid language code.'        
+            
+                    warnings.warn(message)
+                    
+                    default_language='und'
+            
+            else:
                 
                 default_language='und'
-        
-        else:
             
-            default_language='und'
-        
-        
-        # check only @base and @language are present
-        for k in context[1]:
             
-            if not k in ['@base','@language']:
+            # check only @base and @language are present
+            for k in context[1]:
                 
-                message='@context object can only contain properties "@base" and "@language". '
-                message+=f'Property "{k}" is not valid.'
-                
-                raise CSVWError(message)
+                if not k in ['@base','@language']:
+                    
+                    message='If an array, the second item of property "@context" '
+                    message+='can only contain properties "@base" and "@language". '
+                    message+=f'Property "{k}" is not valid.'
+                    
+                    raise CSVWError(message)
+        
+    else:
+            
+        message='"@context" property must be either the string "http://www.w3.org/ns/csvw" '
+        message+='or an array.'
+        
+        raise CSVWError(message)
+            
         
     
     return base_url, default_language
     
 
 #%% 5.3 Table Groups
+
+
+def validate_table_group_metadata(
+        metadata_document_location,
+        validate=True
+        ):
+    """High level function to validate a table group metadata file.
+    """
+    with open(metadata_document_location) as f:
+        metadata_table_dict=json.load(f)
+        
+    validate_and_normalize_metadata_table_group_dict(
+            metadata_table_dict,
+            metadata_document_location,
+            validate
+            )
+    
+    return metadata_table_dict
+    
+
 
 def validate_and_normalize_metadata_table_group_dict(
         metadata_table_group_dict,
@@ -8063,12 +8146,29 @@ def validate_and_normalize_metadata_table_group_dict(
             transformations=metadata_table_group_dict[k]
             
             # loop through transormations
-            for metadata_transformation_dict in transformations:
+            for i in range(len(transformations)):
+                
+                validate_object_property(
+                    transformations,
+                    i
+                    )
+                
+                referenced_url=\
+                    normalize_object_property(
+                        transformations,
+                        i,
+                        base_url
+                        )
+                
+                metadata_transformation_dict=transformations[i]
                 
                 validate_and_normalize_metadata_transformation_dict(
                         metadata_transformation_dict,
                         base_url,
                         default_language,
+                        has_top_level_property=True if referenced_url else False,
+                        is_referenced=True if referenced_url else False,
+                        metadata_document_location=referenced_url or metadata_document_location
                         )
             
         # @id
@@ -8583,6 +8683,24 @@ def annotate_table_group_dict(
         
 #%% 5.4 Tables
 
+def validate_table_metadata(
+        metadata_document_location,
+        validate=True
+        ):
+    """High level function to validate a table metadata file.
+    """
+    with open(metadata_document_location) as f:
+        metadata_table_dict=json.load(f)
+        
+    validate_and_normalize_metadata_table_dict(
+            metadata_table_dict,
+            metadata_document_location,
+            metadata_table_group_dict={},
+            )
+    
+    return metadata_table_dict
+
+
 def validate_and_normalize_metadata_table_dict(
         metadata_table_dict,
         metadata_document_location,
@@ -8597,21 +8715,23 @@ def validate_and_normalize_metadata_table_dict(
     
     # A table description is a JSON object that describes a table within a CSV file.    
     
-    if '@context' in metadata_table_dict:
-        
-        if has_top_level_property:
-        
-            base_url, default_language=\
-                validate_top_level_properties(
-                    metadata_table_dict,
-                    metadata_document_location
-                    )
-                
-        else:
+    if has_top_level_property:
+    
+        base_url, default_language=\
+            validate_top_level_properties(
+                metadata_table_dict,
+                metadata_document_location
+                )
             
+    else:
+        
+        if '@context' in metadata_table_dict:
+        
             message='Metadata table description should not contain a "@context" property. '
             
             raise CSVWError(message)
+        
+        
         
     # include tableSchema from table group, if not present
     if not 'tableSchema' in metadata_table_dict:
@@ -8676,11 +8796,14 @@ def validate_and_normalize_metadata_table_dict(
                     )
             
             validate_and_normalize_metadata_dialect_dict(
-                metadata_table_dict[k],
-                referenced_url,
-                base_url,
-                default_language
-                )
+                    metadata_table_dict[k],
+                    referenced_url or metadata_document_location,
+                    base_url,
+                    default_language,
+                    has_top_level_property=True if referenced_url else False,
+                    is_referenced=True if referenced_url else False,
+                    )
+             
                 
                 
         # notes
@@ -8818,15 +8941,32 @@ def validate_and_normalize_metadata_table_dict(
             transformations=metadata_table_dict[k]
             
             # loop through transformations
-            for metadata_transformation_dict in transformations:
+            for i in range(len(transformations)):
+                
+                validate_object_property(
+                    transformations,
+                    i
+                    )
+                
+                referenced_url=\
+                    normalize_object_property(
+                        transformations,
+                        i,
+                        base_url
+                        )
+                
+                metadata_transformation_dict=transformations[i]
                 
                 validate_and_normalize_metadata_transformation_dict(
                         metadata_transformation_dict,
                         base_url,
                         default_language,
+                        has_top_level_property=True if referenced_url else False,
+                        is_referenced=True if referenced_url else False,
+                        metadata_document_location=referenced_url or metadata_document_location
                         )
             
-        
+    
         # @id
         elif k=='@id':
     
@@ -9096,6 +9236,41 @@ def compare_table_descriptions(
             
 #%% 5.5 Schemas
 
+def validate_schema_metadata(
+        metadata_document_location,
+        validate=True
+        ):
+    """High level function to validate a schema metadata file.
+    """
+    try:
+        
+        with open(metadata_document_location) as f:
+            metadata_schema_dict=json.load(f)
+    
+    except FileNotFoundError:
+        
+        try:
+            
+            with urllib.request.urlopen(metadata_document_location) as f:
+                
+                metadata_schema_dict=json.load(f)
+                
+        except urllib.error.URLError:
+            
+            message='No file found - metadata document location is not a valid filepath or url.'
+            raise CSVWError(message)
+            
+            
+    
+    validate_and_normalize_metadata_schema_dict(
+            metadata_schema_dict,
+            metadata_document_location,
+            metadata_table_group_dict={},
+            )
+    
+    return metadata_schema_dict
+    
+
 def validate_and_normalize_metadata_schema_dict(
         metadata_schema_dict,
         metadata_document_location,
@@ -9116,23 +9291,24 @@ def validate_and_normalize_metadata_schema_dict(
     # about a schema, which describes the structure of a table. 
     # All the properties of a schema description are optional.
 
-    if '@context' in metadata_schema_dict:
+    
         
-        if has_top_level_property:
-        
-            base_url, default_language=\
-                validate_top_level_properties(
-                    metadata_schema_dict,
-                    metadata_document_location
-                    )
-                
-        else:
+    if has_top_level_property:
+    
+        base_url, default_language=\
+            validate_top_level_properties(
+                metadata_schema_dict,
+                metadata_document_location
+                )
             
-            message='Metadata table description should not contain a "@context" property. '
+    else:
+        
+        if '@context' in metadata_schema_dict:
+        
+            message='Metadata schema description should not contain a "@context" property. '
             
             raise CSVWError(message)
-
-    
+            
             
     for k in list(metadata_schema_dict):
         
@@ -11093,6 +11269,23 @@ def validate_common_property_value(
 
 #%% 5.9 Dialect Descriptions
 
+def validate_dialect_metadata(
+        metadata_document_location,
+        validate=True
+        ):
+    """High level function to validate a schema metadata file.
+    """
+    with open(metadata_document_location) as f:
+        metadata_dialect_dict=json.load(f)
+        
+    validate_and_normalize_metadata_schema_dict(
+            metadata_dialect_dict,
+            metadata_document_location,
+            )
+    
+    return metadata_dialect_dict
+
+
 def validate_and_normalize_metadata_dialect_dict(
         metadata_dialect_dict,
         metadata_document_location,
@@ -11135,22 +11328,21 @@ def validate_and_normalize_metadata_dialect_dict(
     # }        
 
 
-    if '@context' in metadata_dialect_dict:
-        
-        if has_top_level_property:
-        
-            base_url, default_language=\
-                validate_top_level_properties(
-                    metadata_dialect_dict,
-                    metadata_document_location
-                    )
-                
-        else:
+    if has_top_level_property:
+    
+        base_url, default_language=\
+            validate_top_level_properties(
+                metadata_dialect_dict,
+                metadata_document_location
+                )
             
-            message='Metadata dilect description should not contain a "@context" property. '
+    else:
+        
+        if '@context' in metadata_dialect_dict:
+        
+            message='Metadata dialect description should not contain a "@context" property. '
             
             raise CSVWError(message)
-
 
 
     for k in list(metadata_dialect_dict):
@@ -11485,14 +11677,55 @@ def validate_and_normalize_metadata_dialect_dict(
 
 #%% 5.10 Transformation Definitions
 
+def validate_transformation_metadata(
+        metadata_document_location,
+        validate=True
+        ):
+    """High level function to validate a schema metadata file.
+    """
+    with open(metadata_document_location) as f:
+        metadata_transformation_dict=json.load(f)
+        
+    validate_and_normalize_metadata_schema_dict(
+            metadata_transformation_dict,
+            base_url=None,
+            default_language=None,
+            has_top_level_property=True,
+            metadata_document_location=metadata_document_location
+            )
+    
+    return metadata_transformation_dict
+    
+
 def validate_and_normalize_metadata_transformation_dict(
         metadata_transformation_dict,
         base_url,
         default_language,
-        has_top_level_property=False
+        has_top_level_property=False,
+        metadata_document_location=None,
+        is_referenced=False
         ):
     """
     """
+    
+    if has_top_level_property:
+    
+        base_url, default_language=\
+            validate_top_level_properties(
+                metadata_transformation_dict,
+                metadata_document_location
+                )
+            
+    else:
+        
+        if '@context' in metadata_transformation_dict:
+        
+            message='Metadata transformation description should not contain a "@context" property. '
+            
+            raise CSVWError(message)
+    
+    
+    
     # Transformation definitions must have the following properties:
 
     for k in list(metadata_transformation_dict):        
@@ -11695,6 +11928,16 @@ def validate_and_normalize_metadata_transformation_dict(
         raise CSVWError(message)
     
   
+    #
+    if is_referenced:
+        
+        metadata_transformation_dict.remove('@context')
+        
+        if not '@id' in metadata_transformation_dict:
+            
+            metadata_transformation_dict['@id']=metadata_document_location
+  
+    
     
     
     

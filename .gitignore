@@ -2,6 +2,7 @@
 _dev/
 _github_w3c_csvw_tests/
 _old/
+_data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

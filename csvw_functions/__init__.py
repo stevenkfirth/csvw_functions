@@ -16,6 +16,15 @@ from .csvw_functions import CSVWError
 
 from .csvw_functions import CSVWWarning
 
+from .csvw_functions import validate_table_group_metadata
+
+from .csvw_functions import validate_table_metadata
+
+from .csvw_functions import validate_schema_metadata
+
+from .csvw_functions import validate_dialect_metadata
+
+from .csvw_functions import validate_transformation_metadata
 
 
 

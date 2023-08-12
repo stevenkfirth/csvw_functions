@@ -1,0 +1,11 @@
+{
+    "@context": [
+        "http://www.w3.org/ns/csvw",
+        "abc"
+    ],
+    "tables": [
+        {
+            "url": "temp.csv"
+        }
+    ]
+}
