@@ -29,7 +29,7 @@ class EXTRA(unittest.TestCase):
         print(len(d))
         
         
-    def _test_download_table_group(self):
+    def test_download_table_group(self):
         ""
         
         fp=r'C:\Users\cvskf\OneDrive - Loughborough University\_Git\building-energy\ogp_functions\ogp_functions\ogp_tables-metadata.json'
@@ -44,7 +44,7 @@ class EXTRA(unittest.TestCase):
         
         csvw_functions_extra.import_table_group_to_sqlite(
             '_data/ogp_tables-metadata.json',
-            _reload_all_database_tables=True
+            #_reload_all_database_tables=True
             )
         
         
