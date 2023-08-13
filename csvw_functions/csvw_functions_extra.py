@@ -13,7 +13,199 @@ import os
 import json
 import urllib.request
 import urllib.parse
+import sqlite3
+import subprocess
 
+
+def import_table_group_to_sqlite(
+        metadata_document_location,
+        data_folder='_data',
+        database_name='data.sqlite',
+        verbose=True,
+        _reload_all_database_tables=False
+        ):
+    """
+    """
+    # create data_folder if it doesn't exist
+    if not os.path.exists(data_folder):
+        os.makedirs(data_folder)
+        
+    # set database fp
+    fp_database=os.path.join(data_folder,database_name)
+    
+    # get normalised metadata_table_group_dict
+    metadata_table_group_dict = \
+        csvw_functions.validate_table_group_metadata(
+            metadata_document_location
+            )
+    print(metadata_table_group_dict)
+    
+    for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
+        
+        table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/table_name']['@value']
+        
+        if _reload_all_database_tables or \
+            not _check_if_table_exists_in_database(
+                    fp_database, 
+                    table_name
+                    ):
+        
+            # import table data to database
+            _import_table_to_sqlite(
+                    metadata_table_dict,
+                    metadata_document_location,
+                    fp_database,
+                    verbose=verbose
+                    )
+    
+    
+def _import_table_to_sqlite(
+        metadata_table_dict,
+        metadata_document_location,
+        fp_database,
+        verbose=True
+        ):
+    """
+    """
+    """Creates a table in the sqlite database.
+    
+    Replaces any existing table.
+    
+    """
+    
+    # get info for importing
+    table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/table_name']['@value']
+    print('table_name:',table_name)
+    fp_csv=metadata_table_dict['url']
+    print('fp_csv:', fp_csv)
+    
+    
+    # drop table in database
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        query=f'DROP TABLE IF EXISTS "{table_name}";'
+        print(query)
+        c.execute(query)
+        conn.commit()
+    
+    # create query
+    datatype_map={
+    'integer':'INTEGER',
+    'decimal':'REAL'
+    }
+    query=f'CREATE TABLE "{table_name}" ('
+    for column_dict in metadata_table_dict['tableSchema']['columns']:
+        name=column_dict['name']
+        datatype=datatype_map.get(column_dict['datatype']['base'],'TEXT')
+        query+=f"{name} {datatype}"
+        query+=", "
+    query=query[:-2]
+    query+=');'
+    
+    if verbose:
+        print('---QUERY TO CREATE TABLE---')
+        print(query)
+    
+    # create empty table in database
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        c.execute(query)
+        conn.commit()
+        
+    # create indexes
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        for column_dict in metadata_table_dict['tableSchema']['columns']:
+            column_name=column_dict['name']
+            setindex=column_dict.get('https://purl.org/berg/csvw_functions/vocab/sqlsetindex',False)
+            if setindex:
+                index_name=f'{table_name}_{column_name}'
+                query=f'CREATE INDEX "{index_name}" ON "{table_name}"("{column_name}")'
+                if verbose:
+                    print(query)
+                c.execute(query)
+                conn.commit()
+                
+                
+    # import data into table
+    fp_database2=fp_database.replace('\\','\\\\')
+    fp_csv2=fp_csv.replace('\\','\\\\')
+    command=f'sqlite3 {fp_database2} -cmd ".mode csv" ".import --skip 1 {fp_csv2} {table_name}"'
+    if verbose:
+        print('---COMMAND LINE TO IMPORT DATA---')
+        print(command)
+    subprocess.run(command)
+    if verbose:
+        print('Number of rows after import: ', _get_row_count_in_database_table(fp_database,table_name))
+    
+    
+def _check_if_table_exists_in_database(
+        fp_database,
+        table_name
+        ):
+    ""
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        query=f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_name}';"
+        return True if c.execute(query).fetchall()[0][0] else False
+    
+    
+    
+def _get_row_count_in_database_table(
+        fp_database,
+        table_name,
+        column_name='*'
+        ):
+    """Gets number of rows in table
+    
+    """
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        query=f'SELECT COUNT({column_name}) FROM "{table_name}"'
+        return c.execute(query).fetchone()[0]
+    
+    
+    
+
+
+
+def download_table_group(
+        metadata_document_location,
+        data_folder='_data'
+        ):
+    """
+    """
+
+    # create data_folder if it doesn't exist
+    if not os.path.exists(data_folder):
+        os.makedirs(data_folder)
+        
+    # get normalised metadata_table_group_dict
+    metadata_table_group_dict = \
+        csvw_functions.validate_table_group_metadata(
+            metadata_document_location
+            )
+    print(metadata_table_group_dict)
+    
+    for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
+        
+        # download table
+        table_name,fp_csv,metadata_table_dict=\
+            _download_table(
+                metadata_table_dict,
+                data_folder,
+                )
+    
+        # update metadata_table_dict in metadata_table_group_dict
+        metadata_table_group_dict['tables'][i]=metadata_table_dict
+        
+    # save updated metadata_table_group_dict
+    
+    fp_metadata=os.path.join(data_folder,os.path.basename(metadata_document_location))
+    with open(fp_metadata, 'w') as f:
+        json.dump(metadata_table_group_dict,f,indent=4)
+        
+        
 
 def download_table(
         metadata_document_location,
@@ -26,18 +218,6 @@ def download_table(
     if not os.path.exists(data_folder):
         
         os.makedirs(data_folder)
-        
-    # # create download log if it doesn't exist
-    # fp_download_log=os.path.join(data_folder,'__download_log__.json')
-    
-    # if not os.path.exists(fp_download_log):
-        
-    #     with open(fp_download_log, 'w') as f:
-    #         json.dump([],f)
-            
-    # # get download log
-    # with open(fp_download_log) as f:
-    #     download_log_json=json.load(f)
     
     # get normalised metadata_table_dict
     metadata_table_dict = \
@@ -47,20 +227,20 @@ def download_table(
     print(metadata_table_dict)
     
     # download table
-    table_name,fp_csv=\
+    table_name,fp_csv,metadata_table_dict=\
         _download_table(
             metadata_table_dict,
             data_folder,
-            # download_log_json,
-            # fp_download_log
             )
-        
-    # update and save metadata
+    
+    # save updated metadata_table_dict
     fp_metadata=f'{fp_csv}-metadata.json'
-    metadata_table_dict['url']=f'{table_name}.csv'
     with open(fp_metadata, 'w') as f:
         json.dump(metadata_table_dict,f,indent=4)
     
+        
+    
+        
     
 def _download_table(
         metadata_table_dict,
@@ -138,16 +318,11 @@ def _download_table(
                     url=metadata_url, 
                     filename=fp_metadata
                     )
-                
-            # # add to log and save
-            # download_log_json.append(
-            #     dict(table_name=table_name)
-            #     )
-            # with open(fp_download_log,'w') as f:
-            #     json.dump(download_log_json,f,indent=4)
             
-            
-    return table_name,fp_csv
+        # update metadata_table_dict
+        metadata_table_dict['url']=f'{table_name}.csv'
+        
+    return table_name,fp_csv,metadata_table_dict
             
             
         
