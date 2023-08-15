@@ -8,6 +8,7 @@ import unittest
 
 import csvw_functions
 from csvw_functions import csvw_functions_extra
+import os
 
 
 
@@ -24,7 +25,7 @@ class EXTRA(unittest.TestCase):
             )
         
         d=csvw_functions.create_annotated_table_group(
-            '_data/Local_Authority_District_to_Region_December_2022.csv-metadata.json'   
+            '_data\Local_Authority_District_to_Region_December_2022.csv-metadata.json'   
             )
         print(len(d))
         
@@ -43,7 +44,7 @@ class EXTRA(unittest.TestCase):
         ""
         
         csvw_functions_extra.import_table_group_to_sqlite(
-            '_data/ogp_tables-metadata.json',
+            '_data\ogp_tables-metadata.json',
             #_reload_all_database_tables=True
             )
         

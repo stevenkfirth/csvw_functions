@@ -39,11 +39,11 @@ def import_table_group_to_sqlite(
         csvw_functions.validate_table_group_metadata(
             metadata_document_location
             )
-    print(metadata_table_group_dict)
+    #print(metadata_table_group_dict)
     
     for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
         
-        table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/table_name']['@value']
+        table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']
         
         if _reload_all_database_tables or \
             not _check_if_table_exists_in_database(
@@ -115,11 +115,12 @@ def _import_table_to_sqlite(
     """
     
     # get info for importing
-    table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/table_name']['@value']
+    table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']
     print('table_name:',table_name)
-    fp_csv=metadata_table_dict['url']
+    url=metadata_table_dict['url']
+    print('url',url)
+    fp_csv=os.path.join(os.path.dirname(metadata_document_location),url)
     print('fp_csv:', fp_csv)
-    
     
     # drop table in database
     with sqlite3.connect(fp_database) as conn:
@@ -212,7 +213,8 @@ def _get_row_count_in_database_table(
 
 def download_table_group(
         metadata_document_location,
-        data_folder='_data'
+        data_folder='_data',
+        verbose=True
         ):
     """
     """
@@ -231,7 +233,7 @@ def download_table_group(
     for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
         
         # download table
-        table_name,fp_csv,metadata_table_dict=\
+        fp_csv,metadata_table_dict=\
             _download_table(
                 metadata_table_dict,
                 data_folder,
@@ -246,7 +248,9 @@ def download_table_group(
     with open(fp_metadata, 'w') as f:
         json.dump(metadata_table_group_dict,f,indent=4)
         
-        
+    return fp_metadata
+    
+    
 
 def download_table(
         metadata_document_location,
@@ -265,10 +269,10 @@ def download_table(
         csvw_functions.validate_table_metadata(
             metadata_document_location
             )
-    print(metadata_table_dict)
+    #print(metadata_table_dict)
     
     # download table
-    table_name,fp_csv,metadata_table_dict=\
+    fp_csv,metadata_table_dict=\
         _download_table(
             metadata_table_dict,
             data_folder,
@@ -293,8 +297,8 @@ def _download_table(
     """
     
     # get info for downloading
-    table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/table_name']['@value']
-    print('table_name:',table_name)
+    csv_file_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/csv_file_name']['@value']
+    print('csv_file_name:',csv_file_name)
     csv_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/csv_download_url',{'@value':None})['@value']
     print('csv_download_url:', csv_download_url)
     zip_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/zip_download_url',{'@value':None})['@value']
@@ -308,8 +312,8 @@ def _download_table(
     metadata_file_suffix=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/metadata_file_suffix',{'@value':'-metadata.txt'})['@value']
     print('metadata_file_suffix:',metadata_file_suffix)
     
-    fp_csv=os.path.join(data_folder, f'{table_name}.csv')
-    print('fp_csv:', fp_csv)
+    fp_csv=os.path.join(data_folder,csv_file_name)
+    print('fp_csv',fp_csv)
     if zip_filename is None:
         fp_zip = None
     else:
@@ -367,9 +371,9 @@ def _download_table(
                 )
             
     # update metadata_table_dict
-    metadata_table_dict['url']=f'{table_name}.csv'
+    metadata_table_dict['url']=csv_file_name
         
-    return table_name,fp_csv,metadata_table_dict
+    return fp_csv,metadata_table_dict
             
             
         
