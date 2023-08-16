@@ -137,9 +137,10 @@ def _import_table_to_sqlite(
     }
     query=f'CREATE TABLE "{table_name}" ('
     for column_dict in metadata_table_dict['tableSchema']['columns']:
+        #print(column_dict)
         name=column_dict['name']
         datatype=datatype_map.get(column_dict['datatype']['base'],'TEXT')
-        query+=f"{name} {datatype}"
+        query+=f'"{name}" {datatype}'
         query+=", "
     query=query[:-2]
     query+=');'
