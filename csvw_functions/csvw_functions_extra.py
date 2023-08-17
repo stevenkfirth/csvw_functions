@@ -143,6 +143,19 @@ def _import_table_to_sqlite(
         query+=f'"{name}" {datatype}'
         query+=", "
     query=query[:-2]
+    
+    if 'primaryKey' in metadata_table_dict['tableSchema']:
+        
+        pk=metadata_table_dict['tableSchema']['primaryKey']
+        if isinstance(pk,str):
+            pk=[pk]
+        query+=', PRIMARY KEY ('
+        for x in pk:
+            query+=f'"{x}"'
+            query+=", "
+        query=query[:-2]
+        query+=') '
+    
     query+=');'
     
     if verbose:
@@ -229,7 +242,8 @@ def download_table_group(
         csvw_functions.validate_table_group_metadata(
             metadata_document_location
             )
-    print(metadata_table_group_dict)
+    if verbose:
+        print(metadata_table_group_dict)
     
     for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
         
@@ -238,6 +252,7 @@ def download_table_group(
             _download_table(
                 metadata_table_dict,
                 data_folder,
+                verbose=verbose
                 )
     
         # update metadata_table_dict in metadata_table_group_dict
@@ -255,7 +270,8 @@ def download_table_group(
 
 def download_table(
         metadata_document_location,
-        data_folder='_data'
+        data_folder='_data',
+        verbose=True
         ):
     """
     """
@@ -277,6 +293,7 @@ def download_table(
         _download_table(
             metadata_table_dict,
             data_folder,
+            verbose=verbose
             )
     
     # save updated metadata_table_dict
@@ -291,35 +308,43 @@ def download_table(
 def _download_table(
         metadata_table_dict,
         data_folder,
-        # download_log_json,
-        # fp_download_log
+        verbose
         ):
     """
     """
     
     # get info for downloading
     csv_file_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/csv_file_name']['@value']
-    print('csv_file_name:',csv_file_name)
+    if verbose:
+        print('csv_file_name:',csv_file_name)
     csv_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/csv_download_url',{'@value':None})['@value']
-    print('csv_download_url:', csv_download_url)
+    if verbose:
+        print('csv_download_url:', csv_download_url)
     zip_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/zip_download_url',{'@value':None})['@value']
-    print('zip_download_url',zip_download_url)
+    if verbose:
+        print('zip_download_url',zip_download_url)
     zip_filename=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/zip_filename',{'@value':None})['@value']
-    print('zip_filename',zip_filename)
+    if verbose:
+        print('zip_filename',zip_filename)
     csv_zip_extract_path=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/csv_zip_extract_path',{'@value':None})['@value']
-    print('csv_zip_extract_path',csv_zip_extract_path)
+    if verbose:
+        print('csv_zip_extract_path',csv_zip_extract_path)
     metadata_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/metadata_download_url',{'@value':None})['@value']
-    print('metadata_url:',metadata_url)
+    if verbose:
+        print('metadata_url:',metadata_url)
     metadata_file_suffix=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/metadata_file_suffix',{'@value':'-metadata.txt'})['@value']
-    print('metadata_file_suffix:',metadata_file_suffix)
+    if verbose:
+        print('metadata_file_suffix:',metadata_file_suffix)
     
     fp_csv=os.path.join(data_folder,csv_file_name)
-    print('fp_csv',fp_csv)
+    if verbose:
+        print('fp_csv',fp_csv)
     if zip_filename is None:
         fp_zip = None
     else:
         fp_zip=os.path.join(data_folder, zip_filename)
-    print('fp_zip:', fp_zip)
+    if verbose:
+        print('fp_zip:', fp_zip)
     
     if not csv_download_url is None:
         
@@ -336,7 +361,8 @@ def _download_table(
         # download zip
         if not os.path.exists(fp_zip):
             
-            print('downloading zip file...')
+            if verbose:
+                print('downloading zip file...')
             urllib.request.urlretrieve(
                 url=zip_download_url, 
                 filename=fp_zip
@@ -345,7 +371,8 @@ def _download_table(
         # extract csv
         if not os.path.exists(fp_csv):
             
-            print('extracting csv file...')
+            if verbose:
+                print('extracting csv file...')
             with zipfile.ZipFile(fp_zip) as z:
     
                 with open(fp_csv, 'wb') as f:
