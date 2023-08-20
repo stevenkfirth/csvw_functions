@@ -7316,7 +7316,7 @@ def validate_column_reference_property(
         
         warnings.warn(message)
         
-        metadata_obj_dict.remove(property_name)
+        metadata_obj_dict.pop(property_name)
         
         return
     
@@ -7330,7 +7330,7 @@ def validate_column_reference_property(
         
         warnings.warn(message)
         
-        metadata_obj_dict.remove(property_name)
+        metadata_obj_dict.pop(property_name)
         
         return
     
@@ -7345,7 +7345,7 @@ def validate_column_reference_property(
         
         warnings.warn(message)
         
-        metadata_obj_dict.remove(property_name)
+        metadata_obj_dict.pop(property_name)
         
         return
         
@@ -11667,7 +11667,7 @@ def validate_and_normalize_metadata_dialect_dict(
     #
     if is_referenced:
         
-        metadata_dialect_dict.remove('@context')
+        metadata_dialect_dict.pop('@context')   # changed from .remove 18-08-2023
         
         if not '@id' in metadata_dialect_dict:
             
@@ -11931,7 +11931,7 @@ def validate_and_normalize_metadata_transformation_dict(
     #
     if is_referenced:
         
-        metadata_transformation_dict.remove('@context')
+        metadata_transformation_dict.pop('@context')  # changed from .remove 18-08-2023
         
         if not '@id' in metadata_transformation_dict:
             

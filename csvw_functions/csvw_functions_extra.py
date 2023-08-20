@@ -41,23 +41,46 @@ def import_table_group_to_sqlite(
             )
     #print(metadata_table_group_dict)
     
+    import_cache=[]  # list of imported table names
+    
     for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
         
         table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']
+        #print('table_name',table_name)
+        #print('import_cache',import_cache)
         
-        if _reload_all_database_tables or \
-            not _check_if_table_exists_in_database(
-                    fp_database, 
-                    table_name
-                    ):
         
-            # import table data to database
-            _import_table_to_sqlite(
-                    metadata_table_dict,
-                    metadata_document_location,
-                    fp_database,
-                    verbose=verbose
-                    )
+        if table_name in import_cache:
+            append=True
+        else:
+            append=False
+        #print('append',append)
+        
+        # the case for not importing a table
+        if _check_if_table_exists_in_database(
+                fp_database, 
+                table_name
+                ):
+            
+            if not _reload_all_database_tables:
+                
+                if not append:
+                
+                    continue  # don't import as it already exists, we are not
+                              # reimporting al tables and this table is not
+                              # being appended to another
+        
+        
+        # import table data to database
+        _import_table_to_sqlite(
+                metadata_table_dict,
+                metadata_document_location,
+                fp_database,
+                append=append,
+                verbose=verbose
+                )
+        
+        import_cache.append(table_name)
             
 
 def import_table_to_sqlite(
@@ -85,8 +108,9 @@ def import_table_to_sqlite(
     
     table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/table_name']['@value']
         
-    if _reload_database_table or \
-        not _check_if_table_exists_in_database(
+    
+    if _reload_database_table \
+        or not _check_if_table_exists_in_database(
                 fp_database, 
                 table_name
                 ):
@@ -104,6 +128,7 @@ def _import_table_to_sqlite(
         metadata_table_dict,
         metadata_document_location,
         fp_database,
+        append=False,  # append to existing table
         verbose=True
         ):
     """
@@ -116,73 +141,79 @@ def _import_table_to_sqlite(
     
     # get info for importing
     table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']
-    print('table_name:',table_name)
+    if verbose:
+        print('table_name:',table_name)
     url=metadata_table_dict['url']
-    print('url',url)
+    if verbose:
+        print('url',url)
     fp_csv=os.path.join(os.path.dirname(metadata_document_location),url)
-    print('fp_csv:', fp_csv)
+    if verbose:
+        print('fp_csv:', fp_csv)
     
-    # drop table in database
-    with sqlite3.connect(fp_database) as conn:
-        c = conn.cursor()
-        query=f'DROP TABLE IF EXISTS "{table_name}";'
-        print(query)
-        c.execute(query)
-        conn.commit()
+    if not append:
     
-    # create query
-    datatype_map={
-    'integer':'INTEGER',
-    'decimal':'REAL'
-    }
-    query=f'CREATE TABLE "{table_name}" ('
-    for column_dict in metadata_table_dict['tableSchema']['columns']:
-        #print(column_dict)
-        name=column_dict['name']
-        datatype=datatype_map.get(column_dict['datatype']['base'],'TEXT')
-        query+=f'"{name}" {datatype}'
-        query+=", "
-    query=query[:-2]
+        # drop table in database    
+        with sqlite3.connect(fp_database) as conn:
+            c = conn.cursor()
+            query=f'DROP TABLE IF EXISTS "{table_name}";'
+            if verbose:
+                print(query)
+            c.execute(query)
+            conn.commit()
     
-    if 'primaryKey' in metadata_table_dict['tableSchema']:
-        
-        pk=metadata_table_dict['tableSchema']['primaryKey']
-        if isinstance(pk,str):
-            pk=[pk]
-        query+=', PRIMARY KEY ('
-        for x in pk:
-            query+=f'"{x}"'
+        # create query
+        datatype_map={
+        'integer':'INTEGER',
+        'decimal':'REAL'
+        }
+        query=f'CREATE TABLE "{table_name}" ('
+        for column_dict in metadata_table_dict['tableSchema']['columns']:
+            #print(column_dict)
+            name=column_dict['name']
+            datatype=datatype_map.get(column_dict['datatype']['base'],'TEXT')
+            query+=f'"{name}" {datatype}'
             query+=", "
         query=query[:-2]
-        query+=') '
-    
-    query+=');'
-    
-    if verbose:
-        print('---QUERY TO CREATE TABLE---')
-        print(query)
-    
-    # create empty table in database
-    with sqlite3.connect(fp_database) as conn:
-        c = conn.cursor()
-        c.execute(query)
-        conn.commit()
         
-    # create indexes
-    with sqlite3.connect(fp_database) as conn:
-        c = conn.cursor()
-        for column_dict in metadata_table_dict['tableSchema']['columns']:
-            column_name=column_dict['name']
-            setindex=column_dict.get('https://purl.org/berg/csvw_functions/vocab/sqlsetindex',False)
-            if setindex:
-                index_name=f'{table_name}_{column_name}'
-                query=f'CREATE INDEX "{index_name}" ON "{table_name}"("{column_name}")'
-                if verbose:
-                    print(query)
-                c.execute(query)
-                conn.commit()
-                
-                
+        if 'primaryKey' in metadata_table_dict['tableSchema']:
+            
+            pk=metadata_table_dict['tableSchema']['primaryKey']
+            if isinstance(pk,str):
+                pk=[pk]
+            query+=', PRIMARY KEY ('
+            for x in pk:
+                query+=f'"{x}"'
+                query+=", "
+            query=query[:-2]
+            query+=') '
+        
+        query+=');'
+        
+        if verbose:
+            print('---QUERY TO CREATE TABLE---')
+            print(query)
+        
+        # create empty table in database
+        with sqlite3.connect(fp_database) as conn:
+            c = conn.cursor()
+            c.execute(query)
+            conn.commit()
+            
+        # create indexes
+        with sqlite3.connect(fp_database) as conn:
+            c = conn.cursor()
+            for column_dict in metadata_table_dict['tableSchema']['columns']:
+                column_name=column_dict['name']
+                setindex=column_dict.get('https://purl.org/berg/csvw_functions/vocab/sqlsetindex',False)
+                if setindex:
+                    index_name=f'{table_name}_{column_name}'
+                    query=f'CREATE INDEX "{index_name}" ON "{table_name}"("{column_name}")'
+                    if verbose:
+                        print(query)
+                    c.execute(query)
+                    conn.commit()
+                    
+                    
     # import data into table
     fp_database2=fp_database.replace('\\','\\\\')
     fp_csv2=fp_csv.replace('\\','\\\\')
