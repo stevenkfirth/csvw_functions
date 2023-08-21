@@ -7940,16 +7940,32 @@ def validate_table_group_metadata(
         ):
     """High level function to validate a table group metadata file.
     """
-    with open(metadata_document_location) as f:
-        metadata_table_dict=json.load(f)
+    try:
         
+        with open(metadata_document_location) as f:
+            metadata_table_group_dict=json.load(f)
+    
+    except (FileNotFoundError, OSError):
+        
+        try:
+            
+            with urllib.request.urlopen(metadata_document_location) as f:
+                
+                metadata_table_group_dict=json.load(f)
+                
+        except urllib.error.URLError:
+            
+            message='No file found - metadata document location is not a valid filepath or url.'
+            raise CSVWError(message)
+            
+            
     validate_and_normalize_metadata_table_group_dict(
-            metadata_table_dict,
+            metadata_table_group_dict,
             metadata_document_location,
             validate
             )
     
-    return metadata_table_dict
+    return metadata_table_group_dict
     
 
 
@@ -8689,8 +8705,24 @@ def validate_table_metadata(
         ):
     """High level function to validate a table metadata file.
     """
-    with open(metadata_document_location) as f:
-        metadata_table_dict=json.load(f)
+    try:
+        
+        with open(metadata_document_location) as f:
+            metadata_table_dict=json.load(f)
+    
+    except (FileNotFoundError, OSError):
+        
+        try:
+            
+            with urllib.request.urlopen(metadata_document_location) as f:
+                
+                metadata_table_dict=json.load(f)
+                
+        except urllib.error.URLError:
+            
+            message='No file found - metadata document location is not a valid filepath or url.'
+            raise CSVWError(message)
+        
         
     validate_and_normalize_metadata_table_dict(
             metadata_table_dict,
@@ -11275,9 +11307,25 @@ def validate_dialect_metadata(
         ):
     """High level function to validate a schema metadata file.
     """
-    with open(metadata_document_location) as f:
-        metadata_dialect_dict=json.load(f)
+    try:
         
+        with open(metadata_document_location) as f:
+            metadata_dialect_dict=json.load(f)
+    
+    except (FileNotFoundError, OSError):
+        
+        try:
+            
+            with urllib.request.urlopen(metadata_document_location) as f:
+                
+                metadata_dialect_dict=json.load(f)
+                
+        except urllib.error.URLError:
+            
+            message='No file found - metadata document location is not a valid filepath or url.'
+            raise CSVWError(message)
+    
+    
     validate_and_normalize_metadata_schema_dict(
             metadata_dialect_dict,
             metadata_document_location,
@@ -11683,8 +11731,24 @@ def validate_transformation_metadata(
         ):
     """High level function to validate a schema metadata file.
     """
-    with open(metadata_document_location) as f:
-        metadata_transformation_dict=json.load(f)
+    try:
+        
+        with open(metadata_document_location) as f:
+            metadata_transformation_dict=json.load(f)
+    
+    except (FileNotFoundError, OSError):
+        
+        try:
+            
+            with urllib.request.urlopen(metadata_document_location) as f:
+                
+                metadata_transformation_dict=json.load(f)
+                
+        except urllib.error.URLError:
+            
+            message='No file found - metadata document location is not a valid filepath or url.'
+            raise CSVWError(message)
+        
         
     validate_and_normalize_metadata_schema_dict(
             metadata_transformation_dict,
@@ -11939,8 +12003,7 @@ def validate_and_normalize_metadata_transformation_dict(
   
     
     
-    
-    
+        
 #%% 5.11 Datatypes
 
 
