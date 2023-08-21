@@ -10,33 +10,20 @@ import csvw_functions
 from csvw_functions import csvw_functions_extra
 import os
 
-
+fp_table_group_metadata='extra_tables-metadata.json'
 
 class EXTRA(unittest.TestCase):
     ""
-    
-    def _test_download_table(self):
-        ""
-        
-        fp=r'C:\Users\cvskf\OneDrive - Loughborough University\_Git\building-energy\ogp_functions\ogp_functions\Local_Authority_District_to_Region_(December_2022)_Lookup_in_England.csv-schema-metadata.json'
-        
-        csvw_functions_extra.download_table(
-            fp
-            )
-        
-        d=csvw_functions.create_annotated_table_group(
-            '_data\Local_Authority_District_to_Region_December_2022.csv-metadata.json'   
-            )
-        print(len(d))
         
         
     def test_download_table_group(self):
         ""
         
-        fp=r'C:\Users\cvskf\OneDrive - Loughborough University\_Git\building-energy\ogp_functions\ogp_functions\ogp_tables-metadata.json'
-        
         csvw_functions_extra.download_table_group(
-            fp
+            fp_table_group_metadata,
+            data_folder='_data',
+            #overwrite_existing_files=True,
+            #verbose=True
             )
         
         
@@ -44,8 +31,11 @@ class EXTRA(unittest.TestCase):
         ""
         
         csvw_functions_extra.import_table_group_to_sqlite(
-            '_data\ogp_tables-metadata.json',
-            #_reload_all_database_tables=True
+            '_data\extra_tables-metadata.json',
+            data_folder='_data',
+            database_name='data.sqlite',
+            #remove_existing_tables=True,
+            verbose=True
             )
         
         
