@@ -9247,7 +9247,7 @@ def validate_schema_metadata(
         with open(metadata_document_location) as f:
             metadata_schema_dict=json.load(f)
     
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         
         try:
             

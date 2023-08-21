@@ -331,8 +331,12 @@ def _get_import_info(
     fp_csv=os.path.join(os.path.dirname(metadata_document_location),url)
     if verbose:
         print('fp_csv:', fp_csv)
+    remove_existing_table=metadata_table_dict.get(
+        "https://purl.org/berg/csvw_functions/vocab/sql_remove_existing_table",
+        False
+        )
     
-    return table_name, fp_csv
+    return table_name, fp_csv, remove_existing_table
     
     
 def _get_row_count_in_database_table(
@@ -392,22 +396,22 @@ def import_table_group_to_sqlite(
     #print(metadata_table_group_dict)
     
     # remove existing tables if requested
-    if remove_existing_tables:
+    for metadata_table_dict in metadata_table_group_dict['tables']:
+    
+        # get import info
+        table_name, fp_csv, remove_existing_table = _get_import_info(
+                metadata_table_dict,
+                metadata_document_location,
+                verbose=verbose,
+                ) 
+            
+        if _check_if_table_exists_in_database(
+            fp_database, 
+            table_name
+            ):
+            
+            if remove_existing_table or remove_existing_tables:
 
-        for metadata_table_dict in metadata_table_group_dict['tables']:
-        
-            # get import info
-            table_name, fp_csv = _get_import_info(
-                    metadata_table_dict,
-                    metadata_document_location,
-                    verbose=verbose,
-                    ) 
-                
-            if _check_if_table_exists_in_database(
-                fp_database, 
-                table_name
-                ):
-                
                 _drop_table(
                     fp_database,
                     table_name
@@ -417,7 +421,7 @@ def import_table_group_to_sqlite(
     for metadata_table_dict in metadata_table_group_dict['tables']:
         
         # get import info
-        table_name, fp_csv = _get_import_info(
+        table_name, fp_csv, remove_existing_table = _get_import_info(
                 metadata_table_dict,
                 metadata_document_location,
                 verbose=verbose,
