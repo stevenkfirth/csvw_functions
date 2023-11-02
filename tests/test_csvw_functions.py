@@ -1988,6 +1988,7 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         
         warnings.filterwarnings("always",category=UserWarning)  # warnings always printed out
     
+    
     def test_W3C_CSVW_RDF_test_cases(self):
         ""
         
@@ -2135,7 +2136,6 @@ class Test_W3C_CSVW_Test_Cases(unittest.TestCase):
         
         warnings.filterwarnings("always",category=UserWarning)  # warnings always printed out
         
-    
     
     def test_W3C_CSVW_JSON_test_cases(self):
         ""
