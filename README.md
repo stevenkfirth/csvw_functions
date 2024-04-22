@@ -38,9 +38,7 @@ The package is written as pure Python and passes all the required tests in the [
 
 Source code available on GitHub here: https://github.com/stevenkfirth/csvw_functions
 
-Install from GitHub using command: `pip install git+https://github.com/stevenkfirth/csvw_functions` 
-
-The csvw_functions package uses the following external packages: *requests, json, os, urllib, warnings, hyperlink, uritemplate, langcodes, datetime, re, uuid, base64, dateutil, copy*. These packages are available as part of the Python standard library, part of the Anaconda distribution (recommended) and / or will need to be installed separately. 
+Install from PyPi using command: `pip install csvw_functions` 
 
 ## Issues, Questions?
 

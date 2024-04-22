@@ -1,3 +1,30 @@
 [build-system]
 requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "csvw_functions"
+version = "0.0.0"
+authors = [
+  { name="Steven Firth", email="s.k.firth@lboro.ac.uk" },
+]
+description = "Python functions for working with CSV on the Web datasets"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "requests>=2.31.0",
+  "hyperlink>=21.0.0",
+  "uritemplate>=4.1.1",
+  "langcodes>=3.3.0",
+  "python-dateutil>=2.8.2"
+]
+
+[project.urls]
+Homepage = "https://github.com/stevenkfirth/csvw_functions"
+Issues = "https://github.com/stevenkfirth/csvw_functions/issues"
+
